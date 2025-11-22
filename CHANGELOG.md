@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/rvanbaalen/SpreadPaper/compare/v1.0.1...v1.1.0) (2025-11-22)
+
+
+### Features
+
+* improve documentation and issue templates ([#3](https://github.com/rvanbaalen/SpreadPaper/issues/3)) ([eb6f7f7](https://github.com/rvanbaalen/SpreadPaper/commit/eb6f7f734e82f28374d77e9ae081c718a6542163))
+
 ## [1.0.1](https://github.com/rvanbaalen/SpreadPaper/compare/v1.0.0...v1.0.1) (2025-11-22)
 
 
