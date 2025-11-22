@@ -25,28 +25,56 @@ jobs:
           manifest-file: '.release-please-manifest.json'
 
   build-and-release:
-    name: Build and Upload DMG
+    name: Build App
     if: ${{ needs.release-please.outputs.release_created }}
     needs: [release-please]
-    runs-on: macos-latest  # Uses macOS 15 (Sequoia) with Xcode 16.x as of 2025
-    permissions:
-      contents: write
+    runs-on: macos-latest # Runs on the latest stable macOS (currently 14/15)
 
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Build app
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: 'latest-stable'
+
+      # 1. Archive the app (The Cleanest Build Method)
+      - name: Archive App
         run: |
-          xcodebuild -project SpreadPaper.xcodeproj \
+          xcodebuild archive \
+            -project SpreadPaper.xcodeproj \
             -scheme SpreadPaper \
             -configuration Release \
-            -derivedDataPath build \
-            -arch arm64 -arch x86_64 \
+            -destination "generic/platform=macOS" \
+            -archivePath "build/SpreadPaper.xcarchive" \
             CODE_SIGN_IDENTITY="-" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO
 
+      # 2. Export the .app from the Archive
+      - name: Export .app
+        run: |
+          # We copy the app out of the archive manually to avoid needing an exportOptions.plist
+          # for an unsigned/ad-hoc workflow.
+          mkdir -p "build/Payload"
+          cp -R "build/SpreadPaper.xcarchive/Products/Applications/SpreadPaper.app" "build/Payload/"
+
+      # 3. Fix Permissions & Force Ad-Hoc Signature
+      # This is critical to prevent "App is damaged" errors.
+      - name: Fix Permissions & Sign
+        run: |
+          cd build/Payload
+          chmod +x "SpreadPaper.app/Contents/MacOS/SpreadPaper"
+          codesign --force --deep --sign - "SpreadPaper.app"
+
+      # 4. Create ZIP (Recommended fallback for FOSS)
+      - name: Create ZIP
+        run: |
+          cd build/Payload
+          zip -r ../../SpreadPaper.zip SpreadPaper.app
+
+      # 5. Create DMG
       - name: Install create-dmg
         run: brew install create-dmg
 
@@ -61,12 +89,15 @@ jobs:
             --no-internet-enable \
             --skip-jenkins \
             "SpreadPaper.dmg" \
-            "build/Build/Products/Release/SpreadPaper.app"
+            "build/Payload/SpreadPaper.app"
 
-      - name: Upload DMG to release
-        uses: softprops/action-gh-release@v1
+      # 6. Upload Artifacts
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v2
         with:
-          files: SpreadPaper.dmg
+          files: |
+            SpreadPaper.dmg
+            SpreadPaper.zip
           tag_name: ${{ needs.release-please.outputs.tag_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
