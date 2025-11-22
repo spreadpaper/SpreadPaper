@@ -16,7 +16,7 @@
 
 ## What is SpreadPaper?
 
-SpreadPaper is a native macOS utility that lets you use a single high-resolution image as a wallpaper that seamlessly spans across all your connected monitors. No more dealing with separate wallpapers for each display or awkward cropping – just drag, position, and apply!
+SpreadPaper is a native macOS utility that lets you use a single high-resolution image as a wallpaper that seamlessly spans across all your connected monitors. No more dealing with separate wallpapers for each display or awkward cropping – just drag, position, and apply.
 
 Perfect for:
 - **Multi-monitor setups** with 2, 3, or more displays
