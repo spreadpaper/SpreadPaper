@@ -7,7 +7,7 @@
 
   [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
   [![macOS](https://img.shields.io/badge/macOS-26.0+-blue.svg)](https://www.apple.com/macos/)
-  [![GitHub release](https://img.shields.io/github/v/release/rvanbaalen/SpreadPaper)](https://github.com/rvanbaalen/SpreadPaper/releases/latest)
+  [![GitHub release](https://img.shields.io/github/v/release/spreadpaper/SpreadPaper)](https://github.com/spreadpaper/SpreadPaper/releases/latest)
 
   **Free • Open Source • Native macOS App**
 </div>
@@ -67,7 +67,7 @@ Perfect for:
 
 ## 📥 Download & Installation
 
-**[Download the latest version](https://github.com/rvanbaalen/SpreadPaper/releases/latest)**
+**[Download the latest version](https://github.com/spreadpaper/SpreadPaper/releases/latest)**
 
 Because SpreadPaper is a free, open-source project and not signed with a paid Apple Developer ID ($99/year), macOS Gatekeeper will flag it on the first launch. **This is normal behavior for FOSS apps.**
 
@@ -94,13 +94,13 @@ Because SpreadPaper is a free, open-source project and not signed with a paid Ap
 - Apple Silicon Mac
 - Multiple monitors (recommended, but works with single displays too)
 
-> **Note:** This project is compiled for and tested on macOS 26 with Apple Silicon. If you are using an older macOS version or Intel Mac and would like support, please [open a feature request](https://github.com/rvanbaalen/SpreadPaper/issues).
+> **Note:** This project is compiled for and tested on macOS 26 with Apple Silicon. If you are using an older macOS version or Intel Mac and would like support, please [open a feature request](https://github.com/spreadpaper/SpreadPaper/issues).
 
 ## Building from Source
 
 ```bash
 # Clone the repository
-git clone https://github.com/rvanbaalen/SpreadPaper.git
+git clone https://github.com/spreadpaper/SpreadPaper.git
 cd SpreadPaper
 
 # Open in Xcode
@@ -112,7 +112,7 @@ open SpreadPaper.xcodeproj
 ## Contributing
 
 Contributions are welcome! Feel free to:
-- Report bugs by [opening an issue](https://github.com/rvanbaalen/SpreadPaper/issues)
+- Report bugs by [opening an issue](https://github.com/spreadpaper/SpreadPaper/issues)
 - Suggest new features
 - Submit pull requests
 
@@ -123,5 +123,5 @@ SpreadPaper is free and open source software licensed under the [MIT License](LI
 ---
 
 <div align="center">
-  [Download](https://github.com/rvanbaalen/SpreadPaper/releases/latest) • [Report Bug](https://github.com/rvanbaalen/SpreadPaper/issues) • [Request Feature](https://github.com/rvanbaalen/SpreadPaper/issues)
+  [Download](https://github.com/spreadpaper/SpreadPaper/releases/latest) • [Report Bug](https://github.com/spreadpaper/SpreadPaper/issues) • [Request Feature](https://github.com/spreadpaper/SpreadPaper/issues)
 </div>
