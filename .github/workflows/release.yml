@@ -1,13 +1,36 @@
-name: Build and Release
+name: Release
 
 on:
-  release:
-    types: [created, published]
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
-  build:
+  release-please:
+    name: Create Release PR
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          config-file: 'release-please-config.json'
+          manifest-file: '.release-please-manifest.json'
+
+  build-and-release:
+    name: Build and Upload DMG
+    if: ${{ needs.release-please.outputs.release_created }}
+    needs: [release-please]
     runs-on: macos-latest  # Uses macOS 15 (Sequoia) with Xcode 16.x as of 2025
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout code
@@ -44,5 +67,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: SpreadPaper.dmg
+          tag_name: ${{ needs.release-please.outputs.tag_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
