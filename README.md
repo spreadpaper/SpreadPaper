@@ -24,6 +24,33 @@ Perfect for:
 - **Creative professionals** who want a cohesive desktop aesthetic
 - **Anyone** tired of macOS's limited multi-monitor wallpaper options
 
+## Screenshots
+
+<div align="center">
+  <img src=".github/assets/main-app-screenshot.png" alt="SpreadPaper Main Interface" width="800"/>
+  <p><em>Intuitive drag-and-drop interface with live preview of your wallpaper across all displays</em></p>
+</div>
+
+<div align="center">
+  <img src=".github/assets/screenshot-two-monitors-tree-trunk.png" alt="Wallpaper spread across two monitors" width="800"/>
+  <p><em>Seamlessly spread a single wallpaper across two monitors</em></p>
+</div>
+
+<div align="center">
+  <img src=".github/assets/screenshot-three-monitors-tree-trunk.png" alt="Wallpaper spread across three monitors" width="800"/>
+  <p><em>Scale up to three or more displays with perfect continuity</em></p>
+</div>
+
+<div align="center">
+  <img src=".github/assets/screenshot-macos-display-arrangement-sync.png" alt="Display arrangement synchronization" width="800"/>
+  <p><em>Automatically syncs with your macOS display arrangement for accurate positioning</em></p>
+</div>
+
+<div align="center">
+  <img src=".github/assets/screenshot-save-presets.png" alt="Save and manage wallpaper presets" width="800"/>
+  <p><em>Save your favorite configurations as presets for quick switching</em></p>
+</div>
+
 ## Features
 
 ✨ **Visual Positioning** – Drag and position your wallpaper exactly where you want it across all displays
