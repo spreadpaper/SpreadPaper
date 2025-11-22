@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.3](https://github.com/rvanbaalen/SpreadPaper/compare/v1.1.2...v1.1.3) (2025-11-22)
+
+
+### Bug Fixes
+
+* improve build process with archive workflow and dual artifact output ([#8](https://github.com/rvanbaalen/SpreadPaper/issues/8)) ([0422f31](https://github.com/rvanbaalen/SpreadPaper/commit/0422f3194bbdb004aa93ad47ac11a7ae25aa68b1))
+
 ## [1.1.2](https://github.com/rvanbaalen/SpreadPaper/compare/v1.1.1...v1.1.2) (2025-11-22)
 
 
