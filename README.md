@@ -6,7 +6,7 @@
   ### Spread one high-resolution wallpaper across multiple monitors
 
   [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-  [![macOS](https://img.shields.io/badge/macOS-15.0+-blue.svg)](https://www.apple.com/macos/)
+  [![macOS](https://img.shields.io/badge/macOS-26.0+-blue.svg)](https://www.apple.com/macos/)
   [![GitHub release](https://img.shields.io/github/v/release/rvanbaalen/SpreadPaper)](https://github.com/rvanbaalen/SpreadPaper/releases/latest)
 
   **Free • Open Source • Native macOS App**
@@ -90,9 +90,11 @@ Because SpreadPaper is a free, open-source project and not signed with a paid Ap
 
 ## Requirements
 
-- macOS 15.0 (Sequoia) or later
-- Apple Silicon or Intel Mac
+- macOS 26.0 or later
+- Apple Silicon Mac
 - Multiple monitors (recommended, but works with single displays too)
+
+> **Note:** This project is compiled for and tested on macOS 26 with Apple Silicon. If you are using an older macOS version or Intel Mac and would like support, please [open a feature request](https://github.com/rvanbaalen/SpreadPaper/issues).
 
 ## Building from Source
 
@@ -121,7 +123,5 @@ SpreadPaper is free and open source software licensed under the [MIT License](LI
 ---
 
 <div align="center">
-  Made with ❤️ for the macOS community
-
   [Download](https://github.com/rvanbaalen/SpreadPaper/releases/latest) • [Report Bug](https://github.com/rvanbaalen/SpreadPaper/issues) • [Request Feature](https://github.com/rvanbaalen/SpreadPaper/issues)
 </div>
