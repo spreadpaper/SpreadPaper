@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpreadPaper — Seamless Multi-Monitor Wallpapers for macOS</title>
+    <meta name="description" content="Spread one high-resolution wallpaper across all your monitors. Free, open source, native macOS app.">
+    <meta name="theme-color" content="#0a0b0f">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="SpreadPaper — Multi-Monitor Wallpapers">
+    <meta property="og:description" content="Spread one high-resolution wallpaper across all your monitors. Free & open source.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://spreadpaper.github.io/SpreadPaper/">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-deep: #05060a;
+            --bg-surface: #0c0e14;
+            --bg-elevated: #12151e;
+            --bg-glass: rgba(18, 21, 30, 0.6);
+
+            --text-primary: #f4f4f6;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+
+            --accent-cyan: #22d3ee;
+            --accent-purple: #a78bfa;
+            --accent-blue: #3b82f6;
+            --accent-pink: #f472b6;
+
+            --gradient-aurora: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple), var(--accent-pink));
+            --gradient-subtle: linear-gradient(180deg, rgba(34, 211, 238, 0.08) 0%, rgba(167, 139, 250, 0.04) 50%, transparent 100%);
+
+            --font-display: 'Instrument Serif', Georgia, serif;
+            --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Aurora Background */
+        .aurora {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .aurora::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background:
+                radial-gradient(ellipse 80% 50% at 20% 20%, rgba(34, 211, 238, 0.12) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 80% 30%, rgba(167, 139, 250, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse 50% 60% at 40% 80%, rgba(244, 114, 182, 0.08) 0%, transparent 50%);
+            animation: aurora-drift 25s ease-in-out infinite;
+        }
+
+        @keyframes aurora-drift {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(2%, -2%) rotate(1deg); }
+            66% { transform: translate(-1%, 1%) rotate(-0.5deg); }
+        }
+
+        /* Noise texture overlay */
+        .noise {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            opacity: 0.35;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 1.25rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(20px);
+            background: rgba(5, 6, 10, 0.7);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.4s var(--ease-out-expo);
+        }
+
+        .nav.scrolled {
+            padding: 0.75rem 2rem;
+            background: rgba(5, 6, 10, 0.9);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .nav-brand img {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+        }
+
+        .nav-brand span {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            font-weight: 400;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-cta {
+            background: var(--gradient-aurora);
+            color: var(--bg-deep) !important;
+            padding: 0.6rem 1.25rem;
+            border-radius: 100px;
+            font-weight: 600 !important;
+            transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+        }
+
+        .nav-cta:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 30px rgba(34, 211, 238, 0.25);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 8rem 2rem 4rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-glass);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 100px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+            animation: fade-up 0.8s var(--ease-out-expo) backwards;
+        }
+
+        .hero-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--accent-cyan);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        .hero h1 {
+            font-family: var(--font-display);
+            font-size: clamp(3rem, 10vw, 7rem);
+            font-weight: 400;
+            line-height: 1.05;
+            letter-spacing: -0.02em;
+            margin-bottom: 1.5rem;
+            animation: fade-up 0.8s var(--ease-out-expo) 0.1s backwards;
+        }
+
+        .hero h1 em {
+            font-style: italic;
+            background: var(--gradient-aurora);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1.1rem, 2.5vw, 1.35rem);
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin-bottom: 2.5rem;
+            animation: fade-up 0.8s var(--ease-out-expo) 0.2s backwards;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 4rem;
+            animation: fade-up 0.8s var(--ease-out-expo) 0.3s backwards;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            border-radius: 100px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s var(--ease-out-expo);
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--text-primary);
+            color: var(--bg-deep);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        @keyframes fade-up {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Hero Screenshot */
+        .hero-visual {
+            position: relative;
+            width: 100%;
+            max-width: 1100px;
+            animation: fade-up 1s var(--ease-out-expo) 0.4s backwards;
+        }
+
+        .hero-screenshot {
+            width: 100%;
+            border-radius: 16px;
+            box-shadow:
+                0 0 0 1px rgba(255, 255, 255, 0.05),
+                0 50px 100px -20px rgba(0, 0, 0, 0.7),
+                0 30px 60px -30px rgba(0, 0, 0, 0.5);
+        }
+
+        .hero-glow {
+            position: absolute;
+            inset: -20%;
+            background: radial-gradient(ellipse at center, rgba(34, 211, 238, 0.15) 0%, transparent 70%);
+            z-index: -1;
+            filter: blur(60px);
+        }
+
+        /* Monitors Illustration */
+        .monitors-demo {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 3rem;
+            animation: fade-up 1s var(--ease-out-expo) 0.5s backwards;
+        }
+
+        .monitor {
+            background: var(--bg-elevated);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .monitor::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30%;
+            height: 8px;
+            background: var(--bg-elevated);
+            border-radius: 0 0 4px 4px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-top: none;
+        }
+
+        .monitor-1 { width: 120px; height: 75px; }
+        .monitor-2 { width: 180px; height: 110px; }
+        .monitor-3 { width: 120px; height: 75px; }
+
+        .monitor-screen {
+            width: 100%;
+            height: 100%;
+            border-radius: 4px;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .wallpaper-flow {
+            position: absolute;
+            height: 100%;
+            background: linear-gradient(90deg,
+                #ff6b6b 0%, #feca57 15%, #48dbfb 35%,
+                #ff9ff3 55%, #54a0ff 75%, #5f27cd 100%);
+            animation: wallpaper-scroll 8s linear infinite;
+        }
+
+        .monitor-1 .wallpaper-flow { width: 300%; left: 0; }
+        .monitor-2 .wallpaper-flow { width: 200%; left: -50%; animation-delay: -0.5s; }
+        .monitor-3 .wallpaper-flow { width: 300%; left: -200%; animation-delay: -1s; }
+
+        @keyframes wallpaper-scroll {
+            from { transform: translateX(0); }
+            to { transform: translateX(-33.33%); }
+        }
+
+        /* Features Section */
+        .features {
+            padding: 8rem 2rem;
+            position: relative;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent-cyan);
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 400;
+            margin-bottom: 1rem;
+        }
+
+        .section-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .feature-card {
+            background: var(--bg-glass);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(20px);
+            transition: all 0.4s var(--ease-out-expo);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--gradient-subtle);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(34, 211, 238, 0.15), rgba(167, 139, 250, 0.15));
+            margin-bottom: 1.25rem;
+            font-size: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-desc {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Screenshots Gallery */
+        .gallery {
+            padding: 4rem 2rem 8rem;
+        }
+
+        .gallery-scroll {
+            display: flex;
+            gap: 1.5rem;
+            overflow-x: auto;
+            padding: 2rem 0;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .gallery-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .gallery-item {
+            flex: 0 0 auto;
+            width: min(90vw, 700px);
+            scroll-snap-align: center;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+            transition: transform 0.4s var(--ease-out-expo);
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.02);
+        }
+
+        .gallery-caption {
+            text-align: center;
+            margin-top: 1rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Download Section */
+        .download {
+            padding: 8rem 2rem;
+            position: relative;
+        }
+
+        .download-card {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--bg-elevated);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 32px;
+            padding: 4rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .download-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at top, rgba(34, 211, 238, 0.08) 0%, transparent 60%);
+        }
+
+        .download-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 2rem;
+            border-radius: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .download-title {
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 4vw, 2.75rem);
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .download-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .download-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .download-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            justify-content: center;
+            margin-top: 2.5rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            position: relative;
+            z-index: 1;
+        }
+
+        .meta-item {
+            text-align: center;
+        }
+
+        .meta-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .meta-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Requirements */
+        .requirements {
+            padding: 4rem 2rem 8rem;
+        }
+
+        .requirements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .req-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.25rem 1.5rem;
+            background: var(--bg-glass);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .req-icon {
+            font-size: 1.5rem;
+        }
+
+        .req-text {
+            font-size: 0.95rem;
+        }
+
+        .req-text strong {
+            display: block;
+            margin-bottom: 0.2rem;
+        }
+
+        .req-text span {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        /* Footer */
+        .footer {
+            padding: 4rem 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .footer-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .footer-brand img {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+        }
+
+        .footer-brand span {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--text-primary);
+        }
+
+        .footer-copy {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        /* Mobile Menu */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .mobile-menu-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .hero {
+                padding: 7rem 1.5rem 3rem;
+            }
+
+            .hero-actions {
+                flex-direction: column;
+                width: 100%;
+                max-width: 320px;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .monitors-demo {
+                transform: scale(0.8);
+            }
+
+            .features, .gallery, .download, .requirements {
+                padding: 4rem 1.5rem;
+            }
+
+            .download-card {
+                padding: 2.5rem 1.5rem;
+                border-radius: 24px;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .footer-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+
+        /* Scroll Animations */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s var(--ease-out-expo);
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Stagger children */
+        .stagger > * {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s var(--ease-out-expo);
+        }
+
+        .stagger.visible > *:nth-child(1) { transition-delay: 0s; }
+        .stagger.visible > *:nth-child(2) { transition-delay: 0.1s; }
+        .stagger.visible > *:nth-child(3) { transition-delay: 0.2s; }
+        .stagger.visible > *:nth-child(4) { transition-delay: 0.3s; }
+        .stagger.visible > *:nth-child(5) { transition-delay: 0.4s; }
+        .stagger.visible > *:nth-child(6) { transition-delay: 0.5s; }
+
+        .stagger.visible > * {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="aurora"></div>
+    <div class="noise"></div>
+
+    <!-- Navigation -->
+    <nav class="nav" id="nav">
+        <a href="#" class="nav-brand">
+            <img src="https://raw.githubusercontent.com/spreadpaper/SpreadPaper/main/.github/assets/icon.png" alt="SpreadPaper">
+            <span>SpreadPaper</span>
+        </a>
+        <div class="nav-links">
+            <a href="#features">Features</a>
+            <a href="#gallery">Screenshots</a>
+            <a href="https://github.com/spreadpaper/SpreadPaper" target="_blank">GitHub</a>
+            <a href="https://github.com/spreadpaper/SpreadPaper/releases/latest" class="nav-cta">Download</a>
+        </div>
+        <button class="mobile-menu-btn" aria-label="Menu">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+        </button>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-badge">
+            <span>Free & Open Source</span>
+        </div>
+
+        <h1>One wallpaper.<br><em>Every monitor.</em></h1>
+
+        <p class="hero-subtitle">
+            SpreadPaper seamlessly spreads a single high-resolution image across all your displays.
+            Position, scale, and apply with a single click.
+        </p>
+
+        <div class="hero-actions">
+            <a href="https://github.com/spreadpaper/SpreadPaper/releases/latest" class="btn btn-primary">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                </svg>
+                Download for macOS
+            </a>
+            <a href="https://github.com/spreadpaper/SpreadPaper" class="btn btn-secondary" target="_blank">
+                <svg fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                </svg>
+                View on GitHub
+            </a>
+        </div>
+
+        <div class="hero-visual">
+            <div class="hero-glow"></div>
+            <img src="https://raw.githubusercontent.com/spreadpaper/SpreadPaper/main/.github/assets/main-app-screenshot.png" alt="SpreadPaper Interface" class="hero-screenshot">
+        </div>
+
+        <!-- Animated Monitor Demo -->
+        <div class="monitors-demo">
+            <div class="monitor monitor-1">
+                <div class="monitor-screen">
+                    <div class="wallpaper-flow"></div>
+                </div>
+            </div>
+            <div class="monitor monitor-2">
+                <div class="monitor-screen">
+                    <div class="wallpaper-flow"></div>
+                </div>
+            </div>
+            <div class="monitor monitor-3">
+                <div class="monitor-screen">
+                    <div class="wallpaper-flow"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header reveal">
+                <p class="section-label">Features</p>
+                <h2 class="section-title">Everything you need for<br>stunning multi-monitor wallpapers</h2>
+                <p class="section-subtitle">Intuitive tools designed for creative professionals and enthusiasts alike.</p>
+            </div>
+
+            <div class="features-grid stagger">
+                <div class="feature-card">
+                    <div class="feature-icon">✨</div>
+                    <h3 class="feature-title">Visual Positioning</h3>
+                    <p class="feature-desc">Drag and position your wallpaper exactly where you want it across all displays with intuitive controls.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3 class="feature-title">Live Preview</h3>
+                    <p class="feature-desc">See exactly how your wallpaper will look on all monitors before applying it. No guesswork required.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔄</div>
+                    <h3 class="feature-title">Flip & Scale</h3>
+                    <p class="feature-desc">Flip images horizontally and zoom from 0.1x to 5.0x to get the perfect fit for any setup.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">💾</div>
+                    <h3 class="feature-title">Save Presets</h3>
+                    <p class="feature-desc">Save your favorite wallpaper configurations for quick switching between different setups.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🖥️</div>
+                    <h3 class="feature-title">Multi-Monitor Smart</h3>
+                    <p class="feature-desc">Automatically detects all connected displays and syncs with your macOS display arrangement.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🎨</div>
+                    <h3 class="feature-title">High Quality</h3>
+                    <p class="feature-desc">Renders at native resolution for each display with optimal quality. Your wallpapers look crisp and beautiful.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery -->
+    <section class="gallery" id="gallery">
+        <div class="container">
+            <div class="section-header reveal">
+                <p class="section-label">Screenshots</p>
+                <h2 class="section-title">See it in action</h2>
+            </div>
+        </div>
+
+        <div class="gallery-scroll">
+            <div class="gallery-item">
+                <img src="https://raw.githubusercontent.com/spreadpaper/SpreadPaper/main/.github/assets/screenshot-two-monitors-tree-trunk.png" alt="Two monitor setup">
+                <p class="gallery-caption">Seamlessly spread across two monitors</p>
+            </div>
+            <div class="gallery-item">
+                <img src="https://raw.githubusercontent.com/spreadpaper/SpreadPaper/main/.github/assets/screenshot-three-monitors-tree-trunk.png" alt="Three monitor setup">
+                <p class="gallery-caption">Scale up to three or more displays</p>
+            </div>
+            <div class="gallery-item">
+                <img src="https://raw.githubusercontent.com/spreadpaper/SpreadPaper/main/.github/assets/screenshot-macos-display-arrangement-sync.png" alt="Display arrangement sync">
+                <p class="gallery-caption">Automatic macOS display arrangement sync</p>
+            </div>
+            <div class="gallery-item">
+                <img src="https://raw.githubusercontent.com/spreadpaper/SpreadPaper/main/.github/assets/screenshot-save-presets.png" alt="Save presets">
+                <p class="gallery-caption">Save and manage your favorite configurations</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Download -->
+    <section class="download" id="download">
+        <div class="download-card reveal">
+            <img src="https://raw.githubusercontent.com/spreadpaper/SpreadPaper/main/.github/assets/icon.png" alt="SpreadPaper" class="download-icon">
+            <h2 class="download-title">Ready to spread?</h2>
+            <p class="download-subtitle">Download SpreadPaper and transform your desktop experience today.</p>
+
+            <div class="download-actions">
+                <a href="https://github.com/spreadpaper/SpreadPaper/releases/latest" class="btn btn-primary">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                    Download Latest Release
+                </a>
+                <a href="https://github.com/spreadpaper/SpreadPaper" class="btn btn-secondary" target="_blank">
+                    View Source Code
+                </a>
+            </div>
+
+            <div class="download-meta">
+                <div class="meta-item">
+                    <div class="meta-value">Free</div>
+                    <div class="meta-label">Forever</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-value">MIT</div>
+                    <div class="meta-label">License</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-value">Native</div>
+                    <div class="meta-label">macOS App</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Requirements -->
+    <section class="requirements">
+        <div class="container">
+            <div class="section-header reveal">
+                <p class="section-label">Requirements</p>
+                <h2 class="section-title">System requirements</h2>
+            </div>
+
+            <div class="requirements-grid stagger">
+                <div class="req-item">
+                    <div class="req-icon">💻</div>
+                    <div class="req-text">
+                        <strong>macOS 26.0+</strong>
+                        <span>Latest macOS release</span>
+                    </div>
+                </div>
+                <div class="req-item">
+                    <div class="req-icon">⚡</div>
+                    <div class="req-text">
+                        <strong>Apple Silicon</strong>
+                        <span>M1, M2, M3, or newer</span>
+                    </div>
+                </div>
+                <div class="req-item">
+                    <div class="req-icon">🖥️</div>
+                    <div class="req-text">
+                        <strong>Multiple Monitors</strong>
+                        <span>Recommended for best experience</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <img src="https://raw.githubusercontent.com/spreadpaper/SpreadPaper/main/.github/assets/icon.png" alt="SpreadPaper">
+                <span>SpreadPaper</span>
+            </div>
+
+            <div class="footer-links">
+                <a href="https://github.com/spreadpaper/SpreadPaper" target="_blank">GitHub</a>
+                <a href="https://github.com/spreadpaper/SpreadPaper/releases" target="_blank">Releases</a>
+                <a href="https://github.com/spreadpaper/SpreadPaper/issues" target="_blank">Issues</a>
+                <a href="https://github.com/spreadpaper/SpreadPaper/blob/main/LICENSE" target="_blank">License</a>
+            </div>
+
+            <p class="footer-copy">
+                Made with care. Open source under MIT License.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Navbar scroll effect
+        const nav = document.getElementById('nav');
+        window.addEventListener('scroll', () => {
+            nav.classList.toggle('scrolled', window.scrollY > 50);
+        });
+
+        // Reveal on scroll
+        const reveals = document.querySelectorAll('.reveal, .stagger');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
+
+        reveals.forEach(el => observer.observe(el));
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
