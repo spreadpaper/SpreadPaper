@@ -309,10 +309,10 @@ struct ContentView: View {
                     let previewScale = calculatePreviewScale(geo: geo)
                     let canvasWidth = manager.totalCanvas.width * previewScale
                     let canvasHeight = manager.totalCanvas.height * previewScale
-                    
-                    VStack {
+
+                    VStack(spacing: 0) {
                         Spacer()
-                        HStack {
+                        HStack(spacing: 0) {
                             Spacer()
                             
                             // MAIN CANVAS
@@ -467,11 +467,12 @@ struct ContentView: View {
                         }
                         Spacer()
                     }
+                    .padding(.bottom, 70) // Account for toolbar height
                     .onAppear { self.currentPreviewScale = previewScale }
                     .onChange(of: geo.size) { _, _ in self.currentPreviewScale = previewScale }
                     .onChange(of: manager.totalCanvas) { _, _ in self.currentPreviewScale = previewScale }
                 }
-                
+
                 // TOOLBAR (Native & Clean)
                 VStack {
                     Spacer()
