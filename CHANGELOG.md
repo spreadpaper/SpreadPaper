@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.2](https://github.com/spreadpaper/SpreadPaper/compare/v1.2.1...v1.2.2) (2025-12-17)
+
+
+### Bug Fixes
+
+* parse markdown in changelog for what's new ([#19](https://github.com/spreadpaper/SpreadPaper/issues/19)) ([2931c6c](https://github.com/spreadpaper/SpreadPaper/commit/2931c6c323f914b2147844bd2e0a1938df15aa1f))
+
 ## [1.2.1](https://github.com/spreadpaper/SpreadPaper/compare/v1.2.0...v1.2.1) (2025-12-17)
 
 
