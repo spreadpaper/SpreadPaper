@@ -39,6 +39,22 @@ jobs:
         with:
           xcode-version: 'latest-stable'
 
+      # 0. Sync version from release-please manifest to Xcode project
+      - name: Sync Version to Xcode
+        run: |
+          # Extract version from release-please manifest
+          VERSION=$(cat .release-please-manifest.json | python3 -c "import sys, json; print(json.load(sys.stdin)['.'])")
+          echo "Syncing version: $VERSION"
+
+          # Update MARKETING_VERSION in project.pbxproj
+          sed -i '' "s/MARKETING_VERSION = [^;]*;/MARKETING_VERSION = $VERSION;/g" SpreadPaper.xcodeproj/project.pbxproj
+
+          # Calculate build number from version (e.g., 1.1.3 -> 113)
+          BUILD_NUMBER=$(echo $VERSION | tr -d '.')
+          sed -i '' "s/CURRENT_PROJECT_VERSION = [^;]*;/CURRENT_PROJECT_VERSION = $BUILD_NUMBER;/g" SpreadPaper.xcodeproj/project.pbxproj
+
+          echo "Version set to $VERSION (build $BUILD_NUMBER)"
+
       # 1. Archive the app (The Cleanest Build Method)
       - name: Archive App
         run: |
