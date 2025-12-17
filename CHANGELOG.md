@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/spreadpaper/SpreadPaper/compare/v1.1.3...v1.2.0) (2025-12-17)
+
+
+### Features
+
+* sync app version with GitHub releases ([#11](https://github.com/spreadpaper/SpreadPaper/issues/11)) ([b6fbbc7](https://github.com/spreadpaper/SpreadPaper/commit/b6fbbc715bf1abaf8435b11a85924594185a4b9a))
+
 ## [1.1.3](https://github.com/rvanbaalen/SpreadPaper/compare/v1.1.2...v1.1.3) (2025-11-22)
 
 
