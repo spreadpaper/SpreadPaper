@@ -810,9 +810,15 @@ struct SettingsView: View {
                         let relevantChanges = updateChecker.getChangelogBetweenVersions()
                         if relevantChanges.isEmpty && !info.releaseNotes.isEmpty {
                             // Show release notes from GitHub if no parsed changelog
-                            Text(info.releaseNotes)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                            if let attributedString = try? AttributedString(markdown: info.releaseNotes) {
+                                Text(attributedString)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            } else {
+                                Text(info.releaseNotes)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
                         } else {
                             ForEach(relevantChanges, id: \.version) { entry in
                                 VStack(alignment: .leading, spacing: 8) {
@@ -825,9 +831,15 @@ struct SettingsView: View {
                                                 .foregroundStyle(.secondary)
                                         }
                                     }
-                                    Text(entry.content)
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
+                                    if let attributedString = try? AttributedString(markdown: entry.content) {
+                                        Text(attributedString)
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    } else {
+                                        Text(entry.content)
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
                                 }
                                 .padding(.vertical, 4)
                             }
