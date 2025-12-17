@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.1](https://github.com/spreadpaper/SpreadPaper/compare/v1.2.0...v1.2.1) (2025-12-17)
+
+
+### Bug Fixes
+
+* center image upload area in UI ([#15](https://github.com/spreadpaper/SpreadPaper/issues/15)) ([caaa8e0](https://github.com/spreadpaper/SpreadPaper/commit/caaa8e065745d09c15a50d08237cdfe7c6dd3949))
+* migrate site deployment to GitHub Actions ([#17](https://github.com/spreadpaper/SpreadPaper/issues/17)) ([036d6e3](https://github.com/spreadpaper/SpreadPaper/commit/036d6e392c2bf9fd3a31ac45f301ec2ea3a8332f))
+
 ## [1.2.0](https://github.com/spreadpaper/SpreadPaper/compare/v1.1.3...v1.2.0) (2025-12-17)
 
 
