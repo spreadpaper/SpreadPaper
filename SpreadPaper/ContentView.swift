@@ -92,6 +92,23 @@ class WallpaperManager: ObservableObject {
         let allowed = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "-_ "))
         return name.unicodeScalars.filter { allowed.contains($0) }.map { String($0) }.joined()
     }
+
+    private func cleanupOldWallpapers(for screenName: String, in directory: URL, except currentFilename: String) {
+        // Remove old wallpaper files for this screen to prevent disk bloat
+        // Pattern: spreadpaper_wall_[screenName]_[timestamp].png
+        let prefix = "spreadpaper_wall_\(screenName)_"
+        do {
+            let files = try FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil)
+            for file in files {
+                let filename = file.lastPathComponent
+                if filename.hasPrefix(prefix) && filename.hasSuffix(".png") && filename != currentFilename {
+                    try? FileManager.default.removeItem(at: file)
+                }
+            }
+        } catch {
+            // Cleanup is best-effort; if it fails, old files will be cleaned up on next application
+        }
+    }
     
     func savePreset(name: String, originalUrl: URL, offset: CGSize, scale: CGFloat, previewScale: CGFloat, isFlipped: Bool) {
         let destDir = getAppDataDirectory()
@@ -232,16 +249,16 @@ class WallpaperManager: ObservableObject {
         let bitmapRep = NSBitmapImageRep(cgImage: image)
         guard let pngData = bitmapRep.representation(using: .png, properties: [:]) else { return }
 
-        // Use persistent storage with deterministic filename based on screen name
+        // Use persistent storage with unique timestamp to force macOS to recognize the new wallpaper
+        // macOS caches wallpaper URLs, so using the same filename prevents reapplication
         let sanitizedName = sanitizeScreenName(screen.localizedName)
-        let filename = "spreadpaper_wall_\(sanitizedName).png"
+        let timestamp = Int(Date().timeIntervalSince1970 * 1000)
+        let filename = "spreadpaper_wall_\(sanitizedName)_\(timestamp).png"
         let wallpapersDir = getWallpapersDirectory()
         let url = wallpapersDir.appendingPathComponent(filename)
 
-        // Remove old wallpaper file if it exists (cleanup)
-        if FileManager.default.fileExists(atPath: url.path) {
-            try? FileManager.default.removeItem(at: url)
-        }
+        // Clean up old wallpaper files for this screen (prevents disk bloat)
+        cleanupOldWallpapers(for: sanitizedName, in: wallpapersDir, except: filename)
 
         do {
             try pngData.write(to: url)
