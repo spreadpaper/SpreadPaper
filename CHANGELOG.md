@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.3](https://github.com/spreadpaper/SpreadPaper/compare/v1.2.2...v1.2.3) (2025-12-18)
+
+
+### Bug Fixes
+
+* persist wallpapers to Application Support instead of temp directory ([#26](https://github.com/spreadpaper/SpreadPaper/issues/26)) ([faba55f](https://github.com/spreadpaper/SpreadPaper/commit/faba55f7a235b7c550f5694a39ccc4c3f10f71e4)), closes [#10](https://github.com/spreadpaper/SpreadPaper/issues/10)
+
 ## [1.2.2](https://github.com/spreadpaper/SpreadPaper/compare/v1.2.1...v1.2.2) (2025-12-17)
 
 
