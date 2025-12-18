@@ -78,6 +78,20 @@ class WallpaperManager: ObservableObject {
         }
         return spreadPaperDir
     }
+
+    private func getWallpapersDirectory() -> URL {
+        let wallpapersDir = getAppDataDirectory().appendingPathComponent("wallpapers")
+        if !FileManager.default.fileExists(atPath: wallpapersDir.path) {
+            try? FileManager.default.createDirectory(at: wallpapersDir, withIntermediateDirectories: true)
+        }
+        return wallpapersDir
+    }
+
+    private func sanitizeScreenName(_ name: String) -> String {
+        // Remove characters that aren't safe for filenames
+        let allowed = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "-_ "))
+        return name.unicodeScalars.filter { allowed.contains($0) }.map { String($0) }.joined()
+    }
     
     func savePreset(name: String, originalUrl: URL, offset: CGSize, scale: CGFloat, previewScale: CGFloat, isFlipped: Bool) {
         let destDir = getAppDataDirectory()
@@ -217,10 +231,24 @@ class WallpaperManager: ObservableObject {
     private func saveCGImageAndSet(_ image: CGImage, for screen: NSScreen) {
         let bitmapRep = NSBitmapImageRep(cgImage: image)
         guard let pngData = bitmapRep.representation(using: .png, properties: [:]) else { return }
-        let filename = "spreadpaper_wall_\(screen.localizedName)_\(UUID().uuidString).png"
-        let url = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
-        try? pngData.write(to: url)
-        try? NSWorkspace.shared.setDesktopImageURL(url, for: screen, options: [.imageScaling : NSImageScaling.scaleAxesIndependently.rawValue])
+
+        // Use persistent storage with deterministic filename based on screen name
+        let sanitizedName = sanitizeScreenName(screen.localizedName)
+        let filename = "spreadpaper_wall_\(sanitizedName).png"
+        let wallpapersDir = getWallpapersDirectory()
+        let url = wallpapersDir.appendingPathComponent(filename)
+
+        // Remove old wallpaper file if it exists (cleanup)
+        if FileManager.default.fileExists(atPath: url.path) {
+            try? FileManager.default.removeItem(at: url)
+        }
+
+        do {
+            try pngData.write(to: url)
+            try NSWorkspace.shared.setDesktopImageURL(url, for: screen, options: [.imageScaling : NSImageScaling.scaleAxesIndependently.rawValue])
+        } catch {
+            print("Failed to save/set wallpaper for \(screen.localizedName): \(error)")
+        }
     }
 }
 
