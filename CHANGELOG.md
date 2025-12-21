@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.4](https://github.com/spreadpaper/SpreadPaper/compare/v1.2.3...v1.2.4) (2025-12-21)
+
+
+### Bug Fixes
+
+* wallpaper reapplication issue after recent update ([#28](https://github.com/spreadpaper/SpreadPaper/issues/28)) ([f76ddaf](https://github.com/spreadpaper/SpreadPaper/commit/f76ddaf9fd39fb5ccc1aec9b899147bcb1c6eede))
+
 ## [1.2.3](https://github.com/spreadpaper/SpreadPaper/compare/v1.2.2...v1.2.3) (2025-12-18)
 
 
