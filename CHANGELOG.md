@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/spreadpaper/SpreadPaper/compare/v1.3.0...v1.4.0) (2025-12-21)
+
+
+### Features
+
+* add macOS Sequoia support ([#32](https://github.com/spreadpaper/SpreadPaper/issues/32)) ([8a8c4ff](https://github.com/spreadpaper/SpreadPaper/commit/8a8c4ff2f63ff1081813ef31edf3a61ed7331f24))
+
 ## [1.3.0](https://github.com/spreadpaper/SpreadPaper/compare/v1.2.4...v1.3.0) (2025-12-21)
 
 
