@@ -17,6 +17,8 @@ struct SpreadPaperApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .allowsHitTesting(!showUpdatePopup)
+                .focusable(!showUpdatePopup)
                 .overlay {
                     if showUpdatePopup {
                         updatePopupOverlay

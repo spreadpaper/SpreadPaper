@@ -11,6 +11,7 @@ import AppKit
 struct UpdatePopupView: View {
     @ObservedObject var updateChecker: UpdateChecker
     @Binding var isPresented: Bool
+    @FocusState private var isDownloadButtonFocused: Bool
 
     var body: some View {
         VStack(spacing: 0) {
@@ -39,6 +40,11 @@ struct UpdatePopupView: View {
         .background(Color(NSColor.windowBackgroundColor))
         .cornerRadius(12)
         .shadow(color: .black.opacity(0.2), radius: 20, x: 0, y: 10)
+        .task {
+            // Small delay to ensure view hierarchy is ready for focus
+            try? await Task.sleep(nanoseconds: 100_000_000)
+            isDownloadButtonFocused = true
+        }
     }
 
     // MARK: - Header Section
@@ -179,7 +185,9 @@ struct UpdatePopupView: View {
 
     private func changelogContent(_ content: String) -> some View {
         Group {
-            if let attributedString = try? AttributedString(markdown: content) {
+            let processedContent = preprocessMarkdownHeadings(content)
+
+            if let attributedString = try? AttributedString(markdown: processedContent) {
                 Text(attributedString)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
@@ -189,6 +197,21 @@ struct UpdatePopupView: View {
                     .foregroundStyle(.secondary)
             }
         }
+    }
+
+    /// Converts markdown ### headings to bold text with proper line breaks.
+    /// SwiftUI's AttributedString doesn't render headings as block elements,
+    /// so we convert them to bold text for better display.
+    private func preprocessMarkdownHeadings(_ content: String) -> String {
+        content
+            .components(separatedBy: "\n")
+            .map { line in
+                if line.hasPrefix("### ") {
+                    return "**\(line.dropFirst(4))**\n"
+                }
+                return line
+            }
+            .joined(separator: "\n")
     }
 
     // MARK: - Action Buttons Section
@@ -216,6 +239,7 @@ struct UpdatePopupView: View {
                     }
                     .buttonStyle(.borderedProminent)
                     .controlSize(.large)
+                    .focused($isDownloadButtonFocused)
                 } else if info.zipUrl != nil {
                     Button(action: {
                         updateChecker.downloadZIP()
@@ -229,6 +253,7 @@ struct UpdatePopupView: View {
                     }
                     .buttonStyle(.borderedProminent)
                     .controlSize(.large)
+                    .focused($isDownloadButtonFocused)
                 } else {
                     Button(action: {
                         updateChecker.openReleasePage()
@@ -242,6 +267,7 @@ struct UpdatePopupView: View {
                     }
                     .buttonStyle(.borderedProminent)
                     .controlSize(.large)
+                    .focused($isDownloadButtonFocused)
                 }
             }
         }
