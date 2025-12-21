@@ -28,7 +28,7 @@ jobs:
     name: Build App
     if: ${{ needs.release-please.outputs.release_created }}
     needs: [release-please]
-    runs-on: macos-latest # Runs on the latest stable macOS (currently 14/15)
+    runs-on: macos-latest  # Uses latest stable macOS runner with Xcode 16+ for Sequoia SDK
 
     steps:
       - name: Checkout Code
@@ -37,7 +37,7 @@ jobs:
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: 'latest-stable'
+          xcode-version: '16'  # Xcode 16+ required for macOS 15 (Sequoia) SDK
 
       # 0. Sync version from release-please manifest to Xcode project
       - name: Sync Version to Xcode
