@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/spreadpaper/SpreadPaper/compare/v1.2.4...v1.3.0) (2025-12-21)
+
+
+### Features
+
+* add version check popup on app startup ([#30](https://github.com/spreadpaper/SpreadPaper/issues/30)) ([deec647](https://github.com/spreadpaper/SpreadPaper/commit/deec6471ee2f8f654e248f394f0dfc547f1fc2e6))
+
 ## [1.2.4](https://github.com/spreadpaper/SpreadPaper/compare/v1.2.3...v1.2.4) (2025-12-21)
 
 
