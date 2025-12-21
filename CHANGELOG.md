@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/spreadpaper/SpreadPaper/compare/v1.4.0...v1.4.1) (2025-12-21)
+
+
+### Bug Fixes
+
+* markdown rendering and focus issues ([#34](https://github.com/spreadpaper/SpreadPaper/issues/34)) ([9e8b3b3](https://github.com/spreadpaper/SpreadPaper/commit/9e8b3b31ded40f92676079060fa6ddd181e801b5))
+
 ## [1.4.0](https://github.com/spreadpaper/SpreadPaper/compare/v1.3.0...v1.4.0) (2025-12-21)
 
 
