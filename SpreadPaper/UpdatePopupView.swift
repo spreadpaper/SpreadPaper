@@ -27,7 +27,8 @@ struct UpdatePopupView: View {
                 }
                 .padding(24)
             }
-            .frame(maxHeight: 300)
+            .frame(minHeight: 250, maxHeight: 400)
+            .scrollIndicators(.visible)
 
             Divider()
 
