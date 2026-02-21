@@ -1,5 +1,4 @@
 import SwiftUI
-import Combine
 
 enum AppearanceMode: String, CaseIterable, Identifiable {
     case system = "System"
@@ -9,19 +8,24 @@ enum AppearanceMode: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 }
 
-class AppSettings: ObservableObject {
-    @AppStorage("appearanceMode") var appearanceMode: String = AppearanceMode.system.rawValue
-
-    var selectedAppearance: AppearanceMode {
-        get { AppearanceMode(rawValue: appearanceMode) ?? .system }
-        set { appearanceMode = newValue.rawValue }
+@Observable
+class AppSettings {
+    var appearanceMode: AppearanceMode {
+        didSet {
+            UserDefaults.standard.set(appearanceMode.rawValue, forKey: "appearanceMode")
+        }
     }
 
     var colorScheme: ColorScheme? {
-        switch selectedAppearance {
+        switch appearanceMode {
         case .system: return nil
         case .light: return .light
         case .dark: return .dark
         }
+    }
+
+    init() {
+        let raw = UserDefaults.standard.string(forKey: "appearanceMode") ?? AppearanceMode.system.rawValue
+        self.appearanceMode = AppearanceMode(rawValue: raw) ?? .system
     }
 }

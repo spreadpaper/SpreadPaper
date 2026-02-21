@@ -3,8 +3,8 @@ import AppKit
 import UniformTypeIdentifiers
 
 struct ContentView: View {
-    @StateObject var manager = WallpaperManager()
-    @StateObject var settings = AppSettings()
+    @State var manager = WallpaperManager()
+    @State var settings = AppSettings()
     @Environment(\.colorScheme) var colorScheme
 
     @State private var selectedImage: NSImage?

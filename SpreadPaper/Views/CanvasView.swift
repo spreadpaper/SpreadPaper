@@ -12,7 +12,7 @@ struct CanvasView: View {
     let canvasWidth: CGFloat
     let canvasHeight: CGFloat
     let colorScheme: ColorScheme
-    @ObservedObject var manager: WallpaperManager
+    var manager: WallpaperManager
     let onSelectImage: () -> Void
     let onDropImage: ([NSItemProvider]) -> Void
 

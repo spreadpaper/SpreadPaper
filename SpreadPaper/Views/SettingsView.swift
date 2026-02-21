@@ -1,15 +1,15 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @StateObject private var settings = AppSettings()
-    @StateObject private var updateChecker = UpdateChecker.shared
+    @State private var settings = AppSettings()
+    @State private var updateChecker = UpdateChecker.shared
 
     var body: some View {
         TabView {
             // General Tab
             Form {
                 Section {
-                    Picker("Appearance", selection: $settings.selectedAppearance) {
+                    Picker("Appearance", selection: $settings.appearanceMode) {
                         ForEach(AppearanceMode.allCases) { mode in
                             Text(mode.rawValue).tag(mode)
                         }

@@ -6,11 +6,10 @@
 //
 
 import SwiftUI
-import Combine
 
 @main
 struct SpreadPaperApp: App {
-    @StateObject private var updateChecker = UpdateChecker.shared
+    @State private var updateChecker = UpdateChecker.shared
     @State private var showUpdatePopup = false
     @State private var hasCheckedForUpdates = false
 
@@ -27,8 +26,8 @@ struct SpreadPaperApp: App {
                 .onAppear {
                     checkForUpdatesOnStartup()
                 }
-                .onReceive(updateChecker.$updateInfo) { info in
-                    handleUpdateInfoChange(info)
+                .onChange(of: updateChecker.updateInfo?.latestVersion) { _, _ in
+                    handleUpdateInfoChange(updateChecker.updateInfo)
                 }
         }
 

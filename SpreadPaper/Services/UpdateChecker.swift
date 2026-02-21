@@ -60,14 +60,15 @@ struct ChangelogEntry {
 
 // MARK: - UpdateChecker
 
-class UpdateChecker: ObservableObject {
+@Observable
+class UpdateChecker {
     static let shared = UpdateChecker()
 
-    @Published var updateInfo: UpdateInfo?
-    @Published var isChecking = false
-    @Published var lastCheckDate: Date?
-    @Published var error: String?
-    @Published var changelog: [ChangelogEntry] = []
+    var updateInfo: UpdateInfo?
+    var isChecking = false
+    var lastCheckDate: Date?
+    var error: String?
+    var changelog: [ChangelogEntry] = []
 
     private let repoOwner = "spreadpaper"
     private let repoName = "SpreadPaper"

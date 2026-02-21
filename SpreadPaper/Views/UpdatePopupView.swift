@@ -9,7 +9,7 @@ import SwiftUI
 import AppKit
 
 struct UpdatePopupView: View {
-    @ObservedObject var updateChecker: UpdateChecker
+    var updateChecker: UpdateChecker
     @Binding var isPresented: Bool
     @FocusState private var isDownloadButtonFocused: Bool
 

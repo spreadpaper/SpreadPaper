@@ -1,10 +1,11 @@
 import AppKit
 import Combine
 
-class WallpaperManager: ObservableObject {
-    @Published var connectedScreens: [DisplayInfo] = []
-    @Published var totalCanvas: CGRect = .zero
-    @Published var presets: [SavedPreset] = []
+@Observable
+class WallpaperManager {
+    var connectedScreens: [DisplayInfo] = []
+    var totalCanvas: CGRect = .zero
+    var presets: [SavedPreset] = []
 
     private let presetsFile = "spreadpaper_presets.json"
     private var cancellables = Set<AnyCancellable>()
