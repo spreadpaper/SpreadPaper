@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1](https://github.com/spreadpaper/SpreadPaper/compare/v1.5.0...v1.5.1) (2026-02-21)
+
+
+### Bug Fixes
+
+* wrap macOS 26 glassEffect API in compiler check for Xcode 16 CI ([7c0d9ef](https://github.com/spreadpaper/SpreadPaper/commit/7c0d9ef992df83700c8d0d567f4b5352354e251a))
+
 ## [1.5.0](https://github.com/spreadpaper/SpreadPaper/compare/v1.4.1...v1.5.0) (2026-02-21)
 
 
