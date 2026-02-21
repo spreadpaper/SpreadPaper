@@ -4,7 +4,7 @@ import UniformTypeIdentifiers
 
 struct ContentView: View {
     @State var manager = WallpaperManager()
-    @State var settings = AppSettings()
+    @State var settings = AppSettings.shared
     @Environment(\.colorScheme) var colorScheme
 
     @State private var selectedImage: NSImage?
@@ -33,59 +33,9 @@ struct ContentView: View {
                 }
             )
         } detail: {
-            ZStack {
-                backgroundGradient
-
-                WindowDragHandler()
-
-                GeometryReader { geo in
-                    let previewScale = calculatePreviewScale(geo: geo)
-                    let canvasWidth = manager.totalCanvas.width * previewScale
-                    let canvasHeight = manager.totalCanvas.height * previewScale
-
-                    VStack(spacing: 0) {
-                        Spacer()
-                        HStack(spacing: 0) {
-                            Spacer()
-
-                            CanvasView(
-                                selectedImage: selectedImage,
-                                imageOffset: $imageOffset,
-                                dragStartOffset: $dragStartOffset,
-                                isDragging: $isDragging,
-                                imageScale: $imageScale,
-                                isFlipped: isFlipped,
-                                previewScale: previewScale,
-                                canvasWidth: canvasWidth,
-                                canvasHeight: canvasHeight,
-                                colorScheme: colorScheme,
-                                manager: manager,
-                                onSelectImage: selectImage,
-                                onDropImage: { providers in loadDroppedImage(providers) }
-                            )
-
-                            Spacer()
-                        }
-                        Spacer()
-                    }
-                    .padding(.bottom, 70) // Account for toolbar height
-                    .onAppear { self.currentPreviewScale = previewScale }
-                    .onChange(of: geo.size) { _, _ in self.currentPreviewScale = previewScale }
-                    .onChange(of: manager.totalCanvas) { _, _ in self.currentPreviewScale = previewScale }
-                }
-
-                ToolbarView(
-                    imageScale: $imageScale,
-                    isFlipped: $isFlipped,
-                    hasImage: selectedImage != nil,
-                    canSave: selectedImage != nil && currentOriginalUrl != nil,
-                    colorScheme: colorScheme,
-                    onSelectImage: selectImage,
-                    onSave: { isShowingSaveAlert = true },
-                    onApply: applyWallpaper
-                )
-            }
+            detailContent
         }
+        .toolbar { editorToolbar }
         .alert("Save Preset", isPresented: $isShowingSaveAlert) {
             TextField("Preset Name", text: $newPresetName)
             Button("Cancel", role: .cancel) { }
@@ -114,12 +64,103 @@ struct ContentView: View {
         }
     }
 
-    // MARK: - Background
+    // MARK: - Detail Content
 
-    @ViewBuilder
-    private var backgroundGradient: some View {
-        Color(.windowBackgroundColor)
-            .ignoresSafeArea()
+    private var detailContent: some View {
+        ZStack {
+            Color(.windowBackgroundColor)
+                .ignoresSafeArea()
+
+            WindowDragHandler()
+
+            GeometryReader { geo in
+                let previewScale = calculatePreviewScale(geo: geo)
+                let canvasWidth = manager.totalCanvas.width * previewScale
+                let canvasHeight = manager.totalCanvas.height * previewScale
+
+                VStack(spacing: 0) {
+                    Spacer()
+                    HStack(spacing: 0) {
+                        Spacer()
+
+                        CanvasView(
+                            selectedImage: selectedImage,
+                            imageOffset: $imageOffset,
+                            dragStartOffset: $dragStartOffset,
+                            isDragging: $isDragging,
+                            imageScale: $imageScale,
+                            isFlipped: isFlipped,
+                            previewScale: previewScale,
+                            canvasWidth: canvasWidth,
+                            canvasHeight: canvasHeight,
+                            colorScheme: colorScheme,
+                            manager: manager,
+                            onSelectImage: selectImage,
+                            onDropImage: { providers in loadDroppedImage(providers) }
+                        )
+
+                        Spacer()
+                    }
+                    Spacer()
+                }
+                .onAppear { self.currentPreviewScale = previewScale }
+                .onChange(of: manager.totalCanvas) { _, _ in self.currentPreviewScale = calculatePreviewScale(geo: geo) }
+            }
+        }
+        .navigationTitle("")
+        .toolbar(removing: .title)
+    }
+
+    // MARK: - Toolbar
+
+    @ToolbarContentBuilder
+    private var editorToolbar: some ToolbarContent {
+        ToolbarItemGroup(placement: .automatic) {
+            Button(action: { imageScale = max(0.1, imageScale - 0.1) }) {
+                Image(systemName: "minus.magnifyingglass")
+            }
+            .disabled(selectedImage == nil)
+
+            Slider(value: $imageScale, in: 0.1...5.0)
+                .frame(width: 100)
+                .disabled(selectedImage == nil)
+
+            Button(action: { imageScale = min(5.0, imageScale + 0.1) }) {
+                Image(systemName: "plus.magnifyingglass")
+            }
+            .disabled(selectedImage == nil)
+
+            Toggle(isOn: $isFlipped.animation()) {
+                Label("Flip", systemImage: "arrow.left.and.right")
+                    .labelStyle(.titleAndIcon)
+            }
+            .disabled(selectedImage == nil)
+
+            Button(action: fitImage) {
+                Label("Fit", systemImage: "arrow.up.left.and.arrow.down.right")
+                    .labelStyle(.titleAndIcon)
+            }
+            .disabled(selectedImage == nil)
+
+            Spacer()
+
+            Button(action: selectImage) {
+                Label("Open", systemImage: "folder")
+                    .labelStyle(.titleAndIcon)
+            }
+
+            Button(action: { isShowingSaveAlert = true }) {
+                Label("Save", systemImage: "square.and.arrow.down")
+                    .labelStyle(.titleAndIcon)
+            }
+            .disabled(selectedImage == nil || currentOriginalUrl == nil)
+
+            Button(action: applyWallpaper) {
+                Label("Apply Wallpaper", systemImage: "checkmark.circle.fill")
+                    .labelStyle(.titleAndIcon)
+            }
+            .disabled(selectedImage == nil)
+        }
     }
 
     // MARK: - Logic
@@ -149,6 +190,21 @@ struct ContentView: View {
                 self.imageScale = preset.scale
                 self.isFlipped = preset.isFlipped
             }
+        }
+    }
+
+    private func fitImage() {
+        guard let image = selectedImage else { return }
+        let canvas = manager.totalCanvas
+        guard canvas.width > 0 && canvas.height > 0 && image.size.width > 0 && image.size.height > 0 else { return }
+
+        let widthRatio = canvas.width / image.size.width
+        let heightRatio = canvas.height / image.size.height
+
+        withAnimation(.spring()) {
+            imageScale = max(widthRatio, heightRatio)
+            imageOffset = .zero
+            dragStartOffset = .zero
         }
     }
 
