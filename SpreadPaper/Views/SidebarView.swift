@@ -34,8 +34,6 @@ struct SidebarView: View {
             }
         }
         .listStyle(.sidebar)
-        .scrollContentBackground(.hidden)
-        .adaptiveGlassBackground()
         .navigationSplitViewColumnWidth(min: 180, ideal: 200)
     }
 }

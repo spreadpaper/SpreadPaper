@@ -9,13 +9,4 @@ extension View {
             self.background(.ultraThinMaterial, in: shape)
         }
     }
-
-    @ViewBuilder
-    func adaptiveGlassBackground() -> some View {
-        if #available(macOS 26, *) {
-            self.glassEffect(.regular, in: RoundedRectangle(cornerRadius: 0))
-        } else {
-            self.background(.ultraThinMaterial)
-        }
-    }
 }
