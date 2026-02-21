@@ -1,196 +1,191 @@
 import SwiftUI
 
+enum SettingsTab: Hashable {
+    case general
+    case updates
+}
+
 struct SettingsView: View {
-    @State private var settings = AppSettings()
+    @State private var settings = AppSettings.shared
     @State private var updateChecker = UpdateChecker.shared
+    @State private var selectedTab: SettingsTab = .general
+
+    // Buffered edit state
+    @State private var editingAppearance: AppearanceMode = .system
+
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        TabView {
-            // General Tab
-            Form {
-                Section {
-                    Picker("Appearance", selection: $settings.appearanceMode) {
-                        ForEach(AppearanceMode.allCases) { mode in
-                            Text(mode.rawValue).tag(mode)
+        VStack(spacing: 0) {
+            TabView(selection: $selectedTab) {
+                generalTab
+                    .tabItem { Label("General", systemImage: "gear") }
+                    .tag(SettingsTab.general)
+
+                updatesTab
+                    .tabItem { Label("Updates", systemImage: "arrow.triangle.2.circlepath") }
+                    .tag(SettingsTab.updates)
+            }
+
+            Divider()
+
+            HStack {
+                Spacer()
+                Button("Cancel", role: .cancel) {
+                    dismiss()
+                }
+                .keyboardShortcut(.cancelAction)
+
+                Button("Done") {
+                    settings.appearanceMode = editingAppearance
+                    dismiss()
+                }
+                .keyboardShortcut(.defaultAction)
+            }
+            .padding(12)
+        }
+        .frame(width: 460, height: 380)
+        .onAppear {
+            editingAppearance = settings.appearanceMode
+            if updateChecker.updateInfo?.isUpdateAvailable == true {
+                selectedTab = .updates
+            }
+        }
+    }
+
+    // MARK: - General
+
+    private var generalTab: some View {
+        Form {
+            Section("Appearance") {
+                Picker("Mode", selection: $editingAppearance) {
+                    ForEach(AppearanceMode.allCases) { mode in
+                        Text(mode.rawValue).tag(mode)
+                    }
+                }
+                .pickerStyle(.radioGroup)
+            }
+        }
+        .formStyle(.grouped)
+    }
+
+    // MARK: - Updates
+
+    private var updatesTab: some View {
+        Form {
+            Section("Version") {
+                LabeledContent("Current Version", value: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0")
+
+                if let info = updateChecker.updateInfo {
+                    LabeledContent("Latest Version") {
+                        Text(info.latestVersion)
+                            .foregroundStyle(info.isUpdateAvailable ? .orange : .secondary)
+                    }
+
+                    LabeledContent("Status") {
+                        if info.isUpdateAvailable {
+                            Label("Update Available", systemImage: "arrow.down.circle.fill")
+                                .foregroundStyle(.orange)
+                        } else {
+                            Label("Up to date", systemImage: "checkmark.circle.fill")
+                                .foregroundStyle(.green)
                         }
                     }
-                    .pickerStyle(.radioGroup)
-
-                    Text("Choose how SpreadPaper appears. System matches your macOS appearance settings.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .padding(.top, 4)
-                } header: {
-                    Text("Appearance")
-                        .font(.headline)
                 }
-            }
-            .formStyle(.grouped)
-            .tabItem {
-                Label("General", systemImage: "gear")
-            }
 
-            // Updates Tab
-            Form {
-                Section {
-                    HStack {
-                        Text("Current Version")
-                        Spacer()
-                        Text(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0")
+                LabeledContent {
+                    Button(action: { Task { await updateChecker.checkForUpdates() } }) {
+                        if updateChecker.isChecking {
+                            ProgressView()
+                                .controlSize(.small)
+                        } else {
+                            Text("Check for Updates")
+                        }
+                    }
+                    .disabled(updateChecker.isChecking)
+                } label: {
+                    if let lastCheck = updateChecker.lastCheckDate {
+                        Text("Last checked: \(lastCheck, formatter: Self.dateFormatter)")
+                            .font(.caption)
                             .foregroundStyle(.secondary)
                     }
+                }
 
-                    if let info = updateChecker.updateInfo {
-                        HStack {
-                            Text("Latest Version")
-                            Spacer()
-                            Text(info.latestVersion)
-                                .foregroundStyle(info.isUpdateAvailable ? .orange : .secondary)
-                        }
+                if let error = updateChecker.error {
+                    Text(error)
+                        .foregroundStyle(.red)
+                        .font(.caption)
+                }
+            }
 
-                        if info.isUpdateAvailable {
-                            HStack {
-                                Image(systemName: "arrow.down.circle.fill")
-                                    .foregroundStyle(.orange)
-                                Text("Update Available")
-                                    .fontWeight(.medium)
-                                Spacer()
-                            }
-                            .padding(.vertical, 4)
-                        } else {
-                            HStack {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .foregroundStyle(.green)
-                                Text("You're up to date")
-                                Spacer()
-                            }
-                            .padding(.vertical, 4)
+            if let info = updateChecker.updateInfo, info.isUpdateAvailable {
+                Section("Download") {
+                    if info.dmgUrl != nil {
+                        Button("Download DMG", systemImage: "arrow.down.doc") {
+                            updateChecker.downloadDMG()
                         }
                     }
 
-                    HStack {
-                        Button(action: { Task { await updateChecker.checkForUpdates() } }) {
-                            if updateChecker.isChecking {
-                                ProgressView()
-                                    .scaleEffect(0.7)
-                                    .frame(width: 16, height: 16)
-                            } else {
-                                Text("Check for Updates")
-                            }
+                    if info.zipUrl != nil {
+                        Button("Download ZIP", systemImage: "arrow.down.circle") {
+                            updateChecker.downloadZIP()
                         }
-                        .disabled(updateChecker.isChecking)
+                    }
 
-                        Spacer()
+                    Button("View on GitHub", systemImage: "safari") {
+                        updateChecker.openReleasePage()
+                    }
+                }
 
-                        if let lastCheck = updateChecker.lastCheckDate {
-                            Text("Last checked: \(lastCheck, formatter: Self.dateFormatter)")
+                Section("What's New") {
+                    changelogContent(for: info)
+                }
+            }
+        }
+        .formStyle(.grouped)
+        .task {
+            if updateChecker.updateInfo == nil && !updateChecker.isChecking {
+                await updateChecker.checkForUpdates()
+            }
+        }
+    }
+
+    // MARK: - Changelog
+
+    @ViewBuilder
+    private func changelogContent(for info: UpdateInfo) -> some View {
+        let relevantChanges = updateChecker.getChangelogBetweenVersions()
+
+        if relevantChanges.isEmpty && !info.releaseNotes.isEmpty {
+            markdownText(info.releaseNotes)
+        } else {
+            ForEach(relevantChanges, id: \.version) { entry in
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 6) {
+                        Text("v\(entry.version)")
+                            .fontWeight(.medium)
+                        if let date = entry.date {
+                            Text(date)
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
-
-                    if let error = updateChecker.error {
-                        Text(error)
-                            .font(.caption)
-                            .foregroundStyle(.red)
-                    }
-                } header: {
-                    Text("Version")
-                        .font(.headline)
-                }
-
-                if let info = updateChecker.updateInfo, info.isUpdateAvailable {
-                    Section {
-                        if info.dmgUrl != nil {
-                            Button(action: { updateChecker.downloadDMG() }) {
-                                HStack {
-                                    Image(systemName: "arrow.down.doc.fill")
-                                    Text("Download DMG")
-                                }
-                            }
-                            .buttonStyle(.borderedProminent)
-                        }
-
-                        if info.zipUrl != nil {
-                            Button(action: { updateChecker.downloadZIP() }) {
-                                HStack {
-                                    Image(systemName: "arrow.down.circle")
-                                    Text("Download ZIP")
-                                }
-                            }
-                            .buttonStyle(.bordered)
-                        }
-
-                        Button(action: { updateChecker.openReleasePage() }) {
-                            HStack {
-                                Image(systemName: "safari")
-                                Text("View on GitHub")
-                            }
-                        }
-                        .buttonStyle(.bordered)
-                    } header: {
-                        Text("Download Update")
-                            .font(.headline)
-                    }
-
-                    // Changelog Section
-                    Section {
-                        let relevantChanges = updateChecker.getChangelogBetweenVersions()
-                        if relevantChanges.isEmpty && !info.releaseNotes.isEmpty {
-                            // Show release notes from GitHub if no parsed changelog
-                            if let attributedString = try? AttributedString(markdown: info.releaseNotes) {
-                                Text(attributedString)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            } else {
-                                Text(info.releaseNotes)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                        } else {
-                            ForEach(relevantChanges, id: \.version) { entry in
-                                VStack(alignment: .leading, spacing: 8) {
-                                    HStack {
-                                        Text("v\(entry.version)")
-                                            .font(.headline)
-                                        if let date = entry.date {
-                                            Text("(\(date))")
-                                                .font(.caption)
-                                                .foregroundStyle(.secondary)
-                                        }
-                                    }
-                                    if let attributedString = try? AttributedString(markdown: entry.content) {
-                                        Text(attributedString)
-                                            .font(.caption)
-                                            .foregroundStyle(.secondary)
-                                    } else {
-                                        Text(entry.content)
-                                            .font(.caption)
-                                            .foregroundStyle(.secondary)
-                                    }
-                                }
-                                .padding(.vertical, 4)
-                            }
-                        }
-                    } header: {
-                        Text("What's New")
-                            .font(.headline)
-                    }
-                }
-            }
-            .formStyle(.grouped)
-            .tabItem {
-                Label("Updates", systemImage: "arrow.triangle.2.circlepath")
-            }
-            .task {
-                // Auto-check on first view
-                if updateChecker.updateInfo == nil && !updateChecker.isChecking {
-                    await updateChecker.checkForUpdates()
+                    markdownText(entry.content)
                 }
             }
         }
-        .frame(width: 450, height: 400)
-        .padding(20)
+    }
+
+    private func markdownText(_ content: String) -> some View {
+        if let attributed = try? AttributedString(markdown: content) {
+            Text(attributed)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        } else {
+            Text(content)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
     }
 
     private static let dateFormatter: DateFormatter = {

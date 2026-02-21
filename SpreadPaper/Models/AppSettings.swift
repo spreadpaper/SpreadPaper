@@ -10,6 +10,8 @@ enum AppearanceMode: String, CaseIterable, Identifiable {
 
 @Observable
 class AppSettings {
+    static let shared = AppSettings()
+
     var appearanceMode: AppearanceMode {
         didSet {
             UserDefaults.standard.set(appearanceMode.rawValue, forKey: "appearanceMode")
