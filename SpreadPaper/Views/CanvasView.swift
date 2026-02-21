@@ -53,7 +53,19 @@ struct CanvasView: View {
                 }
             }
             .frame(width: canvasWidth, height: canvasHeight)
-            .clipped()
+            .mask {
+                if selectedImage != nil {
+                    MonitorMaskView(
+                        screens: manager.connectedScreens,
+                        totalCanvas: manager.totalCanvas,
+                        previewScale: previewScale,
+                        canvasWidth: canvasWidth,
+                        canvasHeight: canvasHeight
+                    )
+                } else {
+                    Rectangle()
+                }
+            }
 
             // B. Monitor Outlines
             if selectedImage != nil {
