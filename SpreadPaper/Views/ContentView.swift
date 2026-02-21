@@ -116,30 +116,10 @@ struct ContentView: View {
 
     // MARK: - Background
 
+    @ViewBuilder
     private var backgroundGradient: some View {
-        Group {
-            if colorScheme == .dark {
-                LinearGradient(
-                    colors: [
-                        Color(red: 0.1, green: 0.1, blue: 0.15),
-                        Color(red: 0.05, green: 0.05, blue: 0.1)
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                .ignoresSafeArea()
-            } else {
-                LinearGradient(
-                    colors: [
-                        Color(red: 0.95, green: 0.97, blue: 1.0),
-                        Color(red: 0.98, green: 0.96, blue: 0.99)
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                .ignoresSafeArea()
-            }
-        }
+        Color(.windowBackgroundColor)
+            .ignoresSafeArea()
     }
 
     // MARK: - Logic
@@ -196,7 +176,11 @@ struct ContentView: View {
     private func loadDroppedImage(_ providers: [NSItemProvider]) {
         if let provider = providers.first(where: { $0.canLoadObject(ofClass: URL.self) }) {
             _ = provider.loadObject(ofClass: URL.self) { url, _ in
-                if let url = url { DispatchQueue.main.async { loadImage(from: url) } }
+                if let url = url {
+                    Task { @MainActor in
+                        self.loadImage(from: url)
+                    }
+                }
             }
         }
     }
