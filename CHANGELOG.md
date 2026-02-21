@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.2](https://github.com/spreadpaper/SpreadPaper/compare/v1.5.1...v1.5.2) (2026-02-21)
+
+
+### Bug Fixes
+
+* **docs:** update quarantine removal instructions in README ([632b6e7](https://github.com/spreadpaper/SpreadPaper/commit/632b6e74e5f70e9c3fa2ac6496264b1b533c8025)), closes [#36](https://github.com/spreadpaper/SpreadPaper/issues/36)
+
 ## [1.5.1](https://github.com/spreadpaper/SpreadPaper/compare/v1.5.0...v1.5.1) (2026-02-21)
 
 
