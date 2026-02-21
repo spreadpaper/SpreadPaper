@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.5.0](https://github.com/spreadpaper/SpreadPaper/compare/v1.4.1...v1.5.0) (2026-02-21)
+
+
+### Features
+
+* add Liquid Glass UI support for macOS 26 ([c4e3335](https://github.com/spreadpaper/SpreadPaper/commit/c4e3335e643c6eb783b674fd0d1c98d09fe60af9))
+* add native toolbar with fit button and stable layout ([89d54a7](https://github.com/spreadpaper/SpreadPaper/commit/89d54a765e474d9e912ce913c4bbfc0672a1dfca))
+* clip image to rounded monitor shapes ([de4e7e9](https://github.com/spreadpaper/SpreadPaper/commit/de4e7e9b9676fcd95ad638ec16af6a63ca71f77a))
+* improve rendering pipeline ([22951e2](https://github.com/spreadpaper/SpreadPaper/commit/22951e2b21caab846c78e0ff64ae60f8b7f5fb50))
+
+
+### Bug Fixes
+
+* remove aggressive window customization for native macOS 26 styling ([ccae57d](https://github.com/spreadpaper/SpreadPaper/commit/ccae57dc6460ad6850035f394ff7b5ea383d8854))
+
 ## [1.4.1](https://github.com/spreadpaper/SpreadPaper/compare/v1.4.0...v1.4.1) (2025-12-21)
 
 
