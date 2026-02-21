@@ -174,13 +174,15 @@ struct ContentView: View {
 
     private func applyWallpaper() {
         if let img = selectedImage {
-            manager.setWallpaper(
-                originalImage: img,
-                imageOffset: imageOffset,
-                scale: imageScale,
-                previewScale: currentPreviewScale,
-                isFlipped: isFlipped
-            )
+            Task {
+                await manager.setWallpaper(
+                    originalImage: img,
+                    imageOffset: imageOffset,
+                    scale: imageScale,
+                    previewScale: currentPreviewScale,
+                    isFlipped: isFlipped
+                )
+            }
         }
     }
 

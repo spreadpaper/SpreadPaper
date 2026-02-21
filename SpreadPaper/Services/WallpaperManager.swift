@@ -5,6 +5,7 @@ class WallpaperManager {
     var connectedScreens: [DisplayInfo] = []
     var totalCanvas: CGRect = .zero
     var presets: [SavedPreset] = []
+    var lastError: String?
 
     private let presetsFile = "spreadpaper_presets.json"
 
@@ -126,28 +127,58 @@ class WallpaperManager {
     }
 
     // --- RENDERING ---
-    func setWallpaper(originalImage: NSImage, imageOffset: CGSize, scale: CGFloat, previewScale: CGFloat, isFlipped: Bool) {
-        for display in connectedScreens {
-            renderAndSet(
-                original: originalImage,
-                screen: display.screen,
-                screenFrame: display.frame,
-                totalCanvas: totalCanvas,
-                offset: imageOffset,
-                imageScale: scale,
-                previewScale: previewScale,
-                isFlipped: isFlipped
-            )
+    func setWallpaper(originalImage: NSImage, imageOffset: CGSize, scale: CGFloat, previewScale: CGFloat, isFlipped: Bool) async {
+        lastError = nil
+
+        let displays = connectedScreens.map { display in
+            (screen: display.screen,
+             frame: display.frame,
+             scaleFactor: display.screen.backingScaleFactor,
+             colorSpace: display.screen.colorSpace?.cgColorSpace,
+             name: display.screen.localizedName)
+        }
+
+        for display in displays {
+            do {
+                let image = try renderForScreen(
+                    original: originalImage,
+                    screenFrame: display.frame,
+                    totalCanvas: totalCanvas,
+                    offset: imageOffset,
+                    imageScale: scale,
+                    previewScale: previewScale,
+                    isFlipped: isFlipped,
+                    deviceScale: display.scaleFactor,
+                    screenColorSpace: display.colorSpace
+                )
+                try saveAndSetWallpaper(image, screenName: display.name, screen: display.screen)
+            } catch {
+                lastError = "Failed to set wallpaper for \(display.name): \(error.localizedDescription)"
+            }
         }
     }
 
-    private func renderAndSet(original: NSImage, screen: NSScreen, screenFrame: CGRect, totalCanvas: CGRect, offset: CGSize, imageScale: CGFloat, previewScale: CGFloat, isFlipped: Bool) {
+    private nonisolated func renderForScreen(
+        original: NSImage,
+        screenFrame: CGRect,
+        totalCanvas: CGRect,
+        offset: CGSize,
+        imageScale: CGFloat,
+        previewScale: CGFloat,
+        isFlipped: Bool,
+        deviceScale: CGFloat,
+        screenColorSpace: CGColorSpace?
+    ) throws -> CGImage {
         var rect = CGRect(origin: .zero, size: original.size)
-        guard let cgImage = original.cgImage(forProposedRect: &rect, context: nil, hints: nil) else { return }
+        guard let cgImage = original.cgImage(forProposedRect: &rect, context: nil, hints: nil) else {
+            throw WallpaperError.imageConversionFailed
+        }
 
-        let deviceScale = screen.backingScaleFactor
         let widthPx = Int(screenFrame.width * deviceScale)
         let heightPx = Int(screenFrame.height * deviceScale)
+
+        // Use screen's native color space for better wide-gamut display support
+        let colorSpace = screenColorSpace ?? CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB()
 
         guard let context = CGContext(
             data: nil,
@@ -155,11 +186,12 @@ class WallpaperManager {
             height: heightPx,
             bitsPerComponent: 8,
             bytesPerRow: 0,
-            space: CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB(),
+            space: colorSpace,
             bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
-        ) else { return }
+        ) else {
+            throw WallpaperError.contextCreationFailed
+        }
 
-        // Math
         let realOffsetX_Px = (offset.width / previewScale) * deviceScale
         let realOffsetY_Px = (offset.height / previewScale) * deviceScale
         let drawnImgWidthPx = original.size.width * imageScale * deviceScale
@@ -173,12 +205,10 @@ class WallpaperManager {
 
         let drawX = centeringX_Px + realOffsetX_Px - (relativeScreenX * deviceScale)
         let drawY = centeringY_Px - realOffsetY_Px - (relativeScreenY * deviceScale)
-
         let drawRect = CGRect(x: drawX, y: drawY, width: drawnImgWidthPx, height: drawnImgHeightPx)
 
         context.interpolationQuality = .high
 
-        // Flip Logic
         if isFlipped {
             context.saveGState()
             context.translateBy(x: drawRect.midX, y: drawRect.midY)
@@ -192,30 +222,46 @@ class WallpaperManager {
             context.restoreGState()
         }
 
-        guard let outputImage = context.makeImage() else { return }
-        saveCGImageAndSet(outputImage, for: screen)
+        guard let outputImage = context.makeImage() else {
+            throw WallpaperError.renderingFailed
+        }
+
+        return outputImage
     }
 
-    private func saveCGImageAndSet(_ image: CGImage, for screen: NSScreen) {
+    private func saveAndSetWallpaper(_ image: CGImage, screenName: String, screen: NSScreen) throws {
         let bitmapRep = NSBitmapImageRep(cgImage: image)
-        guard let pngData = bitmapRep.representation(using: .png, properties: [:]) else { return }
+        guard let pngData = bitmapRep.representation(using: .png, properties: [:]) else {
+            throw WallpaperError.pngEncodingFailed
+        }
 
-        // Use persistent storage with unique timestamp to force macOS to recognize the new wallpaper
-        // macOS caches wallpaper URLs, so using the same filename prevents reapplication
-        let sanitizedName = sanitizeScreenName(screen.localizedName)
+        let sanitizedName = sanitizeScreenName(screenName)
         let timestamp = Int(Date().timeIntervalSince1970 * 1000)
         let filename = "spreadpaper_wall_\(sanitizedName)_\(timestamp).png"
         let wallpapersDir = getWallpapersDirectory()
         let url = wallpapersDir.appendingPathComponent(filename)
 
-        // Clean up old wallpaper files for this screen (prevents disk bloat)
         cleanupOldWallpapers(for: sanitizedName, in: wallpapersDir, except: filename)
 
-        do {
-            try pngData.write(to: url)
-            try NSWorkspace.shared.setDesktopImageURL(url, for: screen, options: [.imageScaling : NSImageScaling.scaleAxesIndependently.rawValue])
-        } catch {
-            print("Failed to save/set wallpaper for \(screen.localizedName): \(error)")
+        try pngData.write(to: url)
+        try NSWorkspace.shared.setDesktopImageURL(url, for: screen, options: [
+            .imageScaling: NSImageScaling.scaleAxesIndependently.rawValue
+        ])
+    }
+}
+
+enum WallpaperError: LocalizedError {
+    case imageConversionFailed
+    case contextCreationFailed
+    case renderingFailed
+    case pngEncodingFailed
+
+    var errorDescription: String? {
+        switch self {
+        case .imageConversionFailed: return "Failed to convert image to CGImage"
+        case .contextCreationFailed: return "Failed to create rendering context"
+        case .renderingFailed: return "Failed to render wallpaper image"
+        case .pngEncodingFailed: return "Failed to encode image as PNG"
         }
     }
 }
