@@ -69,7 +69,7 @@ struct ToolbarView: View {
             }
             .padding(.horizontal, 24)
             .padding(.vertical, 12)
-            .background(.ultraThinMaterial, in: Capsule())
+            .adaptiveGlass(in: Capsule())
             .shadow(color: .black.opacity(colorScheme == .dark ? 0.4 : 0.12), radius: 20, x: 0, y: 8)
             .padding(.bottom, 40)
         }
