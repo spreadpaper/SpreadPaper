@@ -73,9 +73,11 @@ Because SpreadPaper is a free, open-source project and not signed with a paid Ap
 
 1. **Download** the `SpreadPaper.dmg` (or `.zip`) from the Releases page.
 2. **Open** the DMG and drag **SpreadPaper** to your **Applications** folder.
-3. **Right-Click** (or Control-Click) the SpreadPaper app icon in your Applications folder.
-4. Select **Open** from the menu.
-5. A dialog will appear saying *"SpreadPaper cannot be opened because the developer cannot be verified"* — Click **Open** in this dialog.
+3. **Remove the quarantine flag** by running this command in Terminal:
+   ```bash
+   xattr -dr com.apple.quarantine /Applications/SpreadPaper.app
+   ```
+4. **Launch SpreadPaper** normally.
 
 *You only need to do this once. Future launches will work normally.*
 
