@@ -23,11 +23,8 @@ struct SpreadPaperApp: App {
                         updatePopupOverlay
                     }
                 }
-                .onAppear {
-                    checkForUpdatesOnStartup()
-                }
-                .onChange(of: updateChecker.updateInfo?.latestVersion) { _, _ in
-                    handleUpdateInfoChange(updateChecker.updateInfo)
+                .task {
+                    await checkForUpdatesOnStartup()
                 }
         }
 
@@ -60,27 +57,15 @@ struct SpreadPaperApp: App {
 
     // MARK: - Update Check Logic
 
-    private func checkForUpdatesOnStartup() {
-        // Only check once per app launch
+    private func checkForUpdatesOnStartup() async {
         guard !hasCheckedForUpdates else { return }
         hasCheckedForUpdates = true
-
-        // Small delay to let the app fully initialize
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            updateChecker.checkForUpdates()
-        }
-    }
-
-    private func handleUpdateInfoChange(_ info: UpdateInfo?) {
-        guard let info = info else { return }
-
-        // Show popup only if an update is available and we haven't shown it yet
-        if info.isUpdateAvailable && hasCheckedForUpdates && !showUpdatePopup {
-            // Small delay to ensure changelog is fetched
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                withAnimation {
-                    showUpdatePopup = true
-                }
+        try? await Task.sleep(for: .seconds(1))
+        await updateChecker.checkForUpdates()
+        if let info = updateChecker.updateInfo, info.isUpdateAvailable {
+            try? await Task.sleep(for: .milliseconds(500))
+            withAnimation {
+                showUpdatePopup = true
             }
         }
     }

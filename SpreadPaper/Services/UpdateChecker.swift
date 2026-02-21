@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Combine
 import AppKit
 
 // MARK: - Models
@@ -72,7 +71,6 @@ class UpdateChecker {
 
     private let repoOwner = "spreadpaper"
     private let repoName = "SpreadPaper"
-    private var cancellables = Set<AnyCancellable>()
 
     private var currentVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
@@ -84,42 +82,41 @@ class UpdateChecker {
 
     // MARK: - Public Methods
 
-    func checkForUpdates() {
+    func checkForUpdates() async {
         guard !isChecking else { return }
         isChecking = true
         error = nil
 
-        let url = URL(string: "\(apiBaseUrl)/releases/latest")!
-        var request = URLRequest(url: url)
-        request.setValue("application/vnd.github.v3+json", forHTTPHeaderField: "Accept")
-        request.setValue("SpreadPaper/\(currentVersion)", forHTTPHeaderField: "User-Agent")
+        do {
+            let url = URL(string: "\(apiBaseUrl)/releases/latest")!
+            var request = URLRequest(url: url)
+            request.setValue("application/vnd.github.v3+json", forHTTPHeaderField: "Accept")
+            request.setValue("SpreadPaper/\(currentVersion)", forHTTPHeaderField: "User-Agent")
 
-        URLSession.shared.dataTaskPublisher(for: request)
-            .map(\.data)
-            .decode(type: GitHubRelease.self, decoder: JSONDecoder())
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] completion in
-                self?.isChecking = false
-                self?.lastCheckDate = Date()
-                if case .failure(let err) = completion {
-                    self?.error = "Failed to check for updates: \(err.localizedDescription)"
-                }
-            } receiveValue: { [weak self] release in
-                self?.processRelease(release)
+            let (data, _) = try await URLSession.shared.data(for: request)
+            let release = try JSONDecoder().decode(GitHubRelease.self, from: data)
+            processRelease(release)
+
+            if updateInfo?.isUpdateAvailable == true {
+                await fetchChangelog()
             }
-            .store(in: &cancellables)
+        } catch {
+            self.error = "Failed to check for updates: \(error.localizedDescription)"
+        }
+
+        isChecking = false
+        lastCheckDate = Date()
     }
 
-    func fetchChangelog() {
-        let url = URL(string: "https://raw.githubusercontent.com/\(repoOwner)/\(repoName)/main/CHANGELOG.md")!
-
-        URLSession.shared.dataTaskPublisher(for: url)
-            .map { String(data: $0.data, encoding: .utf8) ?? "" }
-            .receive(on: DispatchQueue.main)
-            .sink { _ in } receiveValue: { [weak self] content in
-                self?.parseChangelog(content)
-            }
-            .store(in: &cancellables)
+    func fetchChangelog() async {
+        do {
+            let url = URL(string: "https://raw.githubusercontent.com/\(repoOwner)/\(repoName)/main/CHANGELOG.md")!
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let content = String(data: data, encoding: .utf8) ?? ""
+            parseChangelog(content)
+        } catch {
+            // Changelog fetch is best-effort
+        }
     }
 
     func openReleasePage() {
@@ -162,11 +159,6 @@ class UpdateChecker {
             publishedAt: publishedDate,
             isUpdateAvailable: isUpdateAvailable
         )
-
-        // Fetch changelog if update is available
-        if isUpdateAvailable {
-            fetchChangelog()
-        }
     }
 
     private func compareVersions(current: String, latest: String) -> Bool {

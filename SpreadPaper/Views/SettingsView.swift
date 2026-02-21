@@ -69,7 +69,7 @@ struct SettingsView: View {
                     }
 
                     HStack {
-                        Button(action: { updateChecker.checkForUpdates() }) {
+                        Button(action: { Task { await updateChecker.checkForUpdates() } }) {
                             if updateChecker.isChecking {
                                 ProgressView()
                                     .scaleEffect(0.7)
@@ -182,10 +182,10 @@ struct SettingsView: View {
             .tabItem {
                 Label("Updates", systemImage: "arrow.triangle.2.circlepath")
             }
-            .onAppear {
+            .task {
                 // Auto-check on first view
                 if updateChecker.updateInfo == nil && !updateChecker.isChecking {
-                    updateChecker.checkForUpdates()
+                    await updateChecker.checkForUpdates()
                 }
             }
         }

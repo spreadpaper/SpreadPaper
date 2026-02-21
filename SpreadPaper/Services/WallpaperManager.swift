@@ -1,5 +1,4 @@
 import AppKit
-import Combine
 
 @Observable
 class WallpaperManager {
@@ -8,16 +7,16 @@ class WallpaperManager {
     var presets: [SavedPreset] = []
 
     private let presetsFile = "spreadpaper_presets.json"
-    private var cancellables = Set<AnyCancellable>()
 
     init() {
         refreshScreens()
         loadPresets()
+    }
 
-        NotificationCenter.default.publisher(for: NSApplication.didChangeScreenParametersNotification)
-            .receive(on: RunLoop.main)
-            .sink { [weak self] _ in self?.refreshScreens() }
-            .store(in: &cancellables)
+    func listenForScreenChanges() async {
+        for await _ in NotificationCenter.default.notifications(named: NSApplication.didChangeScreenParametersNotification) {
+            refreshScreens()
+        }
     }
 
     // --- FILE SYSTEM ---

@@ -109,6 +109,9 @@ struct ContentView: View {
         .background(WindowAccessor())
         .frame(minWidth: 900, minHeight: 600)
         .preferredColorScheme(settings.colorScheme)
+        .task {
+            await manager.listenForScreenChanges()
+        }
     }
 
     // MARK: - Background
