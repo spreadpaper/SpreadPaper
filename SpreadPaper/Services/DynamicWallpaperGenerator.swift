@@ -99,6 +99,9 @@ enum DynamicWallpaperGenerator {
         outputURL: URL
     ) throws {
         guard !images.isEmpty else { throw DynamicWallpaperError.noImages }
+        guard hours.count == images.count, minutes.count == images.count else {
+            throw DynamicWallpaperError.noImages
+        }
 
         // -- Build TimeBasedItem array --
         let timeItems: [TimeBasedItem] = images.indices.map { idx in
@@ -114,7 +117,7 @@ enum DynamicWallpaperGenerator {
             .min(by: { abs($0.time - noonFraction) < abs($1.time - noonFraction) })!
             .imageIndex
         let darkIndex = timeItems
-            .min(by: { abs($0.time - midnightFraction) < abs($1.time - midnightFraction) })!
+            .min(by: { min($0.time, 1.0 - $0.time) < min($1.time, 1.0 - $1.time) })!
             .imageIndex
 
         let metadata = DynamicMetadata(
