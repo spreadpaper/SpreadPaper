@@ -83,7 +83,7 @@ struct EditorView: View {
                 )
                 ScheduleDetailModal(
                     variant: $variants[idx],
-                    name: "Image \(idx + 1)",
+                    defaultName: scheduleView.displayName(for: idx),
                     nextVariant: scheduleView.nextVariantAfter(index: idx),
                     onRemove: {
                         editingScheduleIndex = nil

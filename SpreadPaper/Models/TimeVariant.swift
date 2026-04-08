@@ -8,6 +8,8 @@ struct TimeVariant: Identifiable, Codable, Hashable {
     var hour: Int
     /// Minute (0-59)
     var minute: Int
+    /// User-editable name (defaults to auto-generated phase name if empty)
+    var name: String = ""
 
     /// Fraction of day (0.0–1.0) for sorting and display
     var dayFraction: Double {
