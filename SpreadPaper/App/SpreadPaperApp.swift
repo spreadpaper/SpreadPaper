@@ -11,6 +11,7 @@ import SwiftUI
 struct SpreadPaperApp: App {
     @State private var updateChecker = UpdateChecker.shared
     @State private var hasCheckedForUpdates = false
+    @Environment(\.openSettings) private var openSettings
 
     var body: some Scene {
         WindowGroup {
@@ -32,7 +33,7 @@ struct SpreadPaperApp: App {
         await updateChecker.checkForUpdates()
         if let info = updateChecker.updateInfo, info.isUpdateAvailable {
             try? await Task.sleep(for: .milliseconds(500))
-            NSApp.sendAction(Selector("showSettingsWindow:"), to: nil, from: nil)
+            openSettings()
         }
     }
 }
