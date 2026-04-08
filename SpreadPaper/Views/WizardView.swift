@@ -80,20 +80,20 @@ struct WizardView: View {
             }
 
             Text("Welcome to SpreadPaper")
-                .font(.system(size: 20, weight: .bold))
+                .font(.system(size: 28, weight: .bold))
                 .foregroundStyle(Color.cdTextPrimary)
 
             Text("One wallpaper across all your monitors.\nPick an image, position it, and your desk comes alive.")
-                .font(.system(size: 12))
+                .font(.system(size: 14))
                 .foregroundStyle(Color.cdTextSecondary)
                 .multilineTextAlignment(.center)
-                .lineSpacing(2)
+                .lineSpacing(3)
 
             Text("\(displayCount) display\(displayCount == 1 ? "" : "s") detected")
-                .font(.system(size: 11, weight: .medium))
+                .font(.system(size: 12, weight: .semibold))
                 .foregroundStyle(Color.cdAccent)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 4)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 5)
                 .background(Color.cdBgElevated)
                 .clipShape(Capsule())
         }
@@ -101,13 +101,15 @@ struct WizardView: View {
 
     private var pickImageStep: some View {
         VStack(spacing: 12) {
-            Text("Choose your first wallpaper")
-                .font(.system(size: 16, weight: .bold))
+            Text("Choose your wallpaper images")
+                .font(.system(size: 22, weight: .bold))
                 .foregroundStyle(Color.cdTextPrimary)
 
-            Text("Drop an image or click to browse")
-                .font(.system(size: 12))
+            Text("Drop images or click to browse.\nSelect multiple for dynamic wallpapers.")
+                .font(.system(size: 14))
                 .foregroundStyle(Color.cdTextSecondary)
+                .multilineTextAlignment(.center)
+                .lineSpacing(3)
 
             // Drop zone
             Button(action: pickImage) {
@@ -122,12 +124,12 @@ struct WizardView: View {
                                 .foregroundStyle(.white)
                         }
 
-                    Text("Drag & drop an image here")
-                        .font(.system(size: 11))
+                    Text("Drag & drop images here")
+                        .font(.system(size: 13))
                         .foregroundStyle(Color.cdTextSecondary)
 
                     Text("or browse files")
-                        .font(.system(size: 10))
+                        .font(.system(size: 12))
                         .foregroundStyle(Color.cdAccent)
                 }
                 .frame(maxWidth: 300)
@@ -147,11 +149,13 @@ struct WizardView: View {
     private func pickImage() {
         let panel = NSOpenPanel()
         panel.allowedContentTypes = [.image]
-        panel.allowsMultipleSelection = false
-        guard panel.runModal() == .OK else { return }
+        panel.allowsMultipleSelection = true
+        panel.message = "Select one or more images"
+        guard panel.runModal() == .OK, !panel.urls.isEmpty else { return }
 
-        // Mark wizard complete and go to editor
+        // Mark wizard complete and route based on image count
         settings.hasCompletedWizard = true
-        navigation.navigateToNewEditor(type: .standard)
+        let type: WallpaperType = panel.urls.count == 1 ? .standard : .dynamic
+        navigation.navigateToNewEditor(type: type)
     }
 }
