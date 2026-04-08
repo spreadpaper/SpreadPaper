@@ -170,20 +170,36 @@ struct DynamicEditorView: View {
         panel.message = "Select images for different times of day"
         guard panel.runModal() == .OK else { return }
 
+        // Default times matching natural day phases
+        let dayPhases = [
+            (7, 0),   // Sunrise
+            (9, 0),   // Morning
+            (12, 0),  // Noon
+            (15, 0),  // Afternoon
+            (17, 0),  // Late afternoon
+            (19, 0),  // Sunset
+            (21, 0),  // Dusk
+            (23, 0),  // Night
+            (1, 0),   // Late night
+            (3, 0),   // Pre-dawn
+            (5, 0),   // Dawn
+            (6, 0), (8, 0), (10, 0), (14, 0), (16, 0),
+        ]
+
         for url in panel.urls {
             guard variants.count < 16 else { break }
             guard let image = NSImage(contentsOf: url) else { continue }
 
-            let existingCount = variants.count
-            let defaultHour = existingCount * (24 / max(panel.urls.count + existingCount, 1))
+            let slotIndex = variants.count
+            let (hour, minute) = slotIndex < dayPhases.count ? dayPhases[slotIndex] : (min(slotIndex + 7, 23), 0)
 
             loadedImages.append(image)
             originalUrls.append(url)
             thumbnails.append(generateThumbnail(image))
             variants.append(TimeVariant(
                 imageFilename: url.lastPathComponent,
-                hour: min(defaultHour, 23),
-                minute: 0
+                hour: hour,
+                minute: minute
             ))
         }
 
@@ -201,7 +217,9 @@ struct DynamicEditorView: View {
                     if let url = url, let image = NSImage(contentsOf: url) {
                         Task { @MainActor in
                             guard variants.count < 16 else { return }
-                            let defaultHour = variants.count * 3
+                            let dayPhases = [(7,0),(9,0),(12,0),(15,0),(17,0),(19,0),(21,0),(23,0)]
+                            let slot = variants.count
+                            let (defaultHour, _) = slot < dayPhases.count ? dayPhases[slot] : (min(slot + 7, 23), 0)
                             loadedImages.append(image)
                             originalUrls.append(url)
                             thumbnails.append(generateThumbnail(image))
