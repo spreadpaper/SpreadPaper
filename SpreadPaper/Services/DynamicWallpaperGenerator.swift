@@ -7,8 +7,6 @@ import Foundation
 // Based on the metadata format reverse-engineered by wallpapper
 // (https://github.com/mczachurski/wallpapper) by Marcin Czachurski (MIT).
 
-/// Solar position–based item: macOS selects the image whose solar position
-/// (altitude/azimuth) is closest to the current sun position.
 struct SolarItem: Codable {
     enum CodingKeys: String, CodingKey {
         case altitude = "a"
@@ -20,20 +18,15 @@ struct SolarItem: Codable {
     var imageIndex: Int
 }
 
-/// Time-based item: macOS selects the image whose fractional time-of-day
-/// is closest to the current time.
 struct TimeBasedItem: Codable {
     enum CodingKeys: String, CodingKey {
         case time = "t"
         case imageIndex = "i"
     }
-    /// Fraction of day: hour/24 + minute/1440
     var time: Double
     var imageIndex: Int
 }
 
-/// Light/Dark appearance pair used when the system is in
-/// light or dark mode (static pair, no time component).
 struct AppearanceInfo: Codable {
     enum CodingKeys: String, CodingKey {
         case darkIndex = "d"
@@ -43,8 +36,6 @@ struct AppearanceInfo: Codable {
     var lightIndex: Int
 }
 
-/// Root container written into the HEIC XMP metadata.
-/// Only one of `solarItems` / `timeItems` should be set.
 struct DynamicMetadata: Codable {
     enum CodingKeys: String, CodingKey {
         case solarItems = "si"
@@ -85,13 +76,6 @@ enum DynamicWallpaperError: Error, LocalizedError {
 enum DynamicWallpaperGenerator {
 
     /// Create a time-based (h24) dynamic desktop HEIC file.
-    ///
-    /// - Parameters:
-    ///   - images: Array of `CGImage` frames (at least one).
-    ///   - hours: Hour component (0-23) for each image (same count as `images`).
-    ///   - minutes: Minute component (0-59) for each image (same count as `images`).
-    ///   - outputURL: File URL where the HEIC will be written.
-    /// - Throws: `DynamicWallpaperError` on failure.
     static func generateTimeBasedHEIC(
         images: [CGImage],
         hours: [Int],
@@ -103,16 +87,12 @@ enum DynamicWallpaperGenerator {
             throw DynamicWallpaperError.noImages
         }
 
-        // -- Build TimeBasedItem array --
         let timeItems: [TimeBasedItem] = images.indices.map { idx in
             let fraction = Double(hours[idx]) / 24.0 + Double(minutes[idx]) / 1440.0
             return TimeBasedItem(time: fraction, imageIndex: idx)
         }
 
-        // -- Auto-pick light/dark indices --
-        let noonFraction   = 12.0 / 24.0   // 0.5
-        let midnightFraction = 0.0
-
+        let noonFraction = 12.0 / 24.0
         let lightIndex = timeItems
             .min(by: { abs($0.time - noonFraction) < abs($1.time - noonFraction) })!
             .imageIndex
@@ -126,75 +106,69 @@ enum DynamicWallpaperGenerator {
             appearance: AppearanceInfo(darkIndex: darkIndex, lightIndex: lightIndex)
         )
 
-        // -- Encode as binary plist, then base64 --
+        try writeHEIC(images: images, metadata: metadata, key: "h24", outputURL: outputURL)
+    }
+
+    /// Create an appearance-based (apr) dynamic desktop HEIC file.
+    /// Two images: one for light mode, one for dark mode.
+    static func generateAppearanceHEIC(
+        lightImage: CGImage,
+        darkImage: CGImage,
+        outputURL: URL
+    ) throws {
+        let appearance = AppearanceInfo(darkIndex: 1, lightIndex: 0)
+        try writeHEIC(images: [lightImage, darkImage], metadata: appearance, key: "apr", outputURL: outputURL)
+    }
+
+    // MARK: - Shared HEIC writing
+
+    private static func writeHEIC(
+        images: [CGImage],
+        metadata: some Codable,
+        key: String,
+        outputURL: URL
+    ) throws {
         let encoder = PropertyListEncoder()
         encoder.outputFormat = .binary
         let plistData = try encoder.encode(metadata)
         let base64String = plistData.base64EncodedString()
 
-        // -- Build XMP metadata --
-        // Namespace must be registered on the SAME metadata instance that receives the tag.
         let xmpNamespace = "http://ns.apple.com/namespace/1.0/" as CFString
         let xmpPrefix    = "apple_desktop" as CFString
         let imageMetadata = CGImageMetadataCreateMutable()
 
         guard CGImageMetadataRegisterNamespaceForPrefix(
-            imageMetadata,
-            xmpNamespace,
-            xmpPrefix,
-            nil
+            imageMetadata, xmpNamespace, xmpPrefix, nil
         ) else {
             throw DynamicWallpaperError.metadataCreationFailed
         }
 
         guard let tag = CGImageMetadataTagCreate(
-            xmpNamespace,
-            xmpPrefix,
-            "h24" as CFString,
-            .string,
-            base64String as CFTypeRef
+            xmpNamespace, xmpPrefix, key as CFString, .string, base64String as CFTypeRef
         ) else {
             throw DynamicWallpaperError.metadataCreationFailed
         }
 
         guard CGImageMetadataSetTagWithPath(
-            imageMetadata,
-            nil,
-            "apple_desktop:h24" as CFString,
-            tag
+            imageMetadata, nil, "apple_desktop:\(key)" as CFString, tag
         ) else {
             throw DynamicWallpaperError.metadataCreationFailed
         }
 
-        // -- Write HEIC via CGImageDestination --
         let data = NSMutableData()
         guard let destination = CGImageDestinationCreateWithData(
-            data as CFMutableData,
-            AVFileType.heic.rawValue as CFString,
-            images.count,
-            nil
+            data as CFMutableData, AVFileType.heic.rawValue as CFString, images.count, nil
         ) else {
             throw DynamicWallpaperError.destinationCreationFailed
         }
 
-        let imageProperties: [CFString: Any] = [
-            kCGImageDestinationLossyCompressionQuality: 0.9
-        ]
+        let options: [CFString: Any] = [kCGImageDestinationLossyCompressionQuality: 0.9]
 
         for (index, image) in images.enumerated() {
             if index == 0 {
-                CGImageDestinationAddImageAndMetadata(
-                    destination,
-                    image,
-                    imageMetadata,
-                    imageProperties as CFDictionary
-                )
+                CGImageDestinationAddImageAndMetadata(destination, image, imageMetadata, options as CFDictionary)
             } else {
-                CGImageDestinationAddImage(
-                    destination,
-                    image,
-                    imageProperties as CFDictionary
-                )
+                CGImageDestinationAddImage(destination, image, options as CFDictionary)
             }
         }
 
@@ -202,7 +176,6 @@ enum DynamicWallpaperGenerator {
             throw DynamicWallpaperError.finalizationFailed
         }
 
-        // -- Write to disk --
         guard data.write(to: outputURL, atomically: true) else {
             throw DynamicWallpaperError.fileWriteFailed
         }

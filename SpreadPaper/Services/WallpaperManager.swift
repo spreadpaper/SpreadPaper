@@ -280,6 +280,53 @@ class WallpaperManager {
         }
     }
 
+    func applyAppearanceWallpaper(
+        lightImage: NSImage,
+        darkImage: NSImage,
+        offset: CGSize,
+        scale: CGFloat,
+        previewScale: CGFloat,
+        isFlipped: Bool
+    ) async {
+        lastError = nil
+
+        let displays = connectedScreens.map { display in
+            (screen: display.screen,
+             frame: display.frame,
+             scaleFactor: display.screen.backingScaleFactor,
+             colorSpace: display.screen.colorSpace?.cgColorSpace,
+             name: display.screen.localizedName)
+        }
+
+        let presetDir = getDynamicPresetDirectory(presetId: UUID())
+
+        for display in displays {
+            do {
+                let renderedLight = try renderForScreen(
+                    original: lightImage, screenFrame: display.frame, totalCanvas: totalCanvas,
+                    offset: offset, imageScale: scale, previewScale: previewScale, isFlipped: isFlipped,
+                    deviceScale: display.scaleFactor, screenColorSpace: display.colorSpace
+                )
+                let renderedDark = try renderForScreen(
+                    original: darkImage, screenFrame: display.frame, totalCanvas: totalCanvas,
+                    offset: offset, imageScale: scale, previewScale: previewScale, isFlipped: isFlipped,
+                    deviceScale: display.scaleFactor, screenColorSpace: display.colorSpace
+                )
+
+                let sanitizedName = sanitizeScreenName(display.name)
+                let heicURL = presetDir.appendingPathComponent("\(sanitizedName).heic")
+
+                try DynamicWallpaperGenerator.generateAppearanceHEIC(
+                    lightImage: renderedLight, darkImage: renderedDark, outputURL: heicURL
+                )
+
+                try NSWorkspace.shared.setDesktopImageURL(heicURL, for: display.screen, options: [:])
+            } catch {
+                lastError = "Failed to set wallpaper for \(display.name): \(error.localizedDescription)"
+            }
+        }
+    }
+
     private nonisolated func renderForScreen(
         original: NSImage,
         screenFrame: CGRect,

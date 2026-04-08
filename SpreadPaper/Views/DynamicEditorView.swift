@@ -1,12 +1,16 @@
-// SpreadPaper/Views/DynamicEditorView.swift
-
 import SwiftUI
 import UniformTypeIdentifiers
+
+enum DynamicMode: String, CaseIterable {
+    case timeBased = "Time of Day"
+    case appearance = "Light / Dark"
+}
 
 struct DynamicEditorView: View {
     @Bindable var manager: WallpaperManager
     @Environment(\.colorScheme) var colorScheme
 
+    @State private var mode: DynamicMode = .timeBased
     @State private var loadedImages: [NSImage] = []
     @State private var originalUrls: [URL] = []
     @State private var thumbnails: [NSImage] = []
@@ -24,15 +28,21 @@ struct DynamicEditorView: View {
     @State private var isShowingSaveAlert = false
     @State private var newPresetName = ""
 
-    /// The currently displayed image based on scrubber position
     private var currentImage: NSImage? {
         guard !loadedImages.isEmpty, selectedVariantIndex < loadedImages.count else { return nil }
         return loadedImages[selectedVariantIndex]
     }
 
+    private var canApply: Bool {
+        switch mode {
+        case .timeBased: return variants.count >= 2
+        case .appearance: return loadedImages.count == 2
+        }
+    }
+
     var body: some View {
         VStack(spacing: 0) {
-            // Canvas area (same as static editor)
+            // Canvas
             GeometryReader { geo in
                 let previewScale = calculatePreviewScale(geo: geo)
                 let canvasWidth = manager.totalCanvas.width * previewScale
@@ -67,7 +77,12 @@ struct DynamicEditorView: View {
                 }
             }
 
-            // Timeline (only visible when images are loaded)
+            // Selected variant details (inline time editing)
+            if !variants.isEmpty {
+                selectedVariantEditor
+            }
+
+            // Timeline strip
             if !variants.isEmpty {
                 TimelineView(
                     variants: $variants,
@@ -88,6 +103,123 @@ struct DynamicEditorView: View {
             Button("Cancel", role: .cancel) { }
             Button("Save") { saveDynamicPreset() }
         } message: { Text("Enter a name for this dynamic wallpaper.") }
+    }
+
+    // MARK: - Inline time editor for selected variant
+
+    @ViewBuilder
+    private var selectedVariantEditor: some View {
+        VStack(spacing: 0) {
+            Divider()
+            HStack(spacing: 24) {
+                if mode == .timeBased {
+                    // Time-of-day editing
+                    HStack(spacing: 8) {
+                        Text("Shown from")
+                            .font(.system(size: 12))
+                            .foregroundStyle(.secondary)
+                        DatePicker(
+                            "",
+                            selection: shownFromBinding,
+                            displayedComponents: .hourAndMinute
+                        )
+                        .labelsHidden()
+                        .frame(width: 100)
+                    }
+
+                    HStack(spacing: 8) {
+                        Text("Shown until")
+                            .font(.system(size: 12))
+                            .foregroundStyle(.secondary)
+                        Text(shownUntilLabel)
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundStyle(.tertiary)
+                    }
+                } else {
+                    // Appearance mode labels
+                    if selectedVariantIndex == 0 {
+                        Label("Light Mode", systemImage: "sun.max")
+                            .font(.system(size: 12, weight: .medium))
+                    } else {
+                        Label("Dark Mode", systemImage: "moon")
+                            .font(.system(size: 12, weight: .medium))
+                    }
+                }
+
+                Spacer()
+
+                // Mode toggle
+                Picker("Mode", selection: $mode) {
+                    ForEach(DynamicMode.allCases, id: \.self) { m in
+                        Text(m.rawValue).tag(m)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .frame(width: 200)
+                .onChange(of: mode) { _, newMode in
+                    onModeChanged(newMode)
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+        }
+        .background(.bar)
+    }
+
+    /// Binding that converts the selected variant's hour/minute to/from a Date for DatePicker
+    private var shownFromBinding: Binding<Date> {
+        Binding<Date>(
+            get: {
+                guard selectedVariantIndex < variants.count else { return Date() }
+                let v = variants[selectedVariantIndex]
+                var components = DateComponents()
+                components.hour = v.hour
+                components.minute = v.minute
+                return Calendar.current.date(from: components) ?? Date()
+            },
+            set: { newDate in
+                guard selectedVariantIndex < variants.count else { return }
+                let components = Calendar.current.dateComponents([.hour, .minute], from: newDate)
+                variants[selectedVariantIndex].hour = components.hour ?? 0
+                variants[selectedVariantIndex].minute = components.minute ?? 0
+            }
+        )
+    }
+
+    /// "Shown until" is the start time of the next variant (sorted by time)
+    private var shownUntilLabel: String {
+        let sorted = variants.sorted { $0.dayFraction < $1.dayFraction }
+        guard let currentIdx = sorted.firstIndex(where: { $0.id == variants[selectedVariantIndex].id }) else {
+            return "--"
+        }
+        let nextIdx = (currentIdx + 1) % sorted.count
+        return sorted[nextIdx].timeString
+    }
+
+    private func onModeChanged(_ newMode: DynamicMode) {
+        switch newMode {
+        case .appearance:
+            // Trim to 2 images, label as light/dark
+            while variants.count > 2 {
+                let last = variants.count - 1
+                variants.remove(at: last)
+                loadedImages.remove(at: last)
+                originalUrls.remove(at: last)
+                thumbnails.remove(at: last)
+            }
+            if variants.count >= 1 { variants[0].hour = 12; variants[0].minute = 0 }
+            if variants.count >= 2 { variants[1].hour = 0; variants[1].minute = 0 }
+            selectedVariantIndex = 0
+        case .timeBased:
+            // Re-apply day phase defaults
+            let dayPhases = [(7,0),(9,0),(12,0),(15,0),(17,0),(19,0),(21,0),(23,0)]
+            for (i, v) in variants.enumerated() {
+                if i < dayPhases.count {
+                    variants[i] = TimeVariant(id: v.id, imageFilename: v.imageFilename, hour: dayPhases[i].0, minute: dayPhases[i].1)
+                }
+            }
+            selectedVariantIndex = 0
+        }
     }
 
     // MARK: - Toolbar
@@ -127,6 +259,7 @@ struct DynamicEditorView: View {
                 Label("Add Images", systemImage: "photo.badge.plus")
                     .labelStyle(.titleAndIcon)
             }
+            .disabled(mode == .appearance && loadedImages.count >= 2)
 
             Button(action: { isShowingSaveAlert = true }) {
                 Label("Save", systemImage: "square.and.arrow.down")
@@ -138,7 +271,7 @@ struct DynamicEditorView: View {
                 Label("Apply Dynamic Wallpaper", systemImage: "checkmark.circle.fill")
                     .labelStyle(.titleAndIcon)
             }
-            .disabled(variants.count < 2)
+            .disabled(!canApply)
         }
     }
 
@@ -166,32 +299,27 @@ struct DynamicEditorView: View {
     private func addImages() {
         let panel = NSOpenPanel()
         panel.allowedContentTypes = [.image]
-        panel.allowsMultipleSelection = true
-        panel.message = "Select images for different times of day"
+        panel.allowsMultipleSelection = mode == .timeBased
+        panel.message = mode == .appearance
+            ? "Select an image for \(loadedImages.isEmpty ? "Light" : "Dark") mode"
+            : "Select images for different times of day"
         guard panel.runModal() == .OK else { return }
 
-        // Default times matching natural day phases
-        let dayPhases = [
-            (7, 0),   // Sunrise
-            (9, 0),   // Morning
-            (12, 0),  // Noon
-            (15, 0),  // Afternoon
-            (17, 0),  // Late afternoon
-            (19, 0),  // Sunset
-            (21, 0),  // Dusk
-            (23, 0),  // Night
-            (1, 0),   // Late night
-            (3, 0),   // Pre-dawn
-            (5, 0),   // Dawn
-            (6, 0), (8, 0), (10, 0), (14, 0), (16, 0),
-        ]
+        let dayPhases = [(7,0),(9,0),(12,0),(15,0),(17,0),(19,0),(21,0),(23,0),(1,0),(3,0),(5,0),(6,0),(8,0),(10,0),(14,0),(16,0)]
+        let maxImages = mode == .appearance ? 2 : 16
 
         for url in panel.urls {
-            guard variants.count < 16 else { break }
+            guard variants.count < maxImages else { break }
             guard let image = NSImage(contentsOf: url) else { continue }
 
             let slotIndex = variants.count
-            let (hour, minute) = slotIndex < dayPhases.count ? dayPhases[slotIndex] : (min(slotIndex + 7, 23), 0)
+            let (hour, minute): (Int, Int)
+            if mode == .appearance {
+                hour = slotIndex == 0 ? 12 : 0  // Light=noon, Dark=midnight
+                minute = 0
+            } else {
+                (hour, minute) = slotIndex < dayPhases.count ? dayPhases[slotIndex] : (min(slotIndex + 7, 23), 0)
+            }
 
             loadedImages.append(image)
             originalUrls.append(url)
@@ -203,29 +331,34 @@ struct DynamicEditorView: View {
             ))
         }
 
-        if loadedImages.count == variants.count && !loadedImages.isEmpty {
+        if !loadedImages.isEmpty {
             selectedVariantIndex = 0
-            scrubberTime = Double(variants[0].hour)
             fitImage()
         }
     }
 
     private func loadDroppedImages(_ providers: [NSItemProvider]) {
+        let maxImages = mode == .appearance ? 2 : 16
         for provider in providers {
             if provider.canLoadObject(ofClass: URL.self) {
                 _ = provider.loadObject(ofClass: URL.self) { url, _ in
                     if let url = url, let image = NSImage(contentsOf: url) {
                         Task { @MainActor in
-                            guard variants.count < 16 else { return }
+                            guard variants.count < maxImages else { return }
                             let dayPhases = [(7,0),(9,0),(12,0),(15,0),(17,0),(19,0),(21,0),(23,0)]
                             let slot = variants.count
-                            let (defaultHour, _) = slot < dayPhases.count ? dayPhases[slot] : (min(slot + 7, 23), 0)
+                            let hour: Int
+                            if mode == .appearance {
+                                hour = slot == 0 ? 12 : 0
+                            } else {
+                                hour = slot < dayPhases.count ? dayPhases[slot].0 : min(slot + 7, 23)
+                            }
                             loadedImages.append(image)
                             originalUrls.append(url)
                             thumbnails.append(generateThumbnail(image))
                             variants.append(TimeVariant(
                                 imageFilename: url.lastPathComponent,
-                                hour: min(defaultHour, 23),
+                                hour: hour,
                                 minute: 0
                             ))
                         }
@@ -247,12 +380,9 @@ struct DynamicEditorView: View {
     }
 
     private func generateThumbnail(_ image: NSImage) -> NSImage {
-        let maxDim: CGFloat = 144  // 2x of 72pt thumbnail
+        let maxDim: CGFloat = 144
         let ratio = min(maxDim / image.size.width, maxDim / image.size.height)
-        let newSize = NSSize(
-            width: image.size.width * ratio,
-            height: image.size.height * ratio
-        )
+        let newSize = NSSize(width: image.size.width * ratio, height: image.size.height * ratio)
         let thumbnail = NSImage(size: newSize)
         thumbnail.lockFocus()
         image.draw(in: NSRect(origin: .zero, size: newSize))
@@ -276,24 +406,39 @@ struct DynamicEditorView: View {
     }
 
     private func applyDynamic() {
-        guard variants.count >= 2 else { return }
-        let tempPreset = SavedPreset(
-            name: "temp",
-            imageFilename: "",
-            offsetX: imageOffset.width,
-            offsetY: imageOffset.height,
-            scale: imageScale,
-            previewScale: currentPreviewScale,
-            isFlipped: isFlipped,
-            isDynamic: true,
-            timeVariants: variants
-        )
-        Task {
-            await manager.applyDynamicWallpaper(
-                preset: tempPreset,
-                images: loadedImages,
-                previewScale: currentPreviewScale
+        switch mode {
+        case .timeBased:
+            guard variants.count >= 2 else { return }
+            let tempPreset = SavedPreset(
+                name: "temp",
+                imageFilename: "",
+                offsetX: imageOffset.width,
+                offsetY: imageOffset.height,
+                scale: imageScale,
+                previewScale: currentPreviewScale,
+                isFlipped: isFlipped,
+                isDynamic: true,
+                timeVariants: variants
             )
+            Task {
+                await manager.applyDynamicWallpaper(
+                    preset: tempPreset,
+                    images: loadedImages,
+                    previewScale: currentPreviewScale
+                )
+            }
+        case .appearance:
+            guard loadedImages.count == 2 else { return }
+            Task {
+                await manager.applyAppearanceWallpaper(
+                    lightImage: loadedImages[0],
+                    darkImage: loadedImages[1],
+                    offset: imageOffset,
+                    scale: imageScale,
+                    previewScale: currentPreviewScale,
+                    isFlipped: isFlipped
+                )
+            }
         }
     }
 }
