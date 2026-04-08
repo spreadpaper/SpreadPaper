@@ -444,8 +444,7 @@ struct EditorView: View {
             Task {
                 await manager.applyAppearanceWallpaper(
                     lightImage: loadedImages[0], darkImage: loadedImages[1],
-                    offset: CGSize(width: variants[0].offsetX, height: variants[0].offsetY),
-                    scale: variants[0].scale, previewScale: currentPreviewScale, isFlipped: variants[0].isFlipped
+                    lightVariant: variants[0], darkVariant: variants[1]
                 )
             }
         }

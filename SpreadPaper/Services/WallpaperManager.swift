@@ -257,15 +257,25 @@ class WallpaperManager {
         for display in displays {
             do {
                 var renderedImages: [CGImage] = []
-                for image in images {
+                for (index, image) in images.enumerated() {
+                    // Use per-variant position if available
+                    let variant = index < variants.count ? variants[index] : nil
+                    let offset = CGSize(
+                        width: variant?.offsetX ?? preset.offsetX,
+                        height: variant?.offsetY ?? preset.offsetY
+                    )
+                    let scale = variant?.scale ?? preset.scale
+                    let pScale = variant?.previewScale ?? previewScale
+                    let flipped = variant?.isFlipped ?? preset.isFlipped
+
                     let rendered = try renderForScreen(
                         original: image,
                         screenFrame: display.frame,
                         totalCanvas: totalCanvas,
-                        offset: CGSize(width: preset.offsetX, height: preset.offsetY),
-                        imageScale: preset.scale,
-                        previewScale: previewScale,
-                        isFlipped: preset.isFlipped,
+                        offset: offset,
+                        imageScale: scale,
+                        previewScale: pScale,
+                        isFlipped: flipped,
                         deviceScale: display.scaleFactor,
                         screenColorSpace: display.colorSpace
                     )
@@ -292,10 +302,8 @@ class WallpaperManager {
     func applyAppearanceWallpaper(
         lightImage: NSImage,
         darkImage: NSImage,
-        offset: CGSize,
-        scale: CGFloat,
-        previewScale: CGFloat,
-        isFlipped: Bool
+        lightVariant: TimeVariant,
+        darkVariant: TimeVariant
     ) async {
         lastError = nil
 
@@ -313,12 +321,16 @@ class WallpaperManager {
             do {
                 let renderedLight = try renderForScreen(
                     original: lightImage, screenFrame: display.frame, totalCanvas: totalCanvas,
-                    offset: offset, imageScale: scale, previewScale: previewScale, isFlipped: isFlipped,
+                    offset: CGSize(width: lightVariant.offsetX, height: lightVariant.offsetY),
+                    imageScale: lightVariant.scale, previewScale: lightVariant.previewScale,
+                    isFlipped: lightVariant.isFlipped,
                     deviceScale: display.scaleFactor, screenColorSpace: display.colorSpace
                 )
                 let renderedDark = try renderForScreen(
                     original: darkImage, screenFrame: display.frame, totalCanvas: totalCanvas,
-                    offset: offset, imageScale: scale, previewScale: previewScale, isFlipped: isFlipped,
+                    offset: CGSize(width: darkVariant.offsetX, height: darkVariant.offsetY),
+                    imageScale: darkVariant.scale, previewScale: darkVariant.previewScale,
+                    isFlipped: darkVariant.isFlipped,
                     deviceScale: display.scaleFactor, screenColorSpace: display.colorSpace
                 )
 
