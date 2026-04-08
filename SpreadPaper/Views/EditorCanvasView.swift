@@ -38,9 +38,16 @@ struct EditorCanvasView: View {
                             DragGesture()
                                 .onChanged { value in
                                     isDragging = true
-                                    imageOffset = CGSize(
+                                    let raw = CGSize(
                                         width: dragStartOffset.width + value.translation.width,
                                         height: dragStartOffset.height + value.translation.height
+                                    )
+                                    imageOffset = calculateSnapping(
+                                        raw: raw,
+                                        imgSize: img.size,
+                                        canvasSize: manager.totalCanvas.size,
+                                        previewScale: previewScale,
+                                        zoomScale: imageScale
                                     )
                                 }
                                 .onEnded { _ in
@@ -88,5 +95,28 @@ struct EditorCanvasView: View {
         let scaleX = geo.size.width / max(manager.totalCanvas.width, 1)
         let scaleY = geo.size.height / max(manager.totalCanvas.height, 1)
         return min(scaleX, scaleY) * 0.85
+    }
+
+    private func calculateSnapping(raw: CGSize, imgSize: NSSize, canvasSize: CGSize, previewScale: CGFloat, zoomScale: CGFloat) -> CGSize {
+        var newX = raw.width
+        var newY = raw.height
+        let threshold: CGFloat = 10.0
+
+        let w = imgSize.width * previewScale * zoomScale
+        let h = imgSize.height * previewScale * zoomScale
+        let cw = canvasSize.width * previewScale
+        let ch = canvasSize.height * previewScale
+
+        // Snap to center
+        if abs(newX) < threshold { newX = 0 }
+        if abs(newY) < threshold { newY = 0 }
+
+        // Snap to edges
+        if abs(newX - (w - cw) / 2.0) < threshold { newX = (w - cw) / 2.0 }
+        if abs(newX - -(w - cw) / 2.0) < threshold { newX = -(w - cw) / 2.0 }
+        if abs(newY - (h - ch) / 2.0) < threshold { newY = (h - ch) / 2.0 }
+        if abs(newY - -(h - ch) / 2.0) < threshold { newY = -(h - ch) / 2.0 }
+
+        return CGSize(width: newX, height: newY)
     }
 }

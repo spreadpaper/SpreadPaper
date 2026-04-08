@@ -8,7 +8,6 @@ struct ScheduleView: View {
     let onAddImage: () -> Void
     let onRemoveVariant: (Int) -> Void
 
-    /// Auto-generated day-phase names
     private let phaseNames = ["Sunrise", "Morning", "Noon", "Afternoon", "Late Afternoon", "Sunset", "Dusk", "Night",
                               "Late Night", "Pre-dawn", "Dawn", "Early Morning", "Mid-morning", "Early Afternoon", "Late Evening", "Midnight"]
 
@@ -20,13 +19,39 @@ struct ScheduleView: View {
         VStack(alignment: .leading, spacing: 8) {
             SectionHeader(title: "Schedule · \(variants.count) images")
 
-            VStack(spacing: 3) {
+            // Use ForEach with onMove for drag-to-reorder
+            List {
                 ForEach(sortedIndices, id: \.self) { index in
                     scheduleRow(index: index)
+                        .listRowInsets(EdgeInsets(top: 1, leading: 0, bottom: 1, trailing: 0))
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                }
+                .onMove { source, destination in
+                    reorderVariants(from: source, to: destination)
                 }
             }
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
+            .frame(minHeight: CGFloat(variants.count) * 58)
 
-            DashedAddButton(label: "+ Add Image", action: onAddImage)
+            Button(action: onAddImage) {
+                HStack {
+                    Spacer()
+                    Text("+ Add Image")
+                        .font(.system(size: 10))
+                        .foregroundStyle(Color.cdTextTertiary)
+                    Spacer()
+                }
+                .padding(.vertical, 8)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .strokeBorder(style: StrokeStyle(lineWidth: 1, dash: [5, 3]))
+                        .foregroundStyle(Color.cdBorder)
+                )
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
         }
     }
 
@@ -85,12 +110,12 @@ struct ScheduleView: View {
                 ),
                 endFraction: Binding(
                     get: { nextVariant.dayFraction },
-                    set: { _ in } // End is derived from next variant
+                    set: { _ in }
                 ),
                 isSelected: isSelected
             )
             .frame(height: 12)
-            .padding(.leading, 18) // Align with content after drag handle
+            .padding(.leading, 18)
         }
         .padding(.horizontal, 7)
         .padding(.vertical, 5)
@@ -100,9 +125,25 @@ struct ScheduleView: View {
             RoundedRectangle(cornerRadius: 8)
                 .stroke(isSelected ? Color.cdAccent : Color.cdBorder, lineWidth: isSelected ? 1.5 : 1)
         )
+        .contentShape(Rectangle())
         .onTapGesture { selectedIndex = index }
         .contextMenu {
             Button("Remove", role: .destructive) { onRemoveVariant(index) }
+        }
+    }
+
+    private func reorderVariants(from source: IndexSet, to destination: Int) {
+        // Map sorted indices back to original array positions
+        var sorted = sortedIndices
+        sorted.move(fromOffsets: source, toOffset: destination)
+
+        // Redistribute times evenly based on new order
+        let dayPhases = [(7,0),(9,0),(12,0),(15,0),(17,0),(19,0),(21,0),(23,0),(1,0),(3,0),(5,0),(6,0),(8,0),(10,0),(14,0),(16,0)]
+        for (newPosition, originalIndex) in sorted.enumerated() {
+            if newPosition < dayPhases.count {
+                variants[originalIndex].hour = dayPhases[newPosition].0
+                variants[originalIndex].minute = dayPhases[newPosition].1
+            }
         }
     }
 
@@ -120,7 +161,6 @@ struct ScheduleView: View {
     }
 }
 
-// Safe array access
 private extension Array {
     subscript(safe index: Index) -> Element? {
         indices.contains(index) ? self[index] : nil

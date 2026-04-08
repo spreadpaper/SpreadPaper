@@ -73,14 +73,28 @@ struct EditorView: View {
                             CoolDarkSlider(value: $imageScale, range: 0.1...5.0)
                         }
 
-                        HStack(spacing: 6) {
-                            Button("Fit") { fitImage() }
-                                .buttonStyle(CoolDarkIconButtonStyle())
+                        HStack(spacing: 8) {
+                            Button(action: fitImage) {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "arrow.up.left.and.arrow.down.right")
+                                        .font(.system(size: 10))
+                                    Text("Fit")
+                                        .font(.system(size: 11))
+                                }
                                 .frame(maxWidth: .infinity)
+                            }
+                            .buttonStyle(CoolDarkIconButtonStyle())
 
-                            Button("Flip") { isFlipped.toggle() }
-                                .buttonStyle(CoolDarkIconButtonStyle())
+                            Button(action: { isFlipped.toggle() }) {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "arrow.left.and.right")
+                                        .font(.system(size: 10))
+                                    Text("Flip")
+                                        .font(.system(size: 11))
+                                }
                                 .frame(maxWidth: .infinity)
+                            }
+                            .buttonStyle(CoolDarkIconButtonStyle())
                         }
                     }
 
