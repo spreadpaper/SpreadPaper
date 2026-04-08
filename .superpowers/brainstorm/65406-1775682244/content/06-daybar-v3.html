@@ -1,0 +1,166 @@
+<h2>Day Bar — Back to Sliders</h2>
+<p class="subtitle">Returning to the original draggable marker concept. Focus: visually clear "from → until" ranges with smart defaults.</p>
+
+<div class="cards">
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 20px; background: #fafafa;">
+      <div style="width: 280px; margin: 0 auto; font-family: -apple-system, system-ui, sans-serif;">
+        <div style="font-size: 9px; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">Schedule</div>
+
+        <!-- Day bar with colored range fills -->
+        <div style="position: relative; height: 48px; margin: 0 4px;">
+          <!-- Night/day gradient background -->
+          <div style="position: absolute; top: 16px; left: 0; right: 0; height: 16px; border-radius: 8px; background: linear-gradient(to right, #1a1a3e 0%, #3a4a6e 15%, #7a9abf 25%, #ffe08a 35%, #87ceeb 50%, #87ceeb 55%, #ff9a56 72%, #4a3a5e 85%, #1a1a3e 100%); opacity: 0.4;"></div>
+
+          <!-- Active range fills (colored bars showing each image's span) -->
+          <div style="position: absolute; top: 16px; left: 29%; width: 21%; height: 16px; background: rgba(0,122,255,0.25); border-radius: 0;"></div>
+          <div style="position: absolute; top: 16px; left: 50%; width: 25%; height: 16px; background: rgba(255,149,0,0.2);"></div>
+          <div style="position: absolute; top: 16px; left: 75%; width: 17%; height: 16px; background: rgba(255,45,85,0.2);"></div>
+
+          <!-- Slider handles -->
+          <div style="position: absolute; left: 29%; top: 10px; transform: translateX(-50%); z-index: 2;">
+            <div style="width: 16px; height: 28px; background: white; border-radius: 5px; border: 2px solid #007AFF; box-shadow: 0 1px 4px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; cursor: grab;">
+              <div style="width: 2px; height: 10px; background: #007AFF; border-radius: 1px;"></div>
+            </div>
+            <div style="text-align: center; margin-top: 2px; font-size: 8px; font-weight: 600; color: #007AFF;">7 AM</div>
+          </div>
+
+          <div style="position: absolute; left: 50%; top: 10px; transform: translateX(-50%); z-index: 2;">
+            <div style="width: 16px; height: 28px; background: white; border-radius: 5px; border: 2px solid #e0e0e0; box-shadow: 0 1px 4px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; cursor: grab;">
+              <div style="width: 2px; height: 10px; background: #ccc; border-radius: 1px;"></div>
+            </div>
+            <div style="text-align: center; margin-top: 2px; font-size: 8px; color: #999;">12 PM</div>
+          </div>
+
+          <div style="position: absolute; left: 75%; top: 10px; transform: translateX(-50%); z-index: 2;">
+            <div style="width: 16px; height: 28px; background: white; border-radius: 5px; border: 2px solid #e0e0e0; box-shadow: 0 1px 4px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; cursor: grab;">
+              <div style="width: 2px; height: 10px; background: #ccc; border-radius: 1px;"></div>
+            </div>
+            <div style="text-align: center; margin-top: 2px; font-size: 8px; color: #999;">6 PM</div>
+          </div>
+
+          <div style="position: absolute; left: 92%; top: 10px; transform: translateX(-50%); z-index: 2;">
+            <div style="width: 16px; height: 28px; background: white; border-radius: 5px; border: 2px solid #e0e0e0; box-shadow: 0 1px 4px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; cursor: grab;">
+              <div style="width: 2px; height: 10px; background: #ccc; border-radius: 1px;"></div>
+            </div>
+            <div style="text-align: center; margin-top: 2px; font-size: 8px; color: #999;">10 PM</div>
+          </div>
+        </div>
+
+        <!-- Time scale -->
+        <div style="display: flex; justify-content: space-between; margin-top: 2px; padding: 0 4px;">
+          <div style="font-size: 7px; color: #ccc;">12AM</div>
+          <div style="font-size: 7px; color: #ccc;">6AM</div>
+          <div style="font-size: 7px; color: #ccc;">12PM</div>
+          <div style="font-size: 7px; color: #ccc;">6PM</div>
+          <div style="font-size: 7px; color: #ccc;">12AM</div>
+        </div>
+
+        <!-- Image list with range labels -->
+        <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 4px;">
+          <div style="display: flex; gap: 8px; align-items: center; background: white; border: 1.5px solid #007AFF; border-radius: 8px; padding: 5px 8px;">
+            <div style="width: 32px; height: 22px; background: linear-gradient(135deg, #1a1a3e, #3a5a8e); border-radius: 3px; flex-shrink: 0;"></div>
+            <div style="font-size: 10px; color: #333;"><b>7:00 AM</b> <span style="color: #999;">→ 12:00 PM</span></div>
+            <div style="flex: 1;"></div>
+            <div style="font-size: 8px; color: #aaa;">5h</div>
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center; background: white; border: 1px solid #e8e8e8; border-radius: 8px; padding: 5px 8px;">
+            <div style="width: 32px; height: 22px; background: linear-gradient(135deg, #ff9a56, #ffcd6b); border-radius: 3px; flex-shrink: 0;"></div>
+            <div style="font-size: 10px; color: #333;"><b>12:00 PM</b> <span style="color: #999;">→ 6:00 PM</span></div>
+            <div style="flex: 1;"></div>
+            <div style="font-size: 8px; color: #aaa;">6h</div>
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center; background: white; border: 1px solid #e8e8e8; border-radius: 8px; padding: 5px 8px;">
+            <div style="width: 32px; height: 22px; background: linear-gradient(135deg, #ff6b4a, #ff9a56); border-radius: 3px; flex-shrink: 0;"></div>
+            <div style="font-size: 10px; color: #333;"><b>6:00 PM</b> <span style="color: #999;">→ 10:00 PM</span></div>
+            <div style="flex: 1;"></div>
+            <div style="font-size: 8px; color: #aaa;">4h</div>
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center; background: white; border: 1px solid #e8e8e8; border-radius: 8px; padding: 5px 8px;">
+            <div style="width: 32px; height: 22px; background: linear-gradient(135deg, #0a0a2e, #1a1a4e); border-radius: 3px; flex-shrink: 0;"></div>
+            <div style="font-size: 10px; color: #333;"><b>10:00 PM</b> <span style="color: #999;">→ 7:00 AM</span></div>
+            <div style="flex: 1;"></div>
+            <div style="font-size: 8px; color: #aaa;">9h</div>
+          </div>
+        </div>
+        <div style="margin-top: 6px; border: 1px dashed #ccc; border-radius: 8px; padding: 5px; text-align: center; font-size: 9px; color: #999;">+ Add Image</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A: Sliders + Range List</h3>
+      <p>The original day bar with draggable slider handles, PLUS a list below showing each image's time range with duration. Drag sliders on the bar OR click the time in the list to edit. Colored highlight fills on the bar show each image's active span. Every image clearly shows "from X → until Y (Nh)".</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 20px; background: #fafafa;">
+      <div style="width: 280px; margin: 0 auto; font-family: -apple-system, system-ui, sans-serif;">
+        <div style="font-size: 9px; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">Schedule</div>
+
+        <!-- Combined: each row has its own mini bar showing range -->
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+
+          <div style="background: white; border: 1.5px solid #007AFF; border-radius: 8px; padding: 8px; ">
+            <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 6px;">
+              <div style="width: 36px; height: 24px; background: linear-gradient(135deg, #1a1a3e, #3a5a8e); border-radius: 3px; flex-shrink: 0;"></div>
+              <div style="font-size: 11px; font-weight: 600; color: #333;">Sunrise</div>
+              <div style="flex: 1;"></div>
+              <div style="font-size: 10px; color: #007AFF; font-weight: 500;">7:00 AM → 12:00 PM</div>
+            </div>
+            <!-- Mini range bar -->
+            <div style="position: relative; height: 6px; background: #f0f0f2; border-radius: 3px;">
+              <div style="position: absolute; left: 29%; width: 21%; height: 100%; background: #007AFF; border-radius: 3px; opacity: 0.6;"></div>
+              <!-- Drag handles at edges -->
+              <div style="position: absolute; left: 29%; top: -3px; width: 8px; height: 12px; background: white; border: 1.5px solid #007AFF; border-radius: 3px; transform: translateX(-50%); cursor: grab;"></div>
+              <div style="position: absolute; left: 50%; top: -3px; width: 8px; height: 12px; background: white; border: 1.5px solid #007AFF; border-radius: 3px; transform: translateX(-50%); cursor: grab;"></div>
+            </div>
+          </div>
+
+          <div style="background: white; border: 1px solid #e8e8e8; border-radius: 8px; padding: 8px;">
+            <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 6px;">
+              <div style="width: 36px; height: 24px; background: linear-gradient(135deg, #ff9a56, #ffcd6b); border-radius: 3px; flex-shrink: 0;"></div>
+              <div style="font-size: 11px; font-weight: 600; color: #333;">Midday</div>
+              <div style="flex: 1;"></div>
+              <div style="font-size: 10px; color: #666;">12:00 PM → 6:00 PM</div>
+            </div>
+            <div style="position: relative; height: 6px; background: #f0f0f2; border-radius: 3px;">
+              <div style="position: absolute; left: 50%; width: 25%; height: 100%; background: #FF9500; border-radius: 3px; opacity: 0.4;"></div>
+            </div>
+          </div>
+
+          <div style="background: white; border: 1px solid #e8e8e8; border-radius: 8px; padding: 8px;">
+            <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 6px;">
+              <div style="width: 36px; height: 24px; background: linear-gradient(135deg, #ff6b4a, #ff9a56); border-radius: 3px; flex-shrink: 0;"></div>
+              <div style="font-size: 11px; font-weight: 600; color: #333;">Sunset</div>
+              <div style="flex: 1;"></div>
+              <div style="font-size: 10px; color: #666;">6:00 PM → 10:00 PM</div>
+            </div>
+            <div style="position: relative; height: 6px; background: #f0f0f2; border-radius: 3px;">
+              <div style="position: absolute; left: 75%; width: 17%; height: 100%; background: #FF2D55; border-radius: 3px; opacity: 0.4;"></div>
+            </div>
+          </div>
+
+          <div style="background: white; border: 1px solid #e8e8e8; border-radius: 8px; padding: 8px;">
+            <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 6px;">
+              <div style="width: 36px; height: 24px; background: linear-gradient(135deg, #0a0a2e, #1a1a4e); border-radius: 3px; flex-shrink: 0;"></div>
+              <div style="font-size: 11px; font-weight: 600; color: #333;">Night</div>
+              <div style="flex: 1;"></div>
+              <div style="font-size: 10px; color: #666;">10:00 PM → 7:00 AM</div>
+            </div>
+            <div style="position: relative; height: 6px; background: #f0f0f2; border-radius: 3px;">
+              <!-- Wraps around midnight -->
+              <div style="position: absolute; left: 92%; width: 8%; height: 100%; background: #5856D6; border-radius: 0 3px 3px 0; opacity: 0.4;"></div>
+              <div style="position: absolute; left: 0; width: 29%; height: 100%; background: #5856D6; border-radius: 3px 0 0 3px; opacity: 0.4;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 6px; border: 1px dashed #ccc; border-radius: 8px; padding: 5px; text-align: center; font-size: 9px; color: #999;">+ Add Image</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B: Per-Row Range Bars</h3>
+      <p>Each image row has its own mini 24h bar showing exactly when it's active. Name label + time range on top, colored range bar below. Drag the edges of the bar to adjust start/end. Every row is self-contained — you see the range without looking at a shared bar. Night image wraps around midnight visually.</p>
+    </div>
+  </div>
+</div>

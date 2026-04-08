@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SpreadPaper — Final Mockups</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif; background: #111; color: #eee; padding: 20px 24px; }
+  h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .subtitle { font-size: 13px; color: #888; margin-bottom: 28px; }
+  .mockup-section { margin-bottom: 48px; }
+  .mockup-label { font-size: 14px; font-weight: 700; margin-bottom: 6px; color: #ccc; }
+  .mockup-desc { font-size: 12px; color: #777; margin-bottom: 14px; line-height: 1.5; }
+  .mockup-frame { border-radius: 10px; overflow: hidden; border: 1px solid #333; }
+  .vote-bar { display: flex; gap: 8px; margin-top: 16px; }
+  .vote-btn { padding: 8px 20px; border-radius: 8px; border: 1.5px solid #444; background: transparent; color: #ccc; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+  .vote-btn:hover { border-color: #007AFF; color: #007AFF; }
+  .vote-btn.selected { border-color: #007AFF; background: rgba(0,122,255,0.15); color: #007AFF; }
+  hr { border: none; border-top: 1px solid #222; margin: 32px 0; }
+</style>
+</head>
+<body>
+
+<h1>SpreadPaper Redesign — Three Directions</h1>
+<p class="subtitle">Same layout decisions, three visual personalities. Click "Pick this one" on your favorite.</p>
+
+<!-- ============================================ -->
+<!-- MOCKUP 1: CLEAN LIGHT -->
+<!-- ============================================ -->
+<div class="mockup-section">
+  <div class="mockup-label">1. Clean Light</div>
+  <div class="mockup-desc">White backgrounds, subtle gray borders, soft shadows. Lets the wallpaper images be the only color. Think Linear, Notion, Raycast. Professional, calm, Swiss-design influenced.</div>
+
+  <!-- Gallery View -->
+  <div class="mockup-frame" style="margin-bottom: 12px;">
+    <div style="height: 380px; background: white; display: flex; flex-direction: column; font-family: -apple-system, system-ui, sans-serif;">
+      <div style="background: #fafafa; border-bottom: 1px solid #eee; padding: 10px 20px; display: flex; align-items: center;">
+        <div style="font-size: 14px; font-weight: 700; color: #222; letter-spacing: -0.3px;">SpreadPaper</div>
+        <div style="flex: 1; display: flex; justify-content: center;">
+          <div style="display: flex; gap: 1px; background: #eee; border-radius: 7px; overflow: hidden;">
+            <div style="background: #222; color: white; padding: 4px 14px; font-size: 10px; font-weight: 600;">All</div>
+            <div style="background: white; color: #888; padding: 4px 14px; font-size: 10px;">Static</div>
+            <div style="background: white; color: #888; padding: 4px 14px; font-size: 10px;">Dynamic</div>
+            <div style="background: white; color: #888; padding: 4px 14px; font-size: 10px;">Light/Dark</div>
+          </div>
+        </div>
+        <div style="background: #222; color: white; border-radius: 7px; padding: 5px 14px; font-size: 10px; font-weight: 600;">+ New</div>
+      </div>
+      <div style="flex: 1; padding: 20px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; align-content: start;">
+        <div style="border-radius: 10px; overflow: hidden; border: 2px solid #222; position: relative; aspect-ratio: 16/10;">
+          <div style="position: absolute; inset: 0; background: linear-gradient(135deg, #1a1a3e, #4a6fa5);"></div>
+          <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 8px 10px; background: linear-gradient(transparent, rgba(0,0,0,0.75));">
+            <div style="display: flex; align-items: center;"><div style="font-size: 11px; font-weight: 600; color: white;">Night Sky</div><div style="margin-left: auto; width: 6px; height: 6px; background: #34C759; border-radius: 50%;"></div></div>
+            <div style="font-size: 9px; color: rgba(255,255,255,0.6); margin-top: 2px;">Dynamic · 4 images</div>
+          </div>
+        </div>
+        <div style="border-radius: 10px; overflow: hidden; border: 1px solid #eee; position: relative; aspect-ratio: 16/10;">
+          <div style="position: absolute; inset: 0; background: linear-gradient(135deg, #ff9a56, #87ceeb);"></div>
+          <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 8px 10px; background: linear-gradient(transparent, rgba(0,0,0,0.75));">
+            <div style="font-size: 11px; font-weight: 600; color: white;">Desert Sunrise</div>
+            <div style="font-size: 9px; color: rgba(255,255,255,0.6); margin-top: 2px;">Static</div>
+          </div>
+        </div>
+        <div style="border-radius: 10px; overflow: hidden; border: 1px solid #eee; position: relative; aspect-ratio: 16/10;">
+          <div style="position: absolute; inset: 0; display: flex;"><div style="flex: 1; background: linear-gradient(135deg, #87a96b, #c4d9a0);"></div><div style="flex: 1; background: linear-gradient(135deg, #2d4016, #1a2d0a);"></div></div>
+          <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 8px 10px; background: linear-gradient(transparent, rgba(0,0,0,0.75));">
+            <div style="font-size: 11px; font-weight: 600; color: white;">Forest</div>
+            <div style="font-size: 9px; color: rgba(255,255,255,0.6); margin-top: 2px;">Light / Dark</div>
+          </div>
+        </div>
+        <div style="border-radius: 10px; overflow: hidden; border: 1px solid #eee; position: relative; aspect-ratio: 16/10;">
+          <div style="position: absolute; inset: 0; background: linear-gradient(135deg, #4a2040, #8a4070);"></div>
+          <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 8px 10px; background: linear-gradient(transparent, rgba(0,0,0,0.75));">
+            <div style="font-size: 11px; font-weight: 600; color: white;">Nebula</div>
+            <div style="font-size: 9px; color: rgba(255,255,255,0.6); margin-top: 2px;">Dynamic · 6 images</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Editor View -->
+  <div class="mockup-frame">
+    <div style="height: 360px; background: white; display: flex; flex-direction: column; font-family: -apple-system, system-ui, sans-serif;">
+      <div style="background: #fafafa; border-bottom: 1px solid #eee; padding: 7px 16px; display: flex; align-items: center;">
+        <div style="font-size: 10px; color: #222; font-weight: 500; cursor: pointer;">← Gallery</div>
+        <div style="flex: 1; text-align: center; font-size: 11px; font-weight: 600; color: #222;">Night Sky <span style="font-weight: 400; color: #aaa;">· Dynamic</span></div>
+        <div style="width: 60px;"></div>
+      </div>
+      <div style="flex: 1; display: flex;">
+        <div style="flex: 1; background: #f5f5f7; display: flex; align-items: center; justify-content: center;">
+          <div style="display: flex; gap: 2px;">
+            <div style="width: 220px; height: 138px; background: linear-gradient(135deg, #1a1a3e, #4a6fa5); border-radius: 6px; position: relative;">
+              <div style="position: absolute; bottom: 5px; left: 8px; font-size: 8px; color: rgba(255,255,255,0.4);">DELL U2720Q (1)</div>
+            </div>
+            <div style="width: 220px; height: 138px; background: linear-gradient(135deg, #2a3a5e, #6a8fb5); border-radius: 6px; position: relative;">
+              <div style="position: absolute; bottom: 5px; left: 8px; font-size: 8px; color: rgba(255,255,255,0.4);">DELL U2720Q (2)</div>
+            </div>
+          </div>
+        </div>
+        <div style="width: 220px; background: #fafafa; border-left: 1px solid #eee; padding: 14px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto;">
+          <div>
+            <div style="font-size: 9px; font-weight: 600; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Position</div>
+            <div style="display: flex; gap: 4px; align-items: center; margin-bottom: 6px;">
+              <div style="font-size: 9px; color: #888; width: 32px;">Zoom</div>
+              <div style="flex: 1; height: 4px; background: #e8e8e8; border-radius: 2px;"><div style="width: 40%; height: 100%; background: #222; border-radius: 2px;"></div></div>
+            </div>
+            <div style="display: flex; gap: 6px;">
+              <div style="flex: 1; background: white; border: 1px solid #e8e8e8; border-radius: 6px; padding: 4px; font-size: 9px; color: #666; text-align: center;">Fit</div>
+              <div style="flex: 1; background: white; border: 1px solid #e8e8e8; border-radius: 6px; padding: 4px; font-size: 9px; color: #666; text-align: center;">Flip</div>
+            </div>
+          </div>
+          <div>
+            <div style="font-size: 9px; font-weight: 600; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Schedule · 4 images</div>
+            <div style="display: flex; flex-direction: column; gap: 3px;">
+              <div style="background: white; border: 1.5px solid #222; border-radius: 8px; padding: 5px 7px;">
+                <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 4px;">
+                  <div style="display: flex; flex-direction: column; gap: 1px; opacity: 0.25;"><div style="width: 7px; height: 1px; background: #999;"></div><div style="width: 7px; height: 1px; background: #999;"></div><div style="width: 7px; height: 1px; background: #999;"></div></div>
+                  <div style="width: 28px; height: 18px; background: linear-gradient(135deg, #1a1a3e, #3a5a8e); border-radius: 2px;"></div>
+                  <div style="font-size: 9px; font-weight: 600; color: #333; flex: 1;">Sunrise</div>
+                  <div style="font-size: 9px; color: #222; font-weight: 500;">7 AM – 12 PM</div>
+                  <div style="font-size: 8px; color: #bbb;">5h</div>
+                </div>
+                <div style="position: relative; height: 6px; background: #f0f0f0; border-radius: 3px; margin-left: 16px;">
+                  <div style="position: absolute; left: 29%; width: 21%; height: 100%; background: #222; border-radius: 3px; opacity: 0.25;"></div>
+                  <div style="position: absolute; left: 29%; top: -2px; width: 6px; height: 10px; background: white; border: 1px solid #222; border-radius: 2px; transform: translateX(-50%);"></div>
+                  <div style="position: absolute; left: 50%; top: -2px; width: 6px; height: 10px; background: white; border: 1px solid #222; border-radius: 2px; transform: translateX(-50%);"></div>
+                </div>
+              </div>
+              <div style="background: white; border: 1px solid #eee; border-radius: 8px; padding: 5px 7px;">
+                <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 4px;">
+                  <div style="display: flex; flex-direction: column; gap: 1px; opacity: 0.15;"><div style="width: 7px; height: 1px; background: #999;"></div><div style="width: 7px; height: 1px; background: #999;"></div><div style="width: 7px; height: 1px; background: #999;"></div></div>
+                  <div style="width: 28px; height: 18px; background: linear-gradient(135deg, #ff9a56, #ffcd6b); border-radius: 2px;"></div>
+                  <div style="font-size: 9px; font-weight: 600; color: #333; flex: 1;">Midday</div>
+                  <div style="font-size: 9px; color: #666;">12 PM – 6 PM</div>
+                  <div style="font-size: 8px; color: #bbb;">6h</div>
+                </div>
+                <div style="position: relative; height: 6px; background: #f0f0f0; border-radius: 3px; margin-left: 16px;">
+                  <div style="position: absolute; left: 50%; width: 25%; height: 100%; background: #FF9500; border-radius: 3px; opacity: 0.2;"></div>
+                </div>
+              </div>
+              <div style="background: white; border: 1px solid #eee; border-radius: 8px; padding: 5px 7px;">
+                <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 4px;">
+                  <div style="display: flex; flex-direction: column; gap: 1px; opacity: 0.15;"><div style="width: 7px; height: 1px; background: #999;"></div><div style="width: 7px; height: 1px; background: #999;"></div><div style="width: 7px; height: 1px; background: #999;"></div></div>
+                  <div style="width: 28px; height: 18px; background: linear-gradient(135deg, #ff6b4a, #ff9a56); border-radius: 2px;"></div>
+                  <div style="font-size: 9px; font-weight: 600; color: #333; flex: 1;">Sunset</div>
+                  <div style="font-size: 9px; color: #666;">6 PM – 10 PM</div>
+                  <div style="font-size: 8px; color: #bbb;">4h</div>
+                </div>
+                <div style="position: relative; height: 6px; background: #f0f0f0; border-radius: 3px; margin-left: 16px;">
+                  <div style="position: absolute; left: 75%; width: 17%; height: 100%; background: #FF2D55; border-radius: 3px; opacity: 0.2;"></div>
+                </div>
+              </div>
+              <div style="background: white; border: 1px solid #eee; border-radius: 8px; padding: 5px 7px;">
+                <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 4px;">
+                  <div style="display: flex; flex-direction: column; gap: 1px; opacity: 0.15;"><div style="width: 7px; height: 1px; background: #999;"></div><div style="width: 7px; height: 1px; background: #999;"></div><div style="width: 7px; height: 1px; background: #999;"></div></div>
+                  <div style="width: 28px; height: 18px; background: linear-gradient(135deg, #0a0a2e, #1a1a4e); border-radius: 2px;"></div>
+                  <div style="font-size: 9px; font-weight: 600; color: #333; flex: 1;">Night</div>
+                  <div style="font-size: 9px; color: #666;">10 PM – 7 AM</div>
+                  <div style="font-size: 8px; color: #bbb;">9h</div>
+                </div>
+                <div style="position: relative; height: 6px; background: #f0f0f0; border-radius: 3px; margin-left: 16px;">
+                  <div style="position: absolute; left: 92%; right: 0; height: 100%; background: #5856D6; border-radius: 0 3px 3px 0; opacity: 0.2;"></div>
+                  <div style="position: absolute; left: 0; width: 29%; height: 100%; background: #5856D6; border-radius: 3px 0 0 3px; opacity: 0.2;"></div>
+                </div>
+              </div>
+            </div>
+            <div style="margin-top: 4px; border: 1px dashed #ddd; border-radius: 6px; padding: 4px; text-align: center; font-size: 8px; color: #bbb;">+ Add Image</div>
+          </div>
+          <div style="margin-top: auto;">
+            <div style="background: #222; color: white; border-radius: 8px; padding: 9px; text-align: center; font-size: 11px; font-weight: 600;">Apply Wallpaper</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="vote-bar">
+    <button class="vote-btn" onclick="this.classList.toggle('selected'); document.querySelectorAll('.vote-btn').forEach(b => { if(b !== this) b.classList.remove('selected') });" data-vote="clean-light">← Pick this one</button>
+  </div>
+</div>
+
+<hr>
+
+<!-- ============================================ -->
+<!-- MOCKUP 2: WARM MINIMAL -->
+<!-- ============================================ -->
+<div class="mockup-section">
+  <div class="mockup-label">2. Warm Minimal</div>
+  <div class="mockup-desc">Warm off-white tones, rounded corners, gentle orange/amber accents. Feels inviting and approachable. Think Things 3, Bear, Craft. A warm hug for your desktop.</div>
+
+  <!-- Gallery View -->
+  <div class="mockup-frame" style="margin-bottom: 12px;">
+    <div style="height: 380px; background: #faf8f5; display: flex; flex-direction: column; font-family: -apple-system, system-ui, sans-serif;">
+      <div style="background: #f5f2ed; border-bottom: 1px solid #e8e4dd; padding: 10px 20px; display: flex; align-items: center;">
+        <div style="font-size: 14px; font-weight: 700; color: #3d3529; letter-spacing: -0.3px;">SpreadPaper</div>
+        <div style="flex: 1; display: flex; justify-content: center;">
+          <div style="display: flex; gap: 1px; background: #e8e4dd; border-radius: 7px; overflow: hidden;">
+            <div style="background: #e07830; color: white; padding: 4px 14px; font-size: 10px; font-weight: 600;">All</div>
+            <div style="background: #faf8f5; color: #9a8e7e; padding: 4px 14px; font-size: 10px;">Static</div>
+            <div style="background: #faf8f5; color: #9a8e7e; padding: 4px 14px; font-size: 10px;">Dynamic</div>
+            <div style="background: #faf8f5; color: #9a8e7e; padding: 4px 14px; font-size: 10px;">Light/Dark</div>
+          </div>
+        </div>
+        <div style="background: #e07830; color: white; border-radius: 7px; padding: 5px 14px; font-size: 10px; font-weight: 600;">+ New</div>
+      </div>
+      <div style="flex: 1; padding: 20px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; align-content: start;">
+        <div style="border-radius: 12px; overflow: hidden; border: 2px solid #e07830; position: relative; aspect-ratio: 16/10; box-shadow: 0 2px 8px rgba(224,120,48,0.15);">
+          <div style="position: absolute; inset: 0; background: linear-gradient(135deg, #1a1a3e, #4a6fa5);"></div>
+          <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 8px 10px; background: linear-gradient(transparent, rgba(0,0,0,0.75));">
+            <div style="display: flex; align-items: center;"><div style="font-size: 11px; font-weight: 600; color: white;">Night Sky</div><div style="margin-left: auto; width: 6px; height: 6px; background: #34C759; border-radius: 50%;"></div></div>
+            <div style="font-size: 9px; color: rgba(255,255,255,0.6); margin-top: 2px;">Dynamic · 4 images</div>
+          </div>
+        </div>
+        <div style="border-radius: 12px; overflow: hidden; border: 1px solid #e8e4dd; position: relative; aspect-ratio: 16/10;">
+          <div style="position: absolute; inset: 0; background: linear-gradient(135deg, #ff9a56, #87ceeb);"></div>
+          <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 8px 10px; background: linear-gradient(transparent, rgba(0,0,0,0.75));">
+            <div style="font-size: 11px; font-weight: 600; color: white;">Desert Sunrise</div>
+            <div style="font-size: 9px; color: rgba(255,255,255,0.6); margin-top: 2px;">Static</div>
+          </div>
+        </div>
+        <div style="border-radius: 12px; overflow: hidden; border: 1px solid #e8e4dd; position: relative; aspect-ratio: 16/10;">
+          <div style="position: absolute; inset: 0; display: flex;"><div style="flex: 1; background: linear-gradient(135deg, #87a96b, #c4d9a0);"></div><div style="flex: 1; background: linear-gradient(135deg, #2d4016, #1a2d0a);"></div></div>
+          <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 8px 10px; background: linear-gradient(transparent, rgba(0,0,0,0.75));">
+            <div style="font-size: 11px; font-weight: 600; color: white;">Forest</div>
+            <div style="font-size: 9px; color: rgba(255,255,255,0.6); margin-top: 2px;">Light / Dark</div>
+          </div>
+        </div>
+        <div style="border-radius: 12px; overflow: hidden; border: 1px solid #e8e4dd; position: relative; aspect-ratio: 16/10;">
+          <div style="position: absolute; inset: 0; background: linear-gradient(135deg, #4a2040, #8a4070);"></div>
+          <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 8px 10px; background: linear-gradient(transparent, rgba(0,0,0,0.75));">
+            <div style="font-size: 11px; font-weight: 600; color: white;">Nebula</div>
+            <div style="font-size: 9px; color: rgba(255,255,255,0.6); margin-top: 2px;">Dynamic · 6 images</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Editor View -->
+  <div class="mockup-frame">
+    <div style="height: 360px; background: #faf8f5; display: flex; flex-direction: column; font-family: -apple-system, system-ui, sans-serif;">
+      <div style="background: #f5f2ed; border-bottom: 1px solid #e8e4dd; padding: 7px 16px; display: flex; align-items: center;">
+        <div style="font-size: 10px; color: #e07830; font-weight: 500;">← Gallery</div>
+        <div style="flex: 1; text-align: center; font-size: 11px; font-weight: 600; color: #3d3529;">Night Sky <span style="font-weight: 400; color: #b0a592;">· Dynamic</span></div>
+        <div style="width: 60px;"></div>
+      </div>
+      <div style="flex: 1; display: flex;">
+        <div style="flex: 1; background: #f0ece6; display: flex; align-items: center; justify-content: center;">
+          <div style="display: flex; gap: 2px;">
+            <div style="width: 220px; height: 138px; background: linear-gradient(135deg, #1a1a3e, #4a6fa5); border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.15);"></div>
+            <div style="width: 220px; height: 138px; background: linear-gradient(135deg, #2a3a5e, #6a8fb5); border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.15);"></div>
+          </div>
+        </div>
+        <div style="width: 220px; background: #f5f2ed; border-left: 1px solid #e8e4dd; padding: 14px; display: flex; flex-direction: column; gap: 16px;">
+          <div>
+            <div style="font-size: 9px; font-weight: 600; color: #b0a592; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Position</div>
+            <div style="display: flex; gap: 4px; align-items: center; margin-bottom: 6px;">
+              <div style="font-size: 9px; color: #9a8e7e; width: 32px;">Zoom</div>
+              <div style="flex: 1; height: 4px; background: #e8e4dd; border-radius: 2px;"><div style="width: 40%; height: 100%; background: #e07830; border-radius: 2px;"></div></div>
+            </div>
+            <div style="display: flex; gap: 6px;">
+              <div style="flex: 1; background: #faf8f5; border: 1px solid #e8e4dd; border-radius: 6px; padding: 4px; font-size: 9px; color: #7a6e5e; text-align: center;">Fit</div>
+              <div style="flex: 1; background: #faf8f5; border: 1px solid #e8e4dd; border-radius: 6px; padding: 4px; font-size: 9px; color: #7a6e5e; text-align: center;">Flip</div>
+            </div>
+          </div>
+          <div>
+            <div style="font-size: 9px; font-weight: 600; color: #b0a592; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Schedule</div>
+            <div style="display: flex; flex-direction: column; gap: 3px;">
+              <div style="background: #faf8f5; border: 1.5px solid #e07830; border-radius: 8px; padding: 5px 7px;">
+                <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 4px;">
+                  <div style="width: 28px; height: 18px; background: linear-gradient(135deg, #1a1a3e, #3a5a8e); border-radius: 2px;"></div>
+                  <div style="font-size: 9px; font-weight: 600; color: #3d3529; flex: 1;">Sunrise</div>
+                  <div style="font-size: 9px; color: #e07830; font-weight: 500;">7 AM – 12 PM</div>
+                </div>
+                <div style="position: relative; height: 6px; background: #e8e4dd; border-radius: 3px;">
+                  <div style="position: absolute; left: 29%; width: 21%; height: 100%; background: #e07830; border-radius: 3px; opacity: 0.35;"></div>
+                </div>
+              </div>
+              <div style="background: #faf8f5; border: 1px solid #e8e4dd; border-radius: 8px; padding: 5px 7px;">
+                <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 4px;">
+                  <div style="width: 28px; height: 18px; background: linear-gradient(135deg, #ff9a56, #ffcd6b); border-radius: 2px;"></div>
+                  <div style="font-size: 9px; font-weight: 600; color: #3d3529; flex: 1;">Midday</div>
+                  <div style="font-size: 9px; color: #7a6e5e;">12 – 6 PM</div>
+                </div>
+                <div style="position: relative; height: 6px; background: #e8e4dd; border-radius: 3px;">
+                  <div style="position: absolute; left: 50%; width: 25%; height: 100%; background: #e07830; border-radius: 3px; opacity: 0.2;"></div>
+                </div>
+              </div>
+              <div style="background: #faf8f5; border: 1px solid #e8e4dd; border-radius: 8px; padding: 5px 7px;">
+                <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 4px;">
+                  <div style="width: 28px; height: 18px; background: linear-gradient(135deg, #0a0a2e, #1a1a4e); border-radius: 2px;"></div>
+                  <div style="font-size: 9px; font-weight: 600; color: #3d3529; flex: 1;">Night</div>
+                  <div style="font-size: 9px; color: #7a6e5e;">10 PM – 7 AM</div>
+                </div>
+                <div style="position: relative; height: 6px; background: #e8e4dd; border-radius: 3px;">
+                  <div style="position: absolute; left: 92%; right: 0; height: 100%; background: #e07830; border-radius: 0 3px 3px 0; opacity: 0.2;"></div>
+                  <div style="position: absolute; left: 0; width: 29%; height: 100%; background: #e07830; border-radius: 3px 0 0 3px; opacity: 0.2;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top: auto;">
+            <div style="background: #e07830; color: white; border-radius: 8px; padding: 9px; text-align: center; font-size: 11px; font-weight: 600;">Apply Wallpaper</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="vote-bar">
+    <button class="vote-btn" onclick="this.classList.toggle('selected'); document.querySelectorAll('.vote-btn').forEach(b => { if(b !== this) b.classList.remove('selected') });" data-vote="warm-minimal">← Pick this one</button>
+  </div>
+</div>
+
+<hr>
+
+<!-- ============================================ -->
+<!-- MOCKUP 3: COOL DARK -->
+<!-- ============================================ -->
+<div class="mockup-section">
+  <div class="mockup-label">3. Cool Dark</div>
+  <div class="mockup-desc">Dark UI with cool blue accents. Wallpaper images glow against the dark background. Think Arc Browser, Warp Terminal, GitHub dark mode. For the desk-setup crowd who already lives in dark mode.</div>
+
+  <!-- Gallery View -->
+  <div class="mockup-frame" style="margin-bottom: 12px;">
+    <div style="height: 380px; background: #16161a; display: flex; flex-direction: column; font-family: -apple-system, system-ui, sans-serif;">
+      <div style="background: #1e1e24; border-bottom: 1px solid #2a2a32; padding: 10px 20px; display: flex; align-items: center;">
+        <div style="font-size: 14px; font-weight: 700; color: #e8e8ed; letter-spacing: -0.3px;">SpreadPaper</div>
+        <div style="flex: 1; display: flex; justify-content: center;">
+          <div style="display: flex; gap: 1px; background: #2a2a32; border-radius: 7px; overflow: hidden;">
+            <div style="background: #5e5ce6; color: white; padding: 4px 14px; font-size: 10px; font-weight: 600;">All</div>
+            <div style="background: #1e1e24; color: #6e6e7a; padding: 4px 14px; font-size: 10px;">Static</div>
+            <div style="background: #1e1e24; color: #6e6e7a; padding: 4px 14px; font-size: 10px;">Dynamic</div>
+            <div style="background: #1e1e24; color: #6e6e7a; padding: 4px 14px; font-size: 10px;">Light/Dark</div>
+          </div>
+        </div>
+        <div style="background: #5e5ce6; color: white; border-radius: 7px; padding: 5px 14px; font-size: 10px; font-weight: 600;">+ New</div>
+      </div>
+      <div style="flex: 1; padding: 20px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; align-content: start;">
+        <div style="border-radius: 10px; overflow: hidden; border: 2px solid #5e5ce6; position: relative; aspect-ratio: 16/10; box-shadow: 0 0 16px rgba(94,92,230,0.2);">
+          <div style="position: absolute; inset: 0; background: linear-gradient(135deg, #1a1a3e, #4a6fa5);"></div>
+          <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 8px 10px; background: linear-gradient(transparent, rgba(0,0,0,0.8));">
+            <div style="display: flex; align-items: center;"><div style="font-size: 11px; font-weight: 600; color: white;">Night Sky</div><div style="margin-left: auto; width: 6px; height: 6px; background: #34C759; border-radius: 50%;"></div></div>
+            <div style="font-size: 9px; color: rgba(255,255,255,0.5); margin-top: 2px;">Dynamic · 4 images</div>
+          </div>
+        </div>
+        <div style="border-radius: 10px; overflow: hidden; border: 1px solid #2a2a32; position: relative; aspect-ratio: 16/10;">
+          <div style="position: absolute; inset: 0; background: linear-gradient(135deg, #ff9a56, #87ceeb);"></div>
+          <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 8px 10px; background: linear-gradient(transparent, rgba(0,0,0,0.8));">
+            <div style="font-size: 11px; font-weight: 600; color: white;">Desert Sunrise</div>
+            <div style="font-size: 9px; color: rgba(255,255,255,0.5); margin-top: 2px;">Static</div>
+          </div>
+        </div>
+        <div style="border-radius: 10px; overflow: hidden; border: 1px solid #2a2a32; position: relative; aspect-ratio: 16/10;">
+          <div style="position: absolute; inset: 0; display: flex;"><div style="flex: 1; background: linear-gradient(135deg, #87a96b, #c4d9a0);"></div><div style="flex: 1; background: linear-gradient(135deg, #2d4016, #1a2d0a);"></div></div>
+          <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 8px 10px; background: linear-gradient(transparent, rgba(0,0,0,0.8));">
+            <div style="font-size: 11px; font-weight: 600; color: white;">Forest</div>
+            <div style="font-size: 9px; color: rgba(255,255,255,0.5); margin-top: 2px;">Light / Dark</div>
+          </div>
+        </div>
+        <div style="border-radius: 10px; overflow: hidden; border: 1px solid #2a2a32; position: relative; aspect-ratio: 16/10;">
+          <div style="position: absolute; inset: 0; background: linear-gradient(135deg, #4a2040, #8a4070);"></div>
+          <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 8px 10px; background: linear-gradient(transparent, rgba(0,0,0,0.8));">
+            <div style="font-size: 11px; font-weight: 600; color: white;">Nebula</div>
+            <div style="font-size: 9px; color: rgba(255,255,255,0.5); margin-top: 2px;">Dynamic · 6 images</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Editor View -->
+  <div class="mockup-frame">
+    <div style="height: 360px; background: #16161a; display: flex; flex-direction: column; font-family: -apple-system, system-ui, sans-serif;">
+      <div style="background: #1e1e24; border-bottom: 1px solid #2a2a32; padding: 7px 16px; display: flex; align-items: center;">
+        <div style="font-size: 10px; color: #5e5ce6; font-weight: 500;">← Gallery</div>
+        <div style="flex: 1; text-align: center; font-size: 11px; font-weight: 600; color: #e8e8ed;">Night Sky <span style="font-weight: 400; color: #6e6e7a;">· Dynamic</span></div>
+        <div style="width: 60px;"></div>
+      </div>
+      <div style="flex: 1; display: flex;">
+        <div style="flex: 1; background: #111114; display: flex; align-items: center; justify-content: center;">
+          <div style="display: flex; gap: 2px;">
+            <div style="width: 220px; height: 138px; background: linear-gradient(135deg, #1a1a3e, #4a6fa5); border-radius: 6px; box-shadow: 0 0 24px rgba(74,111,165,0.2);"></div>
+            <div style="width: 220px; height: 138px; background: linear-gradient(135deg, #2a3a5e, #6a8fb5); border-radius: 6px; box-shadow: 0 0 24px rgba(106,143,181,0.2);"></div>
+          </div>
+        </div>
+        <div style="width: 220px; background: #1e1e24; border-left: 1px solid #2a2a32; padding: 14px; display: flex; flex-direction: column; gap: 16px;">
+          <div>
+            <div style="font-size: 9px; font-weight: 600; color: #6e6e7a; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Position</div>
+            <div style="display: flex; gap: 4px; align-items: center; margin-bottom: 6px;">
+              <div style="font-size: 9px; color: #6e6e7a; width: 32px;">Zoom</div>
+              <div style="flex: 1; height: 4px; background: #2a2a32; border-radius: 2px;"><div style="width: 40%; height: 100%; background: #5e5ce6; border-radius: 2px;"></div></div>
+            </div>
+            <div style="display: flex; gap: 6px;">
+              <div style="flex: 1; background: #24242c; border: 1px solid #2a2a32; border-radius: 6px; padding: 4px; font-size: 9px; color: #9e9eaa; text-align: center;">Fit</div>
+              <div style="flex: 1; background: #24242c; border: 1px solid #2a2a32; border-radius: 6px; padding: 4px; font-size: 9px; color: #9e9eaa; text-align: center;">Flip</div>
+            </div>
+          </div>
+          <div>
+            <div style="font-size: 9px; font-weight: 600; color: #6e6e7a; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Schedule</div>
+            <div style="display: flex; flex-direction: column; gap: 3px;">
+              <div style="background: #24242c; border: 1.5px solid #5e5ce6; border-radius: 8px; padding: 5px 7px;">
+                <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 4px;">
+                  <div style="width: 28px; height: 18px; background: linear-gradient(135deg, #1a1a3e, #3a5a8e); border-radius: 2px;"></div>
+                  <div style="font-size: 9px; font-weight: 600; color: #e8e8ed; flex: 1;">Sunrise</div>
+                  <div style="font-size: 9px; color: #5e5ce6; font-weight: 500;">7 AM – 12 PM</div>
+                </div>
+                <div style="position: relative; height: 6px; background: #2a2a32; border-radius: 3px;">
+                  <div style="position: absolute; left: 29%; width: 21%; height: 100%; background: #5e5ce6; border-radius: 3px; opacity: 0.4;"></div>
+                </div>
+              </div>
+              <div style="background: #24242c; border: 1px solid #2a2a32; border-radius: 8px; padding: 5px 7px;">
+                <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 4px;">
+                  <div style="width: 28px; height: 18px; background: linear-gradient(135deg, #ff9a56, #ffcd6b); border-radius: 2px;"></div>
+                  <div style="font-size: 9px; font-weight: 600; color: #e8e8ed; flex: 1;">Midday</div>
+                  <div style="font-size: 9px; color: #6e6e7a;">12 – 6 PM</div>
+                </div>
+                <div style="position: relative; height: 6px; background: #2a2a32; border-radius: 3px;">
+                  <div style="position: absolute; left: 50%; width: 25%; height: 100%; background: #5e5ce6; border-radius: 3px; opacity: 0.25;"></div>
+                </div>
+              </div>
+              <div style="background: #24242c; border: 1px solid #2a2a32; border-radius: 8px; padding: 5px 7px;">
+                <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 4px;">
+                  <div style="width: 28px; height: 18px; background: linear-gradient(135deg, #0a0a2e, #1a1a4e); border-radius: 2px;"></div>
+                  <div style="font-size: 9px; font-weight: 600; color: #e8e8ed; flex: 1;">Night</div>
+                  <div style="font-size: 9px; color: #6e6e7a;">10 PM – 7 AM</div>
+                </div>
+                <div style="position: relative; height: 6px; background: #2a2a32; border-radius: 3px;">
+                  <div style="position: absolute; left: 92%; right: 0; height: 100%; background: #5e5ce6; border-radius: 0 3px 3px 0; opacity: 0.25;"></div>
+                  <div style="position: absolute; left: 0; width: 29%; height: 100%; background: #5e5ce6; border-radius: 3px 0 0 3px; opacity: 0.25;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top: auto;">
+            <div style="background: #5e5ce6; color: white; border-radius: 8px; padding: 9px; text-align: center; font-size: 11px; font-weight: 600; box-shadow: 0 0 12px rgba(94,92,230,0.3);">Apply Wallpaper</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="vote-bar">
+    <button class="vote-btn" onclick="this.classList.toggle('selected'); document.querySelectorAll('.vote-btn').forEach(b => { if(b !== this) b.classList.remove('selected') });" data-vote="cool-dark">← Pick this one</button>
+  </div>
+</div>
+
+<div style="margin-top: 32px; text-align: center; font-size: 12px; color: #666;">
+  Pick your favorite, then tell me in the terminal.
+</div>
+
+</body>
+</html>

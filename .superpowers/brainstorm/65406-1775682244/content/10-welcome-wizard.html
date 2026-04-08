@@ -1,0 +1,126 @@
+<h2>Welcome Wizard</h2>
+<p class="subtitle">First launch experience. 2-3 steps that end with the user's first wallpaper applied.</p>
+
+<div class="cards">
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 16px; background: #fafafa;">
+      <div style="height: 320px; border-radius: 8px; overflow: hidden; border: 1px solid #e0e0e0; font-family: -apple-system, system-ui, sans-serif; background: white; display: flex; flex-direction: column;">
+        <!-- Step indicator -->
+        <div style="padding: 16px 20px 0; text-align: center;">
+          <div style="display: flex; justify-content: center; gap: 6px; margin-bottom: 16px;">
+            <div style="width: 24px; height: 4px; background: #007AFF; border-radius: 2px;"></div>
+            <div style="width: 24px; height: 4px; background: #e0e0e0; border-radius: 2px;"></div>
+            <div style="width: 24px; height: 4px; background: #e0e0e0; border-radius: 2px;"></div>
+          </div>
+        </div>
+
+        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 32px; text-align: center;">
+          <!-- Animated monitor illustration -->
+          <div style="display: flex; gap: 3px; margin-bottom: 20px;">
+            <div style="width: 80px; height: 52px; border-radius: 6px; background: linear-gradient(135deg, #007AFF, #5856D6); position: relative; box-shadow: 0 4px 12px rgba(0,122,255,0.2);">
+              <div style="position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); width: 20px; height: 4px; background: #ccc; border-radius: 2px;"></div>
+            </div>
+            <div style="width: 80px; height: 52px; border-radius: 6px; background: linear-gradient(135deg, #5856D6, #AF52DE); position: relative; box-shadow: 0 4px 12px rgba(88,86,214,0.2);">
+              <div style="position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); width: 20px; height: 4px; background: #ccc; border-radius: 2px;"></div>
+            </div>
+          </div>
+
+          <div style="font-size: 18px; font-weight: 700; color: #333; margin-bottom: 6px;">Welcome to SpreadPaper</div>
+          <div style="font-size: 12px; color: #888; line-height: 1.5; max-width: 280px;">One wallpaper across all your monitors. Pick an image, position it, and your desk comes alive.</div>
+
+          <div style="margin-top: 8px; font-size: 11px; color: #007AFF;">
+            <span style="background: #f0f0f2; border-radius: 4px; padding: 2px 8px;">2 displays detected</span>
+          </div>
+        </div>
+
+        <div style="padding: 16px 20px; display: flex; justify-content: center; gap: 8px;">
+          <div style="background: #007AFF; color: white; border-radius: 8px; padding: 8px 28px; font-size: 12px; font-weight: 600;">Get Started</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Step 1: Welcome</h3>
+      <p>Animated monitor illustration showing the concept. Auto-detects connected displays. One button: "Get Started".</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 16px; background: #fafafa;">
+      <div style="height: 320px; border-radius: 8px; overflow: hidden; border: 1px solid #e0e0e0; font-family: -apple-system, system-ui, sans-serif; background: white; display: flex; flex-direction: column;">
+        <div style="padding: 16px 20px 0; text-align: center;">
+          <div style="display: flex; justify-content: center; gap: 6px; margin-bottom: 16px;">
+            <div style="width: 24px; height: 4px; background: #007AFF; border-radius: 2px;"></div>
+            <div style="width: 24px; height: 4px; background: #007AFF; border-radius: 2px;"></div>
+            <div style="width: 24px; height: 4px; background: #e0e0e0; border-radius: 2px;"></div>
+          </div>
+        </div>
+
+        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 24px;">
+          <div style="font-size: 16px; font-weight: 700; color: #333; margin-bottom: 4px;">Choose your first wallpaper</div>
+          <div style="font-size: 11px; color: #888; margin-bottom: 16px;">Drop an image or click to browse</div>
+
+          <!-- Drop zone -->
+          <div style="width: 100%; border: 2px dashed #d0d0d5; border-radius: 12px; padding: 28px 20px; text-align: center; background: #fafafa;">
+            <div style="width: 48px; height: 48px; margin: 0 auto 10px; background: linear-gradient(135deg, #007AFF, #5856D6); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+              <div style="color: white; font-size: 22px;">↓</div>
+            </div>
+            <div style="font-size: 11px; color: #666;">Drag & drop an image here</div>
+            <div style="font-size: 10px; color: #bbb; margin-top: 4px;">or <span style="color: #007AFF; text-decoration: underline;">browse files</span></div>
+          </div>
+        </div>
+
+        <div style="padding: 16px 20px; display: flex; justify-content: space-between;">
+          <div style="color: #999; font-size: 11px; padding: 8px 0; cursor: pointer;">← Back</div>
+          <div style="background: #e0e0e0; color: #999; border-radius: 8px; padding: 8px 28px; font-size: 12px; font-weight: 600;">Next</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Step 2: Pick an Image</h3>
+      <p>Big friendly drop zone. Drag & drop or browse. Next button activates once an image is loaded. Keeps it focused on one action.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 16px; background: #fafafa;">
+      <div style="height: 320px; border-radius: 8px; overflow: hidden; border: 1px solid #e0e0e0; font-family: -apple-system, system-ui, sans-serif; background: white; display: flex; flex-direction: column;">
+        <div style="padding: 16px 20px 0; text-align: center;">
+          <div style="display: flex; justify-content: center; gap: 6px; margin-bottom: 12px;">
+            <div style="width: 24px; height: 4px; background: #007AFF; border-radius: 2px;"></div>
+            <div style="width: 24px; height: 4px; background: #007AFF; border-radius: 2px;"></div>
+            <div style="width: 24px; height: 4px; background: #007AFF; border-radius: 2px;"></div>
+          </div>
+        </div>
+
+        <div style="padding: 0 20px;">
+          <div style="font-size: 14px; font-weight: 700; color: #333; text-align: center; margin-bottom: 12px;">Looking good!</div>
+        </div>
+
+        <!-- Preview -->
+        <div style="flex: 1; background: #f0f0f2; display: flex; align-items: center; justify-content: center; margin: 0 20px; border-radius: 8px;">
+          <div style="display: flex; gap: 2px;">
+            <div style="width: 120px; height: 75px; background: linear-gradient(135deg, #1a1a3e, #4a6fa5); border-radius: 4px; position: relative;">
+              <div style="position: absolute; bottom: 3px; left: 4px; font-size: 6px; color: rgba(255,255,255,0.5);">Display 1</div>
+            </div>
+            <div style="width: 120px; height: 75px; background: linear-gradient(135deg, #2a3a5e, #6a8fb5); border-radius: 4px; position: relative;">
+              <div style="position: absolute; bottom: 3px; left: 4px; font-size: 6px; color: rgba(255,255,255,0.5);">Display 2</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="padding: 10px 20px; text-align: center;">
+          <div style="font-size: 11px; color: #888;">Your image will spread across both monitors. You can adjust the position later.</div>
+        </div>
+
+        <div style="padding: 12px 20px 16px; display: flex; justify-content: space-between;">
+          <div style="color: #999; font-size: 11px; padding: 8px 0; cursor: pointer;">← Back</div>
+          <div style="background: #34C759; color: white; border-radius: 8px; padding: 8px 24px; font-size: 12px; font-weight: 600;">Apply Wallpaper ✓</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Step 3: Preview & Apply</h3>
+      <p>Shows the image spread across detected monitors. "Apply Wallpaper" in green. Reassuring message: "You can adjust the position later." First wallpaper applied in under 30 seconds.</p>
+    </div>
+  </div>
+</div>

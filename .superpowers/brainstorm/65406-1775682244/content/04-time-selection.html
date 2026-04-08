@@ -1,0 +1,163 @@
+<h2>Time Selection for Dynamic Wallpapers</h2>
+<p class="subtitle">How should the user assign and edit the time each image is shown? This lives in the right panel's Timeline section.</p>
+
+<div class="cards">
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 20px; background: #fafafa;">
+      <!-- A: Inline editable time on each row -->
+      <div style="width: 220px; margin: 0 auto; font-family: -apple-system, system-ui, sans-serif;">
+        <div style="font-size: 9px; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Timeline</div>
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <div style="display: flex; gap: 8px; align-items: center; background: white; border: 1.5px solid #007AFF; border-radius: 8px; padding: 6px 8px;">
+            <div style="width: 36px; height: 24px; background: linear-gradient(135deg, #1a1a3e, #3a5a8e); border-radius: 3px; flex-shrink: 0;"></div>
+            <div style="flex: 1; display: flex; align-items: center; gap: 4px;">
+              <div style="background: #f0f0f2; border-radius: 4px; padding: 2px 6px; font-size: 11px; font-weight: 600; color: #333; border: 1px solid #d0d0d0;">7</div>
+              <div style="font-size: 11px; color: #999;">:</div>
+              <div style="background: #f0f0f2; border-radius: 4px; padding: 2px 6px; font-size: 11px; font-weight: 600; color: #333; border: 1px solid #d0d0d0;">00</div>
+              <div style="background: #f0f0f2; border-radius: 4px; padding: 2px 4px; font-size: 9px; font-weight: 500; color: #666; border: 1px solid #d0d0d0;">AM</div>
+            </div>
+            <div style="font-size: 10px; color: #ccc; cursor: pointer;">✕</div>
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center; background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 6px 8px;">
+            <div style="width: 36px; height: 24px; background: linear-gradient(135deg, #ff9a56, #ffcd6b); border-radius: 3px; flex-shrink: 0;"></div>
+            <div style="flex: 1; display: flex; align-items: center; gap: 4px;">
+              <div style="background: #f0f0f2; border-radius: 4px; padding: 2px 6px; font-size: 11px; font-weight: 600; color: #333; border: 1px solid #d0d0d0;">12</div>
+              <div style="font-size: 11px; color: #999;">:</div>
+              <div style="background: #f0f0f2; border-radius: 4px; padding: 2px 6px; font-size: 11px; font-weight: 600; color: #333; border: 1px solid #d0d0d0;">00</div>
+              <div style="background: #f0f0f2; border-radius: 4px; padding: 2px 4px; font-size: 9px; font-weight: 500; color: #666; border: 1px solid #d0d0d0;">PM</div>
+            </div>
+            <div style="font-size: 10px; color: #ccc; cursor: pointer;">✕</div>
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center; background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 6px 8px;">
+            <div style="width: 36px; height: 24px; background: linear-gradient(135deg, #ff6b4a, #ff9a56); border-radius: 3px; flex-shrink: 0;"></div>
+            <div style="flex: 1; display: flex; align-items: center; gap: 4px;">
+              <div style="background: #f0f0f2; border-radius: 4px; padding: 2px 6px; font-size: 11px; font-weight: 600; color: #333; border: 1px solid #d0d0d0;">6</div>
+              <div style="font-size: 11px; color: #999;">:</div>
+              <div style="background: #f0f0f2; border-radius: 4px; padding: 2px 6px; font-size: 11px; font-weight: 600; color: #333; border: 1px solid #d0d0d0;">00</div>
+              <div style="background: #f0f0f2; border-radius: 4px; padding: 2px 4px; font-size: 9px; font-weight: 500; color: #666; border: 1px solid #d0d0d0;">PM</div>
+            </div>
+            <div style="font-size: 10px; color: #ccc; cursor: pointer;">✕</div>
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center; background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 6px 8px;">
+            <div style="width: 36px; height: 24px; background: linear-gradient(135deg, #0a0a2e, #1a1a4e); border-radius: 3px; flex-shrink: 0;"></div>
+            <div style="flex: 1; display: flex; align-items: center; gap: 4px;">
+              <div style="background: #f0f0f2; border-radius: 4px; padding: 2px 6px; font-size: 11px; font-weight: 600; color: #333; border: 1px solid #d0d0d0;">10</div>
+              <div style="font-size: 11px; color: #999;">:</div>
+              <div style="background: #f0f0f2; border-radius: 4px; padding: 2px 6px; font-size: 11px; font-weight: 600; color: #333; border: 1px solid #d0d0d0;">00</div>
+              <div style="background: #f0f0f2; border-radius: 4px; padding: 2px 4px; font-size: 9px; font-weight: 500; color: #666; border: 1px solid #d0d0d0;">PM</div>
+            </div>
+            <div style="font-size: 10px; color: #ccc; cursor: pointer;">✕</div>
+          </div>
+        </div>
+        <div style="margin-top: 8px; border: 1px dashed #ccc; border-radius: 8px; padding: 6px; text-align: center; font-size: 9px; color: #999;">+ Add Image</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A: Inline Editable Time</h3>
+      <p>Each row has the thumbnail + an inline time field (hour : minute AM/PM). Click any part to edit directly. No popover, no separate editing area. The time IS the row. Delete with ✕. Simple, direct, scannable.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 20px; background: #fafafa;">
+      <!-- B: Visual 24h clock ring -->
+      <div style="width: 220px; margin: 0 auto; font-family: -apple-system, system-ui, sans-serif;">
+        <div style="font-size: 9px; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Timeline</div>
+        <!-- Clock ring -->
+        <div style="position: relative; width: 180px; height: 180px; margin: 0 auto;">
+          <!-- Outer ring -->
+          <svg width="180" height="180" viewBox="0 0 180 180" style="position: absolute;">
+            <circle cx="90" cy="90" r="80" fill="none" stroke="#e0e0e0" stroke-width="20" />
+            <!-- Gradient segments for each image -->
+            <circle cx="90" cy="90" r="80" fill="none" stroke="#3a5a8e" stroke-width="20"
+              stroke-dasharray="75 427" stroke-dashoffset="-40" opacity="0.7" />
+            <circle cx="90" cy="90" r="80" fill="none" stroke="#ffcd6b" stroke-width="20"
+              stroke-dasharray="75 427" stroke-dashoffset="-115" opacity="0.7" />
+            <circle cx="90" cy="90" r="80" fill="none" stroke="#ff9a56" stroke-width="20"
+              stroke-dasharray="75 427" stroke-dashoffset="-190" opacity="0.7" />
+            <circle cx="90" cy="90" r="80" fill="none" stroke="#1a1a4e" stroke-width="20"
+              stroke-dasharray="125 377" stroke-dashoffset="-265" opacity="0.7" />
+          </svg>
+          <!-- Clock labels -->
+          <div style="position: absolute; top: 6px; left: 50%; transform: translateX(-50%); font-size: 8px; color: #999;">12AM</div>
+          <div style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); font-size: 8px; color: #999;">6AM</div>
+          <div style="position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%); font-size: 8px; color: #999;">12PM</div>
+          <div style="position: absolute; left: 6px; top: 50%; transform: translateY(-50%); font-size: 8px; color: #999;">6PM</div>
+          <!-- Dots on the ring for each image -->
+          <div style="position: absolute; top: 31px; right: 24px; width: 10px; height: 10px; background: #3a5a8e; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.2);"></div>
+          <div style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 10px; height: 10px; background: #ffcd6b; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.2);"></div>
+          <div style="position: absolute; bottom: 31px; left: 24px; width: 10px; height: 10px; background: #ff9a56; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.2);"></div>
+          <div style="position: absolute; top: 31px; left: 24px; width: 10px; height: 10px; background: #1a1a4e; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.2);"></div>
+          <!-- Center -->
+          <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+            <div style="font-size: 16px; font-weight: 700; color: #333;">7:00</div>
+            <div style="font-size: 9px; color: #999;">AM</div>
+          </div>
+        </div>
+        <!-- Selected image info below -->
+        <div style="margin-top: 10px; display: flex; gap: 8px; align-items: center; background: white; border: 1.5px solid #007AFF; border-radius: 8px; padding: 6px 8px;">
+          <div style="width: 36px; height: 24px; background: linear-gradient(135deg, #1a1a3e, #3a5a8e); border-radius: 3px;"></div>
+          <div style="flex: 1; font-size: 10px; font-weight: 600; color: #333;">7:00 AM → 12:00 PM</div>
+          <div style="font-size: 10px; color: #ccc;">✕</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B: 24-Hour Clock Ring</h3>
+      <p>Visual clock showing the full day cycle. Colored segments show when each image is active. Drag dots around the ring to adjust times. Tap a segment to select that image. Center shows the selected time. Visually maps the concept of "wallpaper changes throughout the day."</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 20px; background: #fafafa;">
+      <!-- C: Horizontal day bar with draggable markers -->
+      <div style="width: 260px; margin: 0 auto; font-family: -apple-system, system-ui, sans-serif;">
+        <div style="font-size: 9px; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Timeline</div>
+        <!-- Thumbnails row -->
+        <div style="display: flex; gap: 4px; margin-bottom: 10px;">
+          <div style="width: 48px; height: 32px; background: linear-gradient(135deg, #1a1a3e, #3a5a8e); border-radius: 4px; border: 2px solid #007AFF;"></div>
+          <div style="width: 48px; height: 32px; background: linear-gradient(135deg, #ff9a56, #ffcd6b); border-radius: 4px; border: 1px solid #e0e0e0;"></div>
+          <div style="width: 48px; height: 32px; background: linear-gradient(135deg, #ff6b4a, #ff9a56); border-radius: 4px; border: 1px solid #e0e0e0;"></div>
+          <div style="width: 48px; height: 32px; background: linear-gradient(135deg, #0a0a2e, #1a1a4e); border-radius: 4px; border: 1px solid #e0e0e0;"></div>
+          <div style="width: 48px; height: 32px; border: 1px dashed #ccc; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #ccc;">+</div>
+        </div>
+        <!-- Day bar -->
+        <div style="position: relative; height: 32px; margin: 0 4px;">
+          <!-- Background gradient: night → day → night -->
+          <div style="position: absolute; top: 8px; left: 0; right: 0; height: 16px; border-radius: 8px; background: linear-gradient(to right, #1a1a3e 0%, #3a5a8e 20%, #ffcd6b 35%, #87ceeb 50%, #ff9a56 70%, #3a3a5e 85%, #1a1a3e 100%);"></div>
+          <!-- Draggable markers -->
+          <div style="position: absolute; left: 29%; top: 4px; width: 14px; height: 24px; background: white; border-radius: 4px; border: 2px solid #007AFF; box-shadow: 0 1px 4px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center;">
+            <div style="width: 2px; height: 8px; background: #007AFF; border-radius: 1px;"></div>
+          </div>
+          <div style="position: absolute; left: 50%; top: 4px; width: 14px; height: 24px; background: white; border-radius: 4px; border: 2px solid #e0e0e0; box-shadow: 0 1px 4px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center;">
+            <div style="width: 2px; height: 8px; background: #ccc; border-radius: 1px;"></div>
+          </div>
+          <div style="position: absolute; left: 75%; top: 4px; width: 14px; height: 24px; background: white; border-radius: 4px; border: 2px solid #e0e0e0; box-shadow: 0 1px 4px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center;">
+            <div style="width: 2px; height: 8px; background: #ccc; border-radius: 1px;"></div>
+          </div>
+          <div style="position: absolute; left: 92%; top: 4px; width: 14px; height: 24px; background: white; border-radius: 4px; border: 2px solid #e0e0e0; box-shadow: 0 1px 4px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center;">
+            <div style="width: 2px; height: 8px; background: #ccc; border-radius: 1px;"></div>
+          </div>
+        </div>
+        <!-- Time labels -->
+        <div style="display: flex; justify-content: space-between; margin-top: 4px; padding: 0 4px;">
+          <div style="font-size: 8px; color: #999;">12AM</div>
+          <div style="font-size: 8px; color: #999;">6AM</div>
+          <div style="font-size: 8px; color: #999;">12PM</div>
+          <div style="font-size: 8px; color: #999;">6PM</div>
+          <div style="font-size: 8px; color: #999;">12AM</div>
+        </div>
+        <!-- Selected info -->
+        <div style="margin-top: 10px; padding: 6px 8px; background: white; border: 1.5px solid #007AFF; border-radius: 6px; display: flex; align-items: center; gap: 8px;">
+          <div style="width: 28px; height: 18px; background: linear-gradient(135deg, #1a1a3e, #3a5a8e); border-radius: 2px;"></div>
+          <div style="font-size: 10px; font-weight: 600; color: #333;">7:00 AM</div>
+          <div style="font-size: 9px; color: #999;">→ 12:00 PM</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C: Day Bar with Draggable Markers</h3>
+      <p>Horizontal bar representing 24 hours with a day/night gradient. Draggable markers for each image. Thumbnails above the bar, selected image details below. Immediately communicates "this image shows at this time of day." Drag to reposition.</p>
+    </div>
+  </div>
+</div>

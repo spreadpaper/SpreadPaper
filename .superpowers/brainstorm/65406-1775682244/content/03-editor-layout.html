@@ -1,0 +1,140 @@
+<h2>Editor Layout</h2>
+<p class="subtitle">After picking a wallpaper type and adding images, what should the edit view look like?</p>
+
+<div class="cards">
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 16px; background: #fafafa;">
+      <!-- Editor A: Controls on right panel -->
+      <div style="height: 300px; border-radius: 8px; overflow: hidden; border: 1px solid #e0e0e0; font-family: -apple-system, system-ui, sans-serif; background: white; display: flex; flex-direction: column;">
+        <!-- Top bar -->
+        <div style="background: #fafafa; border-bottom: 1px solid #e0e0e0; padding: 6px 12px; display: flex; align-items: center;">
+          <div style="font-size: 10px; color: #007AFF;">← Gallery</div>
+          <div style="flex: 1; text-align: center; font-size: 11px; font-weight: 600; color: #333;">Night Sky <span style="font-weight: 400; color: #999;">· Dynamic</span></div>
+          <div style="background: #007AFF; color: white; border-radius: 5px; padding: 3px 10px; font-size: 9px; font-weight: 600;">Apply</div>
+        </div>
+        <div style="flex: 1; display: flex;">
+          <!-- Canvas (large) -->
+          <div style="flex: 1; background: #f0f0f2; display: flex; align-items: center; justify-content: center;">
+            <div style="display: flex; gap: 2px;">
+              <div style="width: 180px; height: 112px; background: linear-gradient(135deg, #1a1a3e, #4a6fa5); border-radius: 4px; position: relative;">
+                <div style="position: absolute; bottom: 4px; left: 6px; font-size: 7px; color: rgba(255,255,255,0.5);">DELL U2720Q (1)</div>
+              </div>
+              <div style="width: 180px; height: 112px; background: linear-gradient(135deg, #2a3a5e, #6a8fb5); border-radius: 4px; position: relative;">
+                <div style="position: absolute; bottom: 4px; left: 6px; font-size: 7px; color: rgba(255,255,255,0.5);">DELL U2720Q (2)</div>
+              </div>
+            </div>
+          </div>
+          <!-- Right panel -->
+          <div style="width: 200px; background: #fafafa; border-left: 1px solid #e0e0e0; padding: 12px; display: flex; flex-direction: column; gap: 12px; overflow-y: auto;">
+            <!-- Position -->
+            <div>
+              <div style="font-size: 9px; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">Position</div>
+              <div style="display: flex; gap: 6px; align-items: center;">
+                <div style="font-size: 9px; color: #666; width: 30px;">Zoom</div>
+                <div style="flex: 1; height: 3px; background: #e0e0e0; border-radius: 2px; position: relative;">
+                  <div style="width: 40%; height: 100%; background: #007AFF; border-radius: 2px;"></div>
+                </div>
+              </div>
+              <div style="display: flex; gap: 6px; margin-top: 6px;">
+                <div style="flex: 1; background: white; border: 1px solid #e0e0e0; border-radius: 4px; padding: 3px 6px; font-size: 9px; color: #666; text-align: center;">Fit</div>
+                <div style="flex: 1; background: white; border: 1px solid #e0e0e0; border-radius: 4px; padding: 3px 6px; font-size: 9px; color: #666; text-align: center;">Flip</div>
+              </div>
+            </div>
+            <!-- Timeline -->
+            <div>
+              <div style="font-size: 9px; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">Timeline</div>
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <div style="display: flex; gap: 6px; align-items: center; background: white; border: 1.5px solid #007AFF; border-radius: 6px; padding: 4px 6px;">
+                  <div style="width: 32px; height: 20px; background: linear-gradient(135deg, #1a1a3e, #3a5a8e); border-radius: 2px;"></div>
+                  <div style="flex: 1;">
+                    <div style="font-size: 8px; font-weight: 600; color: #333;">7:00 AM</div>
+                  </div>
+                </div>
+                <div style="display: flex; gap: 6px; align-items: center; background: white; border: 1px solid #e0e0e0; border-radius: 6px; padding: 4px 6px;">
+                  <div style="width: 32px; height: 20px; background: linear-gradient(135deg, #ff9a56, #ffcd6b); border-radius: 2px;"></div>
+                  <div style="flex: 1;">
+                    <div style="font-size: 8px; font-weight: 600; color: #333;">12:00 PM</div>
+                  </div>
+                </div>
+                <div style="display: flex; gap: 6px; align-items: center; background: white; border: 1px solid #e0e0e0; border-radius: 6px; padding: 4px 6px;">
+                  <div style="width: 32px; height: 20px; background: linear-gradient(135deg, #ff6b4a, #ff9a56); border-radius: 2px;"></div>
+                  <div style="flex: 1;">
+                    <div style="font-size: 8px; font-weight: 600; color: #333;">6:00 PM</div>
+                  </div>
+                </div>
+                <div style="display: flex; gap: 6px; align-items: center; background: white; border: 1px solid #e0e0e0; border-radius: 6px; padding: 4px 6px;">
+                  <div style="width: 32px; height: 20px; background: linear-gradient(135deg, #0a0a2e, #1a1a4e); border-radius: 2px;"></div>
+                  <div style="flex: 1;">
+                    <div style="font-size: 8px; font-weight: 600; color: #333;">10:00 PM</div>
+                  </div>
+                </div>
+              </div>
+              <div style="margin-top: 6px; font-size: 9px; color: #999;">Shown from <span style="color: #333; font-weight: 500;">7:00 AM</span> until <span style="color: #333; font-weight: 500;">12:00 PM</span></div>
+            </div>
+            <!-- Add -->
+            <div style="border: 1px dashed #ccc; border-radius: 6px; padding: 6px; text-align: center; font-size: 9px; color: #999; cursor: pointer;">+ Add Image</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A: Right Panel Controls</h3>
+      <p>Canvas takes the main space. All controls (zoom, fit, flip, timeline, time editing) live in a right sidebar panel. Everything visible at once. Inspector-style, like Keynote or Sketch.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 16px; background: #fafafa;">
+      <!-- Editor B: Bottom bar controls -->
+      <div style="height: 300px; border-radius: 8px; overflow: hidden; border: 1px solid #e0e0e0; font-family: -apple-system, system-ui, sans-serif; background: white; display: flex; flex-direction: column;">
+        <!-- Top bar -->
+        <div style="background: #fafafa; border-bottom: 1px solid #e0e0e0; padding: 6px 12px; display: flex; align-items: center; gap: 8px;">
+          <div style="font-size: 10px; color: #007AFF;">← Gallery</div>
+          <div style="flex: 1; text-align: center; font-size: 11px; font-weight: 600; color: #333;">Night Sky <span style="font-weight: 400; color: #999;">· Dynamic</span></div>
+          <div style="display: flex; gap: 4px; align-items: center;">
+            <div style="font-size: 8px; color: #666;">Fit</div>
+            <div style="font-size: 8px; color: #666;">Flip</div>
+            <div style="width: 50px; height: 3px; background: #e0e0e0; border-radius: 2px; position: relative;"><div style="width: 40%; height: 100%; background: #007AFF; border-radius: 2px;"></div></div>
+          </div>
+          <div style="background: #007AFF; color: white; border-radius: 5px; padding: 3px 10px; font-size: 9px; font-weight: 600;">Apply</div>
+        </div>
+        <!-- Canvas (full width, more vertical space) -->
+        <div style="flex: 1; background: #f0f0f2; display: flex; align-items: center; justify-content: center;">
+          <div style="display: flex; gap: 2px;">
+            <div style="width: 200px; height: 125px; background: linear-gradient(135deg, #1a1a3e, #4a6fa5); border-radius: 4px; position: relative;">
+              <div style="position: absolute; bottom: 4px; left: 6px; font-size: 7px; color: rgba(255,255,255,0.5);">DELL U2720Q (1)</div>
+            </div>
+            <div style="width: 200px; height: 125px; background: linear-gradient(135deg, #2a3a5e, #6a8fb5); border-radius: 4px; position: relative;">
+              <div style="position: absolute; bottom: 4px; left: 6px; font-size: 7px; color: rgba(255,255,255,0.5);">DELL U2720Q (2)</div>
+            </div>
+          </div>
+        </div>
+        <!-- Bottom panel -->
+        <div style="background: #fafafa; border-top: 1px solid #e0e0e0; padding: 8px 16px;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <!-- Thumbnails -->
+            <div style="display: flex; gap: 4px;">
+              <div style="width: 44px; height: 28px; background: linear-gradient(135deg, #1a1a3e, #3a5a8e); border-radius: 3px; border: 1.5px solid #007AFF;"></div>
+              <div style="width: 44px; height: 28px; background: linear-gradient(135deg, #ff9a56, #ffcd6b); border-radius: 3px; border: 1px solid #e0e0e0;"></div>
+              <div style="width: 44px; height: 28px; background: linear-gradient(135deg, #ff6b4a, #ff9a56); border-radius: 3px; border: 1px solid #e0e0e0;"></div>
+              <div style="width: 44px; height: 28px; background: linear-gradient(135deg, #0a0a2e, #1a1a4e); border-radius: 3px; border: 1px solid #e0e0e0;"></div>
+              <div style="width: 44px; height: 28px; border: 1px dashed #ccc; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #ccc;">+</div>
+            </div>
+            <!-- Divider -->
+            <div style="width: 1px; height: 20px; background: #e0e0e0;"></div>
+            <!-- Time info -->
+            <div style="font-size: 9px; color: #999;">
+              <span style="color: #333; font-weight: 500;">7:00 AM</span> → <span style="color: #333; font-weight: 500;">12:00 PM</span>
+            </div>
+            <div style="flex: 1;"></div>
+            <div style="font-size: 8px; color: #999;">4 images</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B: Bottom Strip</h3>
+      <p>Canvas gets maximum space (full width). Zoom/fit/flip in the top bar. Timeline thumbnails and time info in a slim bottom strip. Compact and unobtrusive. Canvas is the hero.</p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,183 @@
+<h2>Gallery View</h2>
+<p class="subtitle">The home screen. What should each wallpaper card show?</p>
+
+<div class="cards">
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 16px; background: #fafafa;">
+      <div style="height: 320px; border-radius: 8px; overflow: hidden; border: 1px solid #e0e0e0; font-family: -apple-system, system-ui, sans-serif; background: white; display: flex; flex-direction: column;">
+        <!-- Top bar -->
+        <div style="background: #fafafa; border-bottom: 1px solid #e0e0e0; padding: 8px 16px; display: flex; align-items: center; gap: 12px;">
+          <div style="font-size: 13px; font-weight: 700; color: #333;">SpreadPaper</div>
+          <div style="flex: 1;"></div>
+          <div style="display: flex; gap: 1px; background: #e0e0e0; border-radius: 6px; overflow: hidden;">
+            <div style="background: #007AFF; color: white; padding: 3px 10px; font-size: 9px; font-weight: 600;">All</div>
+            <div style="background: #f0f0f0; color: #666; padding: 3px 10px; font-size: 9px;">Static</div>
+            <div style="background: #f0f0f0; color: #666; padding: 3px 10px; font-size: 9px;">Dynamic</div>
+            <div style="background: #f0f0f0; color: #666; padding: 3px 10px; font-size: 9px;">Light/Dark</div>
+          </div>
+          <div style="flex: 1;"></div>
+          <div style="background: #007AFF; color: white; border-radius: 6px; padding: 4px 12px; font-size: 9px; font-weight: 600;">+ New</div>
+        </div>
+        <!-- Grid -->
+        <div style="flex: 1; padding: 14px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; align-content: start;">
+          <!-- Card: Active dynamic wallpaper -->
+          <div style="border-radius: 8px; overflow: hidden; border: 2px solid #007AFF; background: white;">
+            <div style="height: 72px; background: linear-gradient(135deg, #1a1a3e, #4a6fa5); position: relative;">
+              <!-- Mini dual monitors -->
+              <div style="position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%); display: flex; gap: 1px;">
+                <div style="width: 28px; height: 18px; border: 1px solid rgba(255,255,255,0.4); border-radius: 2px; background: rgba(255,255,255,0.05);"></div>
+                <div style="width: 28px; height: 18px; border: 1px solid rgba(255,255,255,0.4); border-radius: 2px; background: rgba(255,255,255,0.05);"></div>
+              </div>
+            </div>
+            <div style="padding: 6px 8px;">
+              <div style="display: flex; align-items: center; gap: 4px;">
+                <div style="font-size: 10px; font-weight: 600; color: #333;">Night Sky</div>
+                <div style="margin-left: auto; width: 6px; height: 6px; background: #34C759; border-radius: 50%;"></div>
+              </div>
+              <div style="font-size: 8px; color: #999; margin-top: 1px;">Dynamic · 4 images</div>
+            </div>
+          </div>
+
+          <!-- Card: Static -->
+          <div style="border-radius: 8px; overflow: hidden; border: 1px solid #e8e8e8; background: white;">
+            <div style="height: 72px; background: linear-gradient(135deg, #ff9a56, #87ceeb); position: relative;">
+              <div style="position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%); display: flex; gap: 1px;">
+                <div style="width: 28px; height: 18px; border: 1px solid rgba(255,255,255,0.4); border-radius: 2px; background: rgba(255,255,255,0.05);"></div>
+                <div style="width: 28px; height: 18px; border: 1px solid rgba(255,255,255,0.4); border-radius: 2px; background: rgba(255,255,255,0.05);"></div>
+              </div>
+            </div>
+            <div style="padding: 6px 8px;">
+              <div style="font-size: 10px; font-weight: 600; color: #333;">Desert Sunrise</div>
+              <div style="font-size: 8px; color: #999; margin-top: 1px;">Static</div>
+            </div>
+          </div>
+
+          <!-- Card: Light/Dark -->
+          <div style="border-radius: 8px; overflow: hidden; border: 1px solid #e8e8e8; background: white;">
+            <div style="height: 72px; position: relative; display: flex;">
+              <div style="flex: 1; background: linear-gradient(135deg, #87a96b, #c4d9a0);"></div>
+              <div style="width: 1px; background: white;"></div>
+              <div style="flex: 1; background: linear-gradient(135deg, #2d4016, #1a2d0a);"></div>
+            </div>
+            <div style="padding: 6px 8px;">
+              <div style="font-size: 10px; font-weight: 600; color: #333;">Forest</div>
+              <div style="font-size: 8px; color: #999; margin-top: 1px;">Light / Dark</div>
+            </div>
+          </div>
+
+          <!-- Card: Dynamic -->
+          <div style="border-radius: 8px; overflow: hidden; border: 1px solid #e8e8e8; background: white;">
+            <div style="height: 72px; background: linear-gradient(135deg, #4a2040, #8a4070); position: relative;">
+              <div style="position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%); display: flex; gap: 1px;">
+                <div style="width: 28px; height: 18px; border: 1px solid rgba(255,255,255,0.4); border-radius: 2px; background: rgba(255,255,255,0.05);"></div>
+                <div style="width: 28px; height: 18px; border: 1px solid rgba(255,255,255,0.4); border-radius: 2px; background: rgba(255,255,255,0.05);"></div>
+              </div>
+            </div>
+            <div style="padding: 6px 8px;">
+              <div style="font-size: 10px; font-weight: 600; color: #333;">Nebula</div>
+              <div style="font-size: 8px; color: #999; margin-top: 1px;">Dynamic · 6 images</div>
+            </div>
+          </div>
+
+          <!-- Card: Static -->
+          <div style="border-radius: 8px; overflow: hidden; border: 1px solid #e8e8e8; background: white;">
+            <div style="height: 72px; background: linear-gradient(135deg, #2196F3, #0D47A1); position: relative;">
+              <div style="position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%); display: flex; gap: 1px;">
+                <div style="width: 28px; height: 18px; border: 1px solid rgba(255,255,255,0.4); border-radius: 2px; background: rgba(255,255,255,0.05);"></div>
+                <div style="width: 28px; height: 18px; border: 1px solid rgba(255,255,255,0.4); border-radius: 2px; background: rgba(255,255,255,0.05);"></div>
+              </div>
+            </div>
+            <div style="padding: 6px 8px;">
+              <div style="font-size: 10px; font-weight: 600; color: #333;">Deep Ocean</div>
+              <div style="font-size: 8px; color: #999; margin-top: 1px;">Static</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A: Cards with Monitor Preview</h3>
+      <p>Each card shows the wallpaper image with a mini dual-monitor outline overlaid, so you see how it spans. Active wallpaper has a green dot. Light/Dark cards show a split preview (light left, dark right). Type label below: "Dynamic · 4 images" / "Static" / "Light / Dark".</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 16px; background: #fafafa;">
+      <div style="height: 320px; border-radius: 8px; overflow: hidden; border: 1px solid #e0e0e0; font-family: -apple-system, system-ui, sans-serif; background: white; display: flex; flex-direction: column;">
+        <!-- Top bar -->
+        <div style="background: #fafafa; border-bottom: 1px solid #e0e0e0; padding: 8px 16px; display: flex; align-items: center; gap: 12px;">
+          <div style="font-size: 13px; font-weight: 700; color: #333;">SpreadPaper</div>
+          <div style="flex: 1;"></div>
+          <div style="display: flex; gap: 1px; background: #e0e0e0; border-radius: 6px; overflow: hidden;">
+            <div style="background: #007AFF; color: white; padding: 3px 10px; font-size: 9px; font-weight: 600;">All</div>
+            <div style="background: #f0f0f0; color: #666; padding: 3px 10px; font-size: 9px;">Static</div>
+            <div style="background: #f0f0f0; color: #666; padding: 3px 10px; font-size: 9px;">Dynamic</div>
+            <div style="background: #f0f0f0; color: #666; padding: 3px 10px; font-size: 9px;">Light/Dark</div>
+          </div>
+          <div style="flex: 1;"></div>
+          <div style="background: #007AFF; color: white; border-radius: 6px; padding: 4px 12px; font-size: 9px; font-weight: 600;">+ New</div>
+        </div>
+        <!-- Grid - image-forward, edge to edge -->
+        <div style="flex: 1; padding: 14px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; align-content: start;">
+          <!-- Active dynamic -->
+          <div style="border-radius: 10px; overflow: hidden; border: 2px solid #007AFF; position: relative;">
+            <div style="height: 90px; background: linear-gradient(135deg, #1a1a3e, #4a6fa5);"></div>
+            <!-- Overlay info -->
+            <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 6px 8px; background: linear-gradient(transparent, rgba(0,0,0,0.7));">
+              <div style="display: flex; align-items: center; gap: 4px;">
+                <div style="font-size: 10px; font-weight: 600; color: white;">Night Sky</div>
+                <div style="margin-left: auto; width: 6px; height: 6px; background: #34C759; border-radius: 50%;"></div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 4px; margin-top: 2px;">
+                <div style="font-size: 8px; color: rgba(255,255,255,0.7);">☀ Dynamic · 4</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Static -->
+          <div style="border-radius: 10px; overflow: hidden; border: 1px solid #e8e8e8; position: relative;">
+            <div style="height: 90px; background: linear-gradient(135deg, #ff9a56, #87ceeb);"></div>
+            <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 6px 8px; background: linear-gradient(transparent, rgba(0,0,0,0.7));">
+              <div style="font-size: 10px; font-weight: 600; color: white;">Desert Sunrise</div>
+              <div style="font-size: 8px; color: rgba(255,255,255,0.7); margin-top: 2px;">🖼 Static</div>
+            </div>
+          </div>
+
+          <!-- Light/Dark -->
+          <div style="border-radius: 10px; overflow: hidden; border: 1px solid #e8e8e8; position: relative;">
+            <div style="height: 90px; display: flex;">
+              <div style="flex: 1; background: linear-gradient(135deg, #87a96b, #c4d9a0);"></div>
+              <div style="flex: 1; background: linear-gradient(135deg, #2d4016, #1a2d0a);"></div>
+            </div>
+            <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 6px 8px; background: linear-gradient(transparent, rgba(0,0,0,0.7));">
+              <div style="font-size: 10px; font-weight: 600; color: white;">Forest</div>
+              <div style="font-size: 8px; color: rgba(255,255,255,0.7); margin-top: 2px;">◐ Light / Dark</div>
+            </div>
+          </div>
+
+          <!-- Dynamic -->
+          <div style="border-radius: 10px; overflow: hidden; border: 1px solid #e8e8e8; position: relative;">
+            <div style="height: 90px; background: linear-gradient(135deg, #4a2040, #8a4070);"></div>
+            <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 6px 8px; background: linear-gradient(transparent, rgba(0,0,0,0.7));">
+              <div style="font-size: 10px; font-weight: 600; color: white;">Nebula</div>
+              <div style="font-size: 8px; color: rgba(255,255,255,0.7); margin-top: 2px;">☀ Dynamic · 6</div>
+            </div>
+          </div>
+
+          <!-- Static -->
+          <div style="border-radius: 10px; overflow: hidden; border: 1px solid #e8e8e8; position: relative;">
+            <div style="height: 90px; background: linear-gradient(135deg, #2196F3, #0D47A1);"></div>
+            <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 6px 8px; background: linear-gradient(transparent, rgba(0,0,0,0.7));">
+              <div style="font-size: 10px; font-weight: 600; color: white;">Deep Ocean</div>
+              <div style="font-size: 8px; color: rgba(255,255,255,0.7); margin-top: 2px;">🖼 Static</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B: Image-Forward with Overlay</h3>
+      <p>Image fills the entire card. Name and type overlaid on a gradient at the bottom. Maximizes visual impact — wallpapers ARE visual, so let the images breathe. Light/Dark shows side-by-side split. No white card footer. Feels more like a photography gallery.</p>
+    </div>
+  </div>
+</div>

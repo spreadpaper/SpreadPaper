@@ -1,0 +1,97 @@
+<h2>New Wallpaper Creation Flow</h2>
+<p class="subtitle">When the user clicks "+ New", how should the type selection feel?</p>
+
+<div class="cards">
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 24px; background: #fafafa;">
+      <!-- Modal/sheet type picker -->
+      <div style="height: 260px; border-radius: 8px; overflow: hidden; border: 1px solid #e0e0e0; font-family: -apple-system, system-ui, sans-serif; background: #f0f0f2; display: flex; align-items: center; justify-content: center; position: relative;">
+        <!-- Dimmed gallery behind -->
+        <div style="position: absolute; inset: 0; background: white; opacity: 0.3;">
+          <div style="padding: 16px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 40px;">
+            <div style="height: 60px; background: #ddd; border-radius: 6px;"></div>
+            <div style="height: 60px; background: #ddd; border-radius: 6px;"></div>
+            <div style="height: 60px; background: #ddd; border-radius: 6px;"></div>
+          </div>
+        </div>
+        <!-- Modal -->
+        <div style="background: white; border-radius: 12px; padding: 20px; width: 320px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); position: relative; z-index: 1;">
+          <div style="font-size: 14px; font-weight: 700; color: #333; text-align: center; margin-bottom: 4px;">New Wallpaper</div>
+          <div style="font-size: 10px; color: #999; text-align: center; margin-bottom: 16px;">Choose what kind of wallpaper to create</div>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; cursor: pointer;">
+              <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #007AFF, #5856D6); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px;">🖼</div>
+              <div>
+                <div style="font-size: 11px; font-weight: 600; color: #333;">Standard Wallpaper</div>
+                <div style="font-size: 9px; color: #999;">One image spread across your monitors</div>
+              </div>
+            </div>
+            <div style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; cursor: pointer;">
+              <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #FF9500, #FF2D55); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px;">☀</div>
+              <div>
+                <div style="font-size: 11px; font-weight: 600; color: #333;">Time of Day</div>
+                <div style="font-size: 9px; color: #999;">Wallpaper shifts throughout the day</div>
+              </div>
+            </div>
+            <div style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; cursor: pointer;">
+              <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #333, #999); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px;">◐</div>
+              <div>
+                <div style="font-size: 11px; font-weight: 600; color: #333;">Light &amp; Dark</div>
+                <div style="font-size: 9px; color: #999;">Different image for each appearance mode</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A: Center Modal</h3>
+      <p>Clean modal sheet over the gallery. Three big clickable rows with icons and descriptions. Focused choice, then straight into the editor. Familiar macOS sheet pattern.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 24px; background: #fafafa;">
+      <!-- Full page type picker (replaces gallery) -->
+      <div style="height: 260px; border-radius: 8px; overflow: hidden; border: 1px solid #e0e0e0; font-family: -apple-system, system-ui, sans-serif; background: white;">
+        <!-- Top bar with back -->
+        <div style="background: #fafafa; border-bottom: 1px solid #e0e0e0; padding: 8px 16px; display: flex; align-items: center;">
+          <div style="font-size: 10px; color: #007AFF; cursor: pointer;">← Back</div>
+          <div style="flex: 1; text-align: center; font-size: 12px; font-weight: 700; color: #333;">Create New Wallpaper</div>
+          <div style="width: 40px;"></div>
+        </div>
+        <!-- Three big cards -->
+        <div style="padding: 20px 24px; display: flex; gap: 16px; height: calc(100% - 40px); align-items: stretch;">
+          <div style="flex: 1; border: 1px solid #e0e0e0; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; cursor: pointer; text-align: center;">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #007AFF, #5856D6); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+              <div style="display: flex; gap: 2px;">
+                <div style="width: 18px; height: 12px; border: 1.5px solid white; border-radius: 2px;"></div>
+                <div style="width: 18px; height: 12px; border: 1.5px solid white; border-radius: 2px;"></div>
+              </div>
+            </div>
+            <div style="font-size: 12px; font-weight: 700; color: #333;">Standard</div>
+            <div style="font-size: 9px; color: #999; line-height: 1.3;">One image spread across all your monitors</div>
+          </div>
+          <div style="flex: 1; border: 1px solid #e0e0e0; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; cursor: pointer; text-align: center;">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #FF9500, #FF2D55); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+              <div style="color: white; font-size: 20px;">☀</div>
+            </div>
+            <div style="font-size: 12px; font-weight: 700; color: #333;">Time of Day</div>
+            <div style="font-size: 9px; color: #999; line-height: 1.3;">Shifts throughout the day based on time</div>
+          </div>
+          <div style="flex: 1; border: 1px solid #e0e0e0; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; cursor: pointer; text-align: center;">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #333, #999); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+              <div style="color: white; font-size: 20px;">◐</div>
+            </div>
+            <div style="font-size: 12px; font-weight: 700; color: #333;">Light &amp; Dark</div>
+            <div style="font-size: 9px; color: #999; line-height: 1.3;">Different wallpaper for each appearance mode</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B: Full-Page Picker</h3>
+      <p>Navigates away from the gallery to a dedicated creation page. Three big visual cards side by side. More room for explanation and icons. Feels like a step in a wizard. Back arrow returns to gallery.</p>
+    </div>
+  </div>
+</div>

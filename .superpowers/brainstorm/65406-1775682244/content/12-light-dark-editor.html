@@ -1,0 +1,146 @@
+<h2>Light / Dark Editor</h2>
+<p class="subtitle">The right panel when editing a Light/Dark wallpaper. Only 2 images, no timeline. What should this look like?</p>
+
+<div class="cards">
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 16px; background: #fafafa;">
+      <div style="width: 220px; margin: 0 auto; font-family: -apple-system, system-ui, sans-serif;">
+
+        <!-- Position section (same as static) -->
+        <div style="margin-bottom: 14px;">
+          <div style="font-size: 9px; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Position</div>
+          <div style="display: flex; gap: 4px; align-items: center; margin-bottom: 6px;">
+            <div style="font-size: 9px; color: #666; width: 32px;">Zoom</div>
+            <div style="flex: 1; height: 4px; background: #e0e0e0; border-radius: 2px; position: relative;">
+              <div style="width: 40%; height: 100%; background: #007AFF; border-radius: 2px;"></div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <div style="flex: 1; background: white; border: 1px solid #e0e0e0; border-radius: 6px; padding: 4px; font-size: 9px; color: #666; text-align: center;">Fit</div>
+            <div style="flex: 1; background: white; border: 1px solid #e0e0e0; border-radius: 6px; padding: 4px; font-size: 9px; color: #666; text-align: center;">Flip</div>
+          </div>
+        </div>
+
+        <!-- Appearance section -->
+        <div style="margin-bottom: 14px;">
+          <div style="font-size: 9px; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Appearance</div>
+
+          <!-- Light image card - selected -->
+          <div style="background: white; border: 1.5px solid #007AFF; border-radius: 8px; padding: 8px; margin-bottom: 4px;">
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <div style="width: 40px; height: 28px; background: linear-gradient(135deg, #87a96b, #c4d9a0); border-radius: 4px; flex-shrink: 0;"></div>
+              <div style="flex: 1;">
+                <div style="display: flex; align-items: center; gap: 4px;">
+                  <div style="font-size: 12px;">☀</div>
+                  <div style="font-size: 10px; font-weight: 600; color: #333;">Light Mode</div>
+                </div>
+                <div style="font-size: 8px; color: #999; margin-top: 1px;">forest_day.jpg</div>
+              </div>
+              <div style="font-size: 10px; color: #ccc;">✕</div>
+            </div>
+          </div>
+
+          <!-- Dark image card -->
+          <div style="background: white; border: 1px solid #eee; border-radius: 8px; padding: 8px;">
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <div style="width: 40px; height: 28px; background: linear-gradient(135deg, #2d4016, #1a2d0a); border-radius: 4px; flex-shrink: 0;"></div>
+              <div style="flex: 1;">
+                <div style="display: flex; align-items: center; gap: 4px;">
+                  <div style="font-size: 12px;">🌙</div>
+                  <div style="font-size: 10px; font-weight: 600; color: #333;">Dark Mode</div>
+                </div>
+                <div style="font-size: 8px; color: #999; margin-top: 1px;">forest_night.jpg</div>
+              </div>
+              <div style="font-size: 10px; color: #ccc;">✕</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Preview toggle -->
+        <div style="margin-bottom: 14px;">
+          <div style="font-size: 9px; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Preview</div>
+          <div style="display: flex; gap: 1px; background: #e0e0e0; border-radius: 6px; overflow: hidden;">
+            <div style="flex: 1; background: white; padding: 5px; text-align: center; font-size: 9px; font-weight: 600; color: #333;">☀ Light</div>
+            <div style="flex: 1; background: #f5f5f5; padding: 5px; text-align: center; font-size: 9px; color: #999;">🌙 Dark</div>
+          </div>
+        </div>
+
+        <!-- Name -->
+        <div style="margin-bottom: 14px;">
+          <div style="font-size: 9px; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">Name</div>
+          <div style="background: white; border: 1px solid #e0e0e0; border-radius: 6px; padding: 5px 8px; font-size: 10px; color: #333;">Forest</div>
+        </div>
+
+        <!-- Apply -->
+        <div style="background: #34C759; color: white; border-radius: 8px; padding: 10px; text-align: center; font-size: 12px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 8px rgba(52,199,89,0.3);">
+          Apply Wallpaper
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A: Stacked Cards + Preview Toggle</h3>
+      <p>Two image cards (Light ☀ / Dark 🌙) stacked vertically. Click one to select it and see it in the canvas. A separate "Preview" toggle lets you flip between Light and Dark on the canvas. Simple, clear which image goes where.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 16px; background: #fafafa;">
+      <div style="width: 220px; margin: 0 auto; font-family: -apple-system, system-ui, sans-serif;">
+
+        <!-- Position -->
+        <div style="margin-bottom: 14px;">
+          <div style="font-size: 9px; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Position</div>
+          <div style="display: flex; gap: 4px; align-items: center; margin-bottom: 6px;">
+            <div style="font-size: 9px; color: #666; width: 32px;">Zoom</div>
+            <div style="flex: 1; height: 4px; background: #e0e0e0; border-radius: 2px; position: relative;">
+              <div style="width: 40%; height: 100%; background: #007AFF; border-radius: 2px;"></div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <div style="flex: 1; background: white; border: 1px solid #e0e0e0; border-radius: 6px; padding: 4px; font-size: 9px; color: #666; text-align: center;">Fit</div>
+            <div style="flex: 1; background: white; border: 1px solid #e0e0e0; border-radius: 6px; padding: 4px; font-size: 9px; color: #666; text-align: center;">Flip</div>
+          </div>
+        </div>
+
+        <!-- Appearance: side by side thumbnails -->
+        <div style="margin-bottom: 14px;">
+          <div style="font-size: 9px; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Appearance</div>
+          <div style="display: flex; gap: 6px;">
+            <!-- Light - selected -->
+            <div style="flex: 1; border: 1.5px solid #007AFF; border-radius: 8px; overflow: hidden; cursor: pointer;">
+              <div style="height: 52px; background: linear-gradient(135deg, #87a96b, #c4d9a0);"></div>
+              <div style="padding: 4px 6px; background: white; text-align: center;">
+                <div style="font-size: 9px; font-weight: 600; color: #333;">☀ Light</div>
+              </div>
+            </div>
+            <!-- Dark -->
+            <div style="flex: 1; border: 1px solid #eee; border-radius: 8px; overflow: hidden; cursor: pointer;">
+              <div style="height: 52px; background: linear-gradient(135deg, #2d4016, #1a2d0a);"></div>
+              <div style="padding: 4px 6px; background: white; text-align: center;">
+                <div style="font-size: 9px; font-weight: 600; color: #666;">🌙 Dark</div>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top: 6px; font-size: 8px; color: #bbb; text-align: center;">Click to preview · macOS switches automatically</div>
+        </div>
+
+        <!-- Name -->
+        <div style="margin-bottom: 14px;">
+          <div style="font-size: 9px; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">Name</div>
+          <div style="background: white; border: 1px solid #e0e0e0; border-radius: 6px; padding: 5px 8px; font-size: 10px; color: #333;">Forest</div>
+        </div>
+
+        <div style="flex: 1;"></div>
+
+        <!-- Apply -->
+        <div style="background: #34C759; color: white; border-radius: 8px; padding: 10px; text-align: center; font-size: 12px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 8px rgba(52,199,89,0.3);">
+          Apply Wallpaper
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B: Side-by-Side Thumbnails</h3>
+      <p>Light and Dark images shown as two mini cards next to each other. Click one to select it and preview on the canvas. Blue border shows which one you're editing. No separate toggle needed — clicking IS the toggle. Compact, visual, immediate.</p>
+    </div>
+  </div>
+</div>
