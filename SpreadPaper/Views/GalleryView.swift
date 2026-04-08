@@ -20,34 +20,40 @@ struct GalleryView: View {
 
     var body: some View {
         AppShell(
-            title: "",
+            topBar: { EmptyView() },
             mainContent: {
-                // Gallery grid or empty state
                 if filteredPresets.isEmpty {
-                    emptyState
+                    VStack(spacing: 0) {
+                        textHero
+                        emptyState
+                    }
                 } else {
                     ScrollView {
-                        LazyVGrid(
-                            columns: [GridItem(.adaptive(minimum: 180, maximum: 280), spacing: 12)],
-                            spacing: 12
-                        ) {
-                            ForEach(filteredPresets) { preset in
-                                GalleryCardView(
-                                    preset: preset,
-                                    thumbnail: thumbnailCache[preset.id],
-                                    isActive: false,
-                                    onTap: { navigation.navigateToEditor(presetId: preset.id) },
-                                    onApply: { applyPreset(preset) },
-                                    onDelete: { manager.deletePreset(preset) }
-                                )
+                        VStack(alignment: .leading, spacing: 0) {
+                            textHero
+
+                            LazyVGrid(
+                                columns: [GridItem(.adaptive(minimum: 200, maximum: 320), spacing: 12)],
+                                spacing: 12
+                            ) {
+                                ForEach(filteredPresets) { preset in
+                                    GalleryCardView(
+                                        preset: preset,
+                                        thumbnail: thumbnailCache[preset.id],
+                                        isActive: false,
+                                        onTap: { navigation.navigateToEditor(presetId: preset.id) },
+                                        onApply: { applyPreset(preset) },
+                                        onDelete: { manager.deletePreset(preset) }
+                                    )
+                                }
                             }
+                            .padding(.horizontal, 20)
+                            .padding(.bottom, 20)
                         }
-                        .padding(20)
                     }
                 }
             },
             sidebarContent: {
-                // Gallery sidebar: filters + new button
                 VStack(alignment: .leading, spacing: 16) {
                     SectionHeader(title: "Filter")
 
@@ -89,13 +95,44 @@ struct GalleryView: View {
 
                     Spacer()
                 }
-                .padding(14)
+                .padding(.top, 40) // Clear traffic lights
+                .padding(.horizontal, 14)
+                .padding(.bottom, 14)
             }
         )
         .task {
             loadThumbnails()
         }
     }
+
+    // MARK: - Text Hero
+
+    private var textHero: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("SpreadPaper")
+                .font(.system(size: 24, weight: .bold))
+                .foregroundStyle(Color.cdTextPrimary)
+
+            if let active = manager.presets.first {
+                HStack(spacing: 6) {
+                    Text("Active:")
+                        .font(.system(size: 12))
+                        .foregroundStyle(Color.cdTextTertiary)
+                    Text(active.name)
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(Color.cdTextPrimary)
+                    Circle()
+                        .fill(Color.cdSuccess)
+                        .frame(width: 6, height: 6)
+                }
+            }
+        }
+        .padding(.top, 40) // Clear traffic lights
+        .padding(.horizontal, 20)
+        .padding(.bottom, 16)
+    }
+
+    // MARK: - Empty State
 
     private var emptyState: some View {
         VStack(spacing: 12) {
@@ -112,6 +149,8 @@ struct GalleryView: View {
             Spacer()
         }
     }
+
+    // MARK: - Helpers
 
     private func iconFor(_ filter: GalleryFilter) -> String {
         switch filter {

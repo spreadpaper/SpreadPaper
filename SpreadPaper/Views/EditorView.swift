@@ -18,6 +18,7 @@ struct EditorView: View {
     @State private var imageScale: CGFloat = 1.0
     @State private var isFlipped = false
     @State private var presetName = ""
+    @State private var editingScheduleIndex: Int? = nil
 
     private var currentImage: NSImage? {
         guard !loadedImages.isEmpty, selectedVariantIndex < loadedImages.count else { return nil }
@@ -26,10 +27,36 @@ struct EditorView: View {
 
     var body: some View {
         AppShell(
-            title: presetName.isEmpty ? "Untitled" : presetName,
-            subtitle: wallpaperType.rawValue,
-            showBack: true,
-            onBack: { navigation.navigateToGallery() },
+            topBar: {
+                HStack {
+                    Button(action: { navigation.navigateToGallery() }) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "chevron.left")
+                                .font(.system(size: 10))
+                            Text("Gallery")
+                                .font(.system(size: 11))
+                        }
+                        .foregroundStyle(Color.cdAccent)
+                    }
+                    .buttonStyle(.plain)
+
+                    Spacer()
+
+                    Text(presetName.isEmpty ? "Untitled" : presetName)
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(Color.cdTextPrimary)
+                    Text("· \(wallpaperType.rawValue)")
+                        .font(.system(size: 12))
+                        .foregroundStyle(Color.cdTextTertiary)
+
+                    Spacer()
+
+                    Color.clear.frame(width: 80, height: 1)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(Color.cdBgSecondary)
+            },
             mainContent: {
                 EditorCanvasView(
                     selectedImage: currentImage,
@@ -45,6 +72,27 @@ struct EditorView: View {
                 editorSidebar
             }
         )
+        .overlay {
+            if let idx = editingScheduleIndex, idx < variants.count {
+                let scheduleView = ScheduleView(
+                    variants: $variants,
+                    selectedIndex: $selectedVariantIndex,
+                    editingIndex: $editingScheduleIndex,
+                    onAddImage: addImages,
+                    onRemoveVariant: removeVariant
+                )
+                ScheduleDetailModal(
+                    variant: $variants[idx],
+                    name: "Image \(idx + 1)",
+                    nextVariant: scheduleView.nextVariantAfter(index: idx),
+                    onRemove: {
+                        editingScheduleIndex = nil
+                        removeVariant(at: idx)
+                    },
+                    onDone: { editingScheduleIndex = nil }
+                )
+            }
+        }
         .onChange(of: selectedVariantIndex) { _, _ in
             fitImage()
         }
@@ -108,6 +156,7 @@ struct EditorView: View {
                         ScheduleView(
                             variants: $variants,
                             selectedIndex: $selectedVariantIndex,
+                            editingIndex: $editingScheduleIndex,
                             onAddImage: addImages,
                             onRemoveVariant: removeVariant
                         )

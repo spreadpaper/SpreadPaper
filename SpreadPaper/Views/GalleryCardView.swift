@@ -13,15 +13,17 @@ struct GalleryCardView: View {
     var body: some View {
         Button(action: onTap) {
             ZStack(alignment: .bottom) {
-                // Image
+                // Image — cover fill, no aspect distortion
                 if let thumbnail {
-                    Image(nsImage: thumbnail)
-                        .resizable()
-                        .aspectRatio(16/10, contentMode: .fill)
-                        .clipped()
+                    GeometryReader { geo in
+                        Image(nsImage: thumbnail)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: geo.size.width, height: geo.size.height)
+                            .clipped()
+                    }
                 } else {
                     Color.cdBgElevated
-                        .aspectRatio(16/10, contentMode: .fill)
                         .overlay {
                             Image(systemName: "photo")
                                 .foregroundStyle(Color.cdTextTertiary)
@@ -46,12 +48,13 @@ struct GalleryCardView: View {
                         .font(.system(size: 9))
                         .foregroundStyle(.white.opacity(0.6))
                 }
-                .padding(8)
+                .padding(10)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(
-                    LinearGradient(colors: [.clear, .black.opacity(0.75)], startPoint: .top, endPoint: .bottom)
+                    LinearGradient(colors: [.clear, .black.opacity(0.8)], startPoint: .top, endPoint: .bottom)
                 )
             }
+            .frame(height: 130)
             .clipShape(RoundedRectangle(cornerRadius: 10))
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
