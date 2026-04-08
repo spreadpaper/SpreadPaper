@@ -79,6 +79,9 @@ struct DynamicEditorView: View {
                 )
             }
         }
+        .onChange(of: selectedVariantIndex) { _, _ in
+            fitImage()
+        }
         .toolbar { dynamicToolbar }
         .alert("Save Dynamic Preset", isPresented: $isShowingSaveAlert) {
             TextField("Preset Name", text: $newPresetName)

@@ -47,7 +47,11 @@ struct ContentView: View {
                 detailContent
             }
         }
-        .toolbar { editorToolbar }
+        .toolbar {
+            if !isDynamicMode {
+                editorToolbar
+            }
+        }
         .alert("Save Preset", isPresented: $isShowingSaveAlert) {
             TextField("Preset Name", text: $newPresetName)
             Button("Cancel", role: .cancel) { }
