@@ -36,14 +36,14 @@ struct CoolDarkTextField: View {
     var body: some View {
         TextField(placeholder, text: $text)
             .textFieldStyle(.plain)
-            .font(.system(size: 11))
+            .font(.system(size: 14))
             .foregroundStyle(Color.cdTextPrimary)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 6)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
             .background(Color.cdBgElevated)
-            .clipShape(RoundedRectangle(cornerRadius: 6))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(
-                RoundedRectangle(cornerRadius: 6)
+                RoundedRectangle(cornerRadius: 8)
                     .stroke(Color.cdBorder, lineWidth: 1)
             )
     }
@@ -63,21 +63,21 @@ struct CoolDarkSlider: View {
 
             ZStack(alignment: .leading) {
                 // Track
-                RoundedRectangle(cornerRadius: 2)
+                RoundedRectangle(cornerRadius: 3)
                     .fill(Color.cdBorder)
-                    .frame(height: 4)
+                    .frame(height: 6)
 
                 // Fill
-                RoundedRectangle(cornerRadius: 2)
+                RoundedRectangle(cornerRadius: 3)
                     .fill(Color.cdAccent)
-                    .frame(width: thumbX, height: 4)
+                    .frame(width: thumbX, height: 6)
 
                 // Thumb
                 Circle()
                     .fill(Color.white)
-                    .stroke(Color.cdAccent, lineWidth: 1.5)
-                    .frame(width: 12, height: 12)
-                    .offset(x: thumbX - 6)
+                    .stroke(Color.cdAccent, lineWidth: 2)
+                    .frame(width: 16, height: 16)
+                    .offset(x: thumbX - 8)
             }
             .contentShape(Rectangle())
             .gesture(
@@ -88,7 +88,7 @@ struct CoolDarkSlider: View {
                     }
             )
         }
-        .frame(height: 12)
+        .frame(height: 16)
     }
 }
 

@@ -37,10 +37,10 @@ struct CoolDarkButtonStyle: ButtonStyle {
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.system(size: 12, weight: .semibold))
+            .font(.system(size: 14, weight: .semibold))
             .foregroundStyle(isPrimary || isSuccess ? .white : Color.cdTextSecondary)
-            .padding(.horizontal, 14)
-            .padding(.vertical, 7)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
             .background(
                 RoundedRectangle(cornerRadius: 7)
                     .fill(isSuccess ? Color.cdSuccess : isPrimary ? Color.cdAccent : Color.cdBgElevated)
@@ -59,10 +59,10 @@ struct CoolDarkIconButtonStyle: ButtonStyle {
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.system(size: 11))
+            .font(.system(size: 13))
             .foregroundStyle(isDisabled ? Color.cdTextTertiary : Color.cdTextSecondary)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 5)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
             .background(
                 RoundedRectangle(cornerRadius: 6)
                     .fill(Color.cdBgElevated)
@@ -104,7 +104,7 @@ struct SectionHeader: View {
 
     var body: some View {
         Text(title)
-            .font(.system(size: 9, weight: .semibold))
+            .font(.system(size: 11, weight: .semibold))
             .foregroundStyle(Color.cdTextTertiary)
             .textCase(.uppercase)
             .tracking(0.5)

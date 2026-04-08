@@ -141,16 +141,16 @@ struct EditorView: View {
     private var editorSidebar: some View {
         VStack(spacing: 0) {
             ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
+                VStack(alignment: .leading, spacing: 20) {
                     // Position
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: 10) {
                         SectionHeader(title: "Position")
 
-                        HStack(spacing: 4) {
+                        HStack(spacing: 8) {
                             Text("Zoom")
-                                .font(.system(size: 9))
+                                .font(.system(size: 12))
                                 .foregroundStyle(Color.cdTextTertiary)
-                                .frame(width: 32, alignment: .leading)
+                                .frame(width: 40, alignment: .leading)
                             CoolDarkSlider(value: imageScaleBinding, range: 0.1...5.0)
                         }
 
@@ -208,12 +208,12 @@ struct EditorView: View {
                         CoolDarkTextField(placeholder: "Wallpaper name", text: $presetName)
                     }
                 }
-                .padding(14)
+                .padding(16)
             }
 
             // Action buttons pinned at bottom
             Divider().overlay(Color.cdBorder)
-            VStack(spacing: 6) {
+            VStack(spacing: 8) {
                 Button(action: previewWallpaper) {
                     HStack {
                         Spacer()
@@ -235,7 +235,7 @@ struct EditorView: View {
                 .buttonStyle(CoolDarkButtonStyle(isSuccess: true))
                 .disabled(loadedImages.isEmpty)
             }
-            .padding(14)
+            .padding(16)
         }
     }
 
@@ -269,11 +269,11 @@ struct EditorView: View {
                     Image(nsImage: loadedImages[index])
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                        .frame(height: 52)
+                        .frame(height: 70)
                         .clipped()
                 } else {
                     Color.cdBgPrimary
-                        .frame(height: 52)
+                        .frame(height: 70)
                         .overlay {
                             Image(systemName: "plus")
                                 .foregroundStyle(Color.cdTextTertiary)
@@ -281,7 +281,7 @@ struct EditorView: View {
                 }
 
                 Text(label)
-                    .font(.system(size: 9, weight: index == selectedVariantIndex ? .semibold : .regular))
+                    .font(.system(size: 11, weight: index == selectedVariantIndex ? .semibold : .regular))
                     .foregroundStyle(index == selectedVariantIndex ? Color.cdTextPrimary : Color.cdTextSecondary)
                     .padding(.vertical, 4)
                     .frame(maxWidth: .infinity)
