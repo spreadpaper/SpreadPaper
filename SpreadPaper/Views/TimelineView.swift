@@ -3,75 +3,59 @@ import SwiftUI
 struct TimelineView: View {
     @Binding var variants: [TimeVariant]
     @Binding var selectedVariantIndex: Int
-    @Binding var scrubberTime: Double  // 0.0–24.0 (hours)
+    @Binding var scrubberTime: Double
 
-    let thumbnails: [NSImage]  // Downsampled thumbnails matching variants order
+    let thumbnails: [NSImage]
     let onAddImages: () -> Void
     let onRemoveVariant: (Int) -> Void
+
+    /// Variants and thumbnails sorted by time, with original indices preserved
+    private var sortedEntries: [(originalIndex: Int, variant: TimeVariant, thumbnail: NSImage?)] {
+        variants.indices.map { i in
+            (originalIndex: i,
+             variant: variants[i],
+             thumbnail: i < thumbnails.count ? thumbnails[i] : nil)
+        }
+        .sorted { $0.variant.dayFraction < $1.variant.dayFraction }
+    }
 
     var body: some View {
         VStack(spacing: 0) {
             Divider()
 
-            VStack(spacing: 12) {
-                // Header
+            VStack(spacing: 10) {
                 HStack {
-                    Text("Time Variants (\(variants.count) of 16 max)")
+                    Text("Timeline")
                         .font(.system(size: 12, weight: .semibold))
+                    Text("(\(variants.count)/16)")
+                        .font(.system(size: 11))
+                        .foregroundStyle(.tertiary)
                     Spacer()
-                    Text(timeLabel(for: scrubberTime))
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundStyle(.secondary)
                 }
 
-                // Time scrubber
-                VStack(spacing: 4) {
-                    Slider(value: $scrubberTime, in: 0...24, step: 0.25)
-                        .onChange(of: scrubberTime) { _, newValue in
-                            if let closest = variants.enumerated().min(by: {
-                                abs(Double($0.element.hour) + Double($0.element.minute) / 60.0 - newValue) <
-                                abs(Double($1.element.hour) + Double($1.element.minute) / 60.0 - newValue)
-                            }) {
-                                selectedVariantIndex = closest.offset
-                            }
-                        }
-
-                    HStack {
-                        Text("12 AM").font(.system(size: 9)).foregroundStyle(.tertiary)
-                        Spacer()
-                        Text("6 AM").font(.system(size: 9)).foregroundStyle(.tertiary)
-                        Spacer()
-                        Text("12 PM").font(.system(size: 9)).foregroundStyle(.tertiary)
-                        Spacer()
-                        Text("6 PM").font(.system(size: 9)).foregroundStyle(.tertiary)
-                        Spacer()
-                        Text("12 AM").font(.system(size: 9)).foregroundStyle(.tertiary)
-                    }
-                }
-
-                // Thumbnail strip
+                // Thumbnail strip — sorted by time
                 ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
-                        ForEach(Array(zip(variants.indices, variants)), id: \.1.id) { index, variant in
+                    HStack(spacing: 6) {
+                        ForEach(sortedEntries, id: \.variant.id) { entry in
                             VariantThumbnail(
-                                variant: $variants[index],
-                                thumbnail: index < thumbnails.count ? thumbnails[index] : nil,
-                                isSelected: index == selectedVariantIndex,
+                                variant: $variants[entry.originalIndex],
+                                thumbnail: entry.thumbnail,
+                                isSelected: entry.originalIndex == selectedVariantIndex,
                                 onSelect: {
-                                    selectedVariantIndex = index
-                                    scrubberTime = Double(variant.hour) + Double(variant.minute) / 60.0
+                                    selectedVariantIndex = entry.originalIndex
+                                    scrubberTime = Double(entry.variant.hour) + Double(entry.variant.minute) / 60.0
                                 },
-                                onRemove: { onRemoveVariant(index) }
+                                onRemove: { onRemoveVariant(entry.originalIndex) }
                             )
                         }
 
                         if variants.count < 16 {
                             Button(action: onAddImages) {
-                                VStack(spacing: 4) {
+                                VStack(spacing: 3) {
                                     RoundedRectangle(cornerRadius: 4)
                                         .strokeBorder(style: StrokeStyle(lineWidth: 1, dash: [4]))
                                         .foregroundStyle(.tertiary)
-                                        .frame(width: 72, height: 44)
+                                        .frame(width: 80, height: 50)
                                         .overlay {
                                             Image(systemName: "plus")
                                                 .foregroundStyle(.secondary)
@@ -88,25 +72,13 @@ struct TimelineView: View {
                 }
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+            .padding(.vertical, 10)
         }
         .background(.bar)
     }
-
-    private func timeLabel(for hours: Double) -> String {
-        let h = Int(hours) % 24
-        let m = Int((hours.truncatingRemainder(dividingBy: 1)) * 60)
-        let formatter = DateFormatter()
-        formatter.dateFormat = "h:mm a"
-        var components = DateComponents()
-        components.hour = h
-        components.minute = m
-        let date = Calendar.current.date(from: components) ?? Date()
-        return formatter.string(from: date)
-    }
 }
 
-// MARK: - Per-variant thumbnail with time editing popover
+// MARK: - Per-variant thumbnail with inline time editing
 
 private struct VariantThumbnail: View {
     @Binding var variant: TimeVariant
@@ -120,12 +92,12 @@ private struct VariantThumbnail: View {
     @State private var editingMinute: Int = 0
 
     var body: some View {
-        VStack(spacing: 4) {
+        VStack(spacing: 3) {
             if let thumbnail {
                 Image(nsImage: thumbnail)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
-                    .frame(width: 72, height: 44)
+                    .frame(width: 80, height: 50)
                     .clipShape(RoundedRectangle(cornerRadius: 4))
                     .overlay(
                         RoundedRectangle(cornerRadius: 4)
@@ -133,74 +105,77 @@ private struct VariantThumbnail: View {
                     )
             }
 
-            // Clickable time label — opens time editor
+            // Time label — click to edit
             Button {
                 editingHour = variant.hour
                 editingMinute = variant.minute
                 showingTimePicker = true
             } label: {
-                Text(variant.timeString)
-                    .font(.system(size: 9))
-                    .foregroundStyle(.secondary)
-                    .underline(isSelected)
+                HStack(spacing: 2) {
+                    Text(variant.timeString)
+                        .font(.system(size: 10, weight: isSelected ? .semibold : .regular))
+                    Image(systemName: "chevron.up.chevron.down")
+                        .font(.system(size: 6))
+                }
+                .foregroundStyle(isSelected ? .primary : .secondary)
             }
             .buttonStyle(.plain)
             .popover(isPresented: $showingTimePicker, arrowEdge: .bottom) {
-                VStack(spacing: 8) {
-                    Text("Set Time")
-                        .font(.system(size: 11, weight: .semibold))
-
-                    HStack(spacing: 4) {
-                        Picker("Hour", selection: $editingHour) {
-                            ForEach(0..<24, id: \.self) { h in
-                                Text(String(format: "%d", h == 0 ? 12 : (h > 12 ? h - 12 : h)))
-                                    .tag(h)
-                            }
-                        }
-                        .labelsHidden()
-                        .frame(width: 50)
-
-                        Text(":")
-                            .font(.system(size: 13, weight: .medium))
-
-                        Picker("Minute", selection: $editingMinute) {
-                            ForEach([0, 15, 30, 45], id: \.self) { m in
-                                Text(String(format: "%02d", m))
-                                    .tag(m)
-                            }
-                        }
-                        .labelsHidden()
-                        .frame(width: 50)
-
-                        Text(editingHour < 12 ? "AM" : "PM")
-                            .font(.system(size: 11))
-                            .foregroundStyle(.secondary)
-                            .frame(width: 24)
-                    }
-
-                    Button("Done") {
-                        variant.hour = editingHour
-                        variant.minute = editingMinute
-                        showingTimePicker = false
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.small)
-                }
-                .padding(12)
+                timePickerContent
             }
         }
-        .onTapGesture {
-            onSelect()
-        }
+        .onTapGesture { onSelect() }
         .contextMenu {
             Button("Set Time...") {
                 editingHour = variant.hour
                 editingMinute = variant.minute
                 showingTimePicker = true
             }
-            Button("Remove", role: .destructive) {
-                onRemove()
-            }
+            Button("Remove", role: .destructive) { onRemove() }
         }
+    }
+
+    private var timePickerContent: some View {
+        VStack(spacing: 8) {
+            Text("Set Time")
+                .font(.system(size: 11, weight: .semibold))
+
+            HStack(spacing: 4) {
+                Picker("Hour", selection: $editingHour) {
+                    ForEach(0..<24, id: \.self) { h in
+                        Text(String(format: "%d", h == 0 ? 12 : (h > 12 ? h - 12 : h)))
+                            .tag(h)
+                    }
+                }
+                .labelsHidden()
+                .frame(width: 50)
+
+                Text(":")
+                    .font(.system(size: 13, weight: .medium))
+
+                Picker("Minute", selection: $editingMinute) {
+                    ForEach([0, 15, 30, 45], id: \.self) { m in
+                        Text(String(format: "%02d", m))
+                            .tag(m)
+                    }
+                }
+                .labelsHidden()
+                .frame(width: 50)
+
+                Text(editingHour < 12 ? "AM" : "PM")
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+                    .frame(width: 24)
+            }
+
+            Button("Done") {
+                variant.hour = editingHour
+                variant.minute = editingMinute
+                showingTimePicker = false
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.small)
+        }
+        .padding(12)
     }
 }
