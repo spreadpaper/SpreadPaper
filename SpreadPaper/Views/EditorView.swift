@@ -7,7 +7,7 @@ struct EditorView: View {
     @Bindable var manager: WallpaperManager
     @Bindable var navigation: AppNavigation
     let wallpaperType: WallpaperType
-    let presetId: UUID?  // nil = new
+    let presetId: UUID?
 
     @State private var loadedImages: [NSImage] = []
     @State private var originalUrls: [URL] = []
@@ -25,42 +25,12 @@ struct EditorView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            // Top bar
-            HStack {
-                Button(action: { navigation.navigateToGallery() }) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "chevron.left")
-                            .font(.system(size: 10))
-                        Text("Gallery")
-                            .font(.system(size: 11))
-                    }
-                    .foregroundStyle(Color.cdAccent)
-                }
-                .buttonStyle(.plain)
-
-                Spacer()
-
-                Text(presetName.isEmpty ? "Untitled" : presetName)
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundStyle(Color.cdTextPrimary)
-                Text("· \(wallpaperType.rawValue)")
-                    .font(.system(size: 11))
-                    .foregroundStyle(Color.cdTextTertiary)
-
-                Spacer()
-                // Balance the back button width
-                Color.clear.frame(width: 60)
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 7)
-            .background(Color.cdBgSecondary)
-
-            Divider().overlay(Color.cdBorder)
-
-            // Main content
-            HStack(spacing: 0) {
-                // Canvas
+        AppShell(
+            title: presetName.isEmpty ? "Untitled" : presetName,
+            subtitle: wallpaperType.rawValue,
+            showBack: true,
+            onBack: { navigation.navigateToGallery() },
+            mainContent: {
                 EditorCanvasView(
                     selectedImage: currentImage,
                     imageOffset: $imageOffset,
@@ -70,13 +40,11 @@ struct EditorView: View {
                     onSelectImage: addImages,
                     onDropImage: { _ in }
                 )
-
-                // Right panel
-                Divider().overlay(Color.cdBorder)
-                rightPanel
+            },
+            sidebarContent: {
+                editorSidebar
             }
-        }
-        .background(Color.cdBgPrimary)
+        )
         .onChange(of: selectedVariantIndex) { _, _ in
             fitImage()
         }
@@ -87,9 +55,9 @@ struct EditorView: View {
         }
     }
 
-    // MARK: - Right Panel
+    // MARK: - Sidebar
 
-    private var rightPanel: some View {
+    private var editorSidebar: some View {
         VStack(spacing: 0) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
@@ -144,7 +112,7 @@ struct EditorView: View {
                 .padding(14)
             }
 
-            // Apply button pinned at bottom of panel
+            // Apply button pinned at bottom
             Divider().overlay(Color.cdBorder)
             Button(action: applyWallpaper) {
                 HStack {
@@ -157,8 +125,6 @@ struct EditorView: View {
             .disabled(loadedImages.isEmpty)
             .padding(14)
         }
-        .frame(width: 220)
-        .background(Color.cdBgSecondary)
     }
 
     // MARK: - Appearance Section (Light/Dark)
@@ -168,9 +134,7 @@ struct EditorView: View {
             SectionHeader(title: "Appearance")
 
             HStack(spacing: 6) {
-                // Light
                 appearanceCard(label: "☀ Light", index: 0)
-                // Dark
                 appearanceCard(label: "🌙 Dark", index: 1)
             }
 
@@ -245,8 +209,7 @@ struct EditorView: View {
             let hour: Int
             let minute: Int
             if wallpaperType == .appearance {
-                hour = slot == 0 ? 12 : 0
-                minute = 0
+                hour = slot == 0 ? 12 : 0; minute = 0
             } else if wallpaperType == .dynamic {
                 (hour, minute) = slot < dayPhases.count ? dayPhases[slot] : (min(slot + 7, 23), 0)
             } else {
@@ -280,14 +243,12 @@ struct EditorView: View {
         imageScale = preset.scale
         isFlipped = preset.isFlipped
 
-        // Load the primary image
         let url = manager.getImageUrl(for: preset)
         if let img = NSImage(contentsOf: url) {
             loadedImages = [img]
             originalUrls = [url]
         }
 
-        // Load dynamic variants
         if preset.isDynamic {
             variants = preset.timeVariants
             for variant in preset.timeVariants {
@@ -312,26 +273,20 @@ struct EditorView: View {
             guard let image = loadedImages.first else { return }
             Task {
                 await manager.setWallpaper(
-                    originalImage: image,
-                    imageOffset: imageOffset,
-                    scale: imageScale,
-                    previewScale: 1.0,
-                    isFlipped: isFlipped
+                    originalImage: image, imageOffset: imageOffset,
+                    scale: imageScale, previewScale: 1.0, isFlipped: isFlipped
                 )
             }
         case .dynamic:
             guard variants.count >= 2 else { return }
             let preset = SavedPreset(
-                name: presetName.isEmpty ? "Untitled" : presetName,
-                imageFilename: "",
+                name: presetName.isEmpty ? "Untitled" : presetName, imageFilename: "",
                 offsetX: imageOffset.width, offsetY: imageOffset.height,
                 scale: imageScale, previewScale: 1.0, isFlipped: isFlipped,
                 isDynamic: true, timeVariants: variants
             )
             Task {
-                await manager.applyDynamicWallpaper(
-                    preset: preset, images: loadedImages, previewScale: 1.0
-                )
+                await manager.applyDynamicWallpaper(preset: preset, images: loadedImages, previewScale: 1.0)
             }
         case .appearance:
             guard loadedImages.count == 2 else { return }

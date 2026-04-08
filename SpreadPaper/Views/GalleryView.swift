@@ -19,61 +19,79 @@ struct GalleryView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            // Top bar
-            HStack {
-                Text("SpreadPaper")
-                    .font(.system(size: 14, weight: .bold))
-                    .foregroundStyle(Color.cdTextPrimary)
-
-                Spacer()
-
-                CoolDarkSegmentedControl(
-                    options: GalleryFilter.allCases.map(\.label),
-                    selection: $filterIndex
-                )
-
-                Spacer()
-
-                Button(action: { navigation.showCreationModal = true }) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "plus")
-                        Text("New")
+        AppShell(
+            title: "",
+            mainContent: {
+                // Gallery grid or empty state
+                if filteredPresets.isEmpty {
+                    emptyState
+                } else {
+                    ScrollView {
+                        LazyVGrid(
+                            columns: [GridItem(.adaptive(minimum: 180, maximum: 280), spacing: 12)],
+                            spacing: 12
+                        ) {
+                            ForEach(filteredPresets) { preset in
+                                GalleryCardView(
+                                    preset: preset,
+                                    thumbnail: thumbnailCache[preset.id],
+                                    isActive: false,
+                                    onTap: { navigation.navigateToEditor(presetId: preset.id) },
+                                    onApply: { applyPreset(preset) },
+                                    onDelete: { manager.deletePreset(preset) }
+                                )
+                            }
+                        }
+                        .padding(20)
                     }
                 }
-                .buttonStyle(CoolDarkButtonStyle(isPrimary: true))
-            }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 10)
-            .background(Color.cdBgSecondary)
+            },
+            sidebarContent: {
+                // Gallery sidebar: filters + new button
+                VStack(alignment: .leading, spacing: 16) {
+                    SectionHeader(title: "Filter")
 
-            Divider().overlay(Color.cdBorder)
-
-            // Grid or empty state
-            if filteredPresets.isEmpty {
-                emptyState
-            } else {
-                ScrollView {
-                    LazyVGrid(
-                        columns: [GridItem(.adaptive(minimum: 180, maximum: 280), spacing: 12)],
-                        spacing: 12
-                    ) {
-                        ForEach(filteredPresets) { preset in
-                            GalleryCardView(
-                                preset: preset,
-                                thumbnail: thumbnailCache[preset.id],
-                                isActive: false, // TODO: track active wallpaper
-                                onTap: { navigation.navigateToEditor(presetId: preset.id) },
-                                onApply: { applyPreset(preset) },
-                                onDelete: { manager.deletePreset(preset) }
-                            )
+                    VStack(spacing: 4) {
+                        ForEach(GalleryFilter.allCases, id: \.self) { filter in
+                            Button(action: { filterIndex = filter.rawValue }) {
+                                HStack(spacing: 8) {
+                                    Image(systemName: iconFor(filter))
+                                        .font(.system(size: 10))
+                                        .frame(width: 16)
+                                    Text(filter.label)
+                                        .font(.system(size: 11, weight: filterIndex == filter.rawValue ? .semibold : .regular))
+                                    Spacer()
+                                    Text("\(countFor(filter))")
+                                        .font(.system(size: 10))
+                                        .foregroundStyle(Color.cdTextTertiary)
+                                }
+                                .foregroundStyle(filterIndex == filter.rawValue ? Color.cdAccent : Color.cdTextSecondary)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 5)
+                                .background(filterIndex == filter.rawValue ? Color.cdAccent.opacity(0.1) : Color.clear)
+                                .clipShape(RoundedRectangle(cornerRadius: 6))
+                            }
+                            .buttonStyle(.plain)
                         }
                     }
-                    .padding(20)
+
+                    Divider().overlay(Color.cdBorder)
+
+                    Button(action: { navigation.showCreationModal = true }) {
+                        HStack {
+                            Spacer()
+                            Image(systemName: "plus")
+                            Text("New Wallpaper")
+                            Spacer()
+                        }
+                    }
+                    .buttonStyle(CoolDarkButtonStyle(isPrimary: true))
+
+                    Spacer()
                 }
+                .padding(14)
             }
-        }
-        .background(Color.cdBgPrimary)
+        )
         .task {
             loadThumbnails()
         }
@@ -88,14 +106,28 @@ struct GalleryView: View {
             Text("No wallpapers yet")
                 .font(.system(size: 14, weight: .medium))
                 .foregroundStyle(Color.cdTextSecondary)
-            Button(action: { navigation.showCreationModal = true }) {
-                HStack(spacing: 4) {
-                    Image(systemName: "plus")
-                    Text("Create your first wallpaper")
-                }
-            }
-            .buttonStyle(CoolDarkButtonStyle(isPrimary: true))
+            Text("Click \"New Wallpaper\" to get started")
+                .font(.system(size: 12))
+                .foregroundStyle(Color.cdTextTertiary)
             Spacer()
+        }
+    }
+
+    private func iconFor(_ filter: GalleryFilter) -> String {
+        switch filter {
+        case .all: return "square.grid.2x2"
+        case .standard: return "photo"
+        case .dynamic: return "sun.max"
+        case .appearance: return "circle.lefthalf.filled"
+        }
+    }
+
+    private func countFor(_ filter: GalleryFilter) -> Int {
+        switch filter {
+        case .all: return manager.presets.count
+        case .standard: return manager.presets.filter { !$0.isDynamic }.count
+        case .dynamic: return manager.presets.filter { $0.isDynamic && $0.wallpaperType == "Dynamic" }.count
+        case .appearance: return manager.presets.filter { $0.wallpaperType == "Light/Dark" }.count
         }
     }
 

@@ -19,6 +19,7 @@ struct SpreadPaperApp: App {
                     CreationModal(navigation: navigation)
                 }
             }
+            .ignoresSafeArea()
             .frame(minWidth: 900, minHeight: 600)
             .preferredColorScheme(.dark)
             .background(Color.cdBgPrimary)
