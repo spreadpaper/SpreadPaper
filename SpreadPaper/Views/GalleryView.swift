@@ -79,7 +79,7 @@ struct GalleryView: View {
                                 .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
-                            .focusable(false)
+                            .focusEffectDisabled()
                         }
                     }
 
