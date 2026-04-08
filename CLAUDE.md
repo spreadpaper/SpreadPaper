@@ -23,15 +23,25 @@ npm run build    # Production build to dist/
 
 ## Architecture
 
-The app has only 4 Swift source files:
+Source files organized under `SpreadPaper/`:
 
-- **SpreadPaperApp.swift** — App entry point, integrates UpdateChecker on launch
-- **ContentView.swift** (~950 lines) — All UI and core logic:
-  - `WallpaperManager` (ObservableObject) — Screen detection, image rendering via CGContext, wallpaper application via `NSWorkspace.setDesktopImageURL()`, preset persistence as JSON
-  - `SavedPreset` / `DisplayInfo` / `AppSettings` — Data models
-  - NavigationSplitView layout with sidebar (presets) and detail (canvas editor)
-- **UpdateChecker.swift** — Fetches latest GitHub release, parses CHANGELOG.md for version history
-- **UpdatePopupView.swift** — Update notification popup UI
+- **App/SpreadPaperApp.swift** — App entry point, integrates UpdateChecker on launch
+- **Views/ContentView.swift** — Main NavigationSplitView layout, routes between static and dynamic editors
+- **Views/SidebarView.swift** — Preset list with static/dynamic badges
+- **Views/CanvasView.swift** — Monitor canvas with image overlay, drag, zoom, snap
+- **Views/DynamicEditorView.swift** — Detail pane for dynamic presets (wraps CanvasView + TimelineView)
+- **Views/TimelineView.swift** — Time scrubber slider and image thumbnail strip
+- **Views/MonitorOverlayView.swift** — Monitor outlines and mask for canvas
+- **Views/ImageDropZone.swift** — Drag-and-drop / click-to-open target
+- **Views/SettingsView.swift** — Settings window with appearance and update tabs
+- **Services/WallpaperManager.swift** — `@Observable` class: screen detection, CGContext rendering, wallpaper application, preset persistence, dynamic wallpaper HEIC generation
+- **Services/DynamicWallpaperGenerator.swift** — HEIC dynamic desktop file generation with Apple XMP metadata (based on wallpapper's reverse engineering)
+- **Services/UpdateChecker.swift** — Fetches latest GitHub release, parses CHANGELOG.md for version history
+- **Models/SavedPreset.swift** — Preset data model (supports both static and dynamic presets)
+- **Models/TimeVariant.swift** — Time-of-day image variant for dynamic presets
+- **Models/DisplayInfo.swift** — Connected display info
+- **Models/AppSettings.swift** — Persisted app settings
+- **Helpers/WindowAccessor.swift**, **WindowDragHandler.swift**, **GlassModifiers.swift** — Window utilities
 
 ### Key Implementation Details
 
@@ -39,7 +49,8 @@ The app has only 4 Swift source files:
 - Per-screen wallpapers saved as `spreadpaper_wall_{screenName}_{timestamp}.png`
 - Old wallpapers are auto-cleaned on reapplication
 - Multi-monitor rendering uses CGContext with coordinate transforms to handle scaling, offsets, and image flipping across displays
-- Presets serialized to `spreadpaper_presets.json` in the app support directory
+- Dynamic desktop wallpapers use HEIC files with Apple's XMP metadata (time-based h24 mode). Per-monitor HEIC files are generated with synchronized time metadata so all screens transition together. Format based on wallpapper's reverse engineering.
+- Presets serialized to `spreadpaper_presets.json` in the app support directory (supports both static and dynamic presets via `isDynamic` flag)
 
 ### App Sandbox
 
@@ -55,7 +66,7 @@ Automated via GitHub Actions with `release-please`:
 ## Conventions
 
 - Swift 6 strict concurrency
-- SwiftUI with `@StateObject` for managers, `@State` for local UI state, `@AppStorage` for persisted settings
+- SwiftUI with `@Observable` macro for managers, `@State` for local UI state, `@AppStorage` for persisted settings
 - Combine for async operations (update checker)
 - Conventional commits (feat/fix/chore) — release-please generates CHANGELOG.md from these
 
