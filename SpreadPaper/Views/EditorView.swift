@@ -306,8 +306,12 @@ struct EditorView: View {
         }
 
         if !loadedImages.isEmpty {
-            selectedVariantIndex = 0
-            fitImage()
+            // Select the newly added image, not always the first
+            selectedVariantIndex = loadedImages.count - 1
+            // Only auto-fit if this is the first image (don't reset position of existing images)
+            if loadedImages.count == 1 {
+                fitImage()
+            }
         }
     }
 
