@@ -208,7 +208,13 @@ struct EditorView: View {
     }
 
     private func appearanceCard(label: String, index: Int) -> some View {
-        Button(action: { if index < loadedImages.count { selectedVariantIndex = index } }) {
+        Button(action: {
+            if index < loadedImages.count {
+                selectedVariantIndex = index
+            } else {
+                addImages()
+            }
+        }) {
             VStack(spacing: 0) {
                 if index < loadedImages.count {
                     Image(nsImage: loadedImages[index])
