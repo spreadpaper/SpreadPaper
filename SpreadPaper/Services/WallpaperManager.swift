@@ -123,11 +123,18 @@ class WallpaperManager {
 
             do {
                 try FileManager.default.copyItem(at: url, to: destUrl)
-                let variant = TimeVariant(
+                var variant = TimeVariant(
                     imageFilename: filename,
                     hour: hours[index],
                     minute: minutes[index]
                 )
+                if index < offsets.count {
+                    variant.offsetX = offsets[index].width
+                    variant.offsetY = offsets[index].height
+                }
+                if index < scales.count { variant.scale = scales[index] }
+                variant.previewScale = previewScale
+                if index < flipped.count { variant.isFlipped = flipped[index] }
                 variants.append(variant)
             } catch {
                 print("Error copying image for dynamic preset: \(error)")

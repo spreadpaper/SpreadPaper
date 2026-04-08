@@ -185,23 +185,22 @@ struct GalleryView: View {
         let isDark = colorScheme == .dark
 
         for preset in manager.presets {
-            // Pick the right image file based on context
-            let filename: String
+            // Pick the right variant based on context
+            let activeVariant: TimeVariant?
             if preset.wallpaperType == "Light/Dark" && preset.timeVariants.count == 2 {
-                // Show light or dark variant based on system appearance
                 let sorted = preset.timeVariants.sorted { $0.hour > $1.hour }
-                filename = isDark ? (sorted.last?.imageFilename ?? preset.imageFilename) : (sorted.first?.imageFilename ?? preset.imageFilename)
+                activeVariant = isDark ? sorted.last : sorted.first
             } else if preset.wallpaperType == "Dynamic" && !preset.timeVariants.isEmpty {
-                // Show the variant closest to the current time
                 let now = Calendar.current.dateComponents([.hour, .minute], from: Date())
                 let currentFraction = Double(now.hour ?? 12) / 24.0 + Double(now.minute ?? 0) / 1440.0
-                let closest = preset.timeVariants.min(by: {
+                activeVariant = preset.timeVariants.min(by: {
                     abs($0.dayFraction - currentFraction) < abs($1.dayFraction - currentFraction)
                 })
-                filename = closest?.imageFilename ?? preset.imageFilename
             } else {
-                filename = preset.imageFilename
+                activeVariant = nil
             }
+            let filename = activeVariant?.imageFilename ?? preset.imageFilename
+            let shouldFlip = activeVariant?.isFlipped ?? preset.isFlipped
 
             // Cache key includes appearance so it refreshes on system theme change
             let cacheKey = preset.id
@@ -218,8 +217,8 @@ struct GalleryView: View {
                 let thumb = NSImage(size: newSize)
                 thumb.lockFocus()
 
-                // Apply flip if preset is flipped
-                if preset.isFlipped {
+                // Apply flip if this variant is flipped
+                if shouldFlip {
                     let transform = NSAffineTransform()
                     transform.translateX(by: newSize.width, yBy: 0)
                     transform.scaleX(by: -1, yBy: 1)

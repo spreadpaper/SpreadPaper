@@ -14,16 +14,6 @@ struct EditorView: View {
     @State private var variants: [TimeVariant] = []
     @State private var selectedVariantIndex: Int = 0
 
-    // Current variant's position (swapped on variant change)
-    @State private var imageOffset: CGSize = .zero
-    @State private var imageScale: CGFloat = 1.0
-    @State private var isFlipped = false
-
-    // Per-variant position storage
-    @State private var savedOffsets: [Int: CGSize] = [:]
-    @State private var savedScales: [Int: CGFloat] = [:]
-    @State private var savedFlips: [Int: Bool] = [:]
-
     @State private var currentPreviewScale: CGFloat = 1.0
     @State private var presetName = ""
     @State private var editingScheduleIndex: Int? = nil
@@ -31,6 +21,36 @@ struct EditorView: View {
     private var currentImage: NSImage? {
         guard !loadedImages.isEmpty, selectedVariantIndex < loadedImages.count else { return nil }
         return loadedImages[selectedVariantIndex]
+    }
+
+    // Bindings into the current variant's position
+    private var imageOffsetBinding: Binding<CGSize> {
+        Binding(
+            get: {
+                guard selectedVariantIndex < variants.count else { return .zero }
+                let v = variants[selectedVariantIndex]
+                return CGSize(width: v.offsetX, height: v.offsetY)
+            },
+            set: {
+                guard selectedVariantIndex < variants.count else { return }
+                variants[selectedVariantIndex].offsetX = $0.width
+                variants[selectedVariantIndex].offsetY = $0.height
+            }
+        )
+    }
+
+    private var imageScaleBinding: Binding<CGFloat> {
+        Binding(
+            get: { selectedVariantIndex < variants.count ? variants[selectedVariantIndex].scale : 1.0 },
+            set: { if selectedVariantIndex < variants.count { variants[selectedVariantIndex].scale = $0 } }
+        )
+    }
+
+    private var isFlippedBinding: Binding<Bool> {
+        Binding(
+            get: { selectedVariantIndex < variants.count ? variants[selectedVariantIndex].isFlipped : false },
+            set: { if selectedVariantIndex < variants.count { variants[selectedVariantIndex].isFlipped = $0 } }
+        )
     }
 
     var body: some View {
@@ -68,9 +88,9 @@ struct EditorView: View {
             mainContent: {
                 EditorCanvasView(
                     selectedImage: currentImage,
-                    imageOffset: $imageOffset,
-                    imageScale: $imageScale,
-                    isFlipped: $isFlipped,
+                    imageOffset: imageOffsetBinding,
+                    imageScale: imageScaleBinding,
+                    isFlipped: isFlippedBinding,
                     manager: manager,
                     onSelectImage: addImages,
                     onDropImage: { _ in },
@@ -102,19 +122,9 @@ struct EditorView: View {
                 )
             }
         }
-        .onChange(of: selectedVariantIndex) { oldIndex, newIndex in
-            // Save current position
-            savedOffsets[oldIndex] = imageOffset
-            savedScales[oldIndex] = imageScale
-            savedFlips[oldIndex] = isFlipped
-
-            // Restore new variant's position (or fit if first time)
-            if let offset = savedOffsets[newIndex] {
-                imageOffset = offset
-                imageScale = savedScales[newIndex] ?? 1.0
-                isFlipped = savedFlips[newIndex] ?? false
-            } else {
-                // First time seeing this variant — auto-fit
+        .onChange(of: selectedVariantIndex) { _, newIndex in
+            // Auto-fit if this variant hasn't been positioned yet
+            if newIndex < variants.count && variants[newIndex].scale <= 0.1 {
                 fitImage()
             }
         }
@@ -140,7 +150,7 @@ struct EditorView: View {
                                 .font(.system(size: 9))
                                 .foregroundStyle(Color.cdTextTertiary)
                                 .frame(width: 32, alignment: .leading)
-                            CoolDarkSlider(value: $imageScale, range: 0.1...5.0)
+                            CoolDarkSlider(value: imageScaleBinding, range: 0.1...5.0)
                         }
 
                         HStack(spacing: 8) {
@@ -155,7 +165,10 @@ struct EditorView: View {
                             }
                             .buttonStyle(CoolDarkIconButtonStyle())
 
-                            Button(action: { isFlipped.toggle() }) {
+                            Button(action: {
+                                guard selectedVariantIndex < variants.count else { return }
+                                variants[selectedVariantIndex].isFlipped.toggle()
+                            }) {
                                 HStack(spacing: 4) {
                                     Image(systemName: "arrow.left.and.right")
                                         .font(.system(size: 10))
@@ -291,8 +304,10 @@ struct EditorView: View {
         let widthRatio = canvas.width / image.size.width
         let heightRatio = canvas.height / image.size.height
         withAnimation(.spring()) {
-            imageScale = max(widthRatio, heightRatio)
-            imageOffset = .zero
+            guard selectedVariantIndex < variants.count else { return }
+            variants[selectedVariantIndex].scale = max(widthRatio, heightRatio)
+            variants[selectedVariantIndex].offsetX = 0
+            variants[selectedVariantIndex].offsetY = 0
         }
     }
 
@@ -347,9 +362,6 @@ struct EditorView: View {
 
     private func loadExistingPreset(_ preset: SavedPreset) {
         presetName = preset.name
-        imageOffset = CGSize(width: preset.offsetX, height: preset.offsetY)
-        imageScale = preset.scale
-        isFlipped = preset.isFlipped
 
         if preset.isDynamic && !preset.timeVariants.isEmpty {
             // For appearance presets, ensure light (hour=12) is index 0, dark (hour=0) is index 1
@@ -383,36 +395,56 @@ struct EditorView: View {
         }
     }
 
+    /// Current variant's position (convenience)
+    private var currentOffset: CGSize {
+        guard selectedVariantIndex < variants.count else { return .zero }
+        let v = variants[selectedVariantIndex]
+        return CGSize(width: v.offsetX, height: v.offsetY)
+    }
+    private var currentScale: CGFloat {
+        selectedVariantIndex < variants.count ? variants[selectedVariantIndex].scale : 1.0
+    }
+    private var currentFlip: Bool {
+        selectedVariantIndex < variants.count ? variants[selectedVariantIndex].isFlipped : false
+    }
+
     /// Apply wallpaper to desktop without saving — stay in editor
     private func previewWallpaper() {
         guard !loadedImages.isEmpty else { return }
+
+        // Store previewScale in each variant
+        for i in variants.indices {
+            variants[i].previewScale = currentPreviewScale
+        }
 
         switch wallpaperType {
         case .standard:
             guard let image = loadedImages.first else { return }
             Task {
                 await manager.setWallpaper(
-                    originalImage: image, imageOffset: imageOffset,
-                    scale: imageScale, previewScale: currentPreviewScale, isFlipped: isFlipped
+                    originalImage: image, imageOffset: currentOffset,
+                    scale: currentScale, previewScale: currentPreviewScale, isFlipped: currentFlip
                 )
             }
         case .dynamic:
             guard variants.count >= 2 else { return }
+            let v = variants.first ?? variants[0]
             let preset = SavedPreset(
                 name: presetName.isEmpty ? "Untitled" : presetName, imageFilename: "",
-                offsetX: imageOffset.width, offsetY: imageOffset.height,
-                scale: imageScale, previewScale: currentPreviewScale, isFlipped: isFlipped,
+                offsetX: v.offsetX, offsetY: v.offsetY,
+                scale: v.scale, previewScale: currentPreviewScale, isFlipped: v.isFlipped,
                 isDynamic: true, timeVariants: variants
             )
             Task {
                 await manager.applyDynamicWallpaper(preset: preset, images: loadedImages, previewScale: currentPreviewScale)
             }
         case .appearance:
-            guard loadedImages.count == 2 else { return }
+            guard loadedImages.count == 2, variants.count == 2 else { return }
             Task {
                 await manager.applyAppearanceWallpaper(
                     lightImage: loadedImages[0], darkImage: loadedImages[1],
-                    offset: imageOffset, scale: imageScale, previewScale: currentPreviewScale, isFlipped: isFlipped
+                    offset: CGSize(width: variants[0].offsetX, height: variants[0].offsetY),
+                    scale: variants[0].scale, previewScale: currentPreviewScale, isFlipped: variants[0].isFlipped
                 )
             }
         }
@@ -424,15 +456,23 @@ struct EditorView: View {
 
         let name = presetName.isEmpty ? "Untitled" : presetName
 
+        // Store previewScale in each variant
+        for i in variants.indices {
+            variants[i].previewScale = currentPreviewScale
+        }
+
         if let presetId, let index = manager.presets.firstIndex(where: { $0.id == presetId }) {
             // Update existing preset
             manager.presets[index].name = name
-            manager.presets[index].offsetX = imageOffset.width
-            manager.presets[index].offsetY = imageOffset.height
-            manager.presets[index].scale = imageScale
-            manager.presets[index].previewScale = currentPreviewScale
-            manager.presets[index].isFlipped = isFlipped
             manager.presets[index].timeVariants = variants
+            // Use first variant's position as the preset-level position (for backward compat)
+            if let first = variants.first {
+                manager.presets[index].offsetX = first.offsetX
+                manager.presets[index].offsetY = first.offsetY
+                manager.presets[index].scale = first.scale
+                manager.presets[index].previewScale = currentPreviewScale
+                manager.presets[index].isFlipped = first.isFlipped
+            }
             manager.persistPresetsPublic()
         } else {
             // Create new preset
@@ -441,10 +481,10 @@ struct EditorView: View {
                 imageUrls: originalUrls,
                 hours: variants.map(\.hour),
                 minutes: variants.map(\.minute),
-                offsets: variants.map { _ in imageOffset },
-                scales: variants.map { _ in imageScale },
+                offsets: variants.map { CGSize(width: $0.offsetX, height: $0.offsetY) },
+                scales: variants.map(\.scale),
                 previewScale: currentPreviewScale,
-                flipped: variants.map { _ in isFlipped }
+                flipped: variants.map(\.isFlipped)
             )
         }
 
