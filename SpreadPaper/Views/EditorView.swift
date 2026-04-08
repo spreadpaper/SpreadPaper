@@ -14,9 +14,16 @@ struct EditorView: View {
     @State private var variants: [TimeVariant] = []
     @State private var selectedVariantIndex: Int = 0
 
+    // Current variant's position (swapped on variant change)
     @State private var imageOffset: CGSize = .zero
     @State private var imageScale: CGFloat = 1.0
     @State private var isFlipped = false
+
+    // Per-variant position storage
+    @State private var savedOffsets: [Int: CGSize] = [:]
+    @State private var savedScales: [Int: CGFloat] = [:]
+    @State private var savedFlips: [Int: Bool] = [:]
+
     @State private var currentPreviewScale: CGFloat = 1.0
     @State private var presetName = ""
     @State private var editingScheduleIndex: Int? = nil
@@ -95,8 +102,21 @@ struct EditorView: View {
                 )
             }
         }
-        .onChange(of: selectedVariantIndex) { _, _ in
-            fitImage()
+        .onChange(of: selectedVariantIndex) { oldIndex, newIndex in
+            // Save current position
+            savedOffsets[oldIndex] = imageOffset
+            savedScales[oldIndex] = imageScale
+            savedFlips[oldIndex] = isFlipped
+
+            // Restore new variant's position (or fit if first time)
+            if let offset = savedOffsets[newIndex] {
+                imageOffset = offset
+                imageScale = savedScales[newIndex] ?? 1.0
+                isFlipped = savedFlips[newIndex] ?? false
+            } else {
+                // First time seeing this variant — auto-fit
+                fitImage()
+            }
         }
         .onAppear {
             if let presetId, let preset = manager.presets.first(where: { $0.id == presetId }) {
