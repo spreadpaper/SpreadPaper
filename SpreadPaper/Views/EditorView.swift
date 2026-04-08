@@ -60,9 +60,9 @@ struct EditorView: View {
                     Button(action: { navigation.navigateToGallery() }) {
                         HStack(spacing: 4) {
                             Image(systemName: "chevron.left")
-                                .font(.system(size: 10))
-                            Text("Gallery")
                                 .font(.system(size: 11))
+                            Text("Gallery")
+                                .font(.system(size: 12, weight: .medium))
                         }
                         .foregroundStyle(Color.cdAccent)
                     }
@@ -82,7 +82,8 @@ struct EditorView: View {
                     Color.clear.frame(width: 80, height: 1)
                 }
                 .padding(.horizontal, 16)
-                .padding(.vertical, 8)
+                .padding(.top, 40) // Clear traffic lights
+                .padding(.bottom, 8)
                 .background(Color.cdBgSecondary)
             },
             mainContent: {
