@@ -39,6 +39,22 @@ class WallpaperManager {
         return wallpapersDir
     }
 
+    func getDynamicDirectory() -> URL {
+        let dynamicDir = getAppDataDirectory().appendingPathComponent("dynamic")
+        if !FileManager.default.fileExists(atPath: dynamicDir.path) {
+            try? FileManager.default.createDirectory(at: dynamicDir, withIntermediateDirectories: true)
+        }
+        return dynamicDir
+    }
+
+    private func getDynamicPresetDirectory(presetId: UUID) -> URL {
+        let dir = getDynamicDirectory().appendingPathComponent(presetId.uuidString)
+        if !FileManager.default.fileExists(atPath: dir.path) {
+            try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        }
+        return dir
+    }
+
     private func sanitizeScreenName(_ name: String) -> String {
         // Remove characters that aren't safe for filenames
         let allowed = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "-_ "))
@@ -84,6 +100,57 @@ class WallpaperManager {
         } catch {
             print("Error saving preset image: \(error)")
         }
+    }
+
+    func saveDynamicPreset(
+        name: String,
+        imageUrls: [URL],
+        hours: [Int],
+        minutes: [Int],
+        offsets: [CGSize],
+        scales: [CGFloat],
+        previewScale: CGFloat,
+        flipped: [Bool]
+    ) {
+        let presetId = UUID()
+        let destDir = getAppDataDirectory()
+        var variants: [TimeVariant] = []
+
+        for (index, url) in imageUrls.enumerated() {
+            let ext = url.pathExtension
+            let filename = "\(UUID().uuidString).\(ext)"
+            let destUrl = destDir.appendingPathComponent(filename)
+
+            do {
+                try FileManager.default.copyItem(at: url, to: destUrl)
+                let variant = TimeVariant(
+                    imageFilename: filename,
+                    hour: hours[index],
+                    minute: minutes[index]
+                )
+                variants.append(variant)
+            } catch {
+                print("Error copying image for dynamic preset: \(error)")
+            }
+        }
+
+        variants.sort { $0.dayFraction < $1.dayFraction }
+
+        let preset = SavedPreset(
+            id: presetId,
+            name: name,
+            imageFilename: variants.first?.imageFilename ?? "",
+            offsetX: offsets.first?.width ?? 0,
+            offsetY: offsets.first?.height ?? 0,
+            scale: scales.first ?? 1.0,
+            previewScale: previewScale,
+            isFlipped: flipped.first ?? false,
+            isDynamic: true,
+            timeVariants: variants
+        )
+
+        presets.append(preset)
+        persistPresets()
     }
 
     func deletePreset(_ preset: SavedPreset) {
@@ -154,6 +221,61 @@ class WallpaperManager {
                 try saveAndSetWallpaper(image, screenName: display.name, screen: display.screen)
             } catch {
                 lastError = "Failed to set wallpaper for \(display.name): \(error.localizedDescription)"
+            }
+        }
+    }
+
+    func applyDynamicWallpaper(
+        preset: SavedPreset,
+        images: [NSImage],
+        previewScale: CGFloat
+    ) async {
+        lastError = nil
+
+        let displays = connectedScreens.map { display in
+            (screen: display.screen,
+             frame: display.frame,
+             scaleFactor: display.screen.backingScaleFactor,
+             colorSpace: display.screen.colorSpace?.cgColorSpace,
+             name: display.screen.localizedName)
+        }
+
+        let presetDir = getDynamicPresetDirectory(presetId: preset.id)
+        let variants = preset.timeVariants.sorted { $0.dayFraction < $1.dayFraction }
+        let hours = variants.map(\.hour)
+        let minutes = variants.map(\.minute)
+
+        for display in displays {
+            do {
+                var renderedImages: [CGImage] = []
+                for image in images {
+                    let rendered = try renderForScreen(
+                        original: image,
+                        screenFrame: display.frame,
+                        totalCanvas: totalCanvas,
+                        offset: CGSize(width: preset.offsetX, height: preset.offsetY),
+                        imageScale: preset.scale,
+                        previewScale: previewScale,
+                        isFlipped: preset.isFlipped,
+                        deviceScale: display.scaleFactor,
+                        screenColorSpace: display.colorSpace
+                    )
+                    renderedImages.append(rendered)
+                }
+
+                let sanitizedName = sanitizeScreenName(display.name)
+                let heicURL = presetDir.appendingPathComponent("\(sanitizedName).heic")
+
+                try DynamicWallpaperGenerator.generateTimeBasedHEIC(
+                    images: renderedImages,
+                    hours: hours,
+                    minutes: minutes,
+                    outputURL: heicURL
+                )
+
+                try NSWorkspace.shared.setDesktopImageURL(heicURL, for: display.screen, options: [:])
+            } catch {
+                lastError = "Failed to set dynamic wallpaper for \(display.name): \(error.localizedDescription)"
             }
         }
     }
