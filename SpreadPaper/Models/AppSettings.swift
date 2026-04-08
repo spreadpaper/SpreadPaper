@@ -18,6 +18,12 @@ class AppSettings {
         }
     }
 
+    var hasCompletedWizard: Bool {
+        didSet {
+            UserDefaults.standard.set(hasCompletedWizard, forKey: "hasCompletedWizard")
+        }
+    }
+
     var colorScheme: ColorScheme? {
         switch appearanceMode {
         case .system: return nil
@@ -29,5 +35,6 @@ class AppSettings {
     init() {
         let raw = UserDefaults.standard.string(forKey: "appearanceMode") ?? AppearanceMode.system.rawValue
         self.appearanceMode = AppearanceMode(rawValue: raw) ?? .system
+        self.hasCompletedWizard = UserDefaults.standard.bool(forKey: "hasCompletedWizard")
     }
 }
