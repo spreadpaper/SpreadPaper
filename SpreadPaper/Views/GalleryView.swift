@@ -60,22 +60,23 @@ struct GalleryView: View {
                     VStack(spacing: 4) {
                         ForEach(GalleryFilter.allCases, id: \.self) { filter in
                             Button(action: { filterIndex = filter.rawValue }) {
-                                HStack(spacing: 8) {
+                                HStack(spacing: 12) {
                                     Image(systemName: iconFor(filter))
-                                        .font(.system(size: 10))
-                                        .frame(width: 16)
+                                        .font(.system(size: 14))
+                                        .frame(width: 20)
                                     Text(filter.label)
-                                        .font(.system(size: 11, weight: filterIndex == filter.rawValue ? .semibold : .regular))
+                                        .font(.system(size: 13, weight: filterIndex == filter.rawValue ? .semibold : .medium))
                                     Spacer()
                                     Text("\(countFor(filter))")
-                                        .font(.system(size: 10))
+                                        .font(.system(size: 12))
                                         .foregroundStyle(Color.cdTextTertiary)
                                 }
                                 .foregroundStyle(filterIndex == filter.rawValue ? Color.cdAccent : Color.cdTextSecondary)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 5)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 10)
                                 .background(filterIndex == filter.rawValue ? Color.cdAccent.opacity(0.1) : Color.clear)
-                                .clipShape(RoundedRectangle(cornerRadius: 6))
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                                .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
                         }
