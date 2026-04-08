@@ -331,24 +331,28 @@ struct EditorView: View {
         imageScale = preset.scale
         isFlipped = preset.isFlipped
 
-        let url = manager.getImageUrl(for: preset)
-        if let img = NSImage(contentsOf: url) {
-            loadedImages = [img]
-            originalUrls = [url]
-        }
-
-        if preset.isDynamic {
+        if preset.isDynamic && !preset.timeVariants.isEmpty {
+            // Load all variant images
             variants = preset.timeVariants
+            loadedImages = []
+            originalUrls = []
             for variant in preset.timeVariants {
-                let variantUrl = manager.getImageUrl(for: SavedPreset(
+                let url = manager.getImageUrl(for: SavedPreset(
                     name: "", imageFilename: variant.imageFilename,
                     offsetX: 0, offsetY: 0, scale: 1, previewScale: 1, isFlipped: false
                 ))
-                if let img = NSImage(contentsOf: variantUrl) {
-                    if loadedImages.count < variants.count {
-                        loadedImages.append(img)
-                    }
+                if let img = NSImage(contentsOf: url) {
+                    loadedImages.append(img)
+                    originalUrls.append(url)
                 }
+            }
+            selectedVariantIndex = 0
+        } else {
+            // Static wallpaper — single image
+            let url = manager.getImageUrl(for: preset)
+            if let img = NSImage(contentsOf: url) {
+                loadedImages = [img]
+                originalUrls = [url]
             }
         }
     }
