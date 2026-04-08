@@ -20,20 +20,32 @@ struct ContentView: View {
     @State private var selectedPresetID: SavedPreset.ID?
     @State private var isShowingSaveAlert = false
     @State private var newPresetName = ""
+    @State private var isDynamicMode = false
 
     var body: some View {
         NavigationSplitView {
             SidebarView(
                 selectedPresetID: $selectedPresetID,
                 presets: manager.presets,
-                onNewSetup: resetEditor,
+                onNewSetup: {
+                    isDynamicMode = false
+                    resetEditor()
+                },
+                onNewDynamicSetup: {
+                    isDynamicMode = true
+                    resetEditor()
+                },
                 onDelete: { preset in
                     manager.deletePreset(preset)
                     if selectedPresetID == preset.id { resetEditor() }
                 }
             )
         } detail: {
-            detailContent
+            if isDynamicMode {
+                DynamicEditorView(manager: manager)
+            } else {
+                detailContent
+            }
         }
         .toolbar { editorToolbar }
         .alert("Save Preset", isPresented: $isShowingSaveAlert) {
@@ -183,6 +195,8 @@ struct ContentView: View {
     }
 
     private func loadPreset(_ preset: SavedPreset) {
+        isDynamicMode = preset.isDynamic
+        guard !preset.isDynamic else { return }
         let url = manager.getImageUrl(for: preset)
         if let img = NSImage(contentsOf: url) {
             withAnimation {
