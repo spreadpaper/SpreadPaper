@@ -309,7 +309,7 @@ class WallpaperManager {
             bitsPerComponent: 8,
             bytesPerRow: 0,
             space: colorSpace,
-            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+            bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue
         ) else {
             throw WallpaperError.contextCreationFailed
         }
