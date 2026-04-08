@@ -9,4 +9,7 @@ struct SavedPreset: Identifiable, Codable, Hashable {
     var scale: CGFloat
     var previewScale: CGFloat
     var isFlipped: Bool
+    // Dynamic desktop support
+    var isDynamic: Bool = false
+    var timeVariants: [TimeVariant] = []
 }
