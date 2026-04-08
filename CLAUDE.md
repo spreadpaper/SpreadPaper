@@ -25,26 +25,49 @@ npm run build    # Production build to dist/
 
 Source files organized under `SpreadPaper/`:
 
-- **App/SpreadPaperApp.swift** — App entry point, integrates UpdateChecker on launch
-- **Views/ContentView.swift** — Main NavigationSplitView layout, routes between static and dynamic editors
-- **Views/SidebarView.swift** — Preset list with static/dynamic badges
-- **Views/CanvasView.swift** — Monitor canvas with image overlay, drag, zoom, snap
-- **Views/DynamicEditorView.swift** — Detail pane for dynamic presets (wraps CanvasView + TimelineView)
-- **Views/TimelineView.swift** — Time scrubber slider and image thumbnail strip
-- **Views/MonitorOverlayView.swift** — Monitor outlines and mask for canvas
-- **Views/ImageDropZone.swift** — Drag-and-drop / click-to-open target
+### App
+
+- **App/SpreadPaperApp.swift** — App entry point. ZStack with route-based main content and CreationModal overlay. Forces dark appearance, hidden title bar, wizard-first launch. Integrates UpdateChecker on startup.
+
+### Theme (Cool Dark design system)
+
+- **Theme/CoolDarkTheme.swift** — Color tokens (`Color.cd*` extensions), `CoolDarkButtonStyle`, `CoolDarkIconButtonStyle`, `CoolDarkPanel`/`CoolDarkCard` view modifiers, `SectionHeader`
+- **Theme/CoolDarkComponents.swift** — Reusable styled components: `CoolDarkSegmentedControl`, `CoolDarkTextField`, `CoolDarkSlider`
+
+### Navigation
+
+- **Navigation/AppNavigation.swift** — `@Observable` navigation model with `AppRoute` enum (wizard/gallery/editor/editorNew), `WallpaperType` enum, `GalleryFilter` enum
+
+### Views
+
+- **Views/WizardView.swift** — 2-step welcome wizard: display detection + image picker. Marks wizard complete and navigates to editor on image selection.
+- **Views/GalleryView.swift** — Home screen grid of preset cards with filter tabs and creation modal trigger
+- **Views/GalleryCardView.swift** — Individual preset card with thumbnail, type badge, and actions
+- **Views/CreationModal.swift** — Overlay modal for picking wallpaper type (Static/Dynamic/Light-Dark) before creating a new preset
+- **Views/EditorView.swift** — Full editor with canvas, right panel controls (position, scale, type-specific settings), and apply/save actions
+- **Views/EditorCanvasView.swift** — Monitor canvas rendering with image overlay, drag, zoom, and snap
+- **Views/MonitorPreviewView.swift** — Individual monitor outline for the canvas
+- **Views/ScheduleView.swift** — Time variant schedule editor with per-row range bars for dynamic presets
+- **Views/RangeBarView.swift** — AppKit-backed custom range bar control for time selection
 - **Views/SettingsView.swift** — Settings window with appearance and update tabs
+
+### Services
+
 - **Services/WallpaperManager.swift** — `@Observable` class: screen detection, CGContext rendering, wallpaper application, preset persistence, dynamic wallpaper HEIC generation
 - **Services/DynamicWallpaperGenerator.swift** — HEIC dynamic desktop file generation with Apple XMP metadata (based on wallpapper's reverse engineering)
 - **Services/UpdateChecker.swift** — Fetches latest GitHub release, parses CHANGELOG.md for version history
+
+### Models
+
 - **Models/SavedPreset.swift** — Preset data model (supports both static and dynamic presets)
 - **Models/TimeVariant.swift** — Time-of-day image variant for dynamic presets
 - **Models/DisplayInfo.swift** — Connected display info
-- **Models/AppSettings.swift** — Persisted app settings
-- **Helpers/WindowAccessor.swift**, **WindowDragHandler.swift**, **GlassModifiers.swift** — Window utilities
+- **Models/AppSettings.swift** — Persisted app settings (`hasCompletedWizard`, `appearanceMode`)
 
 ### Key Implementation Details
 
+- **Cool Dark theme** — All UI uses the `Color.cd*` token system and `CoolDarkButtonStyle` / `CoolDarkCard` modifiers for consistent dark styling
+- **Route-based navigation** — `AppNavigation.route` drives the entire app flow; no NavigationStack or NavigationSplitView
 - Images are stored in `~/Library/Application Support/SpreadPaper/` with UUID filenames
 - Per-screen wallpapers saved as `spreadpaper_wall_{screenName}_{timestamp}.png`
 - Old wallpapers are auto-cleaned on reapplication
