@@ -133,11 +133,13 @@ enum DynamicWallpaperGenerator {
         let base64String = plistData.base64EncodedString()
 
         // -- Build XMP metadata --
+        // Namespace must be registered on the SAME metadata instance that receives the tag.
         let xmpNamespace = "http://ns.apple.com/namespace/1.0/" as CFString
         let xmpPrefix    = "apple_desktop" as CFString
+        let imageMetadata = CGImageMetadataCreateMutable()
 
         guard CGImageMetadataRegisterNamespaceForPrefix(
-            CGImageMetadataCreateMutable(),
+            imageMetadata,
             xmpNamespace,
             xmpPrefix,
             nil
@@ -155,7 +157,6 @@ enum DynamicWallpaperGenerator {
             throw DynamicWallpaperError.metadataCreationFailed
         }
 
-        let imageMetadata = CGImageMetadataCreateMutable()
         guard CGImageMetadataSetTagWithPath(
             imageMetadata,
             nil,
