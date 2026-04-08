@@ -5,6 +5,7 @@ import SwiftUI
 struct GalleryView: View {
     @Bindable var manager: WallpaperManager
     @Bindable var navigation: AppNavigation
+    @Environment(\.colorScheme) var colorScheme
     @State private var filterIndex: Int = 0
     @State private var thumbnailCache: [UUID: NSImage] = [:]
 
@@ -105,6 +106,14 @@ struct GalleryView: View {
         .task {
             loadThumbnails()
         }
+        .onChange(of: colorScheme) { _, _ in
+            thumbnailCache.removeAll()
+            loadThumbnails()
+        }
+        .onAppear {
+            thumbnailCache.removeAll()
+            loadThumbnails()
+        }
     }
 
     // MARK: - Text Hero
@@ -173,19 +182,53 @@ struct GalleryView: View {
     }
 
     private func loadThumbnails() {
+        let isDark = colorScheme == .dark
+
         for preset in manager.presets {
-            if thumbnailCache[preset.id] == nil {
-                let url = manager.getImageUrl(for: preset)
-                if let image = NSImage(contentsOf: url) {
-                    let maxDim: CGFloat = 400
-                    let ratio = min(maxDim / image.size.width, maxDim / image.size.height, 1.0)
-                    let newSize = NSSize(width: image.size.width * ratio, height: image.size.height * ratio)
-                    let thumb = NSImage(size: newSize)
-                    thumb.lockFocus()
-                    image.draw(in: NSRect(origin: .zero, size: newSize))
-                    thumb.unlockFocus()
-                    thumbnailCache[preset.id] = thumb
+            // Pick the right image file based on context
+            let filename: String
+            if preset.wallpaperType == "Light/Dark" && preset.timeVariants.count == 2 {
+                // Show light or dark variant based on system appearance
+                let sorted = preset.timeVariants.sorted { $0.hour > $1.hour }
+                filename = isDark ? (sorted.last?.imageFilename ?? preset.imageFilename) : (sorted.first?.imageFilename ?? preset.imageFilename)
+            } else if preset.wallpaperType == "Dynamic" && !preset.timeVariants.isEmpty {
+                // Show the variant closest to the current time
+                let now = Calendar.current.dateComponents([.hour, .minute], from: Date())
+                let currentFraction = Double(now.hour ?? 12) / 24.0 + Double(now.minute ?? 0) / 1440.0
+                let closest = preset.timeVariants.min(by: {
+                    abs($0.dayFraction - currentFraction) < abs($1.dayFraction - currentFraction)
+                })
+                filename = closest?.imageFilename ?? preset.imageFilename
+            } else {
+                filename = preset.imageFilename
+            }
+
+            // Cache key includes appearance so it refreshes on system theme change
+            let cacheKey = preset.id
+
+            let dummyPreset = SavedPreset(
+                name: "", imageFilename: filename,
+                offsetX: 0, offsetY: 0, scale: 1, previewScale: 1, isFlipped: false
+            )
+            let url = manager.getImageUrl(for: dummyPreset)
+            if let image = NSImage(contentsOf: url) {
+                let maxDim: CGFloat = 400
+                let ratio = min(maxDim / image.size.width, maxDim / image.size.height, 1.0)
+                let newSize = NSSize(width: image.size.width * ratio, height: image.size.height * ratio)
+                let thumb = NSImage(size: newSize)
+                thumb.lockFocus()
+
+                // Apply flip if preset is flipped
+                if preset.isFlipped {
+                    let transform = NSAffineTransform()
+                    transform.translateX(by: newSize.width, yBy: 0)
+                    transform.scaleX(by: -1, yBy: 1)
+                    transform.concat()
                 }
+
+                image.draw(in: NSRect(origin: .zero, size: newSize))
+                thumb.unlockFocus()
+                thumbnailCache[cacheKey] = thumb
             }
         }
     }
