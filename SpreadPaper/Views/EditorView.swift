@@ -90,76 +90,75 @@ struct EditorView: View {
     // MARK: - Right Panel
 
     private var rightPanel: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                // Position
-                VStack(alignment: .leading, spacing: 8) {
-                    SectionHeader(title: "Position")
+        VStack(spacing: 0) {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    // Position
+                    VStack(alignment: .leading, spacing: 8) {
+                        SectionHeader(title: "Position")
 
-                    HStack(spacing: 4) {
-                        Text("Zoom")
-                            .font(.system(size: 9))
-                            .foregroundStyle(Color.cdTextTertiary)
-                            .frame(width: 32, alignment: .leading)
-                        CoolDarkSlider(value: $imageScale, range: 0.1...5.0)
+                        HStack(spacing: 4) {
+                            Text("Zoom")
+                                .font(.system(size: 9))
+                                .foregroundStyle(Color.cdTextTertiary)
+                                .frame(width: 32, alignment: .leading)
+                            CoolDarkSlider(value: $imageScale, range: 0.1...5.0)
+                        }
+
+                        HStack(spacing: 6) {
+                            Button("Fit") { fitImage() }
+                                .buttonStyle(CoolDarkIconButtonStyle())
+                                .frame(maxWidth: .infinity)
+
+                            Button("Flip") { isFlipped.toggle() }
+                                .buttonStyle(CoolDarkIconButtonStyle())
+                                .frame(maxWidth: .infinity)
+                        }
                     }
 
-                    HStack(spacing: 6) {
-                        Button("Fit") { fitImage() }
-                            .buttonStyle(CoolDarkIconButtonStyle())
-                            .frame(maxWidth: .infinity)
+                    Divider().overlay(Color.cdBorder)
 
-                        Button("Flip") { isFlipped.toggle() }
-                            .buttonStyle(CoolDarkIconButtonStyle())
-                            .frame(maxWidth: .infinity)
+                    // Mode-specific section
+                    switch wallpaperType {
+                    case .standard:
+                        EmptyView()
+                    case .dynamic:
+                        ScheduleView(
+                            variants: $variants,
+                            selectedIndex: $selectedVariantIndex,
+                            onAddImage: addImages,
+                            onRemoveVariant: removeVariant
+                        )
+                    case .appearance:
+                        appearanceSection
+                    }
+
+                    Divider().overlay(Color.cdBorder)
+
+                    // Name
+                    VStack(alignment: .leading, spacing: 6) {
+                        SectionHeader(title: "Name")
+                        CoolDarkTextField(placeholder: "Wallpaper name", text: $presetName)
                     }
                 }
+                .padding(14)
+            }
 
-                Divider().overlay(Color.cdBorder)
-
-                // Mode-specific section
-                switch wallpaperType {
-                case .standard:
-                    EmptyView() // No extra controls for static
-                case .dynamic:
-                    ScheduleView(
-                        variants: $variants,
-                        selectedIndex: $selectedVariantIndex,
-                        onAddImage: addImages,
-                        onRemoveVariant: removeVariant
-                    )
-                case .appearance:
-                    appearanceSection
-                }
-
-                Divider().overlay(Color.cdBorder)
-
-                // Name
-                VStack(alignment: .leading, spacing: 6) {
-                    SectionHeader(title: "Name")
-                    CoolDarkTextField(placeholder: "Wallpaper name", text: $presetName)
+            // Apply button pinned at bottom of panel
+            Divider().overlay(Color.cdBorder)
+            Button(action: applyWallpaper) {
+                HStack {
+                    Spacer()
+                    Text("Apply Wallpaper")
+                    Spacer()
                 }
             }
+            .buttonStyle(CoolDarkButtonStyle(isSuccess: true))
+            .disabled(loadedImages.isEmpty)
             .padding(14)
         }
         .frame(width: 220)
         .background(Color.cdBgSecondary)
-        .safeAreaInset(edge: .bottom) {
-            VStack(spacing: 0) {
-                Divider().overlay(Color.cdBorder)
-                Button(action: applyWallpaper) {
-                    HStack {
-                        Spacer()
-                        Text("Apply Wallpaper")
-                        Spacer()
-                    }
-                }
-                .buttonStyle(CoolDarkButtonStyle(isSuccess: true))
-                .disabled(loadedImages.isEmpty)
-                .padding(14)
-            }
-            .background(Color.cdBgSecondary)
-        }
     }
 
     // MARK: - Appearance Section (Light/Dark)
