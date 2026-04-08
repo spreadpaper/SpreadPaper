@@ -11,6 +11,7 @@ struct EditorCanvasView: View {
     let manager: WallpaperManager
     let onSelectImage: () -> Void
     let onDropImage: ([NSItemProvider]) -> Void
+    @Binding var currentPreviewScale: CGFloat
 
     @State private var dragStartOffset: CGSize = .zero
     @State private var isDragging = false
@@ -18,6 +19,7 @@ struct EditorCanvasView: View {
     var body: some View {
         GeometryReader { geo in
             let previewScale = calculatePreviewScale(geo: geo)
+            let _ = updatePreviewScale(previewScale)
             let canvasWidth = manager.totalCanvas.width * previewScale
             let canvasHeight = manager.totalCanvas.height * previewScale
 
@@ -89,6 +91,14 @@ struct EditorCanvasView: View {
             }
         }
         .background(Color.cdCanvasBg)
+    }
+
+    private func updatePreviewScale(_ scale: CGFloat) {
+        DispatchQueue.main.async {
+            if currentPreviewScale != scale {
+                currentPreviewScale = scale
+            }
+        }
     }
 
     private func calculatePreviewScale(geo: GeometryProxy) -> CGFloat {

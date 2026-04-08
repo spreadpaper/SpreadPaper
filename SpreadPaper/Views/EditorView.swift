@@ -17,6 +17,7 @@ struct EditorView: View {
     @State private var imageOffset: CGSize = .zero
     @State private var imageScale: CGFloat = 1.0
     @State private var isFlipped = false
+    @State private var currentPreviewScale: CGFloat = 1.0
     @State private var presetName = ""
     @State private var editingScheduleIndex: Int? = nil
 
@@ -65,7 +66,8 @@ struct EditorView: View {
                     isFlipped: $isFlipped,
                     manager: manager,
                     onSelectImage: addImages,
-                    onDropImage: { _ in }
+                    onDropImage: { _ in },
+                    currentPreviewScale: $currentPreviewScale
                 )
             },
             sidebarContent: {
@@ -357,7 +359,7 @@ struct EditorView: View {
             Task {
                 await manager.setWallpaper(
                     originalImage: image, imageOffset: imageOffset,
-                    scale: imageScale, previewScale: 1.0, isFlipped: isFlipped
+                    scale: imageScale, previewScale: currentPreviewScale, isFlipped: isFlipped
                 )
             }
         case .dynamic:
@@ -365,18 +367,18 @@ struct EditorView: View {
             let preset = SavedPreset(
                 name: presetName.isEmpty ? "Untitled" : presetName, imageFilename: "",
                 offsetX: imageOffset.width, offsetY: imageOffset.height,
-                scale: imageScale, previewScale: 1.0, isFlipped: isFlipped,
+                scale: imageScale, previewScale: currentPreviewScale, isFlipped: isFlipped,
                 isDynamic: true, timeVariants: variants
             )
             Task {
-                await manager.applyDynamicWallpaper(preset: preset, images: loadedImages, previewScale: 1.0)
+                await manager.applyDynamicWallpaper(preset: preset, images: loadedImages, previewScale: currentPreviewScale)
             }
         case .appearance:
             guard loadedImages.count == 2 else { return }
             Task {
                 await manager.applyAppearanceWallpaper(
                     lightImage: loadedImages[0], darkImage: loadedImages[1],
-                    offset: imageOffset, scale: imageScale, previewScale: 1.0, isFlipped: isFlipped
+                    offset: imageOffset, scale: imageScale, previewScale: currentPreviewScale, isFlipped: isFlipped
                 )
             }
         }
@@ -395,7 +397,7 @@ struct EditorView: View {
             minutes: variants.map(\.minute),
             offsets: variants.map { _ in imageOffset },
             scales: variants.map { _ in imageScale },
-            previewScale: 1.0,
+            previewScale: currentPreviewScale,
             flipped: variants.map { _ in isFlipped }
         )
 
