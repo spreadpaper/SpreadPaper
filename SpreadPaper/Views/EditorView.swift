@@ -175,17 +175,30 @@ struct EditorView: View {
                 .padding(14)
             }
 
-            // Apply button pinned at bottom
+            // Action buttons pinned at bottom
             Divider().overlay(Color.cdBorder)
-            Button(action: applyWallpaper) {
-                HStack {
-                    Spacer()
-                    Text("Apply Wallpaper")
-                    Spacer()
+            VStack(spacing: 6) {
+                Button(action: previewWallpaper) {
+                    HStack {
+                        Spacer()
+                        Image(systemName: "eye")
+                        Text("Preview")
+                        Spacer()
+                    }
                 }
+                .buttonStyle(CoolDarkIconButtonStyle())
+                .disabled(loadedImages.isEmpty)
+
+                Button(action: saveAndApply) {
+                    HStack {
+                        Spacer()
+                        Text("Save & Apply")
+                        Spacer()
+                    }
+                }
+                .buttonStyle(CoolDarkButtonStyle(isSuccess: true))
+                .disabled(loadedImages.isEmpty)
             }
-            .buttonStyle(CoolDarkButtonStyle(isSuccess: true))
-            .disabled(loadedImages.isEmpty)
             .padding(14)
         }
     }
@@ -334,7 +347,8 @@ struct EditorView: View {
         }
     }
 
-    private func applyWallpaper() {
+    /// Apply wallpaper to desktop without saving — stay in editor
+    private func previewWallpaper() {
         guard !loadedImages.isEmpty else { return }
 
         switch wallpaperType {
@@ -366,5 +380,29 @@ struct EditorView: View {
                 )
             }
         }
+    }
+
+    /// Save preset, apply wallpaper, navigate back to gallery
+    private func saveAndApply() {
+        guard !loadedImages.isEmpty else { return }
+
+        // Save the preset
+        let name = presetName.isEmpty ? "Untitled" : presetName
+        manager.saveDynamicPreset(
+            name: name,
+            imageUrls: originalUrls,
+            hours: variants.map(\.hour),
+            minutes: variants.map(\.minute),
+            offsets: variants.map { _ in imageOffset },
+            scales: variants.map { _ in imageScale },
+            previewScale: 1.0,
+            flipped: variants.map { _ in isFlipped }
+        )
+
+        // Apply
+        previewWallpaper()
+
+        // Navigate back to gallery
+        navigation.navigateToGallery()
     }
 }
