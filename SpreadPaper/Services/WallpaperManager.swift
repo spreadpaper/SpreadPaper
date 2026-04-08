@@ -166,6 +166,8 @@ class WallpaperManager {
         return getAppDataDirectory().appendingPathComponent(preset.imageFilename)
     }
 
+    func persistPresetsPublic() { persistPresets() }
+
     private func persistPresets() {
         do {
             let data = try JSONEncoder().encode(presets)

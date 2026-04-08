@@ -402,18 +402,31 @@ struct EditorView: View {
     private func saveAndApply() {
         guard !loadedImages.isEmpty else { return }
 
-        // Save the preset
         let name = presetName.isEmpty ? "Untitled" : presetName
-        manager.saveDynamicPreset(
-            name: name,
-            imageUrls: originalUrls,
-            hours: variants.map(\.hour),
-            minutes: variants.map(\.minute),
-            offsets: variants.map { _ in imageOffset },
-            scales: variants.map { _ in imageScale },
-            previewScale: currentPreviewScale,
-            flipped: variants.map { _ in isFlipped }
-        )
+
+        if let presetId, let index = manager.presets.firstIndex(where: { $0.id == presetId }) {
+            // Update existing preset
+            manager.presets[index].name = name
+            manager.presets[index].offsetX = imageOffset.width
+            manager.presets[index].offsetY = imageOffset.height
+            manager.presets[index].scale = imageScale
+            manager.presets[index].previewScale = currentPreviewScale
+            manager.presets[index].isFlipped = isFlipped
+            manager.presets[index].timeVariants = variants
+            manager.persistPresetsPublic()
+        } else {
+            // Create new preset
+            manager.saveDynamicPreset(
+                name: name,
+                imageUrls: originalUrls,
+                hours: variants.map(\.hour),
+                minutes: variants.map(\.minute),
+                offsets: variants.map { _ in imageOffset },
+                scales: variants.map { _ in imageScale },
+                previewScale: currentPreviewScale,
+                flipped: variants.map { _ in isFlipped }
+            )
+        }
 
         // Apply
         previewWallpaper()
