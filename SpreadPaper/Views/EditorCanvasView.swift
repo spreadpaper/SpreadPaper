@@ -1,0 +1,92 @@
+// SpreadPaper/Views/EditorCanvasView.swift
+
+import SwiftUI
+import UniformTypeIdentifiers
+
+struct EditorCanvasView: View {
+    let selectedImage: NSImage?
+    @Binding var imageOffset: CGSize
+    @Binding var imageScale: CGFloat
+    @Binding var isFlipped: Bool
+    let manager: WallpaperManager
+    let onSelectImage: () -> Void
+    let onDropImage: ([NSItemProvider]) -> Void
+
+    @State private var dragStartOffset: CGSize = .zero
+    @State private var isDragging = false
+
+    var body: some View {
+        GeometryReader { geo in
+            let previewScale = calculatePreviewScale(geo: geo)
+            let canvasWidth = manager.totalCanvas.width * previewScale
+            let canvasHeight = manager.totalCanvas.height * previewScale
+
+            ZStack {
+                // Image layer
+                if let img = selectedImage {
+                    Image(nsImage: img)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .scaleEffect(x: isFlipped ? -1 : 1, y: 1)
+                        .frame(
+                            width: img.size.width * previewScale * imageScale,
+                            height: img.size.height * previewScale * imageScale
+                        )
+                        .offset(imageOffset)
+                        .opacity(isDragging ? 0.7 : 1.0)
+                        .highPriorityGesture(
+                            DragGesture()
+                                .onChanged { value in
+                                    isDragging = true
+                                    imageOffset = CGSize(
+                                        width: dragStartOffset.width + value.translation.width,
+                                        height: dragStartOffset.height + value.translation.height
+                                    )
+                                }
+                                .onEnded { _ in
+                                    isDragging = false
+                                    dragStartOffset = imageOffset
+                                }
+                        )
+                } else {
+                    // Drop zone
+                    VStack(spacing: 12) {
+                        Image(systemName: "arrow.down.doc")
+                            .font(.system(size: 28))
+                            .foregroundStyle(Color.cdTextTertiary)
+                        Text("Drop image here")
+                            .font(.system(size: 12))
+                            .foregroundStyle(Color.cdTextSecondary)
+                        Button("Browse Files", action: onSelectImage)
+                            .buttonStyle(CoolDarkButtonStyle(isPrimary: true))
+                    }
+                }
+
+                // Monitor outlines
+                if selectedImage != nil {
+                    MonitorPreviewView(
+                        screens: manager.connectedScreens,
+                        totalCanvas: manager.totalCanvas,
+                        previewScale: previewScale,
+                        canvasWidth: canvasWidth,
+                        canvasHeight: canvasHeight
+                    )
+                }
+            }
+            .frame(width: canvasWidth, height: canvasHeight)
+            .clipShape(RoundedRectangle(cornerRadius: 6))
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .onDrop(of: [UTType.fileURL], isTargeted: nil) { providers in
+                onDropImage(providers)
+                return true
+            }
+        }
+        .background(Color.cdCanvasBg)
+    }
+
+    private func calculatePreviewScale(geo: GeometryProxy) -> CGFloat {
+        let scaleX = geo.size.width / max(manager.totalCanvas.width, 1)
+        let scaleY = geo.size.height / max(manager.totalCanvas.height, 1)
+        return min(scaleX, scaleY) * 0.85
+    }
+}
