@@ -332,11 +332,17 @@ struct EditorView: View {
         isFlipped = preset.isFlipped
 
         if preset.isDynamic && !preset.timeVariants.isEmpty {
-            // Load all variant images
-            variants = preset.timeVariants
+            // For appearance presets, ensure light (hour=12) is index 0, dark (hour=0) is index 1
+            let sortedVariants: [TimeVariant]
+            if preset.wallpaperType == "Light/Dark" {
+                sortedVariants = preset.timeVariants.sorted { $0.hour > $1.hour }
+            } else {
+                sortedVariants = preset.timeVariants
+            }
+            variants = sortedVariants
             loadedImages = []
             originalUrls = []
-            for variant in preset.timeVariants {
+            for variant in sortedVariants {
                 let url = manager.getImageUrl(for: SavedPreset(
                     name: "", imageFilename: variant.imageFilename,
                     offsetX: 0, offsetY: 0, scale: 1, previewScale: 1, isFlipped: false
