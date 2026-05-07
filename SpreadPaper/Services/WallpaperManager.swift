@@ -123,7 +123,8 @@ class WallpaperManager {
         offsets: [CGSize],
         scales: [CGFloat],
         previewScale: CGFloat,
-        flipped: [Bool]
+        flipped: [Bool],
+        isAppearanceBased: Bool = false
     ) {
         let presetId = UUID()
         let destDir = getAppDataDirectory()
@@ -165,7 +166,8 @@ class WallpaperManager {
             previewScale: previewScale,
             isFlipped: flipped.first ?? false,
             isDynamic: true,
-            timeVariants: variants
+            timeVariants: variants,
+            isAppearanceBased: isAppearanceBased
         )
 
         presets.append(preset)
@@ -204,7 +206,14 @@ class WallpaperManager {
         let url = getAppDataDirectory().appendingPathComponent(presetsFile)
         do {
             let data = try Data(contentsOf: url)
-            presets = try JSONDecoder().decode([SavedPreset].self, from: data)
+            let decoded = try JSONDecoder().decode([SavedPreset].self, from: data)
+            presets = decoded
+
+            // Persist any flags inferred during migration so the heuristic only runs once.
+            let needsRewrite = !data.contains("\"isAppearanceBased\"".data(using: .utf8) ?? Data())
+            if needsRewrite && !decoded.isEmpty {
+                persistPresets()
+            }
         } catch { }
     }
 
