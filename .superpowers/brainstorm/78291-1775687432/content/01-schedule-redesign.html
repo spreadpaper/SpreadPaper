@@ -1,0 +1,189 @@
+<h2>Schedule Panel — Sidebar Rows + Detail</h2>
+<p class="subtitle">The sidebar schedule list is just for ordering and quick info. Editing happens elsewhere. Which approach?</p>
+
+<div class="cards">
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 16px; background: #16161a;">
+      <div style="width: 240px; margin: 0 auto; font-family: -apple-system, system-ui, sans-serif;">
+        <div style="font-size: 9px; font-weight: 600; color: #6e6e7a; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">Schedule · 4 images</div>
+
+        <!-- Compact rows -->
+        <div style="display: flex; flex-direction: column; gap: 2px;">
+          <!-- Selected row -->
+          <div style="display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: #24242c; border-radius: 8px; border: 1.5px solid #5e5ce6; cursor: pointer;">
+            <div style="color: #6e6e7a; font-size: 8px;">☰</div>
+            <div style="width: 36px; height: 24px; background: linear-gradient(135deg, #1a1a3e, #3a5a8e); border-radius: 3px; flex-shrink: 0;"></div>
+            <div style="flex: 1;">
+              <div style="font-size: 11px; font-weight: 600; color: #e8e8ed;">Sunrise</div>
+              <div style="font-size: 9px; color: #5e5ce6;">7:00 AM – 9:00 AM</div>
+            </div>
+            <div style="font-size: 9px; color: #6e6e7a;">2h</div>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: #24242c; border-radius: 8px; border: 1px solid #2a2a32; cursor: pointer;">
+            <div style="color: #6e6e7a; font-size: 8px;">☰</div>
+            <div style="width: 36px; height: 24px; background: linear-gradient(135deg, #ff9a56, #ffcd6b); border-radius: 3px; flex-shrink: 0;"></div>
+            <div style="flex: 1;">
+              <div style="font-size: 11px; font-weight: 600; color: #e8e8ed;">Morning</div>
+              <div style="font-size: 9px; color: #9e9eaa;">9:00 AM – 12:00 PM</div>
+            </div>
+            <div style="font-size: 9px; color: #6e6e7a;">3h</div>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: #24242c; border-radius: 8px; border: 1px solid #2a2a32; cursor: pointer;">
+            <div style="color: #6e6e7a; font-size: 8px;">☰</div>
+            <div style="width: 36px; height: 24px; background: linear-gradient(135deg, #ff6b4a, #ff9a56); border-radius: 3px; flex-shrink: 0;"></div>
+            <div style="flex: 1;">
+              <div style="font-size: 11px; font-weight: 600; color: #e8e8ed;">Sunset</div>
+              <div style="font-size: 9px; color: #9e9eaa;">12:00 PM – 10:00 PM</div>
+            </div>
+            <div style="font-size: 9px; color: #6e6e7a;">10h</div>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: #24242c; border-radius: 8px; border: 1px solid #2a2a32; cursor: pointer;">
+            <div style="color: #6e6e7a; font-size: 8px;">☰</div>
+            <div style="width: 36px; height: 24px; background: linear-gradient(135deg, #0a0a2e, #1a1a4e); border-radius: 3px; flex-shrink: 0;"></div>
+            <div style="flex: 1;">
+              <div style="font-size: 11px; font-weight: 600; color: #e8e8ed;">Night</div>
+              <div style="font-size: 9px; color: #9e9eaa;">10:00 PM – 7:00 AM</div>
+            </div>
+            <div style="font-size: 9px; color: #6e6e7a;">9h</div>
+          </div>
+        </div>
+
+        <!-- Add image -->
+        <div style="margin-top: 6px; border: 1px dashed #2a2a32; border-radius: 8px; padding: 8px; text-align: center; font-size: 10px; color: #6e6e7a; cursor: pointer;">+ Add Image</div>
+
+        <!-- Sheet mockup below -->
+        <div style="margin-top: 16px; background: #1e1e24; border-radius: 10px; border: 1px solid #2a2a32; padding: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.4);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <div style="font-size: 13px; font-weight: 700; color: #e8e8ed;">Edit Entry</div>
+            <div style="background: #5e5ce6; color: white; border-radius: 6px; padding: 4px 12px; font-size: 10px; font-weight: 600;">Done</div>
+          </div>
+
+          <div style="font-size: 9px; color: #6e6e7a; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">Name</div>
+          <div style="background: #24242c; border: 1px solid #2a2a32; border-radius: 6px; padding: 6px 8px; font-size: 11px; color: #e8e8ed; margin-bottom: 14px;">Sunrise</div>
+
+          <div style="font-size: 9px; color: #6e6e7a; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">Active Period</div>
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+            <div>
+              <div style="font-size: 9px; color: #6e6e7a;">From</div>
+              <div style="font-size: 20px; font-weight: 700; color: #e8e8ed;">7:00 <span style="font-size: 12px; color: #9e9eaa;">AM</span></div>
+            </div>
+            <div style="color: #6e6e7a;">→</div>
+            <div>
+              <div style="font-size: 9px; color: #6e6e7a;">Until</div>
+              <div style="font-size: 20px; font-weight: 700; color: #9e9eaa;">9:00 <span style="font-size: 12px; color: #6e6e7a;">AM</span></div>
+            </div>
+          </div>
+
+          <div style="font-size: 9px; color: #6e6e7a; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">Drag to adjust</div>
+          <div style="position: relative; height: 16px; background: #2a2a32; border-radius: 8px; margin-bottom: 4px;">
+            <div style="position: absolute; left: 29%; width: 8.3%; height: 100%; background: rgba(94,92,230,0.4); border-radius: 8px;"></div>
+            <div style="position: absolute; left: 29%; top: 1px; width: 8px; height: 14px; background: white; border: 1.5px solid #5e5ce6; border-radius: 4px; transform: translateX(-50%);"></div>
+            <div style="position: absolute; left: 37.5%; top: 1px; width: 8px; height: 14px; background: white; border: 1.5px solid #5e5ce6; border-radius: 4px; transform: translateX(-50%);"></div>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <div style="font-size: 7px; color: #6e6e7a;">12 AM</div>
+            <div style="font-size: 7px; color: #6e6e7a;">6 AM</div>
+            <div style="font-size: 7px; color: #6e6e7a;">12 PM</div>
+            <div style="font-size: 7px; color: #6e6e7a;">6 PM</div>
+            <div style="font-size: 7px; color: #6e6e7a;">12 AM</div>
+          </div>
+
+          <div style="margin-top: 14px; text-align: center; font-size: 11px; color: #FF453A; cursor: pointer;">Remove from Schedule</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A: Sheet Modal (below sidebar)</h3>
+      <p>Click a row → macOS sheet slides down over the sidebar area. Big range bar, editable name, large time display. Row stays highlighted while editing. Sheet has Done button to close.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 16px; background: #16161a;">
+      <div style="width: 260px; margin: 0 auto; font-family: -apple-system, system-ui, sans-serif;">
+        <!-- Sidebar with inline expand -->
+        <div style="font-size: 9px; font-weight: 600; color: #6e6e7a; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">Schedule · 4 images</div>
+
+        <div style="display: flex; flex-direction: column; gap: 2px;">
+          <!-- Expanded selected row -->
+          <div style="background: #24242c; border-radius: 10px; border: 1.5px solid #5e5ce6; overflow: hidden;">
+            <!-- Header -->
+            <div style="display: flex; align-items: center; gap: 8px; padding: 8px 10px;">
+              <div style="color: #6e6e7a; font-size: 8px;">☰</div>
+              <div style="width: 36px; height: 24px; background: linear-gradient(135deg, #1a1a3e, #3a5a8e); border-radius: 3px; flex-shrink: 0;"></div>
+              <div style="flex: 1;">
+                <div style="font-size: 11px; font-weight: 600; color: #e8e8ed;">Sunrise</div>
+              </div>
+              <div style="font-size: 9px; color: #5e5ce6;">7:00 AM – 9:00 AM</div>
+              <div style="font-size: 8px; color: #5e5ce6;">▲</div>
+            </div>
+
+            <!-- Expanded content -->
+            <div style="padding: 0 10px 10px; border-top: 1px solid #2a2a32;">
+              <div style="padding-top: 8px;">
+                <!-- Name input -->
+                <div style="background: #1e1e24; border: 1px solid #2a2a32; border-radius: 5px; padding: 4px 8px; font-size: 10px; color: #e8e8ed; margin-bottom: 8px;">Sunrise</div>
+
+                <!-- Range bar -->
+                <div style="position: relative; height: 14px; background: #2a2a32; border-radius: 7px; margin-bottom: 3px;">
+                  <div style="position: absolute; left: 29%; width: 8.3%; height: 100%; background: rgba(94,92,230,0.4); border-radius: 7px;"></div>
+                  <div style="position: absolute; left: 29%; top: 1px; width: 7px; height: 12px; background: white; border: 1.5px solid #5e5ce6; border-radius: 3px; transform: translateX(-50%);"></div>
+                  <div style="position: absolute; left: 37.5%; top: 1px; width: 7px; height: 12px; background: white; border: 1.5px solid #5e5ce6; border-radius: 3px; transform: translateX(-50%);"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                  <div style="font-size: 7px; color: #6e6e7a;">12AM</div>
+                  <div style="font-size: 7px; color: #6e6e7a;">6AM</div>
+                  <div style="font-size: 7px; color: #6e6e7a;">12PM</div>
+                  <div style="font-size: 7px; color: #6e6e7a;">6PM</div>
+                  <div style="font-size: 7px; color: #6e6e7a;">12AM</div>
+                </div>
+
+                <div style="margin-top: 6px; text-align: right; font-size: 9px; color: #FF453A; cursor: pointer;">Remove</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Collapsed rows -->
+          <div style="display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: #24242c; border-radius: 8px; border: 1px solid #2a2a32; cursor: pointer;">
+            <div style="color: #6e6e7a; font-size: 8px;">☰</div>
+            <div style="width: 36px; height: 24px; background: linear-gradient(135deg, #ff9a56, #ffcd6b); border-radius: 3px; flex-shrink: 0;"></div>
+            <div style="flex: 1;">
+              <div style="font-size: 11px; font-weight: 600; color: #e8e8ed;">Morning</div>
+            </div>
+            <div style="font-size: 9px; color: #9e9eaa;">9 AM – 12 PM</div>
+            <div style="font-size: 8px; color: #6e6e7a;">▼</div>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: #24242c; border-radius: 8px; border: 1px solid #2a2a32; cursor: pointer;">
+            <div style="color: #6e6e7a; font-size: 8px;">☰</div>
+            <div style="width: 36px; height: 24px; background: linear-gradient(135deg, #ff6b4a, #ff9a56); border-radius: 3px; flex-shrink: 0;"></div>
+            <div style="flex: 1;">
+              <div style="font-size: 11px; font-weight: 600; color: #e8e8ed;">Sunset</div>
+            </div>
+            <div style="font-size: 9px; color: #9e9eaa;">12 PM – 10 PM</div>
+            <div style="font-size: 8px; color: #6e6e7a;">▼</div>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: #24242c; border-radius: 8px; border: 1px solid #2a2a32; cursor: pointer;">
+            <div style="color: #6e6e7a; font-size: 8px;">☰</div>
+            <div style="width: 36px; height: 24px; background: linear-gradient(135deg, #0a0a2e, #1a1a4e); border-radius: 3px; flex-shrink: 0;"></div>
+            <div style="flex: 1;">
+              <div style="font-size: 11px; font-weight: 600; color: #e8e8ed;">Night</div>
+            </div>
+            <div style="font-size: 9px; color: #9e9eaa;">10 PM – 7 AM</div>
+            <div style="font-size: 8px; color: #6e6e7a;">▼</div>
+          </div>
+        </div>
+
+        <div style="margin-top: 6px; border: 1px dashed #2a2a32; border-radius: 8px; padding: 8px; text-align: center; font-size: 10px; color: #6e6e7a;">+ Add Image</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B: Inline Expand (accordion)</h3>
+      <p>Click a row → it expands in-place to show the range bar, name field, and remove link. Other rows collapse. No modal, no context switch. Everything stays in the sidebar. Compact when collapsed, roomy when expanded. Click another row or the ▲ to collapse.</p>
+    </div>
+  </div>
+</div>
