@@ -488,21 +488,15 @@ struct GalleryView: View {
     private func reloadThumbnails() {
         isLoadingThumbnails = true
         thumbnailCache.removeAll()
-        Task {
-            await loadThumbnailsAsync()
-            isLoadingThumbnails = false
-        }
-    }
 
-    @MainActor
-    private func loadThumbnailsAsync() async {
+        // Snapshot all main-actor data on main, then hand the rest off.
         let isDark = colorScheme == .dark
-        for preset in manager.presets {
+        let jobs: [ThumbnailJob] = manager.presets.map { preset in
             let activeVariant: TimeVariant?
-            if preset.wallpaperType == "Light/Dark" && preset.timeVariants.count == 2 {
+            if preset.isAppearanceBased && preset.timeVariants.count == 2 {
                 let sorted = preset.timeVariants.sorted { $0.hour > $1.hour }
                 activeVariant = isDark ? sorted.last : sorted.first
-            } else if preset.wallpaperType == "Dynamic" && !preset.timeVariants.isEmpty {
+            } else if preset.isDynamic && !preset.isAppearanceBased && !preset.timeVariants.isEmpty {
                 let now = Calendar.current.dateComponents([.hour, .minute], from: Date())
                 let currentFraction = Double(now.hour ?? 12) / 24.0 + Double(now.minute ?? 0) / 1440.0
                 activeVariant = preset.timeVariants.min(by: {
@@ -512,28 +506,25 @@ struct GalleryView: View {
                 activeVariant = nil
             }
             let filename = activeVariant?.imageFilename ?? preset.imageFilename
-            let shouldFlip = activeVariant?.isFlipped ?? preset.isFlipped
-
             let dummy = SavedPreset(
                 name: "", imageFilename: filename,
                 offsetX: 0, offsetY: 0, scale: 1, previewScale: 1, isFlipped: false
             )
-            let url = manager.getImageUrl(for: dummy)
-            guard let image = NSImage(contentsOf: url) else { continue }
-            let maxDim: CGFloat = 480
-            let ratio = min(maxDim / image.size.width, maxDim / image.size.height, 1.0)
-            let newSize = NSSize(width: image.size.width * ratio, height: image.size.height * ratio)
-            let thumb = NSImage(size: newSize)
-            thumb.lockFocus()
-            if shouldFlip {
-                let t = NSAffineTransform()
-                t.translateX(by: newSize.width, yBy: 0)
-                t.scaleX(by: -1, yBy: 1)
-                t.concat()
+            return ThumbnailJob(
+                presetId: preset.id,
+                imageURL: manager.getImageUrl(for: dummy),
+                shouldFlip: activeVariant?.isFlipped ?? preset.isFlipped
+            )
+        }
+
+        Task.detached(priority: .userInitiated) {
+            let results = renderThumbnails(jobs: jobs)
+            await MainActor.run {
+                for r in results {
+                    thumbnailCache[r.presetId] = r.image
+                }
+                isLoadingThumbnails = false
             }
-            image.draw(in: NSRect(origin: .zero, size: newSize))
-            thumb.unlockFocus()
-            thumbnailCache[preset.id] = thumb
         }
     }
 
@@ -693,6 +684,46 @@ struct SettingsShell: View {
     var body: some View {
         SettingsInWindowView(onClose: onClose)
     }
+}
+
+// MARK: - Background thumbnail rendering
+
+private struct ThumbnailJob: Sendable {
+    let presetId: UUID
+    let imageURL: URL
+    let shouldFlip: Bool
+}
+
+private struct ThumbnailResult: @unchecked Sendable {
+    let presetId: UUID
+    let image: NSImage
+}
+
+@Sendable
+private func renderThumbnails(jobs: [ThumbnailJob]) -> [ThumbnailResult] {
+    var out: [ThumbnailResult] = []
+    out.reserveCapacity(jobs.count)
+    for job in jobs {
+        guard let image = NSImage(contentsOf: job.imageURL) else { continue }
+        let maxDim: CGFloat = 480
+        let ratio = min(maxDim / image.size.width, maxDim / image.size.height, 1.0)
+        let newSize = NSSize(
+            width: image.size.width * ratio,
+            height: image.size.height * ratio
+        )
+        let thumb = NSImage(size: newSize)
+        thumb.lockFocus()
+        if job.shouldFlip {
+            let t = NSAffineTransform()
+            t.translateX(by: newSize.width, yBy: 0)
+            t.scaleX(by: -1, yBy: 1)
+            t.concat()
+        }
+        image.draw(in: NSRect(origin: .zero, size: newSize))
+        thumb.unlockFocus()
+        out.append(ThumbnailResult(presetId: job.presetId, image: thumb))
+    }
+    return out
 }
 
 // MARK: - Skeleton shimmer
