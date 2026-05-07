@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		0051019A2F9288510056E54C /* PhosphorSwift in Frameworks */ = {isa = PBXBuildFile; productRef = PHOSPHOR00000000000000002 /* PhosphorSwift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		00AEF9372ED126E6002D10EE /* SpreadPaper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SpreadPaper.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -23,6 +27,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0051019A2F9288510056E54C /* PhosphorSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +70,7 @@
 			);
 			name = SpreadPaper;
 			packageProductDependencies = (
+				PHOSPHOR00000000000000002 /* PhosphorSwift */,
 			);
 			productName = SpreadPaper;
 			productReference = 00AEF9372ED126E6002D10EE /* SpreadPaper.app */;
@@ -94,6 +100,9 @@
 			);
 			mainGroup = 00AEF92E2ED126E6002D10EE;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				PHOSPHOR00000000000000001 /* XCRemoteSwiftPackageReference "swift" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 00AEF9382ED126E6002D10EE /* Products */;
 			projectDirPath = "";
@@ -337,6 +346,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		PHOSPHOR00000000000000001 /* XCRemoteSwiftPackageReference "swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/phosphor-icons/swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.1.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		PHOSPHOR00000000000000002 /* PhosphorSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = PHOSPHOR00000000000000001 /* XCRemoteSwiftPackageReference "swift" */;
+			productName = PhosphorSwift;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 00AEF92F2ED126E6002D10EE /* Project object */;
 }
