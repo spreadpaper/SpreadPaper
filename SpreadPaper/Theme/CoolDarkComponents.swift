@@ -1,6 +1,7 @@
 // SpreadPaper/Theme/CoolDarkComponents.swift
 
 import SwiftUI
+import PhosphorSwift
 
 // MARK: - Custom Segmented Control
 
@@ -32,20 +33,24 @@ struct CoolDarkSegmentedControl: View {
 struct CoolDarkTextField: View {
     let placeholder: String
     @Binding var text: String
+    @FocusState private var isFocused: Bool
 
     var body: some View {
         TextField(placeholder, text: $text)
             .textFieldStyle(.plain)
+            .focused($isFocused)
             .font(.system(size: 14))
             .foregroundStyle(Color.cdTextPrimary)
             .padding(.horizontal, 12)
             .padding(.vertical, 10)
-            .background(Color.cdBgElevated)
+            .background(Color.cdBgPrimary)
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(Color.cdBorder, lineWidth: 1)
+                    .stroke(isFocused ? Color.cdAccent : Color.cdBorder.opacity(0.6),
+                            lineWidth: isFocused ? 1.5 : 1)
             )
+            .animation(.easeInOut(duration: 0.12), value: isFocused)
     }
 }
 
@@ -134,6 +139,74 @@ private struct Triangle: Shape {
     }
 }
 
+// MARK: - Wallpaper Type Toggle
+
+struct WallpaperTypeToggle: View {
+    @Binding var selection: WallpaperType
+
+    private let types: [(WallpaperType, String, String)] = [
+        (.standard, "Static", "One image, spread across your displays."),
+        (.appearance, "Themed", "Two images — one for Light mode, one for Dark mode."),
+        (.dynamic, "Dynamic", "A schedule of images that shifts through the day.")
+    ]
+
+    private var description: String {
+        types.first { $0.0 == selection }?.2 ?? ""
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 0) {
+                ForEach(types, id: \.0) { type, label, _ in
+                    Button(action: { selection = type }) {
+                        Text(label)
+                            .font(.system(size: 12, weight: type == selection ? .semibold : .regular))
+                            .foregroundStyle(type == selection ? .white : Color.cdTextSecondary)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 7)
+                            .background(type == selection ? Color.cdAccent : Color.cdBgElevated)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .background(Color.cdBorder)
+            .clipShape(RoundedRectangle(cornerRadius: 7))
+            .overlay(
+                RoundedRectangle(cornerRadius: 7)
+                    .stroke(Color.cdBorder, lineWidth: 1)
+            )
+
+            Text(description)
+                .font(.system(size: 11))
+                .foregroundStyle(Color.cdTextTertiary)
+                .fixedSize(horizontal: false, vertical: true)
+                .animation(.easeInOut(duration: 0.15), value: selection)
+        }
+    }
+}
+
+// MARK: - Toast
+
+struct ToastView: View {
+    let message: String
+
+    var body: some View {
+        Text(message)
+            .font(.system(size: 12, weight: .medium))
+            .foregroundStyle(Color.cdTextPrimary)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 8)
+            .background(Color.cdBgElevated)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.cdBorder, lineWidth: 1)
+            )
+            .shadow(color: .black.opacity(0.3), radius: 8, y: 4)
+    }
+}
+
 // MARK: - Dashed Add Button
 
 struct DashedAddButton: View {
@@ -142,20 +215,60 @@ struct DashedAddButton: View {
 
     var body: some View {
         Button(action: action) {
-            HStack {
+            HStack(spacing: 6) {
                 Spacer()
-                Text(label)
-                    .font(.system(size: 10))
-                    .foregroundStyle(Color.cdTextTertiary)
+                Ph.plus.bold
+                    .color(Color.cdTextTertiary)
+                    .frame(width: 10, height: 10)
+                Text(label.replacingOccurrences(of: "+ ", with: ""))
+                    .font(.system(size: 11, weight: .medium))
                 Spacer()
             }
-            .padding(.vertical, 6)
+            .foregroundStyle(Color.cdTextTertiary)
+            .padding(.vertical, 10)
             .background(
                 RoundedRectangle(cornerRadius: 8)
-                    .strokeBorder(style: StrokeStyle(lineWidth: 1, dash: [5, 3]))
-                    .foregroundStyle(Color.cdBorder)
+                    .strokeBorder(Color.cdBorder, style: StrokeStyle(lineWidth: 1, dash: [4, 3]))
             )
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Chip Button Style (lightweight utility toggles)
+
+struct CoolDarkChipButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 12, weight: .medium))
+            .foregroundStyle(Color.cdTextSecondary)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .frame(maxWidth: .infinity)
+            .contentShape(Rectangle())
+            .overlay(
+                RoundedRectangle(cornerRadius: 6)
+                    .stroke(Color.cdBorder, lineWidth: 1)
+            )
+            .opacity(configuration.isPressed ? 0.6 : 1.0)
+    }
+}
+
+// MARK: - Ghost Button Style (secondary CTA with accent outline)
+
+struct CoolDarkGhostButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 13, weight: .medium))
+            .foregroundStyle(Color.cdAccent)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+            .background(Color.cdAccent.opacity(configuration.isPressed ? 0.15 : 0.08))
+            .clipShape(RoundedRectangle(cornerRadius: 7))
+            .overlay(
+                RoundedRectangle(cornerRadius: 7)
+                    .stroke(Color.cdAccent.opacity(0.5), lineWidth: 1)
+            )
     }
 }
