@@ -151,7 +151,8 @@ struct EditorView: View {
 
     private var header: some View {
         HStack(spacing: 14) {
-            // Traffic-light clearance handled by window; left-padding = 80pt
+            // Traffic-light horizontal clearance (vertical alignment is handled
+            // by sizing the header to the traffic-light band).
             Color.clear.frame(width: 72, height: 1)
 
             Button(action: backToGallery) {
@@ -164,7 +165,7 @@ struct EditorView: View {
                         .foregroundStyle(Color.cdTextSecondary)
                 }
                 .padding(.horizontal, 10)
-                .frame(height: 28)
+                .frame(height: 26)
                 .background(
                     RoundedRectangle(cornerRadius: 7)
                         .fill(Color.clear)
@@ -192,7 +193,7 @@ struct EditorView: View {
                         .foregroundStyle(Color.cdTextSecondary)
                 }
                 .padding(.horizontal, 12)
-                .frame(height: 30)
+                .frame(height: 26)
                 .contentShape(Rectangle())
             }
             .buttonStyle(HeaderSecondaryButtonStyle())
@@ -203,7 +204,7 @@ struct EditorView: View {
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(Color.cdTextPrimary)
                     .padding(.horizontal, 14)
-                    .frame(height: 30)
+                    .frame(height: 26)
                     .contentShape(Rectangle())
             }
             .buttonStyle(HeaderSecondaryButtonStyle())
@@ -219,7 +220,7 @@ struct EditorView: View {
                         .foregroundStyle(.white)
                 }
                 .padding(.horizontal, 14)
-                .frame(height: 30)
+                .frame(height: 26)
                 .background(
                     RoundedRectangle(cornerRadius: 7)
                         .fill(Color.cdAccent)
@@ -232,7 +233,7 @@ struct EditorView: View {
             .keyboardShortcut(.defaultAction)
         }
         .padding(.horizontal, 16)
-        .frame(height: 56)
+        .frame(height: 38)
         .background(Color.cdBgPrimary)
     }
 
@@ -816,6 +817,8 @@ struct EditorView: View {
         if let presetId, let index = manager.presets.firstIndex(where: { $0.id == presetId }) {
             manager.presets[index].name = name
             manager.presets[index].timeVariants = variants
+            manager.presets[index].isAppearanceBased = (wallpaperType == .appearance)
+            manager.presets[index].isDynamic = (wallpaperType != .standard)
             if let first = variants.first {
                 manager.presets[index].offsetX = first.offsetX
                 manager.presets[index].offsetY = first.offsetY
@@ -843,7 +846,8 @@ struct EditorView: View {
                     offsets: variants.map { CGSize(width: $0.offsetX, height: $0.offsetY) },
                     scales: variants.map(\.scale),
                     previewScale: currentPreviewScale,
-                    flipped: variants.map(\.isFlipped)
+                    flipped: variants.map(\.isFlipped),
+                    isAppearanceBased: wallpaperType == .appearance
                 )
             }
         }
@@ -900,27 +904,30 @@ private struct InspectorDivider: View {
 }
 
 // MARK: - Native-styled select
+//
+// A button-driven popover instead of `Menu`, because `Menu` + `.menuStyle(.borderlessButton)`
+// on macOS renders a system caret indicator that ignores `.menuIndicator(.hidden)` and
+// blows up to fill the label height.
 
 struct NativeSelect<Value: Hashable>: View {
     @Binding var selection: Value
     let options: [(Value, String)]
+    @State private var isOpen = false
 
     var body: some View {
-        Menu {
-            ForEach(options, id: \.0) { opt in
-                Button(opt.1) { selection = opt.0 }
-            }
-        } label: {
+        Button(action: { isOpen.toggle() }) {
             HStack(spacing: 6) {
                 Text(currentLabel)
                     .font(.system(size: 13))
                     .foregroundStyle(Color.cdTextPrimary)
-                Spacer()
+                    .lineLimit(1)
+                Spacer(minLength: 6)
                 Ph.caretDown.regular
                     .color(Color.cdTextTertiary)
                     .frame(width: 12, height: 12)
             }
             .padding(.horizontal, 11)
+            .frame(maxWidth: .infinity)
             .frame(height: 34)
             .background(Color.cdBgPrimary)
             .clipShape(RoundedRectangle(cornerRadius: 7))
@@ -930,13 +937,58 @@ struct NativeSelect<Value: Hashable>: View {
             )
             .contentShape(Rectangle())
         }
-        .menuStyle(.borderlessButton)
-        .menuIndicator(.hidden)
-        .fixedSize(horizontal: false, vertical: true)
+        .buttonStyle(.plain)
+        .popover(isPresented: $isOpen, arrowEdge: .top) {
+            VStack(alignment: .leading, spacing: 0) {
+                ForEach(options, id: \.0) { opt in
+                    NativeSelectRow(
+                        label: opt.1,
+                        isSelected: opt.0 == selection,
+                        action: {
+                            selection = opt.0
+                            isOpen = false
+                        }
+                    )
+                }
+            }
+            .padding(.vertical, 4)
+            .frame(minWidth: 220)
+            .background(Color.cdBgElevated)
+        }
     }
 
     private var currentLabel: String {
         options.first(where: { $0.0 == selection })?.1 ?? ""
+    }
+}
+
+private struct NativeSelectRow: View {
+    let label: String
+    let isSelected: Bool
+    let action: () -> Void
+    @State private var hovering = false
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 8) {
+                Text(label)
+                    .font(.system(size: 13))
+                    .foregroundStyle(Color.cdTextPrimary)
+                Spacer(minLength: 8)
+                if isSelected {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(Color.cdAccent)
+                }
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 7)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(hovering ? Color.cdBgHover : Color.clear)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .onHover { hovering = $0 }
     }
 }
 
