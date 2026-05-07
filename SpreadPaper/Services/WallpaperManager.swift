@@ -6,12 +6,26 @@ class WallpaperManager {
     var totalCanvas: CGRect = .zero
     var presets: [SavedPreset] = []
     var lastError: String?
+    var activePresetId: UUID?
 
     private let presetsFile = "spreadpaper_presets.json"
+    private let activePresetKey = "activePresetId"
 
     init() {
         refreshScreens()
         loadPresets()
+        if let raw = UserDefaults.standard.string(forKey: activePresetKey) {
+            activePresetId = UUID(uuidString: raw)
+        }
+    }
+
+    func setActivePreset(_ id: UUID?) {
+        activePresetId = id
+        if let id {
+            UserDefaults.standard.set(id.uuidString, forKey: activePresetKey)
+        } else {
+            UserDefaults.standard.removeObject(forKey: activePresetKey)
+        }
     }
 
     func listenForScreenChanges() async {
@@ -80,8 +94,7 @@ class WallpaperManager {
 
     func savePreset(name: String, originalUrl: URL, offset: CGSize, scale: CGFloat, previewScale: CGFloat, isFlipped: Bool) {
         let destDir = getAppDataDirectory()
-        let fileExt = originalUrl.pathExtension
-        let newFilename = "\(UUID().uuidString).\(fileExt)"
+        let newFilename = FilenameUtils.storedName(uuid: UUID(), originalFilename: originalUrl.lastPathComponent)
         let destUrl = destDir.appendingPathComponent(newFilename)
 
         do {
@@ -117,8 +130,7 @@ class WallpaperManager {
         var variants: [TimeVariant] = []
 
         for (index, url) in imageUrls.enumerated() {
-            let ext = url.pathExtension
-            let filename = "\(UUID().uuidString).\(ext)"
+            let filename = FilenameUtils.storedName(uuid: UUID(), originalFilename: url.lastPathComponent)
             let destUrl = destDir.appendingPathComponent(filename)
 
             do {
@@ -166,6 +178,9 @@ class WallpaperManager {
         if let idx = presets.firstIndex(where: { $0.id == preset.id }) {
             presets.remove(at: idx)
             persistPresets()
+        }
+        if activePresetId == preset.id {
+            setActivePreset(nil)
         }
     }
 
