@@ -1,5 +1,66 @@
 # Changelog
 
+## [1.6.0](https://github.com/spreadpaper/SpreadPaper/compare/v1.5.2...v1.6.0) (2026-05-07)
+
+
+### Features
+
+* add CoolDark reusable components — segmented control, slider, text field, tooltip ([b026a99](https://github.com/spreadpaper/SpreadPaper/commit/b026a99d2d0c3ef16c3ffc91101ab8465277a618))
+* add CoolDarkTheme with color tokens, button styles, view modifiers ([53ab913](https://github.com/spreadpaper/SpreadPaper/commit/53ab91332001f6d3eb20fe1130538b6eab1d8d10))
+* add CreationModal — type picker with Standard / Dynamic / Light-Dark ([4948055](https://github.com/spreadpaper/SpreadPaper/commit/4948055ff057ce728dc0be1abd24ca48b99b0611))
+* add dynamic wallpaper save and apply to WallpaperManager ([88df552](https://github.com/spreadpaper/SpreadPaper/commit/88df552894b5c1825ac258d5ea66f1cd6ce36a8c))
+* add DynamicEditorView with canvas + timeline integration ([e820cad](https://github.com/spreadpaper/SpreadPaper/commit/e820cad042ef29556cff2a2ed5a365bfc83d0587))
+* add DynamicWallpaperGenerator for HEIC dynamic desktop creation ([8d757c4](https://github.com/spreadpaper/SpreadPaper/commit/8d757c47b712ac2fb7e18be4ac614df700d4d62e))
+* add EditorView with canvas, right panel, all three wallpaper modes ([5cb06e3](https://github.com/spreadpaper/SpreadPaper/commit/5cb06e3615dee1e2ec91b026019e3ba94453acdd))
+* add GalleryCardView — image-forward card with overlay info ([8d3b0ce](https://github.com/spreadpaper/SpreadPaper/commit/8d3b0ce6f20de15bd450aa7ceb998ed24da61437))
+* add GalleryView — image-forward grid with filter tabs and empty state ([64f3f7c](https://github.com/spreadpaper/SpreadPaper/commit/64f3f7cf3a82d48c2deeb56810cb9a6761e6d918))
+* add navigation model, wizard flag, wallpaper type display ([11dda06](https://github.com/spreadpaper/SpreadPaper/commit/11dda061f3e53fb7b59db73c1d7ed20466efde0a))
+* add RangeBarView — AppKit custom draggable range bar with snap-to-10min ([c1138fd](https://github.com/spreadpaper/SpreadPaper/commit/c1138fdb3bb018a7c5cc94a55ddf9fc04cc451f1))
+* add ScheduleView — per-row range bars with drag handles and auto-names ([0949580](https://github.com/spreadpaper/SpreadPaper/commit/0949580c3f150b344ae664a458cfbe89324a0476))
+* add time editing popover for dynamic wallpaper variants ([403249b](https://github.com/spreadpaper/SpreadPaper/commit/403249ba3fa8b0093895c6809a88ae6897db481e))
+* add TimelineView with time scrubber and thumbnail strip ([1425086](https://github.com/spreadpaper/SpreadPaper/commit/142508631fa3b8bfa9ae18ed7d8b1ebda7629a0a))
+* add TimeVariant model and extend SavedPreset for dynamic desktops ([b045d86](https://github.com/spreadpaper/SpreadPaper/commit/b045d8691b2ce26017d157c5680615e530f41e7d))
+* add WizardView — 2-step welcome flow with display detection ([3aae823](https://github.com/spreadpaper/SpreadPaper/commit/3aae823131f1580488804a8e4c4d14b67c3cdf02))
+* context-aware gallery thumbnails ([2425c06](https://github.com/spreadpaper/SpreadPaper/commit/2425c06bd83dbc359c8059896c59fca3555b8e50))
+* **editor:** unified sidebar with live type switching and SaveDialog ([6381a05](https://github.com/spreadpaper/SpreadPaper/commit/6381a05185d88f287ebd6e6f1ed2517c0d773031))
+* **filenames:** preserve original image names in stored files ([984aded](https://github.com/spreadpaper/SpreadPaper/commit/984adedb8dda33245d3bcba4df08d728b07c3147))
+* inline time editor, Light/Dark mode, and appearance-based HEIC ([f8ca5a9](https://github.com/spreadpaper/SpreadPaper/commit/f8ca5a912005b40946b5ade8d6da65fcb45469c2))
+* rewire app entry point with Cool Dark navigation ([23a24d1](https://github.com/spreadpaper/SpreadPaper/commit/23a24d1d810ab3f969f540b668338506dcdd14ed))
+* split into Preview and Save & Apply buttons ([8854a59](https://github.com/spreadpaper/SpreadPaper/commit/8854a59e0292dbc4a1688cb73265bedfb16d9c83))
+* **theme:** add WallpaperTypeToggle and ToastView components ([3104cdb](https://github.com/spreadpaper/SpreadPaper/commit/3104cdb9c96f38f561383e8b372dce96827b8151))
+* upgrade file access entitlement to read-write ([7a7d1b0](https://github.com/spreadpaper/SpreadPaper/commit/7a7d1b0dc43ff74c1d1083a9cbd66a0176da4a81))
+* wire sidebar and content view for dynamic preset routing ([0b21323](https://github.com/spreadpaper/SpreadPaper/commit/0b21323c0c33c462a0e59e5b8b20107110b8c8de))
+
+
+### Bug Fixes
+
+* bigger filter buttons with full-row click target ([8114cdd](https://github.com/spreadpaper/SpreadPaper/commit/8114cddffb2507079664b491b3daccde1a5f601b))
+* bigger fonts, more padding across all UI components ([1c21f68](https://github.com/spreadpaper/SpreadPaper/commit/1c21f6810c5e566f3bdb60f4a94162bc490a6d29))
+* clean up timeline UI, sort thumbnails by time ([d5fb918](https://github.com/spreadpaper/SpreadPaper/commit/d5fb918702c68698627b246907b9b91850e94467))
+* clicking empty Dark card opens file picker instead of doing nothing ([47e7960](https://github.com/spreadpaper/SpreadPaper/commit/47e7960c8205f0231c6fd6c07a230ee69f06d3f5))
+* consolidate timeline into DynamicEditorView, fix broken layout ([2644cb5](https://github.com/spreadpaper/SpreadPaper/commit/2644cb580296a2b1ad70be643e609a13baa2506a))
+* correct dark index wrap-around and add input validation ([6996958](https://github.com/spreadpaper/SpreadPaper/commit/69969587f73e33c08f59a1d3d38b8064135c3e76))
+* default times to natural day phases instead of starting at midnight ([c0c0a27](https://github.com/spreadpaper/SpreadPaper/commit/c0c0a27edfa4ca08604b659cae97de730bd76714))
+* editor top bar hidden behind traffic lights, add top padding ([a288932](https://github.com/spreadpaper/SpreadPaper/commit/a288932b745bd54f27ae1e1cfb60b8bcc3018261))
+* Fit/Flip buttons with icons, canvas edge snapping, drag-to-reorder ([ebb603a](https://github.com/spreadpaper/SpreadPaper/commit/ebb603a046da3bebd794a2051dbb1f3bfe484da2))
+* hide static toolbar in dynamic mode, auto-fit on variant switch ([8940aed](https://github.com/spreadpaper/SpreadPaper/commit/8940aedab730c8b471bd5791a02956ef4f3e2dca))
+* keep Apply button inside right panel, remove safeAreaInset ([e811fc5](https://github.com/spreadpaper/SpreadPaper/commit/e811fc5aa11913f5f83031329df2a10b25440290))
+* load all variant images correctly when reopening preset ([0cafeda](https://github.com/spreadpaper/SpreadPaper/commit/0cafeda239d9d007bcd570d92326165892c4ab1d))
+* pass actual previewScale to wallpaper rendering instead of 1.0 ([64ae7f0](https://github.com/spreadpaper/SpreadPaper/commit/64ae7f03ca0ecaadbccab30c5285d69d51f23323))
+* per-variant position in wallpaper rendering ([5bb2fb3](https://github.com/spreadpaper/SpreadPaper/commit/5bb2fb3a7ff8c0d4fa3f8f84684ea8393b8da6c8))
+* per-variant position state, save/restore on switch ([9bdeb98](https://github.com/spreadpaper/SpreadPaper/commit/9bdeb988315a22da662d5e99c90e53896f512c33))
+* register XMP namespace on correct metadata instance ([9655e74](https://github.com/spreadpaper/SpreadPaper/commit/9655e74ca03856efbf3f199273604b4d612d6677))
+* remove focus ring from filter buttons ([71ac7af](https://github.com/spreadpaper/SpreadPaper/commit/71ac7af3896251d81e3d128b74cec0445edce4f7))
+* select newly added image, don't reset position of existing images ([9fe2790](https://github.com/spreadpaper/SpreadPaper/commit/9fe27906b4a4fc2004641f33e4fc1c44f38bbad1))
+* sort light/dark variants correctly on load (light=0, dark=1) ([2f6c145](https://github.com/spreadpaper/SpreadPaper/commit/2f6c1454d022449f0a437024176571035b15cc51))
+* update existing preset on Save & Apply instead of creating duplicate ([0da9e34](https://github.com/spreadpaper/SpreadPaper/commit/0da9e34f3b333833572507f41fcab6d1210572f8))
+* use focusEffectDisabled instead of focusable(false) ([a1bd26c](https://github.com/spreadpaper/SpreadPaper/commit/a1bd26ca68214cafdaf980e39dbb6b39006bc9a5))
+* use opaque bitmap context for wallpaper rendering ([dd79e7c](https://github.com/spreadpaper/SpreadPaper/commit/dd79e7c7a6057690f2905c4cdb85a17037072bcd))
+* use openSettings environment action instead of deprecated sendAction ([1ef838a](https://github.com/spreadpaper/SpreadPaper/commit/1ef838a2930293949e051ae385157a27566fcb03))
+* wider sidebar, cleaner schedule rows, editable name in modal ([d2c1f75](https://github.com/spreadpaper/SpreadPaper/commit/d2c1f7526cbd5b15b678b6304b80063064b9e8e8))
+* wizard allows multiple images, bolder typography ([3449b40](https://github.com/spreadpaper/SpreadPaper/commit/3449b4007913cc233cae8e0224f9026b7ecf3d14))
+* **wizard:** swap system icon for PhosphorSwift equivalent ([fd9edfd](https://github.com/spreadpaper/SpreadPaper/commit/fd9edfd5e5a35c4c9e81a0086acd1eef2bb7737f))
+
 ## [1.5.2](https://github.com/spreadpaper/SpreadPaper/compare/v1.5.1...v1.5.2) (2026-02-21)
 
 
