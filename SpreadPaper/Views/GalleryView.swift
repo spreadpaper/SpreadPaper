@@ -539,25 +539,68 @@ struct GalleryView: View {
 
     private func applyPreset(_ preset: SavedPreset) {
         applyingPresetId = preset.id
-        let url = manager.getImageUrl(for: preset)
-        guard let image = NSImage(contentsOf: url) else {
-            applyingPresetId = nil
-            return
-        }
-        Task {
-            await manager.setWallpaper(
-                originalImage: image,
-                imageOffset: CGSize(width: preset.offsetX, height: preset.offsetY),
-                scale: preset.scale,
-                previewScale: preset.previewScale,
-                isFlipped: preset.isFlipped
-            )
-            await MainActor.run {
-                withAnimation(.easeInOut(duration: 0.18)) {
-                    manager.setActivePreset(preset.id)
+
+        if preset.isDynamic {
+            // Load all variant images then delegate to the appropriate apply method
+            let variants = preset.timeVariants.sorted { $0.dayFraction < $1.dayFraction }
+            var images: [NSImage] = []
+            for variant in variants {
+                let dummy = SavedPreset(
+                    name: "", imageFilename: variant.imageFilename,
+                    offsetX: 0, offsetY: 0, scale: 1, previewScale: 1, isFlipped: false
+                )
+                if let img = NSImage(contentsOf: manager.getImageUrl(for: dummy)) {
+                    images.append(img)
                 }
+            }
+            guard images.count == variants.count else {
                 applyingPresetId = nil
-                selectedPresetId = nil
+                return
+            }
+            Task {
+                if preset.wallpaperType == "Light/Dark", images.count == 2, variants.count == 2 {
+                    await manager.applyAppearanceWallpaper(
+                        preset: preset,
+                        lightImage: images[0], darkImage: images[1],
+                        lightVariant: variants[0], darkVariant: variants[1]
+                    )
+                } else {
+                    await manager.applyDynamicWallpaper(
+                        preset: preset,
+                        images: images,
+                        previewScale: preset.previewScale
+                    )
+                }
+                await MainActor.run {
+                    withAnimation(.easeInOut(duration: 0.18)) {
+                        manager.setActivePreset(preset.id)
+                    }
+                    applyingPresetId = nil
+                    selectedPresetId = nil
+                }
+            }
+        } else {
+            // Static preset
+            let url = manager.getImageUrl(for: preset)
+            guard let image = NSImage(contentsOf: url) else {
+                applyingPresetId = nil
+                return
+            }
+            Task {
+                await manager.setWallpaper(
+                    originalImage: image,
+                    imageOffset: CGSize(width: preset.offsetX, height: preset.offsetY),
+                    scale: preset.scale,
+                    previewScale: preset.previewScale,
+                    isFlipped: preset.isFlipped
+                )
+                await MainActor.run {
+                    withAnimation(.easeInOut(duration: 0.18)) {
+                        manager.setActivePreset(preset.id)
+                    }
+                    applyingPresetId = nil
+                    selectedPresetId = nil
+                }
             }
         }
     }

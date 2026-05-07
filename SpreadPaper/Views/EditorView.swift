@@ -15,6 +15,8 @@ struct EditorView: View {
     @State private var originalUrls: [URL] = []
     @State private var variants: [TimeVariant] = []
     @State private var selectedVariantIndex: Int = 0
+    /// Stable session ID used as the HEIC directory key for unsaved appearance presets.
+    @State private var editorSessionId = UUID()
 
     @State private var currentPreviewScale: CGFloat = 1.0
     @State private var presetName = ""
@@ -787,7 +789,17 @@ struct EditorView: View {
             await manager.applyDynamicWallpaper(preset: preset, images: loadedImages, previewScale: currentPreviewScale)
         case .appearance:
             guard loadedImages.count == 2, variants.count == 2 else { return }
+            let appearancePreset = SavedPreset(
+                id: presetId ?? editorSessionId,
+                name: presetName.isEmpty ? "Untitled" : presetName,
+                imageFilename: variants[0].imageFilename,
+                offsetX: variants[0].offsetX, offsetY: variants[0].offsetY,
+                scale: variants[0].scale, previewScale: currentPreviewScale,
+                isFlipped: variants[0].isFlipped,
+                isDynamic: true, timeVariants: variants
+            )
             await manager.applyAppearanceWallpaper(
+                preset: appearancePreset,
                 lightImage: loadedImages[0], darkImage: loadedImages[1],
                 lightVariant: variants[0], darkVariant: variants[1]
             )

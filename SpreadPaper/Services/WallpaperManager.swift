@@ -315,6 +315,7 @@ class WallpaperManager {
     }
 
     func applyAppearanceWallpaper(
+        preset: SavedPreset,
         lightImage: NSImage,
         darkImage: NSImage,
         lightVariant: TimeVariant,
@@ -330,7 +331,7 @@ class WallpaperManager {
              name: display.screen.localizedName)
         }
 
-        let presetDir = getDynamicPresetDirectory(presetId: UUID())
+        let presetDir = getDynamicPresetDirectory(presetId: preset.id)
 
         for display in displays {
             do {
