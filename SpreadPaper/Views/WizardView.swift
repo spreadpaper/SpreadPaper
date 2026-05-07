@@ -2,6 +2,7 @@
 
 import SwiftUI
 import UniformTypeIdentifiers
+import PhosphorSwift
 
 struct WizardView: View {
     @Bindable var navigation: AppNavigation
@@ -119,9 +120,9 @@ struct WizardView: View {
                         .frame(width: 48, height: 48)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                         .overlay {
-                            Image(systemName: "arrow.down")
-                                .font(.system(size: 20, weight: .medium))
-                                .foregroundStyle(.white)
+                            Ph.arrowDown.bold
+                                .color(.white)
+                                .frame(width: 22, height: 22)
                         }
 
                     Text("Drag & drop images here")
