@@ -16,7 +16,7 @@ struct SpreadPaperApp: App {
                 mainContent
 
                 if navigation.showCreationModal {
-                    CreationModal(navigation: navigation)
+                    CreationModal(navigation: navigation, manager: manager)
                 }
             }
             .ignoresSafeArea()

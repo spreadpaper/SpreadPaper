@@ -24,7 +24,8 @@ struct AppShell<TopBar: View, MainContent: View, SidebarContent: View>: View {
                 VStack(spacing: 0) {
                     sidebarContent()
                 }
-                .frame(width: 280)
+                .frame(minWidth: 280)
+                .fixedSize(horizontal: true, vertical: false)
                 .background(Color.cdBgSecondary)
             }
         }

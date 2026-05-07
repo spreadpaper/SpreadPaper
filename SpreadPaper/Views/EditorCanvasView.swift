@@ -2,6 +2,7 @@
 
 import SwiftUI
 import UniformTypeIdentifiers
+import PhosphorSwift
 
 struct EditorCanvasView: View {
     let selectedImage: NSImage?
@@ -60,9 +61,9 @@ struct EditorCanvasView: View {
                 } else {
                     // Drop zone
                     VStack(spacing: 12) {
-                        Image(systemName: "arrow.down.doc")
-                            .font(.system(size: 28))
-                            .foregroundStyle(Color.cdTextTertiary)
+                        Ph.fileArrowDown.regular
+                            .color(Color.cdTextTertiary)
+                            .frame(width: 32, height: 32)
                         Text("Drop image here")
                             .font(.system(size: 12))
                             .foregroundStyle(Color.cdTextSecondary)
