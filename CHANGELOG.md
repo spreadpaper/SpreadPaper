@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.7.0](https://github.com/spreadpaper/SpreadPaper/compare/v1.6.0...v1.7.0) (2026-05-07)
+
+
+### Features
+
+* **model:** persist isAppearanceBased flag on SavedPreset ([cdfd04f](https://github.com/spreadpaper/SpreadPaper/commit/cdfd04f06a991e64ee7d529df7db2ccf1f6ee390))
+
+
+### Bug Fixes
+
+* **editor:** tighten header and replace Menu-based Type picker ([12b3656](https://github.com/spreadpaper/SpreadPaper/commit/12b365600c1a95e36fc2803d20361d2786d36173))
+
+
+### Performance Improvements
+
+* **gallery:** render thumbnails off the main actor ([f35b22f](https://github.com/spreadpaper/SpreadPaper/commit/f35b22fe26c60d24db96a0e148a164c9c33906b7))
+
 ## [1.6.0](https://github.com/spreadpaper/SpreadPaper/compare/v1.5.2...v1.6.0) (2026-05-07)
 
 
