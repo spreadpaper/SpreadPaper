@@ -8,6 +8,7 @@ struct RangeBarView: NSViewRepresentable {
     @Binding var endFraction: Double    // 0.0–1.0
     var accentColor: NSColor = NSColor(Color.cdAccent)
     var isSelected: Bool = false
+    var endInteractive: Bool = true
 
     func makeNSView(context: Context) -> RangeBarNSView {
         let view = RangeBarNSView()
@@ -23,6 +24,7 @@ struct RangeBarView: NSViewRepresentable {
         nsView.endFraction = endFraction
         nsView.accentColor = accentColor
         nsView.isSelected = isSelected
+        nsView.endInteractive = endInteractive
         nsView.needsDisplay = true
     }
 }
@@ -32,6 +34,7 @@ class RangeBarNSView: NSView {
     var endFraction: Double = 1.0
     var accentColor: NSColor = .systemIndigo
     var isSelected: Bool = false
+    var endInteractive: Bool = true
     var onRangeChanged: ((Double, Double) -> Void)?
 
     private var dragging: DragTarget = .none
@@ -86,7 +89,11 @@ class RangeBarNSView: NSView {
 
         // Draw handles
         drawHandle(ctx: ctx, fraction: startFraction, barY: barY)
-        drawHandle(ctx: ctx, fraction: endFraction, barY: barY)
+        if endInteractive {
+            drawHandle(ctx: ctx, fraction: endFraction, barY: barY)
+        } else {
+            drawEndDivider(ctx: ctx, fraction: endFraction, barY: barY)
+        }
     }
 
     private func drawHandle(ctx: CGContext, fraction: Double, barY: CGFloat) {
@@ -107,6 +114,15 @@ class RangeBarNSView: NSView {
         ctx.strokePath()
     }
 
+    private func drawEndDivider(ctx: CGContext, fraction: Double, barY: CGFloat) {
+        let x = bounds.width * fraction
+        ctx.setStrokeColor(NSColor(Color.cdTextTertiary).withAlphaComponent(0.6).cgColor)
+        ctx.setLineWidth(1)
+        ctx.move(to: CGPoint(x: x, y: barY - 3))
+        ctx.addLine(to: CGPoint(x: x, y: barY + barHeight + 3))
+        ctx.strokePath()
+    }
+
     override func mouseDown(with event: NSEvent) {
         let point = convert(event.locationInWindow, from: nil)
         let x = point.x / bounds.width
@@ -116,7 +132,7 @@ class RangeBarNSView: NSView {
 
         if abs(x - startX) < 0.03 {
             dragging = .start
-        } else if abs(x - endX) < 0.03 {
+        } else if endInteractive && abs(x - endX) < 0.03 {
             dragging = .end
         } else {
             dragging = .none
@@ -151,12 +167,14 @@ class RangeBarNSView: NSView {
     override func resetCursorRects() {
         let barY = (bounds.height - barHeight) / 2
         let startX = bounds.width * startFraction
-        let endX = bounds.width * endFraction
 
         let startRect = CGRect(x: startX - handleWidth, y: barY - 4, width: handleWidth * 2, height: barHeight + 8)
-        let endRect = CGRect(x: endX - handleWidth, y: barY - 4, width: handleWidth * 2, height: barHeight + 8)
-
         addCursorRect(startRect, cursor: .resizeLeftRight)
-        addCursorRect(endRect, cursor: .resizeLeftRight)
+
+        if endInteractive {
+            let endX = bounds.width * endFraction
+            let endRect = CGRect(x: endX - handleWidth, y: barY - 4, width: handleWidth * 2, height: barHeight + 8)
+            addCursorRect(endRect, cursor: .resizeLeftRight)
+        }
     }
 }

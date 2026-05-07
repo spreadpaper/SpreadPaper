@@ -1,16 +1,27 @@
 // SpreadPaper/Views/ScheduleView.swift
 
 import SwiftUI
+import AppKit
+import CoreTransferable
+import UniformTypeIdentifiers
+import PhosphorSwift
+
+struct VariantDragID: Codable, Transferable {
+    let id: UUID
+    static var transferRepresentation: some TransferRepresentation {
+        CodableRepresentation(contentType: .json)
+    }
+}
 
 struct ScheduleView: View {
     @Binding var variants: [TimeVariant]
     @Binding var selectedIndex: Int
     @Binding var editingIndex: Int?
+    var loadedImages: [NSImage] = []
     let onAddImage: () -> Void
     let onRemoveVariant: (Int) -> Void
 
-    private let phaseNames = ["Sunrise", "Morning", "Noon", "Afternoon", "Late Afternoon", "Sunset", "Dusk", "Night",
-                              "Late Night", "Pre-dawn", "Dawn", "Early Morning", "Mid-morning", "Early Afternoon", "Late Evening", "Midnight"]
+    @State private var dropTargetIndex: Int? = nil
 
     private var sortedIndices: [Int] {
         variants.indices.sorted { variants[$0].dayFraction < variants[$1].dayFraction }
@@ -26,66 +37,96 @@ struct ScheduleView: View {
                 }
             }
 
-            Button(action: onAddImage) {
-                HStack {
-                    Spacer()
-                    Text("+ Add Image")
-                        .font(.system(size: 10))
-                        .foregroundStyle(Color.cdTextTertiary)
-                    Spacer()
-                }
-                .padding(.vertical, 8)
-                .background(
-                    RoundedRectangle(cornerRadius: 8)
-                        .strokeBorder(style: StrokeStyle(lineWidth: 1, dash: [5, 3]))
-                        .foregroundStyle(Color.cdBorder)
-                )
-                .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
+            DashedAddButton(label: "+ Add Image", action: onAddImage)
         }
     }
 
     private func compactRow(index: Int) -> some View {
         let variant = variants[index]
         let isSelected = index == selectedIndex
+        let isDropTarget = dropTargetIndex == index
         let nextVariant = nextVariantAfter(index: index)
 
-        return Button(action: {
-            selectedIndex = index
-            editingIndex = index
-        }) {
-            HStack(spacing: 10) {
-                // Thumbnail placeholder
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(Color.cdBgPrimary)
-                    .frame(width: 40, height: 28)
+        return HStack(spacing: 10) {
+            Ph.dotsSixVertical.regular
+                .color(Color.cdTextTertiary)
+                .frame(width: 12, height: 16)
 
-                // Name + time stacked vertically
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(displayName(for: index))
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundStyle(Color.cdTextPrimary)
-                        .lineLimit(1)
-
-                    Text("\(variant.timeString) – \(nextVariant.timeString)")
-                        .font(.system(size: 10))
-                        .foregroundStyle(isSelected ? Color.cdAccent : Color.cdTextTertiary)
-                        .lineLimit(1)
+            Group {
+                if index < loadedImages.count {
+                    Image(nsImage: loadedImages[index])
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } else {
+                    Color.cdBgPrimary
                 }
-
-                Spacer()
             }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 8)
-            .background(Color.cdBgElevated)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(isSelected ? Color.cdAccent : Color.cdBorder, lineWidth: isSelected ? 1.5 : 1)
-            )
+            .frame(width: 40, height: 28)
+            .clipShape(RoundedRectangle(cornerRadius: 4))
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(displayName(for: index))
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(Color.cdTextPrimary)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+
+                Text("\(variant.timeString) – \(nextVariant.timeString)")
+                    .font(.system(size: 10))
+                    .foregroundStyle(isSelected ? Color.cdAccent : Color.cdTextTertiary)
+                    .lineLimit(1)
+            }
+            .frame(maxWidth: 140, alignment: .leading)
+
+            Spacer(minLength: 0)
+
+            Button(action: {
+                selectedIndex = index
+                editingIndex = index
+            }) {
+                Ph.pencilSimple.regular
+                    .color(Color.cdTextSecondary)
+                    .frame(width: 14, height: 14)
+                    .padding(6)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .help("Edit schedule entry")
         }
-        .buttonStyle(.plain)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+        .background(isDropTarget ? Color.cdAccent.opacity(0.15) : Color.cdBgElevated)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(
+                    isDropTarget ? Color.cdAccent : (isSelected ? Color.cdAccent : Color.cdBorder),
+                    style: StrokeStyle(
+                        lineWidth: isDropTarget ? 2 : (isSelected ? 1.5 : 1),
+                        dash: isDropTarget ? [5, 3] : []
+                    )
+                )
+        )
+        .animation(.easeInOut(duration: 0.1), value: isDropTarget)
+        .contentShape(Rectangle())
+        .onTapGesture { selectedIndex = index }
+        .draggable(VariantDragID(id: variant.id))
+        .dropDestination(for: VariantDragID.self) { items, _ in
+            dropTargetIndex = nil
+            guard let dragged = items.first,
+                  let srcIdx = variants.firstIndex(where: { $0.id == dragged.id }),
+                  srcIdx != index else { return false }
+            let srcHour = variants[srcIdx].hour
+            let srcMinute = variants[srcIdx].minute
+            variants[srcIdx].hour = variants[index].hour
+            variants[srcIdx].minute = variants[index].minute
+            variants[index].hour = srcHour
+            variants[index].minute = srcMinute
+            selectedIndex = srcIdx
+            return true
+        } isTargeted: { targeted in
+            dropTargetIndex = targeted ? index : (dropTargetIndex == index ? nil : dropTargetIndex)
+        }
         .contextMenu {
             Button("Edit...") { selectedIndex = index; editingIndex = index }
             Button("Remove", role: .destructive) { onRemoveVariant(index) }
@@ -95,7 +136,8 @@ struct ScheduleView: View {
     func displayName(for index: Int) -> String {
         let variant = variants[index]
         if !variant.name.isEmpty { return variant.name }
-        return phaseNames[safe: index] ?? "Image \(index + 1)"
+        let resolved = FilenameUtils.displayName(for: variant.imageFilename)
+        return resolved.isEmpty ? "Image \(index + 1)" : resolved
     }
 
     func nextVariantAfter(index: Int) -> TimeVariant {
@@ -135,9 +177,9 @@ struct ScheduleDetailModal: View {
                         .foregroundStyle(Color.cdTextPrimary)
                     Spacer()
                     Button(action: onRemove) {
-                        Image(systemName: "trash")
-                            .font(.system(size: 12))
-                            .foregroundStyle(Color.cdDanger)
+                        Ph.trash.regular
+                            .color(Color.cdDanger)
+                            .frame(width: 14, height: 14)
                     }
                     .buttonStyle(.plain)
                 }
@@ -167,8 +209,9 @@ struct ScheduleDetailModal: View {
                                     .font(.system(size: 22, weight: .bold))
                                     .foregroundStyle(Color.cdTextPrimary)
                             }
-                            Image(systemName: "arrow.right")
-                                .foregroundStyle(Color.cdTextTertiary)
+                            Ph.arrowRight.regular
+                                .color(Color.cdTextTertiary)
+                                .frame(width: 14, height: 14)
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Until")
                                     .font(.system(size: 10))
@@ -196,7 +239,8 @@ struct ScheduleDetailModal: View {
                                 }
                             ),
                             endFraction: .constant(nextVariant.dayFraction),
-                            isSelected: true
+                            isSelected: true,
+                            endInteractive: false
                         )
                         .frame(height: 24)
 
@@ -239,8 +283,3 @@ struct ScheduleDetailModal: View {
     }
 }
 
-private extension Array {
-    subscript(safe index: Index) -> Element? {
-        indices.contains(index) ? self[index] : nil
-    }
-}
