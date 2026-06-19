@@ -7,6 +7,7 @@
 
   [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
   [![macOS](https://img.shields.io/badge/macOS-15.0%20Sequoia+-blue.svg)](https://www.apple.com/macos/sequoia/)
+  [![Apple Silicon + Intel](https://img.shields.io/badge/Apple%20Silicon%20%2B%20Intel-Universal-blue.svg)](https://github.com/spreadpaper/SpreadPaper)
   [![GitHub release](https://img.shields.io/github/v/release/spreadpaper/SpreadPaper)](https://github.com/spreadpaper/SpreadPaper/releases/latest)
 
   **Free • Open Source • Native macOS App**
@@ -93,10 +94,8 @@ Because SpreadPaper is a free, open-source project and not signed with a paid Ap
 ## Requirements
 
 - macOS 15.0 (Sequoia) or later
-- Apple Silicon Mac
+- Apple Silicon **or** Intel Mac (universal binary)
 - Multiple monitors (recommended, but works with single displays too)
-
-> **Note:** This project is compiled for and tested on macOS Sequoia (15.0+) with Apple Silicon. If you are using an older macOS version or Intel Mac and would like support, please [open a feature request](https://github.com/spreadpaper/SpreadPaper/issues).
 
 ## Building from Source
 
