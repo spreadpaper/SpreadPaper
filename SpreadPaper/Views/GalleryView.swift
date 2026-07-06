@@ -699,8 +699,7 @@ private struct ThumbnailResult: @unchecked Sendable {
     let image: NSImage
 }
 
-@Sendable
-private func renderThumbnails(jobs: [ThumbnailJob]) -> [ThumbnailResult] {
+nonisolated private func renderThumbnails(jobs: [ThumbnailJob]) -> [ThumbnailResult] {
     var out: [ThumbnailResult] = []
     out.reserveCapacity(jobs.count)
     for job in jobs {
