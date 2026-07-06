@@ -27,13 +27,14 @@ struct EditorCanvasView: View {
             ZStack {
                 // Image layer
                 if let img = selectedImage {
+                    let pixelSize = img.pixelSize
                     Image(nsImage: img)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .scaleEffect(x: isFlipped ? -1 : 1, y: 1)
                         .frame(
-                            width: img.size.width * previewScale * imageScale,
-                            height: img.size.height * previewScale * imageScale
+                            width: pixelSize.width * previewScale * imageScale,
+                            height: pixelSize.height * previewScale * imageScale
                         )
                         .offset(imageOffset)
                         .opacity(isDragging ? 0.7 : 1.0)
@@ -47,7 +48,7 @@ struct EditorCanvasView: View {
                                     )
                                     imageOffset = calculateSnapping(
                                         raw: raw,
-                                        imgSize: img.size,
+                                        imgSize: pixelSize,
                                         canvasSize: manager.totalCanvas.size,
                                         previewScale: previewScale,
                                         zoomScale: imageScale

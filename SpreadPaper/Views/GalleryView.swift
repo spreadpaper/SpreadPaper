@@ -706,10 +706,11 @@ private func renderThumbnails(jobs: [ThumbnailJob]) -> [ThumbnailResult] {
     for job in jobs {
         guard let image = NSImage(contentsOf: job.imageURL) else { continue }
         let maxDim: CGFloat = 480
-        let ratio = min(maxDim / image.size.width, maxDim / image.size.height, 1.0)
+        let pixelSize = image.pixelSize
+        let ratio = min(maxDim / pixelSize.width, maxDim / pixelSize.height, 1.0)
         let newSize = NSSize(
-            width: image.size.width * ratio,
-            height: image.size.height * ratio
+            width: pixelSize.width * ratio,
+            height: pixelSize.height * ratio
         )
         let thumb = NSImage(size: newSize)
         thumb.lockFocus()

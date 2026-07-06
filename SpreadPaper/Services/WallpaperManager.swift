@@ -384,7 +384,8 @@ class WallpaperManager {
         deviceScale: CGFloat,
         screenColorSpace: CGColorSpace?
     ) throws -> CGImage {
-        var rect = CGRect(origin: .zero, size: original.size)
+        let imageSize = original.pixelSize
+        var rect = CGRect(origin: .zero, size: imageSize)
         guard let cgImage = original.cgImage(forProposedRect: &rect, context: nil, hints: nil) else {
             throw WallpaperError.imageConversionFailed
         }
@@ -409,8 +410,8 @@ class WallpaperManager {
 
         let realOffsetX_Px = (offset.width / previewScale) * deviceScale
         let realOffsetY_Px = (offset.height / previewScale) * deviceScale
-        let drawnImgWidthPx = original.size.width * imageScale * deviceScale
-        let drawnImgHeightPx = original.size.height * imageScale * deviceScale
+        let drawnImgWidthPx = imageSize.width * imageScale * deviceScale
+        let drawnImgHeightPx = imageSize.height * imageScale * deviceScale
         let totalCanvasWidthPx = totalCanvas.width * deviceScale
         let totalCanvasHeightPx = totalCanvas.height * deviceScale
         let centeringX_Px = (totalCanvasWidthPx - drawnImgWidthPx) / 2.0

@@ -431,7 +431,7 @@ struct EditorView: View {
 
     private var staticSubtitle: String {
         guard let img = loadedImages.first else { return "Choose image…" }
-        return "\(Int(img.size.width))×\(Int(img.size.height))"
+        return dimensions(for: img)
     }
 
     private func appearanceImageRow(index: Int, label: String) -> some View {
@@ -499,7 +499,8 @@ struct EditorView: View {
     }
 
     private func dimensions(for image: NSImage) -> String {
-        "\(Int(image.size.width))×\(Int(image.size.height))"
+        let pixelSize = image.pixelSize
+        return "\(Int(pixelSize.width))×\(Int(pixelSize.height))"
     }
 
     // MARK: - Zoom
@@ -646,8 +647,9 @@ struct EditorView: View {
         guard let image = currentImage else { return }
         let canvas = manager.totalCanvas
         guard canvas.width > 0, canvas.height > 0 else { return }
-        let widthRatio = canvas.width / image.size.width
-        let heightRatio = canvas.height / image.size.height
+        let pixelSize = image.pixelSize
+        let widthRatio = canvas.width / pixelSize.width
+        let heightRatio = canvas.height / pixelSize.height
         withAnimation(.spring()) {
             guard selectedVariantIndex < variants.count else { return }
             variants[selectedVariantIndex].scale = max(widthRatio, heightRatio)
