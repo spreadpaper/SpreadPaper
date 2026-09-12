@@ -1,8 +1,9 @@
 // SpreadPaper/Views/SaveDialog.swift
 
 import SwiftUI
-import AppKit
 
+/// Overlay that names a preset before it is saved. Focuses the name field
+/// on appear so the initial text is selected and typing replaces it.
 struct SaveDialog: View {
     let initialName: String
     let applyOnSave: Bool
@@ -30,11 +31,9 @@ struct SaveDialog: View {
             withAnimation(.timingCurve(0.2, 0.9, 0.25, 1, duration: 0.24)) {
                 hasAppeared = true
             }
-            DispatchQueue.main.async {
-                nameFocused = true
-                selectAllInFirstResponder()
-            }
         }
+        // Runs after the field is attached; macOS selects all text on programmatic focus.
+        .task { nameFocused = true }
     }
 
     private var backdrop: some View {
@@ -107,14 +106,9 @@ struct SaveDialog: View {
         .shadow(color: .black.opacity(0.6), radius: 80, y: 30)
     }
 
+    /// Saves the trimmed name; ignored while the name is blank.
     private func commit() {
         guard canSave else { return }
         onSave(trimmed)
-    }
-
-    private func selectAllInFirstResponder() {
-        if let textView = NSApp.keyWindow?.firstResponder as? NSTextView {
-            textView.selectAll(nil)
-        }
     }
 }
