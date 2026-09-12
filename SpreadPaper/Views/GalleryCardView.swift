@@ -240,23 +240,13 @@ struct GalleryCardView: View {
         )
     }
 
-    @ViewBuilder
     private var typeIcon: some View {
-        switch preset.wallpaperType {
-        case "Dynamic":
-            Ph.sun.regular.color(Color(hex: 0xf5a524))
-        case "Light/Dark":
-            Ph.circleHalf.regular.color(Color(hex: 0x7c7cff))
-        default:
-            Ph.image.regular.color(Color.cdTextTertiary)
-        }
+        Image(systemName: preset.kind.systemImage)
+            .font(.system(size: 9, weight: .semibold))
+            .foregroundStyle(preset.kind.tint)
     }
 
     private var typeBadgeLabel: String {
-        switch preset.wallpaperType {
-        case "Dynamic":    return "Dynamic"
-        case "Light/Dark": return "Light & Dark"
-        default:           return "Static"
-        }
+        preset.kind.title
     }
 }

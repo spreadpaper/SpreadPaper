@@ -4,8 +4,47 @@ import SwiftUI
 
 enum WallpaperType: String, CaseIterable, Codable {
     case standard = "Static"
-    case dynamic = "Dynamic"
     case appearance = "Light/Dark"
+    case dynamic = "Dynamic"
+
+    /// Short label shown on cards, filters and the type picker.
+    /// One wording for every screen.
+    var title: String {
+        switch self {
+        case .standard:   return "Static"
+        case .appearance: return "Light & Dark"
+        case .dynamic:    return "Dynamic"
+        }
+    }
+
+    /// One-line description under the type picker and in the creation modal.
+    /// Explains what the kind does with its images.
+    var subtitle: String {
+        switch self {
+        case .standard:   return "One image, stretched seamlessly across every display."
+        case .appearance: return "A light image by day, a darker one by night — switched by macOS appearance."
+        case .dynamic:    return "A schedule of images that shifts through the day, in sync across all screens."
+        }
+    }
+
+    /// SF Symbol name that marks the kind in badges, pills and filter rows.
+    var systemImage: String {
+        switch self {
+        case .standard:   return "photo.fill"
+        case .appearance: return "circle.lefthalf.filled"
+        case .dynamic:    return "clock"
+        }
+    }
+
+    /// Colour that marks the kind in the card badge and the creation modal glow.
+    /// Static stays neutral.
+    var tint: Color {
+        switch self {
+        case .standard:   return Color.cdTextTertiary
+        case .appearance: return Color(hex: 0x7c7cff)
+        case .dynamic:    return Color(hex: 0xf5a524)
+        }
+    }
 }
 
 enum GalleryFilter: Int, CaseIterable {
@@ -14,13 +53,24 @@ enum GalleryFilter: Int, CaseIterable {
     case dynamic = 2
     case appearance = 3
 
-    var label: String {
+    /// Wallpaper kind this filter narrows to, or nil for every preset.
+    var type: WallpaperType? {
         switch self {
-        case .all: return "All"
-        case .standard: return "Static"
-        case .dynamic: return "Dynamic"
-        case .appearance: return "Light/Dark"
+        case .all:        return nil
+        case .standard:   return .standard
+        case .dynamic:    return .dynamic
+        case .appearance: return .appearance
         }
+    }
+
+    /// Sidebar and toolbar label, taken from the kind's title where there is one.
+    var label: String {
+        type?.title ?? "All Wallpapers"
+    }
+
+    /// SF Symbol for the sidebar row, taken from the kind where there is one.
+    var systemImage: String {
+        type?.systemImage ?? "square.grid.2x2"
     }
 }
 

@@ -28,13 +28,7 @@ struct GalleryView: View {
     }
 
     private var filteredPresets: [SavedPreset] {
-        let byFilter: [SavedPreset]
-        switch currentFilter {
-        case .all:        byFilter = manager.presets
-        case .standard:   byFilter = manager.presets.filter { !$0.isDynamic }
-        case .dynamic:    byFilter = manager.presets.filter { $0.isDynamic && $0.wallpaperType == "Dynamic" }
-        case .appearance: byFilter = manager.presets.filter { $0.wallpaperType == "Light/Dark" }
-        }
+        let byFilter = presets(matching: currentFilter)
 
         let q = searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !q.isEmpty else { return byFilter }
@@ -163,12 +157,7 @@ struct GalleryView: View {
     }
 
     private var toolbarTitle: String {
-        switch currentFilter {
-        case .all:        return "All Wallpapers"
-        case .standard:   return "Static"
-        case .dynamic:    return "Dynamic"
-        case .appearance: return "Light & Dark"
-        }
+        currentFilter.label
     }
 
     private var searchField: some View {
@@ -242,7 +231,7 @@ struct GalleryView: View {
                 ForEach(GalleryFilter.allCases, id: \.self) { filter in
                     FilterRow(
                         filter: filter,
-                        label: sidebarLabel(for: filter),
+                        label: filter.label,
                         isSelected: filterIndex == filter.rawValue,
                         count: countFor(filter),
                         onTap: { filterIndex = filter.rawValue }
@@ -278,15 +267,6 @@ struct GalleryView: View {
             .buttonStyle(.plain)
             .padding(.horizontal, 16)
             .padding(.bottom, 12)
-        }
-    }
-
-    private func sidebarLabel(for filter: GalleryFilter) -> String {
-        switch filter {
-        case .all:        return "All Wallpapers"
-        case .standard:   return "Static"
-        case .dynamic:    return "Dynamic"
-        case .appearance: return "Light & Dark"
         }
     }
 
@@ -506,12 +486,13 @@ struct GalleryView: View {
     // MARK: - Actions
 
     private func countFor(_ filter: GalleryFilter) -> Int {
-        switch filter {
-        case .all:        return manager.presets.count
-        case .standard:   return manager.presets.filter { !$0.isDynamic }.count
-        case .dynamic:    return manager.presets.filter { $0.isDynamic && $0.wallpaperType == "Dynamic" }.count
-        case .appearance: return manager.presets.filter { $0.wallpaperType == "Light/Dark" }.count
-        }
+        presets(matching: filter).count
+    }
+
+    /// Presets whose kind the filter selects; every preset for `.all`.
+    private func presets(matching filter: GalleryFilter) -> [SavedPreset] {
+        guard let type = filter.type else { return manager.presets }
+        return manager.presets.filter { $0.kind == type }
     }
 
     private func reloadThumbnails() {
@@ -583,7 +564,7 @@ struct GalleryView: View {
                 return
             }
             Task {
-                if preset.wallpaperType == "Light/Dark", images.count == 2, variants.count == 2 {
+                if preset.kind == .appearance, images.count == 2, variants.count == 2 {
                     await manager.applyAppearanceWallpaper(
                         preset: preset,
                         lightImage: images[0], darkImage: images[1],
@@ -698,15 +679,10 @@ private struct FilterRow: View {
         .onHover { hovering = $0 }
     }
 
-    @ViewBuilder
     private var icon: some View {
-        let color: Color = isSelected ? .white : Color.cdTextSecondary
-        switch filter {
-        case .all:        Ph.squaresFour.regular.color(color)
-        case .standard:   Ph.image.regular.color(color)
-        case .dynamic:    Ph.sun.regular.color(color)
-        case .appearance: Ph.circleHalf.regular.color(color)
-        }
+        Image(systemName: filter.systemImage)
+            .font(.system(size: 11, weight: .semibold))
+            .foregroundStyle(isSelected ? Color.white : Color.cdTextSecondary)
     }
 }
 

@@ -16,10 +16,12 @@ struct SavedPreset: Identifiable, Codable, Hashable {
     /// Older presets without this key are migrated on load by inferring from `timeVariants`.
     var isAppearanceBased: Bool = false
 
-    var wallpaperType: String {
-        if isAppearanceBased { return "Light/Dark" }
-        if isDynamic { return "Dynamic" }
-        return "Static"
+    /// Kind of wallpaper this preset produces, derived from the persisted flags.
+    /// Appearance wins over dynamic; neither means static.
+    var kind: WallpaperType {
+        if isAppearanceBased { return .appearance }
+        if isDynamic { return .dynamic }
+        return .standard
     }
 
     private enum CodingKeys: String, CodingKey {

@@ -56,14 +56,7 @@ struct SpreadPaperApp: App {
             GalleryView(manager: manager, navigation: navigation)
         case .editor(let presetId):
             if let preset = manager.presets.first(where: { $0.id == presetId }) {
-                let type: WallpaperType = {
-                    switch preset.wallpaperType {
-                    case "Dynamic": return .dynamic
-                    case "Light/Dark": return .appearance
-                    default: return .standard
-                    }
-                }()
-                EditorView(manager: manager, navigation: navigation, wallpaperType: type, presetId: presetId)
+                EditorView(manager: manager, navigation: navigation, wallpaperType: preset.kind, presetId: presetId)
             } else {
                 GalleryView(manager: manager, navigation: navigation)
             }

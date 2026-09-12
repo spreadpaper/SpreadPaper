@@ -119,7 +119,7 @@ struct CreationModal: View {
     }
 
     private func cycle(by delta: Int) {
-        let order: [WallpaperType] = [.standard, .appearance, .dynamic]
+        let order = WallpaperType.allCases
         guard let idx = order.firstIndex(of: selectedType) else { return }
         let next = order[(idx + delta + order.count) % order.count]
         let prev = selectedType
@@ -188,7 +188,7 @@ private struct HeroView: View {
         ZStack {
             Color.cdCanvasBg
             RadialGradient(
-                colors: [tint(for: selectedType), .clear],
+                colors: [selectedType.tint.opacity(0.28), .clear],
                 center: .bottom,
                 startRadius: 0,
                 endRadius: 280
@@ -208,14 +208,6 @@ private struct HeroView: View {
                     .position(x: groupRect.midX, y: groupRect.midY)
                     .scaleEffect(monitorScale)
             }
-        }
-    }
-
-    private func tint(for type: WallpaperType) -> Color {
-        switch type {
-        case .standard:   return Color(hex: 0xc97a3a).opacity(0.28)
-        case .appearance: return Color(hex: 0xcaa060).opacity(0.18)
-        case .dynamic:    return Color(hex: 0x8c7ad9).opacity(0.28)
         }
     }
 }
@@ -596,28 +588,16 @@ private struct PillPicker: View {
     let namespace: Namespace.ID
     let onChange: (WallpaperType, WallpaperType) -> Void
 
-    private struct Pill: Identifiable {
-        let id: WallpaperType
-        let label: String
-        let symbol: String
-    }
-
-    private let pills: [Pill] = [
-        Pill(id: .standard,   label: "Static",  symbol: "photo.fill"),
-        Pill(id: .appearance, label: "Themed",  symbol: "circle.lefthalf.filled"),
-        Pill(id: .dynamic,    label: "Dynamic", symbol: "clock")
-    ]
-
     var body: some View {
         HStack(spacing: 0) {
-            ForEach(pills) { pill in
-                let isActive = pill.id == selection
-                Button(action: { tap(pill.id) }) {
+            ForEach(WallpaperType.allCases, id: \.self) { type in
+                let isActive = type == selection
+                Button(action: { tap(type) }) {
                     HStack(spacing: 8) {
-                        Image(systemName: pill.symbol)
+                        Image(systemName: type.systemImage)
                             .font(.system(size: 11, weight: .semibold))
                             .frame(width: 14, height: 14)
-                        Text(pill.label)
+                        Text(type.title)
                             .font(.system(size: 13, weight: isActive ? .semibold : .medium))
                     }
                     .foregroundStyle(isActive ? Color.white : Color.cdTextSecondary)
@@ -673,14 +653,7 @@ private struct Caption: View {
     let type: WallpaperType
 
     private var copy: (lead: String, body: String) {
-        switch type {
-        case .standard:
-            return ("Static.", " One image, stretched seamlessly across every display.")
-        case .appearance:
-            return ("Themed.", " A light image by day, a darker one by night — switched by macOS appearance.")
-        case .dynamic:
-            return ("Dynamic.", " A schedule of images that shifts through the day, in sync across all screens.")
-        }
+        ("\(type.title).", " \(type.subtitle)")
     }
 
     var body: some View {
@@ -717,11 +690,7 @@ private struct Footer: View {
     }
 
     private var typeLabel: String {
-        switch selectedType {
-        case .standard:   return "Static"
-        case .appearance: return "Themed"
-        case .dynamic:    return "Dynamic"
-        }
+        selectedType.title
     }
 
     var body: some View {
