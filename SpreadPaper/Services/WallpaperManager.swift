@@ -122,6 +122,29 @@ class WallpaperManager {
         }
     }
 
+    /// Drops this display's other renders in a preset directory, keeping the one now on screen.
+    /// Best-effort: leftovers go on the next apply.
+    private func cleanupOldDynamicWallpapers(for displayID: CGDirectDisplayID, in directory: URL, except currentFilename: String) {
+        guard let files = try? FileManager.default.contentsOfDirectory(atPath: directory.path) else { return }
+        let stale = WallpaperFilenames.staleDynamicFiles(in: files, displayID: displayID, keeping: currentFilename)
+        for filename in stale {
+            try? FileManager.default.removeItem(at: directory.appending(path: filename))
+        }
+    }
+
+    /// Prunes a preset directory after a dynamic apply, sparing displays whose set failed.
+    /// Legacy files go once every display is showing a new render.
+    private func cleanupDynamicDirectory(_ directory: URL, results: RenderResults, succeeded: Set<CGDirectDisplayID>) {
+        for displayID in succeeded {
+            if case .success(let url)? = results[displayID] {
+                cleanupOldDynamicWallpapers(for: displayID, in: directory, except: url.lastPathComponent)
+            }
+        }
+        if allDisplaysSucceeded(succeeded) {
+            removeLegacyFiles(in: directory, matching: WallpaperFilenames.isLegacyDynamicName)
+        }
+    }
+
     /// Copies the image into the app data directory and appends a static preset with its placement.
     /// A failed copy surfaces as a plain error message instead of a half-saved preset.
     func savePreset(name: String, originalUrl: URL, offset: CGSize, scale: CGFloat, previewScale: CGFloat, isFlipped: Bool) {
@@ -449,8 +472,9 @@ class WallpaperManager {
 
         let canvas = totalCanvas
         let presetDir = getDynamicPresetDirectory(presetId: preset.id)
+        let timestamp = Int(Date().timeIntervalSince1970 * 1000)
         let targets = renderTargets { id in
-            presetDir.appending(path: WallpaperFilenames.dynamicName(displayID: id))
+            presetDir.appending(path: WallpaperFilenames.dynamicName(displayID: id, timestamp: timestamp))
         }
         let variants = preset.timeVariants.sorted { $0.dayFraction < $1.dayFraction }
         let hours = variants.map(\.hour)
@@ -483,9 +507,7 @@ class WallpaperManager {
         }
 
         let succeeded = applyRendered(results, options: [:], failureCopy: { "The dynamic wallpaper couldn't be set on \($0)." })
-        if allDisplaysSucceeded(succeeded) {
-            removeLegacyFiles(in: presetDir, matching: WallpaperFilenames.isLegacyDynamicName)
-        }
+        cleanupDynamicDirectory(presetDir, results: results, succeeded: succeeded)
     }
 
     /// Renders the light and dark images per display into an appearance HEIC and sets it as the desktop image.
@@ -511,8 +533,9 @@ class WallpaperManager {
 
         let canvas = totalCanvas
         let presetDir = getDynamicPresetDirectory(presetId: preset.id)
+        let timestamp = Int(Date().timeIntervalSince1970 * 1000)
         let targets = renderTargets { id in
-            presetDir.appending(path: WallpaperFilenames.dynamicName(displayID: id))
+            presetDir.appending(path: WallpaperFilenames.dynamicName(displayID: id, timestamp: timestamp))
         }
         let lightSpecs = targets.map {
             spec(for: $0, canvas: canvas, offset: CGSize(width: lightVariant.offsetX, height: lightVariant.offsetY),
@@ -537,9 +560,7 @@ class WallpaperManager {
         }
 
         let succeeded = applyRendered(results, options: [:], failureCopy: { "The wallpaper couldn't be set on \($0)." })
-        if allDisplaysSucceeded(succeeded) {
-            removeLegacyFiles(in: presetDir, matching: WallpaperFilenames.isLegacyDynamicName)
-        }
+        cleanupDynamicDirectory(presetDir, results: results, succeeded: succeeded)
     }
 }
 
