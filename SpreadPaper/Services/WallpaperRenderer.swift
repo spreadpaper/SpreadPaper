@@ -6,7 +6,7 @@ import UniformTypeIdentifiers
 ///
 /// Every field is `Sendable`, so a spec built on the main actor can be handed to a detached
 /// rendering task without copying screen objects across isolation boundaries.
-struct RenderSpec: Sendable {
+nonisolated struct RenderSpec: Sendable {
     /// Display frame in the spaced (bezel-compensated) layout, in points.
     var screenFrame: CGRect
     /// Union of all display frames, in points.

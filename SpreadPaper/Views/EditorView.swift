@@ -198,7 +198,7 @@ struct EditorView: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(HeaderSecondaryButtonStyle())
-            .disabled(!canSave)
+            .disabled(!canSave || manager.isApplying)
 
             Button(action: { openSaveDialog(applyOnSave: false) }) {
                 Text("Save")
@@ -230,7 +230,7 @@ struct EditorView: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .disabled(!canSave || isApplying)
+            .disabled(!canSave || isApplying || manager.isApplying)
             .keyboardShortcut(.defaultAction)
         }
         .padding(.horizontal, 16)

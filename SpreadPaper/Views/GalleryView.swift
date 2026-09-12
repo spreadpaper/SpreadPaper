@@ -328,6 +328,7 @@ struct GalleryView: View {
                         isActive: manager.activePresetId == preset.id,
                         isSelected: selectedPresetId == preset.id,
                         isApplying: applyingPresetId == preset.id,
+                        applyDisabled: manager.isApplying && applyingPresetId != preset.id,
                         onTap: {
                             selectedPresetId = (selectedPresetId == preset.id) ? nil : preset.id
                         },

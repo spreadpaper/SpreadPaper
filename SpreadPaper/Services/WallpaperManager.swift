@@ -11,6 +11,9 @@ class WallpaperManager {
     var presets: [SavedPreset] = []
     var lastError: String?
     var activePresetId: UUID?
+    /// True while an apply is in flight. Applies are serialized: a second call returns immediately,
+    /// because overlapping renders would delete each other's freshly written files.
+    private(set) var isApplying = false
 
     private let store: PresetStore
     private let activePresetKey = "activePresetId"
@@ -249,26 +252,42 @@ class WallpaperManager {
 
     // --- RENDERING ---
 
-    /// Everything a detached render task needs to know about one display. No AppKit objects.
+    /// Everything a detached render task needs to know about one display. No AppKit objects,
+    /// and the output URL is precomputed here so the closure calls nothing main-actor isolated.
     private struct RenderTarget: Sendable {
         let displayID: CGDirectDisplayID
         let frame: CGRect
         let deviceScale: CGFloat
         let colorSpace: CGColorSpace?
+        let outputURL: URL
     }
 
     /// One rendered file per display, or the error that prevented it.
     private typealias RenderResults = [CGDirectDisplayID: Result<URL, any Error>]
 
-    private var renderTargets: [RenderTarget] {
+    /// Snapshot of the connected displays. Geometry is captured before the await; a display
+    /// change mid-render is corrected on the next apply.
+    private func renderTargets(outputURL: (CGDirectDisplayID) -> URL) -> [RenderTarget] {
         connectedScreens.map { display in
             RenderTarget(
                 displayID: display.displayID,
                 frame: display.frame,
                 deviceScale: display.screen.backingScaleFactor,
-                colorSpace: display.screen.colorSpace?.cgColorSpace
+                colorSpace: display.screen.colorSpace?.cgColorSpace,
+                outputURL: outputURL(display.displayID)
             )
         }
+    }
+
+    /// Marks an apply as started. Returns false when one is already running.
+    private func beginApply() -> Bool {
+        guard !isApplying else {
+            logger.info("Apply ignored: another apply is still running")
+            return false
+        }
+        isApplying = true
+        lastError = nil
+        return true
     }
 
     private func spec(for target: RenderTarget, canvas: CGRect, offset: CGSize, scale: CGFloat, previewScale: CGFloat, isFlipped: Bool) -> RenderSpec {
@@ -298,30 +317,40 @@ class WallpaperManager {
         await Task.detached(priority: .userInitiated) { work() }.value
     }
 
-    /// Sets each rendered file as the desktop image on main. Returns true when every display succeeded.
-    @discardableResult
+    /// Sets each rendered file as the desktop image on main.
+    /// Returns the displays whose wallpaper was actually set; a display that connected during the
+    /// render has no result and is not counted as succeeded.
     private func applyRendered(
         _ results: RenderResults,
         options: [NSWorkspace.DesktopImageOptionKey: Any],
         failureCopy: (String) -> String
-    ) -> Bool {
-        var allSucceeded = true
+    ) -> Set<CGDirectDisplayID> {
+        var succeeded: Set<CGDirectDisplayID> = []
         for display in connectedScreens {
-            guard let result = results[display.displayID] else { continue }
+            guard let result = results[display.displayID] else {
+                logger.info("Display \(display.name, privacy: .public) connected during render, skipped")
+                continue
+            }
             do {
                 let url = try result.get()
                 try NSWorkspace.shared.setDesktopImageURL(url, for: display.screen, options: options)
+                succeeded.insert(display.displayID)
             } catch {
-                allSucceeded = false
-                logger.error("Setting wallpaper for \(display.name, privacy: .public) failed: \(error, privacy: .public)")
+                logger.error("Applying wallpaper to \(display.name, privacy: .public) failed: \(error, privacy: .public)")
                 lastError = failureCopy(display.name)
             }
         }
-        return allSucceeded
+        return succeeded
+    }
+
+    /// True when every currently connected display got its wallpaper set.
+    private func allDisplaysSucceeded(_ succeeded: Set<CGDirectDisplayID>) -> Bool {
+        succeeded.count == connectedScreens.count
     }
 
     func setWallpaper(originalImage: NSImage, imageOffset: CGSize, scale: CGFloat, previewScale: CGFloat, isFlipped: Bool) async {
-        lastError = nil
+        guard beginApply() else { return }
+        defer { isApplying = false }
         let source: CGImage
         do {
             source = try cgImage(from: originalImage)
@@ -331,10 +360,12 @@ class WallpaperManager {
             return
         }
 
-        let targets = renderTargets
         let canvas = totalCanvas
         let wallpapersDir = getWallpapersDirectory()
         let timestamp = Int(Date().timeIntervalSince1970 * 1000)
+        let targets = renderTargets { id in
+            wallpapersDir.appending(path: WallpaperFilenames.staticName(displayID: id, timestamp: timestamp))
+        }
         let specs = targets.map { spec(for: $0, canvas: canvas, offset: imageOffset, scale: scale, previewScale: previewScale, isFlipped: isFlipped) }
 
         let results = await renderOffMain {
@@ -343,26 +374,26 @@ class WallpaperManager {
                 out[target.displayID] = Result {
                     let rendered = try WallpaperRenderer.render(source, spec: spec)
                     let data = try WallpaperRenderer.pngData(rendered)
-                    let url = wallpapersDir.appending(path: WallpaperFilenames.staticName(displayID: target.displayID, timestamp: timestamp))
-                    try data.write(to: url, options: .atomic)
-                    return url
+                    try data.write(to: target.outputURL, options: .atomic)
+                    return target.outputURL
                 }
             }
             return out
         }
 
-        let ok = applyRendered(
+        let succeeded = applyRendered(
             results,
             options: [.imageScaling: NSImageScaling.scaleAxesIndependently.rawValue],
             failureCopy: { "The wallpaper couldn't be set on \($0)." }
         )
 
-        for (displayID, result) in results {
-            if case .success(let url) = result {
+        // Only displays whose new file is actually showing may lose their old one.
+        for displayID in succeeded {
+            if case .success(let url)? = results[displayID] {
                 cleanupOldWallpapers(for: displayID, in: wallpapersDir, except: url.lastPathComponent)
             }
         }
-        if ok {
+        if allDisplaysSucceeded(succeeded) {
             removeLegacyFiles(in: wallpapersDir, matching: WallpaperFilenames.isLegacyStaticName)
         }
     }
@@ -372,7 +403,8 @@ class WallpaperManager {
         images: [NSImage],
         previewScale: CGFloat
     ) async {
-        lastError = nil
+        guard beginApply() else { return }
+        defer { isApplying = false }
         let sources: [CGImage]
         do {
             sources = try images.map(cgImage(from:))
@@ -382,9 +414,11 @@ class WallpaperManager {
             return
         }
 
-        let targets = renderTargets
         let canvas = totalCanvas
         let presetDir = getDynamicPresetDirectory(presetId: preset.id)
+        let targets = renderTargets { id in
+            presetDir.appending(path: WallpaperFilenames.dynamicName(displayID: id))
+        }
         let variants = preset.timeVariants.sorted { $0.dayFraction < $1.dayFraction }
         let hours = variants.map(\.hour)
         let minutes = variants.map(\.minute)
@@ -408,16 +442,15 @@ class WallpaperManager {
             for (target, specs) in zip(targets, specsPerTarget) {
                 out[target.displayID] = Result {
                     let rendered = try zip(sources, specs).map { try WallpaperRenderer.render($0, spec: $1) }
-                    let url = presetDir.appending(path: WallpaperFilenames.dynamicName(displayID: target.displayID))
-                    try DynamicWallpaperGenerator.generateTimeBasedHEIC(images: rendered, hours: hours, minutes: minutes, outputURL: url)
-                    return url
+                    try DynamicWallpaperGenerator.generateTimeBasedHEIC(images: rendered, hours: hours, minutes: minutes, outputURL: target.outputURL)
+                    return target.outputURL
                 }
             }
             return out
         }
 
-        let ok = applyRendered(results, options: [:], failureCopy: { "The dynamic wallpaper couldn't be set on \($0)." })
-        if ok {
+        let succeeded = applyRendered(results, options: [:], failureCopy: { "The dynamic wallpaper couldn't be set on \($0)." })
+        if allDisplaysSucceeded(succeeded) {
             removeLegacyFiles(in: presetDir, matching: WallpaperFilenames.isLegacyDynamicName)
         }
     }
@@ -429,7 +462,8 @@ class WallpaperManager {
         lightVariant: TimeVariant,
         darkVariant: TimeVariant
     ) async {
-        lastError = nil
+        guard beginApply() else { return }
+        defer { isApplying = false }
         let light: CGImage
         let dark: CGImage
         do {
@@ -441,9 +475,11 @@ class WallpaperManager {
             return
         }
 
-        let targets = renderTargets
         let canvas = totalCanvas
         let presetDir = getDynamicPresetDirectory(presetId: preset.id)
+        let targets = renderTargets { id in
+            presetDir.appending(path: WallpaperFilenames.dynamicName(displayID: id))
+        }
         let lightSpecs = targets.map {
             spec(for: $0, canvas: canvas, offset: CGSize(width: lightVariant.offsetX, height: lightVariant.offsetY),
                  scale: lightVariant.scale, previewScale: lightVariant.previewScale, isFlipped: lightVariant.isFlipped)
@@ -459,16 +495,15 @@ class WallpaperManager {
                 out[target.displayID] = Result {
                     let renderedLight = try WallpaperRenderer.render(light, spec: lightSpecs[index])
                     let renderedDark = try WallpaperRenderer.render(dark, spec: darkSpecs[index])
-                    let url = presetDir.appending(path: WallpaperFilenames.dynamicName(displayID: target.displayID))
-                    try DynamicWallpaperGenerator.generateAppearanceHEIC(lightImage: renderedLight, darkImage: renderedDark, outputURL: url)
-                    return url
+                    try DynamicWallpaperGenerator.generateAppearanceHEIC(lightImage: renderedLight, darkImage: renderedDark, outputURL: target.outputURL)
+                    return target.outputURL
                 }
             }
             return out
         }
 
-        let ok = applyRendered(results, options: [:], failureCopy: { "The wallpaper couldn't be set on \($0)." })
-        if ok {
+        let succeeded = applyRendered(results, options: [:], failureCopy: { "The wallpaper couldn't be set on \($0)." })
+        if allDisplaysSucceeded(succeeded) {
             removeLegacyFiles(in: presetDir, matching: WallpaperFilenames.isLegacyDynamicName)
         }
     }

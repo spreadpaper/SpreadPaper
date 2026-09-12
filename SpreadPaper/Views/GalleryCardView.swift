@@ -9,6 +9,8 @@ struct GalleryCardView: View {
     let isActive: Bool
     let isSelected: Bool
     let isApplying: Bool
+    /// True while another preset is being applied; applies are serialized in the manager.
+    var applyDisabled: Bool = false
     let onTap: () -> Void
     let onApply: () -> Void
     let onEdit: () -> Void
@@ -166,7 +168,7 @@ struct GalleryCardView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .disabled(isApplying)
+        .disabled(isApplying || applyDisabled)
     }
 
     private var editButton: some View {

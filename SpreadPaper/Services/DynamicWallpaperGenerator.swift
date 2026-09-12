@@ -7,7 +7,7 @@ import UniformTypeIdentifiers
 // Based on the metadata format reverse-engineered by wallpapper
 // (https://github.com/mczachurski/wallpapper) by Marcin Czachurski (MIT).
 
-struct SolarItem: Codable {
+nonisolated struct SolarItem: Codable {
     enum CodingKeys: String, CodingKey {
         case altitude = "a"
         case azimuth = "z"
@@ -18,7 +18,7 @@ struct SolarItem: Codable {
     var imageIndex: Int
 }
 
-struct TimeBasedItem: Codable {
+nonisolated struct TimeBasedItem: Codable {
     enum CodingKeys: String, CodingKey {
         case time = "t"
         case imageIndex = "i"
@@ -27,7 +27,7 @@ struct TimeBasedItem: Codable {
     var imageIndex: Int
 }
 
-struct AppearanceInfo: Codable {
+nonisolated struct AppearanceInfo: Codable {
     enum CodingKeys: String, CodingKey {
         case darkIndex = "d"
         case lightIndex = "l"
@@ -36,7 +36,7 @@ struct AppearanceInfo: Codable {
     var lightIndex: Int
 }
 
-struct DynamicMetadata: Codable {
+nonisolated struct DynamicMetadata: Codable {
     enum CodingKeys: String, CodingKey {
         case solarItems = "si"
         case timeItems = "ti"
@@ -51,8 +51,6 @@ struct DynamicMetadata: Codable {
 
 enum DynamicWallpaperError: Error, LocalizedError {
     case noImages
-    case imageLoadFailed
-    case cgImageConversionFailed
     case destinationCreationFailed
     case metadataCreationFailed
     case finalizationFailed
@@ -61,8 +59,6 @@ enum DynamicWallpaperError: Error, LocalizedError {
     var errorDescription: String? {
         switch self {
         case .noImages:                   return "No images provided."
-        case .imageLoadFailed:            return "Failed to load source image."
-        case .cgImageConversionFailed:    return "Failed to convert image to CGImage."
         case .destinationCreationFailed:  return "Failed to create CGImageDestination."
         case .metadataCreationFailed:     return "Failed to create image metadata."
         case .finalizationFailed:         return "Failed to finalize the HEIC file."
