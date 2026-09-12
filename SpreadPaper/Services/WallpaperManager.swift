@@ -248,40 +248,122 @@ class WallpaperManager {
     }
 
     // --- RENDERING ---
-    func setWallpaper(originalImage: NSImage, imageOffset: CGSize, scale: CGFloat, previewScale: CGFloat, isFlipped: Bool) async {
-        lastError = nil
 
-        let displays = connectedScreens.map { display in
-            (screen: display.screen,
-             frame: display.frame,
-             scaleFactor: display.screen.backingScaleFactor,
-             colorSpace: display.screen.colorSpace?.cgColorSpace,
-             name: display.name,
-             displayID: display.displayID)
+    /// Everything a detached render task needs to know about one display. No AppKit objects.
+    private struct RenderTarget: Sendable {
+        let displayID: CGDirectDisplayID
+        let frame: CGRect
+        let deviceScale: CGFloat
+        let colorSpace: CGColorSpace?
+    }
+
+    /// One rendered file per display, or the error that prevented it.
+    private typealias RenderResults = [CGDirectDisplayID: Result<URL, any Error>]
+
+    private var renderTargets: [RenderTarget] {
+        connectedScreens.map { display in
+            RenderTarget(
+                displayID: display.displayID,
+                frame: display.frame,
+                deviceScale: display.screen.backingScaleFactor,
+                colorSpace: display.screen.colorSpace?.cgColorSpace
+            )
         }
+    }
 
-        for display in displays {
+    private func spec(for target: RenderTarget, canvas: CGRect, offset: CGSize, scale: CGFloat, previewScale: CGFloat, isFlipped: Bool) -> RenderSpec {
+        RenderSpec(
+            screenFrame: target.frame,
+            totalCanvas: canvas,
+            offset: offset,
+            imageScale: scale,
+            previewScale: previewScale,
+            isFlipped: isFlipped,
+            deviceScale: target.deviceScale,
+            colorSpace: target.colorSpace
+        )
+    }
+
+    /// Cheap on a bitmap-backed image: returns the underlying rep's CGImage without drawing.
+    private func cgImage(from image: NSImage) throws -> CGImage {
+        var rect = CGRect(origin: .zero, size: image.pixelSize)
+        guard let cg = image.cgImage(forProposedRect: &rect, context: nil, hints: nil) else {
+            throw WallpaperError.imageConversionFailed
+        }
+        return cg
+    }
+
+    /// Runs `work` off the main actor and returns its per-display results.
+    private func renderOffMain(_ work: @escaping @Sendable () -> RenderResults) async -> RenderResults {
+        await Task.detached(priority: .userInitiated) { work() }.value
+    }
+
+    /// Sets each rendered file as the desktop image on main. Returns true when every display succeeded.
+    @discardableResult
+    private func applyRendered(
+        _ results: RenderResults,
+        options: [NSWorkspace.DesktopImageOptionKey: Any],
+        failureCopy: (String) -> String
+    ) -> Bool {
+        var allSucceeded = true
+        for display in connectedScreens {
+            guard let result = results[display.displayID] else { continue }
             do {
-                let image = try renderForScreen(
-                    original: originalImage,
-                    screenFrame: display.frame,
-                    totalCanvas: totalCanvas,
-                    offset: imageOffset,
-                    imageScale: scale,
-                    previewScale: previewScale,
-                    isFlipped: isFlipped,
-                    deviceScale: display.scaleFactor,
-                    screenColorSpace: display.colorSpace
-                )
-                try saveAndSetWallpaper(image, displayID: display.displayID, screen: display.screen)
+                let url = try result.get()
+                try NSWorkspace.shared.setDesktopImageURL(url, for: display.screen, options: options)
             } catch {
+                allSucceeded = false
                 logger.error("Setting wallpaper for \(display.name, privacy: .public) failed: \(error, privacy: .public)")
-                lastError = "The wallpaper couldn't be set on \(display.name)."
+                lastError = failureCopy(display.name)
             }
         }
+        return allSucceeded
+    }
 
-        if lastError == nil {
-            removeLegacyFiles(in: getWallpapersDirectory(), matching: WallpaperFilenames.isLegacyStaticName)
+    func setWallpaper(originalImage: NSImage, imageOffset: CGSize, scale: CGFloat, previewScale: CGFloat, isFlipped: Bool) async {
+        lastError = nil
+        let source: CGImage
+        do {
+            source = try cgImage(from: originalImage)
+        } catch {
+            logger.error("Converting source image failed: \(error, privacy: .public)")
+            lastError = "The image couldn't be read."
+            return
+        }
+
+        let targets = renderTargets
+        let canvas = totalCanvas
+        let wallpapersDir = getWallpapersDirectory()
+        let timestamp = Int(Date().timeIntervalSince1970 * 1000)
+        let specs = targets.map { spec(for: $0, canvas: canvas, offset: imageOffset, scale: scale, previewScale: previewScale, isFlipped: isFlipped) }
+
+        let results = await renderOffMain {
+            var out: RenderResults = [:]
+            for (target, spec) in zip(targets, specs) {
+                out[target.displayID] = Result {
+                    let rendered = try WallpaperRenderer.render(source, spec: spec)
+                    let data = try WallpaperRenderer.pngData(rendered)
+                    let url = wallpapersDir.appending(path: WallpaperFilenames.staticName(displayID: target.displayID, timestamp: timestamp))
+                    try data.write(to: url, options: .atomic)
+                    return url
+                }
+            }
+            return out
+        }
+
+        let ok = applyRendered(
+            results,
+            options: [.imageScaling: NSImageScaling.scaleAxesIndependently.rawValue],
+            failureCopy: { "The wallpaper couldn't be set on \($0)." }
+        )
+
+        for (displayID, result) in results {
+            if case .success(let url) = result {
+                cleanupOldWallpapers(for: displayID, in: wallpapersDir, except: url.lastPathComponent)
+            }
+        }
+        if ok {
+            removeLegacyFiles(in: wallpapersDir, matching: WallpaperFilenames.isLegacyStaticName)
         }
     }
 
@@ -291,66 +373,51 @@ class WallpaperManager {
         previewScale: CGFloat
     ) async {
         lastError = nil
-
-        let displays = connectedScreens.map { display in
-            (screen: display.screen,
-             frame: display.frame,
-             scaleFactor: display.screen.backingScaleFactor,
-             colorSpace: display.screen.colorSpace?.cgColorSpace,
-             name: display.name,
-             displayID: display.displayID)
+        let sources: [CGImage]
+        do {
+            sources = try images.map(cgImage(from:))
+        } catch {
+            logger.error("Converting dynamic source images failed: \(error, privacy: .public)")
+            lastError = "One of the images couldn't be read."
+            return
         }
 
+        let targets = renderTargets
+        let canvas = totalCanvas
         let presetDir = getDynamicPresetDirectory(presetId: preset.id)
         let variants = preset.timeVariants.sorted { $0.dayFraction < $1.dayFraction }
         let hours = variants.map(\.hour)
         let minutes = variants.map(\.minute)
 
-        for display in displays {
-            do {
-                var renderedImages: [CGImage] = []
-                for (index, image) in images.enumerated() {
-                    // Use per-variant position if available
-                    let variant = index < variants.count ? variants[index] : nil
-                    let offset = CGSize(
-                        width: variant?.offsetX ?? preset.offsetX,
-                        height: variant?.offsetY ?? preset.offsetY
-                    )
-                    let scale = variant?.scale ?? preset.scale
-                    let pScale = variant?.previewScale ?? previewScale
-                    let flipped = variant?.isFlipped ?? preset.isFlipped
-
-                    let rendered = try renderForScreen(
-                        original: image,
-                        screenFrame: display.frame,
-                        totalCanvas: totalCanvas,
-                        offset: offset,
-                        imageScale: scale,
-                        previewScale: pScale,
-                        isFlipped: flipped,
-                        deviceScale: display.scaleFactor,
-                        screenColorSpace: display.colorSpace
-                    )
-                    renderedImages.append(rendered)
-                }
-
-                let heicURL = presetDir.appendingPathComponent(WallpaperFilenames.dynamicName(displayID: display.displayID))
-
-                try DynamicWallpaperGenerator.generateTimeBasedHEIC(
-                    images: renderedImages,
-                    hours: hours,
-                    minutes: minutes,
-                    outputURL: heicURL
-                )
-
-                try NSWorkspace.shared.setDesktopImageURL(heicURL, for: display.screen, options: [:])
-            } catch {
-                logger.error("Setting dynamic wallpaper for \(display.name, privacy: .public) failed: \(error, privacy: .public)")
-                lastError = "The dynamic wallpaper couldn't be set on \(display.name)."
-            }
+        // Per-variant placement, falling back to the preset's own for images beyond the variant list.
+        let placements: [(offset: CGSize, scale: CGFloat, previewScale: CGFloat, isFlipped: Bool)] = images.indices.map { index in
+            let variant = index < variants.count ? variants[index] : nil
+            return (
+                CGSize(width: variant?.offsetX ?? preset.offsetX, height: variant?.offsetY ?? preset.offsetY),
+                variant?.scale ?? preset.scale,
+                variant?.previewScale ?? previewScale,
+                variant?.isFlipped ?? preset.isFlipped
+            )
+        }
+        let specsPerTarget: [[RenderSpec]] = targets.map { target in
+            placements.map { spec(for: target, canvas: canvas, offset: $0.offset, scale: $0.scale, previewScale: $0.previewScale, isFlipped: $0.isFlipped) }
         }
 
-        if lastError == nil {
+        let results = await renderOffMain {
+            var out: RenderResults = [:]
+            for (target, specs) in zip(targets, specsPerTarget) {
+                out[target.displayID] = Result {
+                    let rendered = try zip(sources, specs).map { try WallpaperRenderer.render($0, spec: $1) }
+                    let url = presetDir.appending(path: WallpaperFilenames.dynamicName(displayID: target.displayID))
+                    try DynamicWallpaperGenerator.generateTimeBasedHEIC(images: rendered, hours: hours, minutes: minutes, outputURL: url)
+                    return url
+                }
+            }
+            return out
+        }
+
+        let ok = applyRendered(results, options: [:], failureCopy: { "The dynamic wallpaper couldn't be set on \($0)." })
+        if ok {
             removeLegacyFiles(in: presetDir, matching: WallpaperFilenames.isLegacyDynamicName)
         }
     }
@@ -363,143 +430,47 @@ class WallpaperManager {
         darkVariant: TimeVariant
     ) async {
         lastError = nil
-
-        let displays = connectedScreens.map { display in
-            (screen: display.screen,
-             frame: display.frame,
-             scaleFactor: display.screen.backingScaleFactor,
-             colorSpace: display.screen.colorSpace?.cgColorSpace,
-             name: display.name,
-             displayID: display.displayID)
+        let light: CGImage
+        let dark: CGImage
+        do {
+            light = try cgImage(from: lightImage)
+            dark = try cgImage(from: darkImage)
+        } catch {
+            logger.error("Converting appearance source images failed: \(error, privacy: .public)")
+            lastError = "One of the images couldn't be read."
+            return
         }
 
+        let targets = renderTargets
+        let canvas = totalCanvas
         let presetDir = getDynamicPresetDirectory(presetId: preset.id)
-
-        for display in displays {
-            do {
-                let renderedLight = try renderForScreen(
-                    original: lightImage, screenFrame: display.frame, totalCanvas: totalCanvas,
-                    offset: CGSize(width: lightVariant.offsetX, height: lightVariant.offsetY),
-                    imageScale: lightVariant.scale, previewScale: lightVariant.previewScale,
-                    isFlipped: lightVariant.isFlipped,
-                    deviceScale: display.scaleFactor, screenColorSpace: display.colorSpace
-                )
-                let renderedDark = try renderForScreen(
-                    original: darkImage, screenFrame: display.frame, totalCanvas: totalCanvas,
-                    offset: CGSize(width: darkVariant.offsetX, height: darkVariant.offsetY),
-                    imageScale: darkVariant.scale, previewScale: darkVariant.previewScale,
-                    isFlipped: darkVariant.isFlipped,
-                    deviceScale: display.scaleFactor, screenColorSpace: display.colorSpace
-                )
-
-                let heicURL = presetDir.appendingPathComponent(WallpaperFilenames.dynamicName(displayID: display.displayID))
-
-                try DynamicWallpaperGenerator.generateAppearanceHEIC(
-                    lightImage: renderedLight, darkImage: renderedDark, outputURL: heicURL
-                )
-
-                try NSWorkspace.shared.setDesktopImageURL(heicURL, for: display.screen, options: [:])
-            } catch {
-                logger.error("Setting wallpaper for \(display.name, privacy: .public) failed: \(error, privacy: .public)")
-                lastError = "The wallpaper couldn't be set on \(display.name)."
-            }
+        let lightSpecs = targets.map {
+            spec(for: $0, canvas: canvas, offset: CGSize(width: lightVariant.offsetX, height: lightVariant.offsetY),
+                 scale: lightVariant.scale, previewScale: lightVariant.previewScale, isFlipped: lightVariant.isFlipped)
+        }
+        let darkSpecs = targets.map {
+            spec(for: $0, canvas: canvas, offset: CGSize(width: darkVariant.offsetX, height: darkVariant.offsetY),
+                 scale: darkVariant.scale, previewScale: darkVariant.previewScale, isFlipped: darkVariant.isFlipped)
         }
 
-        if lastError == nil {
+        let results = await renderOffMain {
+            var out: RenderResults = [:]
+            for (index, target) in targets.enumerated() {
+                out[target.displayID] = Result {
+                    let renderedLight = try WallpaperRenderer.render(light, spec: lightSpecs[index])
+                    let renderedDark = try WallpaperRenderer.render(dark, spec: darkSpecs[index])
+                    let url = presetDir.appending(path: WallpaperFilenames.dynamicName(displayID: target.displayID))
+                    try DynamicWallpaperGenerator.generateAppearanceHEIC(lightImage: renderedLight, darkImage: renderedDark, outputURL: url)
+                    return url
+                }
+            }
+            return out
+        }
+
+        let ok = applyRendered(results, options: [:], failureCopy: { "The wallpaper couldn't be set on \($0)." })
+        if ok {
             removeLegacyFiles(in: presetDir, matching: WallpaperFilenames.isLegacyDynamicName)
         }
-    }
-
-    private nonisolated func renderForScreen(
-        original: NSImage,
-        screenFrame: CGRect,
-        totalCanvas: CGRect,
-        offset: CGSize,
-        imageScale: CGFloat,
-        previewScale: CGFloat,
-        isFlipped: Bool,
-        deviceScale: CGFloat,
-        screenColorSpace: CGColorSpace?
-    ) throws -> CGImage {
-        var rect = CGRect(origin: .zero, size: original.pixelSize)
-        guard let cgImage = original.cgImage(forProposedRect: &rect, context: nil, hints: nil) else {
-            throw WallpaperError.imageConversionFailed
-        }
-        // Size the draw from the bitmap actually drawn, so it cannot diverge from the rep lookup.
-        let imageSize = CGSize(width: cgImage.width, height: cgImage.height)
-
-        let widthPx = Int(screenFrame.width * deviceScale)
-        let heightPx = Int(screenFrame.height * deviceScale)
-
-        // Use screen's native color space for better wide-gamut display support
-        let colorSpace = screenColorSpace ?? CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB()
-
-        guard let context = CGContext(
-            data: nil,
-            width: widthPx,
-            height: heightPx,
-            bitsPerComponent: 8,
-            bytesPerRow: 0,
-            space: colorSpace,
-            bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue
-        ) else {
-            throw WallpaperError.contextCreationFailed
-        }
-
-        let realOffsetX_Px = (offset.width / previewScale) * deviceScale
-        let realOffsetY_Px = (offset.height / previewScale) * deviceScale
-        let drawnImgWidthPx = imageSize.width * imageScale * deviceScale
-        let drawnImgHeightPx = imageSize.height * imageScale * deviceScale
-        let totalCanvasWidthPx = totalCanvas.width * deviceScale
-        let totalCanvasHeightPx = totalCanvas.height * deviceScale
-        let centeringX_Px = (totalCanvasWidthPx - drawnImgWidthPx) / 2.0
-        let centeringY_Px = (totalCanvasHeightPx - drawnImgHeightPx) / 2.0
-        let relativeScreenX = screenFrame.origin.x - totalCanvas.origin.x
-        let relativeScreenY = screenFrame.origin.y - totalCanvas.origin.y
-
-        let drawX = centeringX_Px + realOffsetX_Px - (relativeScreenX * deviceScale)
-        let drawY = centeringY_Px - realOffsetY_Px - (relativeScreenY * deviceScale)
-        let drawRect = CGRect(x: drawX, y: drawY, width: drawnImgWidthPx, height: drawnImgHeightPx)
-
-        context.interpolationQuality = .high
-
-        if isFlipped {
-            context.saveGState()
-            context.translateBy(x: drawRect.midX, y: drawRect.midY)
-            context.scaleBy(x: -1, y: 1)
-            context.translateBy(x: -drawRect.midX, y: -drawRect.midY)
-        }
-
-        context.draw(cgImage, in: drawRect)
-
-        if isFlipped {
-            context.restoreGState()
-        }
-
-        guard let outputImage = context.makeImage() else {
-            throw WallpaperError.renderingFailed
-        }
-
-        return outputImage
-    }
-
-    private func saveAndSetWallpaper(_ image: CGImage, displayID: CGDirectDisplayID, screen: NSScreen) throws {
-        let bitmapRep = NSBitmapImageRep(cgImage: image)
-        guard let pngData = bitmapRep.representation(using: .png, properties: [:]) else {
-            throw WallpaperError.pngEncodingFailed
-        }
-
-        let timestamp = Int(Date().timeIntervalSince1970 * 1000)
-        let filename = WallpaperFilenames.staticName(displayID: displayID, timestamp: timestamp)
-        let wallpapersDir = getWallpapersDirectory()
-        let url = wallpapersDir.appendingPathComponent(filename)
-
-        cleanupOldWallpapers(for: displayID, in: wallpapersDir, except: filename)
-
-        try pngData.write(to: url)
-        try NSWorkspace.shared.setDesktopImageURL(url, for: screen, options: [
-            .imageScaling: NSImageScaling.scaleAxesIndependently.rawValue
-        ])
     }
 }
 

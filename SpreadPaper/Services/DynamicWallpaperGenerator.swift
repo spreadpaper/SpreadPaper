@@ -1,7 +1,7 @@
-import AVFoundation
 import CoreGraphics
 import ImageIO
 import Foundation
+import UniformTypeIdentifiers
 
 // MARK: - Metadata Models
 // Based on the metadata format reverse-engineered by wallpapper
@@ -73,10 +73,11 @@ enum DynamicWallpaperError: Error, LocalizedError {
 
 // MARK: - Generator
 
+/// Pure HEIC writing over `CGImage`s. Safe to call off the main actor.
 enum DynamicWallpaperGenerator {
 
     /// Create a time-based (h24) dynamic desktop HEIC file.
-    static func generateTimeBasedHEIC(
+    nonisolated static func generateTimeBasedHEIC(
         images: [CGImage],
         hours: [Int],
         minutes: [Int],
@@ -111,7 +112,7 @@ enum DynamicWallpaperGenerator {
 
     /// Create an appearance-based (apr) dynamic desktop HEIC file.
     /// Two images: one for light mode, one for dark mode.
-    static func generateAppearanceHEIC(
+    nonisolated static func generateAppearanceHEIC(
         lightImage: CGImage,
         darkImage: CGImage,
         outputURL: URL
@@ -122,7 +123,7 @@ enum DynamicWallpaperGenerator {
 
     // MARK: - Shared HEIC writing
 
-    private static func writeHEIC(
+    nonisolated private static func writeHEIC(
         images: [CGImage],
         metadata: some Codable,
         key: String,
@@ -157,7 +158,7 @@ enum DynamicWallpaperGenerator {
 
         let data = NSMutableData()
         guard let destination = CGImageDestinationCreateWithData(
-            data as CFMutableData, AVFileType.heic.rawValue as CFString, images.count, nil
+            data as CFMutableData, UTType.heic.identifier as CFString, images.count, nil
         ) else {
             throw DynamicWallpaperError.destinationCreationFailed
         }
