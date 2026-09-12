@@ -384,11 +384,12 @@ class WallpaperManager {
         deviceScale: CGFloat,
         screenColorSpace: CGColorSpace?
     ) throws -> CGImage {
-        let imageSize = original.pixelSize
-        var rect = CGRect(origin: .zero, size: imageSize)
+        var rect = CGRect(origin: .zero, size: original.pixelSize)
         guard let cgImage = original.cgImage(forProposedRect: &rect, context: nil, hints: nil) else {
             throw WallpaperError.imageConversionFailed
         }
+        // Size the draw from the bitmap actually drawn, so it cannot diverge from the rep lookup.
+        let imageSize = CGSize(width: cgImage.width, height: cgImage.height)
 
         let widthPx = Int(screenFrame.width * deviceScale)
         let heightPx = Int(screenFrame.height * deviceScale)
