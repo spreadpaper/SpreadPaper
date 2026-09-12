@@ -130,8 +130,6 @@ struct GalleryCardView: View {
 
     // MARK: - Hover actions
 
-    // MARK: - Hover actions
-
     private var hoverActions: some View {
         HStack(spacing: 6) {
             applyButton
@@ -155,19 +153,9 @@ struct GalleryCardView: View {
                         .font(.system(size: 11, weight: .bold))
                 }
                 Text(isApplying ? "Applying…" : "Apply")
-                    .font(.system(size: 13, weight: .semibold))
             }
-            .foregroundStyle(.white)
-            .padding(.horizontal, 12)
-            .frame(height: 30)
-            .background(
-                RoundedRectangle(cornerRadius: 7)
-                    .fill(Color.cdAccent)
-            )
-            .shadow(color: Color.cdAccent.opacity(0.35), radius: 8, x: 0, y: 3)
-            .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(CoolDarkButtonStyle(isPrimary: true, size: .compact))
         .disabled(isApplying || applyDisabled)
     }
 
@@ -177,15 +165,9 @@ struct GalleryCardView: View {
                 Image(systemName: "pencil")
                     .font(.system(size: 12, weight: .medium))
                 Text("Edit")
-                    .font(.system(size: 13, weight: .semibold))
             }
-            .foregroundStyle(.white)
-            .padding(.horizontal, 12)
-            .frame(height: 30)
-            .background(glassButtonBackground)
-            .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(CoolDarkButtonStyle(size: .compact))
     }
 
     private var moreButton: some View {

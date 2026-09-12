@@ -86,41 +86,14 @@ struct SaveDialog: View {
             HStack(spacing: 8) {
                 Spacer()
 
-                Button(action: onCancel) {
-                    Text("Cancel")
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(Color.cdTextSecondary)
-                        .padding(.horizontal, 14)
-                        .frame(height: 30)
-                        .background(
-                            RoundedRectangle(cornerRadius: 7)
-                                .fill(Color.cdBgElevated)
-                        )
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 7)
-                                .stroke(Color.cdBorder, lineWidth: 1)
-                        )
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .keyboardShortcut(.cancelAction)
+                Button("Cancel", action: onCancel)
+                    .buttonStyle(CoolDarkButtonStyle(size: .compact))
+                    .keyboardShortcut(.cancelAction)
 
-                Button(action: commit) {
-                    Text(applyOnSave ? "Save & Apply" : "Save")
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 14)
-                        .frame(height: 30)
-                        .background(
-                            RoundedRectangle(cornerRadius: 7)
-                                .fill(Color.cdAccent.opacity(canSave ? 1.0 : 0.4))
-                        )
-                        .shadow(color: Color.cdAccent.opacity(canSave ? 0.3 : 0), radius: 8, y: 3)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .keyboardShortcut(.defaultAction)
-                .disabled(!canSave)
+                Button(applyOnSave ? "Save & Apply" : "Save", action: commit)
+                    .buttonStyle(CoolDarkButtonStyle(isPrimary: true, size: .compact))
+                    .keyboardShortcut(.defaultAction)
+                    .disabled(!canSave)
             }
         }
         .padding(22)
