@@ -56,50 +56,7 @@ struct CoolDarkButtonStyle: ButtonStyle {
     }
 }
 
-struct CoolDarkIconButtonStyle: ButtonStyle {
-    var isDisabled: Bool = false
-
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.system(size: 13))
-            .foregroundStyle(isDisabled ? Color.cdTextTertiary : Color.cdTextSecondary)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .background(
-                RoundedRectangle(cornerRadius: 6)
-                    .fill(Color.cdBgElevated)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 6)
-                    .stroke(Color.cdBorder, lineWidth: 1)
-            )
-            .opacity(configuration.isPressed ? 0.7 : isDisabled ? 0.5 : 1.0)
-    }
-}
-
-// MARK: - View Modifiers
-
-struct CoolDarkPanel: ViewModifier {
-    func body(content: Content) -> some View {
-        content
-            .background(Color.cdBgSecondary)
-    }
-}
-
-struct CoolDarkCard: ViewModifier {
-    var isSelected: Bool = false
-
-    func body(content: Content) -> some View {
-        content
-            .background(Color.cdBgElevated)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(isSelected ? Color.cdAccent : Color.cdBorder, lineWidth: isSelected ? 1.5 : 1)
-            )
-            .shadow(color: isSelected ? Color.cdAccentGlow : .clear, radius: 8)
-    }
-}
+// MARK: - Section Header
 
 struct SectionHeader: View {
     let title: String
@@ -110,17 +67,5 @@ struct SectionHeader: View {
             .foregroundStyle(Color.cdTextTertiary)
             .textCase(.uppercase)
             .tracking(0.5)
-    }
-}
-
-// MARK: - Convenience Extensions
-
-extension View {
-    func coolDarkPanel() -> some View {
-        modifier(CoolDarkPanel())
-    }
-
-    func coolDarkCard(isSelected: Bool = false) -> some View {
-        modifier(CoolDarkCard(isSelected: isSelected))
     }
 }

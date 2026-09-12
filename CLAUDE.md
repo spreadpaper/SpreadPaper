@@ -31,8 +31,8 @@ Source files organized under `SpreadPaper/`:
 
 ### Theme (Cool Dark design system)
 
-- **Theme/CoolDarkTheme.swift** — Color tokens (`Color.cd*` extensions), `CoolDarkButtonStyle`, `CoolDarkIconButtonStyle`, `CoolDarkPanel`/`CoolDarkCard` view modifiers, `SectionHeader`
-- **Theme/CoolDarkComponents.swift** — Reusable styled components: `CoolDarkSegmentedControl`, `CoolDarkTextField`, `CoolDarkSlider`
+- **Theme/CoolDarkTheme.swift** — Color tokens (`Color.cd*` extensions), `CoolDarkButtonStyle`, `SectionHeader`
+- **Theme/CoolDarkComponents.swift** — Reusable styled components: `CoolDarkTextField`, `ToastView`, `DashedAddButton`
 
 ### Navigation
 
@@ -66,7 +66,7 @@ Source files organized under `SpreadPaper/`:
 
 ### Key Implementation Details
 
-- **Cool Dark theme** — All UI uses the `Color.cd*` token system and `CoolDarkButtonStyle` / `CoolDarkCard` modifiers for consistent dark styling
+- **Cool Dark theme** — All UI uses the `Color.cd*` token system and `CoolDarkButtonStyle` for consistent dark styling
 - **Route-based navigation** — `AppNavigation.route` drives the entire app flow; no NavigationStack or NavigationSplitView
 - Images are stored in `~/Library/Application Support/SpreadPaper/` with UUID filenames
 - Per-screen wallpapers saved as `spreadpaper_wall_{screenName}_{timestamp}.png`
