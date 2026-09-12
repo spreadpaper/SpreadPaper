@@ -1,7 +1,6 @@
 // SpreadPaper/Theme/CoolDarkComponents.swift
 
 import SwiftUI
-import PhosphorSwift
 
 // MARK: - Custom Text Field
 
@@ -49,35 +48,5 @@ struct ToastView: View {
                     .stroke(Color.cdBorder, lineWidth: 1)
             )
             .shadow(color: .cdShadow, radius: 8, y: 4)
-    }
-}
-
-// MARK: - Dashed Add Button
-
-/// Full-width dashed outline button for appending an item to a list.
-struct DashedAddButton: View {
-    let label: String
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 6) {
-                Spacer()
-                Ph.plus.bold
-                    .color(Color.cdTextTertiary)
-                    .frame(width: 10, height: 10)
-                Text(label.replacingOccurrences(of: "+ ", with: ""))
-                    .font(.system(size: 11, weight: .medium))
-                Spacer()
-            }
-            .foregroundStyle(Color.cdTextTertiary)
-            .padding(.vertical, 10)
-            .background(
-                RoundedRectangle(cornerRadius: 8)
-                    .strokeBorder(Color.cdBorder, style: StrokeStyle(lineWidth: 1, dash: [4, 3]))
-            )
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
     }
 }

@@ -35,7 +35,7 @@ Source files organized under `SpreadPaper/`. One external package: PhosphorSwift
 ### Theme (Cool Dark design system)
 
 - **Theme/CoolDarkTheme.swift** — Color tokens (`Color.cd*` extensions), `CoolDarkButtonStyle`, `SectionHeader`
-- **Theme/CoolDarkComponents.swift** — Reusable styled components: `CoolDarkTextField`, `ToastView`. `DashedAddButton` lives here too, but its only caller is the dead `ScheduleView`
+- **Theme/CoolDarkComponents.swift** — Reusable styled components: `CoolDarkTextField`, `ToastView`
 
 ### Navigation
 
@@ -43,7 +43,6 @@ Source files organized under `SpreadPaper/`. One external package: PhosphorSwift
 
 ### Views
 
-- **Views/AppShell.swift** — Top bar / content / sidebar layout container with no callers; unused, candidate for removal
 - **Views/WizardView.swift** — 2-step first-run wizard: display count, then an image picker that also accepts drops. One image opens a static editor, several open a dynamic one
 - **Views/GalleryView.swift** — Home screen: sidebar filters, search, preset grid, error banner, New Wallpaper button, rename alert and delete confirmation
 - **Views/GalleryCardView.swift** — Preset card with thumbnail, type badge and a Rename / Duplicate / Show in Finder / Delete menu
@@ -51,7 +50,7 @@ Source files organized under `SpreadPaper/`. One external package: PhosphorSwift
 - **Views/EditorView.swift** — Full editor: header, canvas with a floating zoom/fit/flip HUD, and an inspector with type, images, zoom and orientation sections, plus a displays section for bezels that appears only with two or more displays
 - **Views/EditorCanvasView.swift** — Monitor canvas rendering with image overlay, drag, zoom, snap and image drops
 - **Views/MonitorPreviewView.swift** — Individual monitor outline for the canvas
-- **Views/ScheduleView.swift** — `ScheduleDetailModal`, opened from an editor schedule row: name, active period, one range bar. The `ScheduleView` struct in the same file is never instantiated
+- **Views/ScheduleView.swift** — `ScheduleDetailModal`, opened from an editor schedule row: name, active period, one range bar
 - **Views/RangeBarView.swift** — SwiftUI time bar with one draggable, snapping handle, plus `RangeBarMath` (pure, unit-tested). Used once, inside `ScheduleDetailModal`
 - **Views/SaveDialog.swift** — Overlay that names a preset before Save or Save & Apply
 - **Views/SettingsView.swift** — Native Settings window with General (default display gap) and Updates tabs
