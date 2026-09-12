@@ -28,7 +28,7 @@ jobs:
     name: Build App
     if: ${{ needs.release-please.outputs.release_created }}
     needs: [release-please]
-    runs-on: macos-latest  # Uses latest stable macOS runner with Xcode 16+ for Sequoia SDK
+    runs-on: macos-26  # Apple Silicon image that ships Xcode 26.x for the macOS 15 SDK
 
     steps:
       - name: Checkout Code
@@ -37,13 +37,16 @@ jobs:
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '16'  # Xcode 16+ required for macOS 15 (Sequoia) SDK
+          xcode-version: latest-stable  # Swift 6 language mode needs Xcode 16+; the image default is 26.x
 
       # 0. Sync version from release-please manifest to Xcode project
+      # release-please already bumps MARKETING_VERSION through its extra-files entry.
+      # This step is the safety net: Xcode drops the annotation comment whenever it
+      # rewrites project.pbxproj, and CURRENT_PROJECT_VERSION has no updater at all.
       - name: Sync Version to Xcode
         run: |
           # Extract version from release-please manifest
-          VERSION=$(cat .release-please-manifest.json | python3 -c "import sys, json; print(json.load(sys.stdin)['.'])")
+          VERSION=$(jq -r '."."' .release-please-manifest.json)
           echo "Syncing version: $VERSION"
 
           # Update MARKETING_VERSION in project.pbxproj
@@ -78,11 +81,14 @@ jobs:
 
       # 3. Fix Permissions & Force Ad-Hoc Signature
       # This is critical to prevent "App is damaged" errors.
+      # --deep is deprecated: the bundle carries no nested code, only the
+      # PhosphorSwift resource bundle, which the outer signature seals as a resource.
       - name: Fix Permissions & Sign
         run: |
           cd build/Payload
           chmod +x "SpreadPaper.app/Contents/MacOS/SpreadPaper"
-          codesign --force --deep --sign - "SpreadPaper.app"
+          codesign --force --sign - "SpreadPaper.app"
+          codesign --verify --strict --verbose=2 "SpreadPaper.app"
 
       # 4. Create ZIP (Recommended fallback for FOSS)
       - name: Create ZIP
