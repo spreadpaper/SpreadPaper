@@ -90,6 +90,14 @@ Because SpreadPaper is a free, open-source project and not signed with a paid Ap
 5. **Click "Apply Wallpaper"** to set it across all your monitors
 6. **Save as preset** (optional) to quickly reapply this configuration later
 
+## Show off your setup
+
+Got SpreadPaper running across your monitors? Post a photo of your desk in the [Show and tell](https://github.com/spreadpaper/SpreadPaper/discussions/categories/show-and-tell) discussions. Real photo, not a screenshot, so everyone can see how the image crosses the frames. Add the wallpaper if you can share it, and mention anything you tweaked to get it lined up.
+
+[Create a Show and tell post](https://github.com/spreadpaper/SpreadPaper/discussions/new?category=show-and-tell)
+
+With your permission, a few setups will be featured on the SpreadPaper website, credited by GitHub handle.
+
 ## Requirements
 
 - macOS 15.0 (Sequoia) or later
@@ -117,6 +125,7 @@ Contributions are welcome! Feel free to:
 - [Download the latest release](https://github.com/spreadpaper/SpreadPaper/releases/latest)
 - [Report bugs](https://github.com/spreadpaper/SpreadPaper/issues)
 - [Request features](https://github.com/spreadpaper/SpreadPaper/issues)
+- [Share your setup](https://github.com/spreadpaper/SpreadPaper/discussions/new?category=show-and-tell)
 - Submit pull requests
 
 ## License
