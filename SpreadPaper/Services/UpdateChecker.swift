@@ -14,6 +14,7 @@ private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "SpreadPa
 
 // MARK: - Models
 
+/// The fields of a GitHub release the checker reads: tag, page, publish date and assets.
 struct GitHubRelease: Codable {
     let tagName: String
     let name: String
@@ -22,6 +23,7 @@ struct GitHubRelease: Codable {
     let publishedAt: Date?
     let assets: [GitHubAsset]
 
+    /// Snake-case names as the GitHub API sends them.
     enum CodingKeys: String, CodingKey {
         case tagName = "tag_name"
         case name
@@ -40,11 +42,13 @@ struct GitHubRelease: Codable {
     }
 }
 
+/// One downloadable file attached to a release.
 struct GitHubAsset: Codable {
     let name: String
     let browserDownloadUrl: String
     let size: Int
 
+    /// Snake-case names as the GitHub API sends them.
     enum CodingKeys: String, CodingKey {
         case name
         case browserDownloadUrl = "browser_download_url"
@@ -66,6 +70,7 @@ nonisolated struct GitHubStatusError: LocalizedError, Equatable {
     }
 }
 
+/// Outcome of one check: the versions compared, where to get the release, and whether it is newer.
 struct UpdateInfo {
     let currentVersion: String
     let latestVersion: String
@@ -77,6 +82,7 @@ struct UpdateInfo {
     let isUpdateAvailable: Bool
 }
 
+/// One release header from CHANGELOG.md, shown in the Updates tab.
 struct ChangelogEntry {
     let version: String
     let date: String?
@@ -87,6 +93,8 @@ struct ChangelogEntry {
 
 // MARK: - UpdateChecker
 
+/// Compares the running version against the latest GitHub release and exposes the result to the UI.
+/// Also loads the changelog so the Updates tab can list what changed.
 @Observable
 class UpdateChecker {
     static let shared = UpdateChecker()
@@ -115,6 +123,8 @@ class UpdateChecker {
 
     // MARK: - Public Methods
 
+    /// Fetches the latest release, records the comparison and loads the changelog when it is newer.
+    /// Errors land in `error` as plain copy; a check already in flight is left alone.
     func checkForUpdates() async {
         guard !isChecking else { return }
         isChecking = true
@@ -177,18 +187,21 @@ class UpdateChecker {
         return latest > current
     }
 
+    /// Opens the latest release on GitHub in the browser.
     func openReleasePage() {
         if let urlString = updateInfo?.releaseUrl, let url = URL(string: urlString) {
             NSWorkspace.shared.open(url)
         }
     }
 
+    /// Hands the release's DMG to the browser, if the release has one.
     func downloadDMG() {
         if let urlString = updateInfo?.dmgUrl, let url = URL(string: urlString) {
             NSWorkspace.shared.open(url)
         }
     }
 
+    /// Hands the release's ZIP to the browser, if the release has one.
     func downloadZIP() {
         if let urlString = updateInfo?.zipUrl, let url = URL(string: urlString) {
             NSWorkspace.shared.open(url)
@@ -212,6 +225,7 @@ class UpdateChecker {
         return String(decoding: data, as: UTF8.self)
     }
 
+    /// Turns a release into `updateInfo`, picking the DMG and ZIP assets by extension.
     private func processRelease(_ release: GitHubRelease) {
         let latestVersion = Self.version(fromTag: release.tagName)
         let isUpdateAvailable = Self.isUpdateAvailable(latest: latestVersion, current: currentVersion)

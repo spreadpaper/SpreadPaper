@@ -4,6 +4,7 @@ import Testing
 
 /// Issue #83: versions order by semver 2.0, so prereleases stay below their release.
 struct SemanticVersionTests {
+    /// Parses a version string, failing the test when it is not semver.
     private func version(_ string: String) throws -> SemanticVersion {
         try #require(SemanticVersion(string))
     }

@@ -2,6 +2,7 @@ import Foundation
 import Testing
 @testable import SpreadPaper
 
+/// Exercises the checker's pure helpers: URLs, tag parsing, status handling and changelog parsing.
 @MainActor
 struct UpdateCheckerTests {
     @Test func releaseURLPointsAtGitHubReleaseTag() {
