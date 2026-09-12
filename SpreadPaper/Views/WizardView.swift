@@ -66,20 +66,17 @@ struct WizardView: View {
             // Monitor illustration
             HStack(spacing: 3) {
                 RoundedRectangle(cornerRadius: 6)
-                    .fill(
-                        LinearGradient(colors: [Color.cdAccent, Color(hex: 0x5856D6)],
-                                       startPoint: .topLeading, endPoint: .bottomTrailing)
-                    )
+                    .fill(Color.cdAccent)
                     .frame(width: 80, height: 52)
                     .shadow(color: Color.cdAccentGlow, radius: 8)
 
                 RoundedRectangle(cornerRadius: 6)
                     .fill(
-                        LinearGradient(colors: [Color(hex: 0x5856D6), Color(hex: 0xAF52DE)],
+                        LinearGradient(colors: [Color.cdAccent, Color.cdAccentSecondary],
                                        startPoint: .topLeading, endPoint: .bottomTrailing)
                     )
                     .frame(width: 80, height: 52)
-                    .shadow(color: Color(hex: 0xAF52DE).opacity(0.2), radius: 8)
+                    .shadow(color: Color.cdAccentSecondary.opacity(0.2), radius: 8)
             }
 
             Text("Welcome to SpreadPaper")
@@ -117,8 +114,7 @@ struct WizardView: View {
             // Drop zone
             Button(action: pickImage) {
                 VStack(spacing: 10) {
-                    LinearGradient(colors: [Color.cdAccent, Color(hex: 0x5856D6)],
-                                   startPoint: .topLeading, endPoint: .bottomTrailing)
+                    Color.cdAccent
                         .frame(width: 48, height: 48)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                         .overlay {

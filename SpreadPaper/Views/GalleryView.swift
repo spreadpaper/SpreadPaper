@@ -350,7 +350,7 @@ struct GalleryView: View {
                         RoundedRectangle(cornerRadius: 24)
                             .stroke(Color.cdBorder, lineWidth: 1)
                     )
-                    .shadow(color: .black.opacity(0.35), radius: 18, y: 6)
+                    .shadow(color: .cdShadow, radius: 18, y: 6)
                     .frame(width: 96, height: 96)
                 Ph.image.regular
                     .color(Color.cdTextTertiary)
@@ -674,7 +674,7 @@ private struct FilterRow: View {
                 Text("\(count)")
                     .font(.system(size: 11, weight: .medium))
                     .monospacedDigit()
-                    .foregroundStyle(isSelected ? Color.white.opacity(0.75) : Color.cdTextTertiary)
+                    .foregroundStyle(isSelected ? Color.cdTextPrimary.opacity(0.75) : Color.cdTextTertiary)
             }
             .foregroundStyle(isSelected ? Color.white : Color.cdTextSecondary)
             .padding(.horizontal, 10)

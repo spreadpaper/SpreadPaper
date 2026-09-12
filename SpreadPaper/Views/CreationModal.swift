@@ -23,7 +23,7 @@ struct CreationModal: View {
                 .ignoresSafeArea()
                 .onTapGesture { dismiss() }
 
-            Color.black.opacity(0.55)
+            Color.cdOverlayScrim
                 .ignoresSafeArea()
                 .allowsHitTesting(false)
 
@@ -94,7 +94,7 @@ struct CreationModal: View {
         .overlay(alignment: .top) {
             // Subtle inner highlight on the top edge
             LinearGradient(
-                colors: [Color.white.opacity(0.04), .clear],
+                colors: [Color.cdHighlightStrokeSoft, .clear],
                 startPoint: .top, endPoint: .bottom
             )
             .frame(height: 1)
@@ -105,7 +105,7 @@ struct CreationModal: View {
             CloseButton(action: dismiss)
                 .padding(14)
         }
-        .shadow(color: .black.opacity(0.6), radius: 80, y: 30)
+        .shadow(color: .cdShadowStrong, radius: 80, y: 30)
     }
 
     // MARK: - Behavior
@@ -280,14 +280,14 @@ private struct Monitor<Content: View>: View {
         .clipShape(RoundedRectangle(cornerRadius: 6))
         .overlay(
             RoundedRectangle(cornerRadius: 6)
-                .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                .stroke(Color.cdHighlightStroke, lineWidth: 1)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 6)
                 .inset(by: 1)
-                .stroke(Color.white.opacity(0.03), lineWidth: 1)
+                .stroke(Color.cdHighlightStrokeSoft, lineWidth: 1)
         )
-        .shadow(color: .black.opacity(0.55), radius: 40, y: 20)
+        .shadow(color: .cdShadowStrong, radius: 40, y: 20)
     }
 }
 
@@ -338,18 +338,18 @@ private struct StaticScene: View {
                 // Background gradients
                 ZStack {
                     LinearGradient(
-                        colors: [Color(hex: 0x3a3050), Color(hex: 0x1d2036)],
+                        colors: SceneArt.sunsetSky,
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
                     RadialGradient(
-                        colors: [Color(hex: 0x8a4fa3).opacity(0.85), .clear],
+                        colors: [SceneArt.sunsetHaze.opacity(0.85), .clear],
                         center: UnitPoint(x: 0.85, y: 0.9),
                         startRadius: 0,
                         endRadius: contentW * 0.55
                     )
                     RadialGradient(
-                        colors: [Color(hex: 0xd79a55).opacity(0.95), .clear],
+                        colors: [SceneArt.sunsetGlow.opacity(0.95), .clear],
                         center: UnitPoint(x: 0.20, y: 0.20),
                         startRadius: 0,
                         endRadius: contentW * 0.5
@@ -359,14 +359,14 @@ private struct StaticScene: View {
                     Circle()
                         .fill(
                             RadialGradient(
-                                colors: [Color(hex: 0xf4e4a0), Color(hex: 0xd69a2a)],
+                                colors: [SceneArt.sunCore, SceneArt.sunRim],
                                 center: .center,
                                 startRadius: 0,
                                 endRadius: contentW * 0.075
                             )
                         )
                         .frame(width: contentW * 0.14, height: contentW * 0.14)
-                        .shadow(color: Color(hex: 0xd69a2a).opacity(0.7), radius: 30)
+                        .shadow(color: SceneArt.sunRim.opacity(0.7), radius: 30)
                         .position(x: contentW * 0.18, y: h * 0.22 + (contentW * 0.07))
                 }
 
@@ -374,7 +374,7 @@ private struct StaticScene: View {
                 HillsShape()
                     .fill(
                         LinearGradient(
-                            colors: [.clear, Color(hex: 0x1d1a2b)],
+                            colors: [.clear, SceneArt.sunsetHills],
                             startPoint: .top,
                             endPoint: .init(x: 0.5, y: 0.85)
                         )
@@ -435,12 +435,12 @@ private struct ThemedScene: View {
     private func lightVariant(w: CGFloat, h: CGFloat) -> some View {
         ZStack {
             LinearGradient(
-                colors: [Color(hex: 0xe4cf8e), Color(hex: 0xcba06f)],
+                colors: SceneArt.daySky,
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
             RadialGradient(
-                colors: [Color(hex: 0xebdeb2).opacity(0.95), .clear],
+                colors: [SceneArt.dayHaze.opacity(0.95), .clear],
                 center: UnitPoint(x: 0.30, y: 0.30),
                 startRadius: 0,
                 endRadius: w * 0.55
@@ -449,14 +449,14 @@ private struct ThemedScene: View {
             Circle()
                 .fill(
                     RadialGradient(
-                        colors: [Color(hex: 0xf6e9a4), Color(hex: 0xd7a742)],
+                        colors: [SceneArt.sunCore, SceneArt.sunRim],
                         center: .center,
                         startRadius: 0,
                         endRadius: w * 0.11
                     )
                 )
                 .frame(width: w * 0.22, height: w * 0.22)
-                .shadow(color: Color(hex: 0xd7a742).opacity(0.7), radius: 30)
+                .shadow(color: SceneArt.sunRim.opacity(0.7), radius: 30)
                 .position(x: w * 0.18 + w * 0.11, y: h * 0.20 + w * 0.11)
         }
     }
@@ -465,12 +465,12 @@ private struct ThemedScene: View {
     private func darkVariant(w: CGFloat, h: CGFloat, showMoon: Bool, showStars: Bool) -> some View {
         ZStack {
             LinearGradient(
-                colors: [Color(hex: 0x2b2442), Color(hex: 0x14102a)],
+                colors: SceneArt.nightSky,
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
             RadialGradient(
-                colors: [Color(hex: 0x4c3d78).opacity(0.95), .clear],
+                colors: [SceneArt.nightHaze.opacity(0.95), .clear],
                 center: UnitPoint(x: 0.70, y: 0.70),
                 startRadius: 0,
                 endRadius: w * 0.55
@@ -484,14 +484,14 @@ private struct ThemedScene: View {
                 Circle()
                     .fill(
                         RadialGradient(
-                            colors: [Color(hex: 0xe4e1d5), Color(hex: 0xa6a4b0)],
+                            colors: [SceneArt.moonCore, SceneArt.moonRim],
                             center: UnitPoint(x: 0.35, y: 0.35),
                             startRadius: 0,
                             endRadius: w * 0.11
                         )
                     )
                     .frame(width: w * 0.22, height: w * 0.22)
-                    .shadow(color: Color(hex: 0xa6a4b0).opacity(0.45), radius: 22)
+                    .shadow(color: SceneArt.moonRim.opacity(0.45), radius: 22)
                     .position(x: w - (w * 0.18 + w * 0.11), y: h * 0.22 + w * 0.11)
             }
         }
@@ -513,7 +513,7 @@ private struct StarsView: View {
             ForEach(0..<stars.count, id: \.self) { i in
                 let s = stars[i]
                 Circle()
-                    .fill(Color.white.opacity(s.3))
+                    .fill(SceneArt.starlight.opacity(s.3))
                     .frame(width: s.2, height: s.2)
                     .position(x: geo.size.width * s.0, y: geo.size.height * s.1)
             }
@@ -535,14 +535,7 @@ private struct DynamicScene: View {
 
             ZStack {
                 LinearGradient(
-                    stops: [
-                        .init(color: Color(hex: 0x2a2748), location: 0.0),
-                        .init(color: Color(hex: 0x503470), location: 0.2),
-                        .init(color: Color(hex: 0x9a6944), location: 0.42),
-                        .init(color: Color(hex: 0xe2b965), location: 0.55),
-                        .init(color: Color(hex: 0x4e6a9e), location: 0.8),
-                        .init(color: Color(hex: 0x2a2748), location: 1.0)
-                    ],
+                    stops: SceneArt.dayCycleStops,
                     startPoint: .leading,
                     endPoint: .trailing
                 )
@@ -557,7 +550,7 @@ private struct DynamicScene: View {
                             Circle()
                                 .fill(
                                     RadialGradient(
-                                        colors: [Color.white.opacity(0.95), Color.white.opacity(0.3), .clear],
+                                        colors: SceneArt.dayCycleMarker,
                                         center: .center,
                                         startRadius: 0,
                                         endRadius: dotSize / 2
@@ -573,13 +566,13 @@ private struct DynamicScene: View {
                         let trackWidth = w - trackInset * 2
                         ZStack(alignment: .leading) {
                             RoundedRectangle(cornerRadius: 1)
-                                .fill(Color.white.opacity(0.22))
+                                .fill(SceneArt.timelineTrack)
                                 .frame(width: trackWidth, height: 2)
 
                             RoundedRectangle(cornerRadius: 3)
                                 .fill(
                                     LinearGradient(
-                                        colors: [Color.white.opacity(0.1), Color.white.opacity(0.9)],
+                                        colors: SceneArt.timelineFill,
                                         startPoint: .leading,
                                         endPoint: .trailing
                                     )
@@ -635,7 +628,7 @@ private struct PillPicker: View {
                                 .shadow(color: Color.cdAccent.opacity(0.32), radius: 12, y: 4)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 8)
-                                        .stroke(Color.white.opacity(0.18), lineWidth: 1)
+                                        .stroke(Color.cdHighlightStroke, lineWidth: 1)
                                         .mask(
                                             LinearGradient(
                                                 colors: [Color.white, .clear],
@@ -759,7 +752,7 @@ private struct Footer: View {
                         )
                         .overlay(
                             RoundedRectangle(cornerRadius: 9)
-                                .stroke(Color.white.opacity(0.18), lineWidth: 1)
+                                .stroke(Color.cdHighlightStroke, lineWidth: 1)
                                 .mask(
                                     LinearGradient(
                                         colors: [Color.white, .clear],

@@ -122,7 +122,7 @@ struct GalleryCardView: View {
         }
         .padding(EdgeInsets(top: 3, leading: 6, bottom: 3, trailing: 7))
         .background(
-            Capsule().fill(Color.black.opacity(0.55))
+            Capsule().fill(Color.cdOverlayScrim)
         )
         .background(
             Capsule().fill(.ultraThinMaterial)
@@ -193,7 +193,7 @@ struct GalleryCardView: View {
 
     private var glassButtonBackground: some View {
         RoundedRectangle(cornerRadius: 7)
-            .fill(Color.black.opacity(0.45))
+            .fill(Color.cdOverlayScrimSoft)
             .overlay(
                 RoundedRectangle(cornerRadius: 7)
                     .fill(.ultraThinMaterial)
@@ -201,7 +201,7 @@ struct GalleryCardView: View {
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 7)
-                    .stroke(Color.white.opacity(0.16), lineWidth: 0.5)
+                    .stroke(Color.cdHighlightStroke, lineWidth: 0.5)
             )
     }
 

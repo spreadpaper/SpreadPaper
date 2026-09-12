@@ -29,11 +29,11 @@ struct MonitorPreviewView: View {
 
                 ZStack {
                     Rectangle()
-                        .strokeBorder(Color.white.opacity(0.15), lineWidth: 1)
+                        .strokeBorder(Color.cdHighlightStroke, lineWidth: 1)
 
                     Text(display.name)
                         .font(.system(size: 8, weight: .medium))
-                        .foregroundStyle(.white.opacity(0.4))
+                        .foregroundStyle(Color.cdTextTertiary)
                         .padding(6)
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
                 }

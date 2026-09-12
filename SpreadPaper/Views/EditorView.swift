@@ -297,7 +297,7 @@ struct EditorView: View {
                 setZoom(imageScaleBinding.wrappedValue + 0.1)
             }
 
-            Rectangle().fill(Color.white.opacity(0.08)).frame(width: 1, height: 16).padding(.horizontal, 4)
+            Rectangle().fill(Color.cdHighlightStrokeSoft).frame(width: 1, height: 16).padding(.horizontal, 4)
 
             hudIconButton(icon: Ph.arrowsOutSimple.regular, isActive: false, isEnabled: currentImage != nil) {
                 fitImage()
@@ -311,7 +311,7 @@ struct EditorView: View {
         .padding(.vertical, 5)
         .background(
             RoundedRectangle(cornerRadius: 10)
-                .fill(Color(hex: 0x18181c).opacity(0.72))
+                .fill(Color.cdBgPrimary.opacity(0.72))
         )
         .background(
             RoundedRectangle(cornerRadius: 10)
@@ -319,9 +319,9 @@ struct EditorView: View {
         )
         .overlay(
             RoundedRectangle(cornerRadius: 10)
-                .stroke(Color.white.opacity(0.06), lineWidth: 1)
+                .stroke(Color.cdHighlightStrokeSoft, lineWidth: 1)
         )
-        .shadow(color: .black.opacity(0.45), radius: 24, y: 8)
+        .shadow(color: .cdShadow, radius: 24, y: 8)
     }
 
     /// Icon-only HUD button with an active highlight.
@@ -1192,9 +1192,9 @@ struct NativeRange: View {
 
                 Circle()
                     .fill(.white)
-                    .overlay(Circle().stroke(Color.black.opacity(0.08), lineWidth: 0.5))
+                    .overlay(Circle().stroke(Color.cdOutlineOnLight, lineWidth: 0.5))
                     .frame(width: 18, height: 18)
-                    .shadow(color: .black.opacity(0.35), radius: 1.5, y: 1)
+                    .shadow(color: .cdShadow, radius: 1.5, y: 1)
                     .offset(x: thumbX - 9)
             }
             .frame(height: 18)
@@ -1396,8 +1396,8 @@ private struct HUDButtonStyle: ButtonStyle {
                 RoundedRectangle(cornerRadius: 7)
                     .fill(
                         isActive
-                            ? Color.white.opacity(0.08)
-                            : hovering ? Color.white.opacity(0.05) : Color.clear
+                            ? Color.cdActiveFill
+                            : hovering ? Color.cdHoverFill : Color.clear
                     )
             )
             .onHover { hovering = $0 }

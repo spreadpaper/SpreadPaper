@@ -42,8 +42,8 @@ enum WallpaperType: String, CaseIterable, Codable {
     var tint: Color {
         switch self {
         case .standard:   return Color.cdTextTertiary
-        case .appearance: return Color(hex: 0x7c7cff)
-        case .dynamic:    return Color(hex: 0xf5a524)
+        case .appearance: return Color.cdAppearanceTint
+        case .dynamic:    return Color.cdWarning
         }
     }
 }

@@ -43,7 +43,7 @@ struct SaveDialog: View {
     }
 
     private var backdrop: some View {
-        Color(red: 10/255, green: 10/255, blue: 14/255).opacity(0.55)
+        Color.cdOverlayScrim
             .background(.ultraThinMaterial)
             .ignoresSafeArea()
             .onTapGesture { onCancel() }
@@ -109,7 +109,7 @@ struct SaveDialog: View {
             RoundedRectangle(cornerRadius: 12)
                 .stroke(Color.cdBorder, lineWidth: 1)
         )
-        .shadow(color: .black.opacity(0.6), radius: 80, y: 30)
+        .shadow(color: .cdShadowStrong, radius: 80, y: 30)
     }
 
     /// Saves the trimmed name; ignored while the name is blank.

@@ -175,7 +175,7 @@ struct ScheduleDetailModal: View {
 
     var body: some View {
         ZStack {
-            Color.black.opacity(0.5)
+            Color.cdOverlayScrim
                 .ignoresSafeArea()
                 .onTapGesture { onDone() }
 
@@ -283,7 +283,7 @@ struct ScheduleDetailModal: View {
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(Color.cdBorder, lineWidth: 1)
             )
-            .shadow(color: .black.opacity(0.4), radius: 20)
+            .shadow(color: .cdShadow, radius: 20)
         }
     }
 }

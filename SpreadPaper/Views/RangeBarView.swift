@@ -54,7 +54,7 @@ struct RangeBarView: View {
     private static let handleWidth: CGFloat = 8
     private static let hitRadius: CGFloat = 12
     private static let ticks: [Double] = [0.25, 0.5, 0.75]
-    private static let tickColor = Color.white.opacity(0.06)
+    private static let tickColor = Color.cdHighlightStrokeSoft
     private static let dividerColor = Color.cdTextTertiary.opacity(0.6)
     private static let timeStyle = Date.FormatStyle(date: .omitted, time: .shortened)
     private static let dayStart = Calendar.current.startOfDay(for: .now)
