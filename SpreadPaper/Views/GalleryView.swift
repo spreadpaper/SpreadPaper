@@ -187,6 +187,8 @@ struct GalleryView: View {
                 .font(.system(size: 12.5))
                 .foregroundStyle(Color.cdTextPrimary)
                 .focused($searchFocused)
+                // The system focus ring animates on top of the accent border below and reads as a pulse.
+                .focusEffectDisabled()
                 .onSubmit { searchFocused = false }
             if !searchQuery.isEmpty {
                 Button(action: { searchQuery = "" }) {
