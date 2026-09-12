@@ -28,7 +28,7 @@ jobs:
     name: Build App
     if: ${{ needs.release-please.outputs.release_created }}
     needs: [release-please]
-    runs-on: macos-26  # Apple Silicon image that ships Xcode 26.x for the macOS 15 SDK
+    runs-on: macos-26  # Apple Silicon image; ships Xcode 26.x, which builds Swift 6 against the macOS 26 SDK
 
     steps:
       - name: Checkout Code
@@ -37,7 +37,7 @@ jobs:
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: latest-stable  # Swift 6 language mode needs Xcode 16+; the image default is 26.x
+          xcode-version: '^26'  # Pinned to the 26 line so an image promotion to Xcode 27 cannot change a release build
 
       # 0. Sync version from release-please manifest to Xcode project
       # release-please already bumps MARKETING_VERSION through its extra-files entry.
@@ -46,7 +46,11 @@ jobs:
       - name: Sync Version to Xcode
         run: |
           # Extract version from release-please manifest
-          VERSION=$(jq -r '."."' .release-please-manifest.json)
+          VERSION=$(jq -er '."." // empty' .release-please-manifest.json)
+          if ! printf '%s' "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "Manifest version is not a semver: '$VERSION'" >&2
+            exit 1
+          fi
           echo "Syncing version: $VERSION"
 
           # Update MARKETING_VERSION in project.pbxproj
@@ -88,7 +92,7 @@ jobs:
           cd build/Payload
           chmod +x "SpreadPaper.app/Contents/MacOS/SpreadPaper"
           codesign --force --sign - "SpreadPaper.app"
-          codesign --verify --strict --verbose=2 "SpreadPaper.app"
+          codesign --verify --deep --strict --verbose=2 "SpreadPaper.app"
 
       # 4. Create ZIP (Recommended fallback for FOSS)
       - name: Create ZIP
