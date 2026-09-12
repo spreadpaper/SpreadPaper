@@ -18,4 +18,17 @@ struct WallpaperFilenamesTests {
         #expect(WallpaperFilenames.staticName(displayID: 1, timestamp: 5).hasPrefix(prefix))
         #expect(!WallpaperFilenames.staticName(displayID: 12, timestamp: 5).hasPrefix(prefix))
     }
+
+    @Test func legacyStaticNamesAreDetected() {
+        #expect(WallpaperFilenames.isLegacyStaticName("spreadpaper_wall_LG ULTRAWIDE_1700000000000.png"))
+        #expect(WallpaperFilenames.isLegacyStaticName("spreadpaper_wall_Built-in Retina Display_1.png"))
+        #expect(!WallpaperFilenames.isLegacyStaticName(WallpaperFilenames.staticName(displayID: 69734400, timestamp: 1700000000000)))
+        #expect(!WallpaperFilenames.isLegacyStaticName("unrelated.png"))
+    }
+
+    @Test func legacyDynamicNamesAreDetected() {
+        #expect(WallpaperFilenames.isLegacyDynamicName("LG ULTRAWIDE.heic"))
+        #expect(!WallpaperFilenames.isLegacyDynamicName(WallpaperFilenames.dynamicName(displayID: 69734400)))
+        #expect(!WallpaperFilenames.isLegacyDynamicName("notes.txt"))
+    }
 }

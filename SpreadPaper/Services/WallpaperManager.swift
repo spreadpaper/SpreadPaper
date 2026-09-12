@@ -77,6 +77,20 @@ class WallpaperManager {
         return dir
     }
 
+    /// Removes files written by versions that keyed on screen names. Called only after every
+    /// connected display has a replacement set, so the active wallpaper is never deleted.
+    private func removeLegacyFiles(in directory: URL, matching isLegacy: (String) -> Bool) {
+        guard let files = try? FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil) else { return }
+        for file in files where isLegacy(file.lastPathComponent) {
+            do {
+                try FileManager.default.removeItem(at: file)
+                logger.info("Removed legacy wallpaper file \(file.lastPathComponent, privacy: .public)")
+            } catch {
+                logger.error("Removing legacy file \(file.lastPathComponent, privacy: .public) failed: \(error, privacy: .public)")
+            }
+        }
+    }
+
     private func cleanupOldWallpapers(for displayID: CGDirectDisplayID, in directory: URL, except currentFilename: String) {
         // Remove old wallpaper files for this display to prevent disk bloat.
         let prefix = WallpaperFilenames.staticPrefix(displayID: displayID)
@@ -263,6 +277,10 @@ class WallpaperManager {
                 lastError = "The wallpaper couldn't be set on \(display.name)."
             }
         }
+
+        if lastError == nil {
+            removeLegacyFiles(in: getWallpapersDirectory(), matching: WallpaperFilenames.isLegacyStaticName)
+        }
     }
 
     func applyDynamicWallpaper(
@@ -329,6 +347,10 @@ class WallpaperManager {
                 lastError = "The dynamic wallpaper couldn't be set on \(display.name)."
             }
         }
+
+        if lastError == nil {
+            removeLegacyFiles(in: presetDir, matching: WallpaperFilenames.isLegacyDynamicName)
+        }
     }
 
     func applyAppearanceWallpaper(
@@ -379,6 +401,10 @@ class WallpaperManager {
                 logger.error("Setting wallpaper for \(display.name, privacy: .public) failed: \(error, privacy: .public)")
                 lastError = "The wallpaper couldn't be set on \(display.name)."
             }
+        }
+
+        if lastError == nil {
+            removeLegacyFiles(in: presetDir, matching: WallpaperFilenames.isLegacyDynamicName)
         }
     }
 
