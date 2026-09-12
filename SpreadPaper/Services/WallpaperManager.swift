@@ -1,4 +1,8 @@
 import AppKit
+import os
+
+/// Technical failure details go here; `lastError` carries only plain, actionable copy for the UI.
+private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "SpreadPaper", category: "wallpaper")
 
 @Observable
 class WallpaperManager {
@@ -115,7 +119,8 @@ class WallpaperManager {
             presets.append(newPreset)
             persistPresets()
         } catch {
-            print("Error saving preset image: \(error)")
+            logger.error("Saving preset image failed: \(error, privacy: .public)")
+            lastError = "The preset couldn't be saved."
         }
     }
 
@@ -154,7 +159,8 @@ class WallpaperManager {
                 if index < flipped.count { variant.isFlipped = flipped[index] }
                 variants.append(variant)
             } catch {
-                print("Error copying image for dynamic preset: \(error)")
+                logger.error("Copying image \(index) for dynamic preset failed: \(error, privacy: .public)")
+                lastError = "One of the preset images couldn't be saved."
             }
         }
 
@@ -201,7 +207,8 @@ class WallpaperManager {
         do {
             try store.save(presets)
         } catch {
-            lastError = "Failed to save presets: \(error.localizedDescription)"
+            logger.error("Writing presets file failed: \(error, privacy: .public)")
+            lastError = "Your presets couldn't be saved."
         }
     }
 
@@ -213,9 +220,14 @@ class WallpaperManager {
             if loaded.needsMigrationRewrite {
                 persistPresets()
             }
-        } catch {
+        } catch PresetStore.LoadError.corrupted(let backup, let underlying) {
+            logger.error("Presets file corrupt, moved to \(backup.lastPathComponent, privacy: .public): \(underlying, privacy: .public)")
             presets = []
-            lastError = error.localizedDescription
+            lastError = "Your presets couldn't be loaded. A backup was saved as \(backup.lastPathComponent)."
+        } catch {
+            logger.error("Reading presets file failed: \(error, privacy: .public)")
+            presets = []
+            lastError = "Your presets couldn't be loaded."
         }
     }
 
@@ -255,7 +267,8 @@ class WallpaperManager {
                 )
                 try saveAndSetWallpaper(image, screenName: display.name, screen: display.screen)
             } catch {
-                lastError = "Failed to set wallpaper for \(display.name): \(error.localizedDescription)"
+                logger.error("Setting wallpaper for \(display.name, privacy: .public) failed: \(error, privacy: .public)")
+                lastError = "The wallpaper couldn't be set on \(display.name)."
             }
         }
     }
@@ -320,7 +333,8 @@ class WallpaperManager {
 
                 try NSWorkspace.shared.setDesktopImageURL(heicURL, for: display.screen, options: [:])
             } catch {
-                lastError = "Failed to set dynamic wallpaper for \(display.name): \(error.localizedDescription)"
+                logger.error("Setting dynamic wallpaper for \(display.name, privacy: .public) failed: \(error, privacy: .public)")
+                lastError = "The dynamic wallpaper couldn't be set on \(display.name)."
             }
         }
     }
@@ -370,7 +384,8 @@ class WallpaperManager {
 
                 try NSWorkspace.shared.setDesktopImageURL(heicURL, for: display.screen, options: [:])
             } catch {
-                lastError = "Failed to set wallpaper for \(display.name): \(error.localizedDescription)"
+                logger.error("Setting wallpaper for \(display.name, privacy: .public) failed: \(error, privacy: .public)")
+                lastError = "The wallpaper couldn't be set on \(display.name)."
             }
         }
     }
