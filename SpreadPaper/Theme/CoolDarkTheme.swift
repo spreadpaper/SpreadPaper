@@ -42,9 +42,34 @@ struct CoolDarkButtonStyle: ButtonStyle {
         case regular
         case compact
 
-        var fontSize: CGFloat { self == .regular ? 14 : 13 }
-        var horizontalPadding: CGFloat { self == .regular ? 16 : 12 }
-        var verticalPadding: CGFloat { self == .regular ? 10 : 7 }
+        var fontSize: CGFloat {
+            switch self {
+            case .regular: 14
+            case .compact: 13
+            }
+        }
+
+        var horizontalPadding: CGFloat {
+            switch self {
+            case .regular: 16
+            case .compact: 12
+            }
+        }
+
+        var verticalPadding: CGFloat {
+            switch self {
+            case .regular: 10
+            case .compact: 7
+            }
+        }
+
+        /// Pinned height so compact buttons line up with 30 pt neighbours.
+        var minHeight: CGFloat? {
+            switch self {
+            case .regular: nil
+            case .compact: 30
+            }
+        }
     }
 
     var isPrimary: Bool = false
@@ -53,8 +78,10 @@ struct CoolDarkButtonStyle: ButtonStyle {
 
     @Environment(\.isEnabled) var isEnabled
 
+    /// True for the accent and success variants, which drop the border.
     private var isFilled: Bool { isPrimary || isSuccess }
 
+    /// Background colour for the current variant.
     private var fill: Color {
         isSuccess ? Color.cdSuccess : isPrimary ? Color.cdAccent : Color.cdBgElevated
     }
@@ -65,6 +92,7 @@ struct CoolDarkButtonStyle: ButtonStyle {
             .foregroundStyle(isFilled ? .white : Color.cdTextSecondary)
             .padding(.horizontal, size.horizontalPadding)
             .padding(.vertical, size.verticalPadding)
+            .frame(minHeight: size.minHeight)
             .background(
                 RoundedRectangle(cornerRadius: 7)
                     .fill(fill)
