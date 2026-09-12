@@ -89,7 +89,7 @@ Automated via GitHub Actions with `release-please`:
 ## Conventions
 
 - Swift 6 language mode (`SWIFT_VERSION = 6.0`) with default `MainActor` isolation and approachable concurrency, so data-race violations are compile errors
-- Rendering and HEIC encoding run in detached tasks over `Sendable` specs; everything else is main-actor isolated by default
+- Wallpaper rendering and gallery thumbnails run in detached tasks over `Sendable` specs; HEIC encoding runs inside the detached render task; everything else is main-actor isolated by default
 - async/await for asynchronous work (update checker, rendering); no Combine
 - SwiftUI with `@Observable` macro for managers, `@State` for local UI state, `@AppStorage` for persisted settings
 - Conventional commits (feat/fix/chore) — release-please generates CHANGELOG.md from these
