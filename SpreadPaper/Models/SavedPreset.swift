@@ -1,5 +1,6 @@
 import Foundation
 
+/// Persisted wallpaper: image placement plus the variants and flags for dynamic and light/dark kinds.
 struct SavedPreset: Identifiable, Codable, Hashable {
     var id = UUID()
     var name: String
@@ -12,8 +13,8 @@ struct SavedPreset: Identifiable, Codable, Hashable {
     // Dynamic desktop support
     var isDynamic: Bool = false
     var timeVariants: [TimeVariant] = []
-    /// Persisted flag distinguishing Light/Dark presets from time-of-day Dynamic ones.
-    /// Older presets without this key are migrated on load by inferring from `timeVariants`.
+    /// Marks a Light/Dark preset as opposed to a time-of-day Dynamic one; both set `isDynamic`.
+    /// Files without the key infer it from `timeVariants` on load.
     var isAppearanceBased: Bool = false
 
     /// Kind of wallpaper this preset produces, derived from the persisted flags.
@@ -24,11 +25,13 @@ struct SavedPreset: Identifiable, Codable, Hashable {
         return .standard
     }
 
+    /// Persisted keys, kept explicit so the decoder can probe for the optional ones.
     private enum CodingKeys: String, CodingKey {
         case id, name, imageFilename, offsetX, offsetY, scale, previewScale, isFlipped
         case isDynamic, timeVariants, isAppearanceBased
     }
 
+    /// Builds a preset with defaults for the dynamic and appearance fields.
     init(
         id: UUID = UUID(),
         name: String,
@@ -55,6 +58,7 @@ struct SavedPreset: Identifiable, Codable, Hashable {
         self.isAppearanceBased = isAppearanceBased
     }
 
+    /// Decodes a preset, defaulting fields older files lack and inferring `isAppearanceBased` when absent.
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         id = try c.decodeIfPresent(UUID.self, forKey: .id) ?? UUID()
@@ -71,7 +75,7 @@ struct SavedPreset: Identifiable, Codable, Hashable {
         if let stored = try c.decodeIfPresent(Bool.self, forKey: .isAppearanceBased) {
             isAppearanceBased = stored
         } else {
-            // Migration: infer from the legacy heuristic (two variants at 12:00 and 00:00).
+            // No key: two variants at 12:00 and 00:00 mean appearance-based.
             isAppearanceBased = isDynamic
                 && timeVariants.count == 2
                 && timeVariants.contains(where: { $0.hour == 12 && $0.minute == 0 })

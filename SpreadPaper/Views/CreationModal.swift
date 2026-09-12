@@ -3,6 +3,8 @@
 import SwiftUI
 import AppKit
 
+/// Overlay for picking a wallpaper kind before a new editor opens, with an animated preview of each.
+/// Arrow keys cycle, Return confirms, Escape dismisses.
 struct CreationModal: View {
     @Bindable var navigation: AppNavigation
     let manager: WallpaperManager
@@ -108,6 +110,7 @@ struct CreationModal: View {
 
     // MARK: - Behavior
 
+    /// Bounces the monitor illustration on a kind change; skipped under Reduce Motion.
     private func handleTypeChange(from old: WallpaperType, to new: WallpaperType) {
         guard old != new, !reduceMotion else { return }
         monitorScale = 0.96
@@ -118,6 +121,7 @@ struct CreationModal: View {
         }
     }
 
+    /// Moves the selection by `delta` through the kinds, wrapping at both ends.
     private func cycle(by delta: Int) {
         let order = WallpaperType.allCases
         guard let idx = order.firstIndex(of: selectedType) else { return }
@@ -129,10 +133,12 @@ struct CreationModal: View {
         handleTypeChange(from: prev, to: next)
     }
 
+    /// Opens a new editor for the selected kind.
     private func confirm() {
         navigation.navigateToNewEditor(type: selectedType)
     }
 
+    /// Closes the modal without creating anything.
     private func dismiss() {
         navigation.showCreationModal = false
     }
@@ -140,7 +146,9 @@ struct CreationModal: View {
 
 // MARK: - Backdrop blur
 
+/// In-window HUD blur behind the card.
 private struct BackdropBlur: NSViewRepresentable {
+    /// Active HUD-material effect view blending within the window.
     func makeNSView(context: Context) -> NSVisualEffectView {
         let v = NSVisualEffectView()
         v.material = .hudWindow
@@ -148,11 +156,13 @@ private struct BackdropBlur: NSViewRepresentable {
         v.state = .active
         return v
     }
+    /// Nothing changes after creation.
     func updateNSView(_ nsView: NSVisualEffectView, context: Context) {}
 }
 
 // MARK: - Close button
 
+/// Glass close button in the card's top-right corner.
 private struct CloseButton: View {
     let action: () -> Void
     @State private var hover = false
@@ -180,6 +190,7 @@ private struct CloseButton: View {
 
 // MARK: - Hero
 
+/// Card header: tinted glow plus the three-monitor illustration for the selected kind.
 private struct HeroView: View {
     let selectedType: WallpaperType
     let monitorScale: CGFloat
@@ -212,6 +223,7 @@ private struct HeroView: View {
     }
 }
 
+/// Three 16:10 monitors, a full-height main one flanked by two smaller, centred in the hero.
 private struct MonitorGroup: View {
     let selectedType: WallpaperType
 
@@ -253,6 +265,7 @@ private struct MonitorGroup: View {
     }
 }
 
+/// Rounded monitor bezel that clips its scene content.
 private struct Monitor<Content: View>: View {
     let width: CGFloat
     let height: CGFloat
@@ -280,10 +293,12 @@ private struct Monitor<Content: View>: View {
 
 // MARK: - Scenes
 
+/// Which of the three illustration monitors a scene is drawn on.
 private enum MonitorPosition {
     case leftSide, main, rightSide
 }
 
+/// Cross-fades the three kind scenes so switching kinds animates in place.
 private struct SceneStack: View {
     let selectedType: WallpaperType
     let position: MonitorPosition
@@ -301,7 +316,7 @@ private struct SceneStack: View {
     }
 }
 
-// Static — one warm sunset image, continuous across the 3 monitors
+/// One sunset image spread across the three monitors, shifted per position so it reads as continuous.
 private struct StaticScene: View {
     let position: MonitorPosition
 
@@ -373,12 +388,14 @@ private struct StaticScene: View {
     }
 }
 
+/// Jagged hill silhouette drawn from percentage coordinates.
 private struct HillsShape: Shape {
-    // Polygon: 0,100  0,55  18,30  35,50  55,25  75,48  100,30  100,100
+    /// Scales the percentage vertices to `rect`.
     func path(in rect: CGRect) -> Path {
         var p = Path()
         let w = rect.width
         let h = rect.height
+        /// Point from percentage coordinates.
         func pt(_ xPct: CGFloat, _ yPct: CGFloat) -> CGPoint {
             CGPoint(x: w * xPct / 100, y: h * yPct / 100)
         }
@@ -395,7 +412,7 @@ private struct HillsShape: Shape {
     }
 }
 
-// Themed — light variant on left monitor, dark on main + right (with moon + stars on main)
+/// Light image on the left monitor, dark on the other two; only the main one gets a moon.
 private struct ThemedScene: View {
     let position: MonitorPosition
 
@@ -414,6 +431,7 @@ private struct ThemedScene: View {
         }
     }
 
+    /// Warm daytime gradient with a sun.
     private func lightVariant(w: CGFloat, h: CGFloat) -> some View {
         ZStack {
             LinearGradient(
@@ -443,6 +461,7 @@ private struct ThemedScene: View {
         }
     }
 
+    /// Night gradient with an optional moon and stars.
     private func darkVariant(w: CGFloat, h: CGFloat, showMoon: Bool, showStars: Bool) -> some View {
         ZStack {
             LinearGradient(
@@ -479,6 +498,7 @@ private struct ThemedScene: View {
     }
 }
 
+/// Five fixed stars at fractional positions.
 private struct StarsView: View {
     private let stars: [(CGFloat, CGFloat, CGFloat, Double)] = [
         (0.30, 0.25, 1.5, 0.9),
@@ -501,7 +521,7 @@ private struct StarsView: View {
     }
 }
 
-// Dynamic — flowing color ribbon with traveling sun + filling timeline
+/// Day-cycle colour ribbon with a travelling sun dot and a filling timeline, looping every eight seconds.
 private struct DynamicScene: View {
     let position: MonitorPosition
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -574,6 +594,7 @@ private struct DynamicScene: View {
         }
     }
 
+    /// Position in the loop from 0 to 1; fixed at midway under Reduce Motion.
     private func phase(at date: Date) -> CGFloat {
         if reduceMotion { return 0.5 }
         let t = date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: cycle)
@@ -583,6 +604,7 @@ private struct DynamicScene: View {
 
 // MARK: - Pill picker
 
+/// Segmented kind picker whose accent indicator slides between pills.
 private struct PillPicker: View {
     @Binding var selection: WallpaperType
     let namespace: Namespace.ID
@@ -637,6 +659,7 @@ private struct PillPicker: View {
         )
     }
 
+    /// Animates the selection change and reports it to the parent.
     private func tap(_ new: WallpaperType) {
         let old = selection
         guard old != new else { return }
@@ -649,6 +672,7 @@ private struct PillPicker: View {
 
 // MARK: - Caption
 
+/// Kind title and subtitle as one centred run of text.
 private struct Caption: View {
     let type: WallpaperType
 
@@ -676,6 +700,7 @@ private struct Caption: View {
 
 // MARK: - Footer
 
+/// Display-count hint plus the Cancel and Continue buttons.
 private struct Footer: View {
     let displayCount: Int
     let selectedType: WallpaperType
@@ -755,12 +780,14 @@ private struct Footer: View {
 
 // MARK: - Keyboard handler
 
+/// Invisible first responder that maps arrow, Return and Escape keys to the modal's actions.
 private struct KeyboardHandler: NSViewRepresentable {
     let onLeft: () -> Void
     let onRight: () -> Void
     let onReturn: () -> Void
     let onEscape: () -> Void
 
+    /// Creates the key view and claims first responder once it is in a window.
     func makeNSView(context: Context) -> KeyView {
         let v = KeyView()
         v.onLeft = onLeft
@@ -771,6 +798,7 @@ private struct KeyboardHandler: NSViewRepresentable {
         return v
     }
 
+    /// Keeps the callbacks current across re-renders.
     func updateNSView(_ nsView: KeyView, context: Context) {
         nsView.onLeft = onLeft
         nsView.onRight = onRight
@@ -778,6 +806,7 @@ private struct KeyboardHandler: NSViewRepresentable {
         nsView.onEscape = onEscape
     }
 
+    /// NSView that accepts first responder and forwards key presses.
     final class KeyView: NSView {
         var onLeft: (() -> Void)?
         var onRight: (() -> Void)?
@@ -786,6 +815,7 @@ private struct KeyboardHandler: NSViewRepresentable {
 
         override var acceptsFirstResponder: Bool { true }
 
+        /// Reclaims first responder whenever the view lands in a window.
         override func viewDidMoveToWindow() {
             super.viewDidMoveToWindow()
             DispatchQueue.main.async { [weak self] in
@@ -793,6 +823,7 @@ private struct KeyboardHandler: NSViewRepresentable {
             }
         }
 
+        /// Routes the handled key codes; everything else passes up the chain.
         override func keyDown(with event: NSEvent) {
             switch event.keyCode {
             case 123: onLeft?()    // ←

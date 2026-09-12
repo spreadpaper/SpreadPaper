@@ -4,8 +4,9 @@ import ImageIO
 import Testing
 @testable import SpreadPaper
 
-/// The HEIC writer runs off the main actor since #59; these read the files back through ImageIO.
+/// Writes HEIC files through the off-main generator and reads them back through ImageIO.
 struct DynamicWallpaperGeneratorTests {
+    /// 8×8 RGB image filled with one grey level.
     private func solidImage(_ gray: CGFloat) throws -> CGImage {
         let context = try #require(CGContext(
             data: nil, width: 8, height: 8, bitsPerComponent: 8, bytesPerRow: 0,
@@ -16,10 +17,12 @@ struct DynamicWallpaperGeneratorTests {
         return try #require(context.makeImage())
     }
 
+    /// Unique `.heic` path in the temporary directory.
     private func tempURL() -> URL {
         FileManager.default.temporaryDirectory.appending(path: "gen-\(UUID().uuidString).heic")
     }
 
+    /// Comma-joined XMP tag names on the file's first frame.
     private func xmp(at url: URL) throws -> String {
         let source = try #require(CGImageSourceCreateWithURL(url as CFURL, nil))
         let metadata = try #require(CGImageSourceCopyMetadataAtIndex(source, 0, nil))

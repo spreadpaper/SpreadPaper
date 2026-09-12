@@ -2,6 +2,7 @@
 
 import SwiftUI
 
+/// Kinds of wallpaper a preset can produce, with the label, icon and tint every screen shows.
 enum WallpaperType: String, CaseIterable, Codable {
     case standard = "Static"
     case appearance = "Light/Dark"
@@ -47,6 +48,7 @@ enum WallpaperType: String, CaseIterable, Codable {
     }
 }
 
+/// Sidebar tabs of the gallery: every preset or one wallpaper kind.
 enum GalleryFilter: Int, CaseIterable {
     case all = 0
     case standard = 1
@@ -74,13 +76,15 @@ enum GalleryFilter: Int, CaseIterable {
     }
 }
 
+/// Screens the main window can show; the editor cases carry what to open.
 enum AppRoute: Equatable {
     case wizard
     case gallery
-    case editor(presetId: UUID?)  // nil = new, creating
+    case editor(presetId: UUID?)
     case editorNew(type: WallpaperType)
 }
 
+/// Route state that drives the main window; every screen change goes through here.
 @Observable
 class AppNavigation {
     var route: AppRoute = .gallery
@@ -88,12 +92,14 @@ class AppNavigation {
     /// Image files for the next new editor, read once via `takePendingImageURLs()`.
     private var pendingImageURLs: [URL] = []
 
+    /// Animates back to the gallery.
     func navigateToGallery() {
         withAnimation(.easeInOut(duration: 0.2)) {
             route = .gallery
         }
     }
 
+    /// Animates into the editor for a saved preset.
     func navigateToEditor(presetId: UUID) {
         withAnimation(.easeInOut(duration: 0.2)) {
             route = .editor(presetId: presetId)

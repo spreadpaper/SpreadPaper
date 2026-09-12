@@ -3,6 +3,7 @@
 import SwiftUI
 import PhosphorSwift
 
+/// Preset card: thumbnail with applied pill and hover actions, plus name and kind badge.
 struct GalleryCardView: View {
     let preset: SavedPreset
     let thumbnail: NSImage?

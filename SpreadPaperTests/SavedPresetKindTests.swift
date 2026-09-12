@@ -5,6 +5,7 @@ import Testing
 /// Issue #78: a preset reports its kind as `WallpaperType`, never as a string.
 @MainActor
 struct SavedPresetKindTests {
+    /// Minimal preset with only the kind flags varying.
     private func preset(isDynamic: Bool = false, isAppearanceBased: Bool = false) -> SavedPreset {
         SavedPreset(
             name: "p",

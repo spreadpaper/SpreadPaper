@@ -55,6 +55,7 @@ struct DisplayLayoutTests {
 
     // Issue #58: per-display bezel widths.
 
+    /// Bezel with the given edge widths; vertical defaults to none.
     private func bezel(_ horizontal: CGFloat, _ vertical: CGFloat = 0) -> Bezel {
         Bezel(horizontal: horizontal, vertical: vertical)
     }

@@ -2,6 +2,7 @@
 
 import SwiftUI
 
+/// Entry point: one main window routed by AppNavigation, a Settings scene, and the startup tasks.
 @main
 struct SpreadPaperApp: App {
     @State private var manager = WallpaperManager()
@@ -34,7 +35,6 @@ struct SpreadPaperApp: App {
                 await checkForUpdates()
             }
             .onAppear {
-                // Show wizard if first launch
                 if !settings.hasCompletedWizard {
                     navigation.route = .wizard
                 }
@@ -65,6 +65,7 @@ struct SpreadPaperApp: App {
         }
     }
 
+    /// Runs the update check once per launch, after a short delay so startup stays snappy.
     private func checkForUpdates() async {
         guard !hasCheckedForUpdates else { return }
         hasCheckedForUpdates = true

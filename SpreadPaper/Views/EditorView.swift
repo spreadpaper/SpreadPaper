@@ -5,6 +5,7 @@ import AppKit
 import UniformTypeIdentifiers
 import PhosphorSwift
 
+/// Editor screen: canvas, inspector and the save and apply flow for one preset.
 struct EditorView: View {
     @Bindable var manager: WallpaperManager
     @Bindable var navigation: AppNavigation
@@ -29,6 +30,7 @@ struct EditorView: View {
     @State private var isApplying = false
     @State private var applyPulse = false
 
+    /// Seeds the kind from the route so later switches stay local to the view.
     init(manager: WallpaperManager, navigation: AppNavigation, wallpaperType: WallpaperType, presetId: UUID?) {
         self.manager = manager
         self.navigation = navigation
@@ -322,6 +324,7 @@ struct EditorView: View {
         .shadow(color: .black.opacity(0.45), radius: 24, y: 8)
     }
 
+    /// Icon-only HUD button with an active highlight.
     @ViewBuilder
     private func hudIconButton<I: View>(icon: I, isActive: Bool, isEnabled: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
@@ -334,6 +337,7 @@ struct EditorView: View {
         .disabled(!isEnabled)
     }
 
+    /// Clamps zoom to 0.1...3 and animates the change.
     private func setZoom(_ v: CGFloat) {
         let clamped = min(3.0, max(0.1, v))
         withAnimation(.easeOut(duration: 0.12)) {
@@ -435,6 +439,7 @@ struct EditorView: View {
         return dimensions(for: img)
     }
 
+    /// Light or Dark slot row; an empty slot opens the file picker.
     private func appearanceImageRow(index: Int, label: String) -> some View {
         let hasImage = index < loadedImages.count
         return ImageRow(
@@ -457,6 +462,7 @@ struct EditorView: View {
         variants.indices.sorted { variants[$0].dayFraction < variants[$1].dayFraction }
     }
 
+    /// Schedule row for one variant; tapping opens its detail modal.
     private func dynamicImageRow(index: Int) -> some View {
         let v = variants[index]
         let hasImage = index < loadedImages.count
@@ -499,6 +505,7 @@ struct EditorView: View {
         .buttonStyle(.plain)
     }
 
+    /// Pixel size as "width×height".
     private func dimensions(for image: NSImage) -> String {
         let pixelSize = image.pixelSize
         return "\(Int(pixelSize.width))×\(Int(pixelSize.height))"
@@ -643,6 +650,7 @@ struct EditorView: View {
 
     // MARK: - Schedule helpers
 
+    /// Variant's custom name, else the image's original name, else a numbered fallback.
     private func defaultScheduleName(for index: Int) -> String {
         guard index < variants.count else { return "" }
         let variant = variants[index]
@@ -651,6 +659,7 @@ struct EditorView: View {
         return resolved.isEmpty ? "Image \(index + 1)" : resolved
     }
 
+    /// The variant that starts next in the day, wrapping to the earliest one past midnight.
     private func nextVariantAfter(index: Int) -> TimeVariant {
         let sorted = sortedVariantIndices
         guard let pos = sorted.firstIndex(of: index) else { return variants[index] }
@@ -660,11 +669,13 @@ struct EditorView: View {
 
     // MARK: - Save flow
 
+    /// Shows the name dialog, remembering whether saving should also apply.
     private func openSaveDialog(applyOnSave: Bool) {
         saveDialogApplyOnSave = applyOnSave
         showingSaveDialog = true
     }
 
+    /// Persists the preset, then optionally applies it, marks it active and returns to the gallery.
     private func handleSaveCommit(apply: Bool) {
         persistCurrentPreset()
         if apply {
@@ -685,6 +696,7 @@ struct EditorView: View {
         }
     }
 
+    /// Flashes the canvas border once to confirm an apply.
     private func triggerApplyPulse() {
         applyPulse = true
         withAnimation(.easeOut(duration: 0.6)) {
@@ -692,12 +704,15 @@ struct EditorView: View {
         }
     }
 
+    /// Leaves the editor without saving.
     private func backToGallery() {
         navigation.navigateToGallery()
     }
 
-    // MARK: - Behavior (reused from prior version)
+    // MARK: - Behavior
 
+    /// Changes the wallpaper kind, trimming images the new kind cannot hold and resetting their times.
+    /// Static and light/dark pin their slots to noon and midnight.
     private func switchType(to newType: WallpaperType) {
         guard newType != wallpaperType else { return }
         let oldCount = loadedImages.count
@@ -742,6 +757,7 @@ struct EditorView: View {
         }
     }
 
+    /// Shows a message for two seconds unless a newer one has replaced it.
     private func showToast(_ message: String) {
         toastMessage = message
         Task { @MainActor in
@@ -752,6 +768,7 @@ struct EditorView: View {
         }
     }
 
+    /// Scales the selected image to cover the render canvas and centres it.
     private func fitImage() {
         guard let image = currentImage else { return }
         let canvas = manager.totalCanvas
@@ -767,6 +784,7 @@ struct EditorView: View {
         }
     }
 
+    /// Opens the file picker; multiple selection only for dynamic wallpapers.
     private func addImages() {
         let panel = NSOpenPanel()
         panel.allowedContentTypes = [.image]
@@ -841,6 +859,7 @@ struct EditorView: View {
         return loadedImages.count - countBefore
     }
 
+    /// Drops a variant with its image and keeps the selection in range.
     private func removeVariant(at index: Int) {
         guard index < variants.count else { return }
         variants.remove(at: index)
@@ -851,6 +870,8 @@ struct EditorView: View {
         }
     }
 
+    /// Fills the editor from a saved preset, reading each variant's image from the app data directory.
+    /// Light/dark variants are ordered light first.
     private func loadExistingPreset(_ preset: SavedPreset) {
         presetName = preset.name
 
@@ -908,10 +929,13 @@ struct EditorView: View {
         selectedVariantIndex < variants.count ? variants[selectedVariantIndex].isFlipped : false
     }
 
+    /// Applies the current state to the desktop without saving.
     private func previewWallpaper() {
         Task { await previewApply() }
     }
 
+    /// Applies the current state through the manager call that matches the effective kind.
+    /// Stamps the current preview scale on every variant first.
     private func previewApply() async {
         guard !loadedImages.isEmpty else { return }
 
@@ -955,6 +979,7 @@ struct EditorView: View {
         }
     }
 
+    /// Updates the existing preset in place or saves a new one through the manager.
     private func persistCurrentPreset() {
         let name = presetName.isEmpty ? "Untitled" : presetName
 
@@ -1004,17 +1029,20 @@ struct EditorView: View {
 
 // MARK: - Inspector primitives
 
+/// Labelled inspector block with an optional hint under the control.
 private struct InspectorField<Control: View>: View {
     let label: String
     @ViewBuilder var control: () -> Control
     var hint: (() -> AnyView)? = nil
 
+    /// Field without a hint.
     init(label: String, @ViewBuilder control: @escaping () -> Control) {
         self.label = label
         self.control = control
         self.hint = nil
     }
 
+    /// Field with a hint rendered under the control.
     init<H: View>(
         label: String,
         @ViewBuilder control: @escaping () -> Control,
@@ -1042,6 +1070,7 @@ private struct InspectorField<Control: View>: View {
     }
 }
 
+/// Thin rule between inspector blocks.
 private struct InspectorDivider: View {
     var body: some View {
         Rectangle()
@@ -1052,11 +1081,9 @@ private struct InspectorDivider: View {
 }
 
 // MARK: - Native-styled select
-//
-// A button-driven popover instead of `Menu`, because `Menu` + `.menuStyle(.borderlessButton)`
-// on macOS renders a system caret indicator that ignores `.menuIndicator(.hidden)` and
-// blows up to fill the label height.
 
+/// Button-driven popover select for the inspector, used instead of `Menu` because its
+/// borderless style draws a caret that ignores `.menuIndicator(.hidden)`.
 struct NativeSelect<Value: Hashable>: View {
     @Binding var selection: Value
     let options: [(Value, String)]
@@ -1110,6 +1137,7 @@ struct NativeSelect<Value: Hashable>: View {
     }
 }
 
+/// One popover option with hover highlight and a checkmark when selected.
 private struct NativeSelectRow: View {
     let label: String
     let isSelected: Bool
@@ -1142,6 +1170,7 @@ private struct NativeSelectRow: View {
 
 // MARK: - Native-feel range
 
+/// Slider with a filled track and a round thumb, driven by a drag anywhere on the track.
 struct NativeRange: View {
     @Binding var value: CGFloat
     let range: ClosedRange<CGFloat>
@@ -1184,6 +1213,7 @@ struct NativeRange: View {
 
 // MARK: - Native-feel checkbox
 
+/// Checkbox with a label; the whole row toggles.
 struct NativeCheckbox: View {
     let label: String
     @Binding var isOn: Bool
@@ -1218,6 +1248,7 @@ struct NativeCheckbox: View {
 
 // MARK: - ImageRow
 
+/// Inspector row showing an image thumbnail, title and subtitle, or a dashed empty slot.
 struct ImageRow: View {
     let thumb: NSImage?
     let title: String
@@ -1314,9 +1345,11 @@ struct ImageRow: View {
 
 // MARK: - Button styles for editor
 
+/// Transparent button that fills on hover.
 private struct HoverRowButtonStyle: ButtonStyle {
     @State private var hovering = false
 
+    /// Elevated fill on hover, dimmed while pressed.
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .background(
@@ -1334,6 +1367,7 @@ private struct HeaderSecondaryButtonStyle: ButtonStyle {
     @Environment(\.isEnabled) private var isEnabled
     @State private var hovering = false
 
+    /// Bordered fill that brightens on hover and fades when disabled.
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .background(
@@ -1349,10 +1383,12 @@ private struct HeaderSecondaryButtonStyle: ButtonStyle {
     }
 }
 
+/// Translucent HUD button, highlighted while active.
 private struct HUDButtonStyle: ButtonStyle {
     let isActive: Bool
     @State private var hovering = false
 
+    /// White wash for the active or hovered state, dimmed while pressed.
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .foregroundStyle(isActive ? Color.cdTextPrimary : Color.cdTextSecondary)
@@ -1372,6 +1408,7 @@ private struct HUDButtonStyle: ButtonStyle {
 // MARK: - Small helpers
 
 private extension String {
+    /// The string itself, or `fallback` when it is empty.
     func ifEmpty(_ fallback: String) -> String {
         isEmpty ? fallback : self
     }

@@ -2,8 +2,10 @@ import Foundation
 import Testing
 @testable import SpreadPaper
 
+/// Round-trips presets through a store in a throwaway directory.
 @MainActor
 struct PresetStoreTests {
+    /// Fresh empty directory under the temporary directory.
     private func makeTempDirectory() throws -> URL {
         let dir = FileManager.default.temporaryDirectory
             .appending(path: "PresetStoreTests-\(UUID().uuidString)")
@@ -11,6 +13,7 @@ struct PresetStoreTests {
         return dir
     }
 
+    /// Static preset with fixed placement values, named for identification.
     private func samplePreset(name: String) -> SavedPreset {
         SavedPreset(
             name: name,

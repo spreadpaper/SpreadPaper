@@ -4,6 +4,7 @@ import SwiftUI
 import AppKit
 import PhosphorSwift
 
+/// Home screen: filter sidebar, search toolbar and the preset grid with apply, edit and manage actions.
 struct GalleryView: View {
     @Bindable var manager: WallpaperManager
     @Bindable var navigation: AppNavigation
@@ -289,6 +290,7 @@ struct GalleryView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
+    /// Adaptive card grid; tapping the empty background clears the selection.
     private func grid(presets: [SavedPreset]) -> some View {
         ScrollView {
             LazyVGrid(
@@ -485,6 +487,7 @@ struct GalleryView: View {
 
     // MARK: - Actions
 
+    /// Number of presets the sidebar row for `filter` would show.
     private func countFor(_ filter: GalleryFilter) -> Int {
         presets(matching: filter).count
     }
@@ -495,6 +498,8 @@ struct GalleryView: View {
         return manager.presets.filter { $0.kind == type }
     }
 
+    /// Rebuilds every card thumbnail off-main from a main-actor snapshot of the presets.
+    /// Picks the variant that matches the current appearance or time of day.
     private func reloadThumbnails() {
         isLoadingThumbnails = true
         thumbnailCache.removeAll()
@@ -543,11 +548,12 @@ struct GalleryView: View {
         }
     }
 
+    /// Loads the preset's images and hands them to the matching apply call, marking the card busy.
+    /// The preset becomes active once the apply finishes.
     private func applyPreset(_ preset: SavedPreset) {
         applyingPresetId = preset.id
 
         if preset.isDynamic {
-            // Load all variant images then delegate to the appropriate apply method
             let variants = preset.timeVariants.sorted { $0.dayFraction < $1.dayFraction }
             var images: [NSImage] = []
             for variant in variants {
@@ -586,7 +592,6 @@ struct GalleryView: View {
                 }
             }
         } else {
-            // Static preset
             let url = manager.getImageUrl(for: preset)
             guard let image = NSImage(contentsOf: url) else {
                 applyingPresetId = nil
@@ -611,6 +616,7 @@ struct GalleryView: View {
         }
     }
 
+    /// Appends a copy with a fresh id and a " copy" suffix, then persists.
     private func duplicate(_ preset: SavedPreset) {
         var copy = preset
         copy.id = UUID()
@@ -620,11 +626,13 @@ struct GalleryView: View {
         reloadThumbnails()
     }
 
+    /// Opens the rename alert seeded with the preset's current name.
     private func startRename(_ preset: SavedPreset) {
         renameDraft = preset.name
         presetPendingRename = preset
     }
 
+    /// Applies the trimmed draft name, ignoring blank input, and closes the alert.
     private func commitRename() {
         guard let target = presetPendingRename else { return }
         let trimmed = renameDraft.trimmingCharacters(in: .whitespaces)
@@ -636,6 +644,7 @@ struct GalleryView: View {
         presetPendingRename = nil
     }
 
+    /// Selects the preset's stored image in Finder.
     private func revealInFinder(_ preset: SavedPreset) {
         let url = manager.getImageUrl(for: preset)
         NSWorkspace.shared.activateFileViewerSelecting([url])
@@ -644,6 +653,7 @@ struct GalleryView: View {
 
 // MARK: - Sidebar filter row
 
+/// One sidebar row: icon, label and count; accent-filled when selected.
 private struct FilterRow: View {
     let filter: GalleryFilter
     let label: String
@@ -720,6 +730,7 @@ nonisolated private func renderThumbnails(jobs: [ThumbnailJob], maxPixelSize: In
 
 // MARK: - Skeleton shimmer
 
+/// Shimmering placeholder shown while thumbnails render.
 private struct SkeletonBlock: View {
     @State private var phase: CGFloat = -1
 
