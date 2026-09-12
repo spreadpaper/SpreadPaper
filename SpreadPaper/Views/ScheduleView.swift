@@ -248,7 +248,7 @@ struct ScheduleDetailModal: View {
                         HStack {
                             ForEach(Array(Self.axisHours.enumerated()), id: \.offset) { index, hour in
                                 if index > 0 { Spacer() }
-                                Text(TimeVariant.clockString(hour: hour, minute: 0))
+                                Text(TimeVariant.hourString(hour: hour))
                                     .font(.system(size: 8))
                                     .foregroundStyle(Color.cdTextTertiary)
                             }

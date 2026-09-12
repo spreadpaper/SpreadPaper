@@ -15,6 +15,7 @@ struct FilenameUtilsTests {
 
     @Test func storedNameWithoutExtensionAddsNone() {
         #expect(FilenameUtils.storedName(uuid: uuid, originalFilename: "noext") == "0B2C1A2E-6F6A-4D4B-9B0F-0C1D2E3F4A5B_noext")
+        #expect(FilenameUtils.storedName(uuid: uuid, originalFilename: "Photo 12.30 PM") == "0B2C1A2E-6F6A-4D4B-9B0F-0C1D2E3F4A5B_Photo 12.30 PM")
     }
 
     @Test func storedNameFallsBackForEmptyName() {
@@ -36,6 +37,7 @@ struct FilenameUtilsTests {
         #expect(FilenameUtils.displayName(for: "plain.png") == "plain")
         #expect(FilenameUtils.displayName(for: "50%.jpg") == "50%")
         #expect(FilenameUtils.displayName(for: ".hidden") == ".hidden")
+        #expect(FilenameUtils.displayName(for: "Photo 12.30 PM") == "Photo 12.30 PM")
         #expect(FilenameUtils.displayName(for: "") == "")
     }
 }

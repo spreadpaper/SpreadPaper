@@ -25,14 +25,15 @@ enum FilenameUtils {
     }
 
     /// Extension of a bare filename, empty when it has none.
-    /// Empty input stays empty instead of resolving to the working directory.
+    /// Empty input stays empty.
     private static func pathExtension(of filename: String) -> String {
         filename.isEmpty ? "" : URL(filePath: filename).pathExtension
     }
 
     /// Filename with its extension removed.
-    /// Empty input stays empty, see `pathExtension(of:)`.
+    /// Preserves non-extension dot tails.
     private static func baseName(of filename: String) -> String {
-        filename.isEmpty ? "" : URL(filePath: filename).deletingPathExtension().lastPathComponent
+        let ext = pathExtension(of: filename)
+        return ext.isEmpty ? filename : String(filename.dropLast(ext.count + 1))
     }
 }
