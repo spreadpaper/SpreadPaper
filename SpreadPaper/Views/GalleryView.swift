@@ -56,6 +56,9 @@ struct GalleryView: View {
                     VStack(spacing: 0) {
                         toolbar
                         Rectangle().fill(Color.cdBorder).frame(height: 1)
+                        if let error = manager.lastError {
+                            errorBanner(error)
+                        }
                         mainContent
                     }
                     .background(Color.cdBgPrimary)
@@ -89,6 +92,36 @@ struct GalleryView: View {
                 Button("Rename") { commitRename() }
                 Button("Cancel", role: .cancel) { presetPendingRename = nil }
             }
+    }
+
+    // MARK: - Error banner
+
+    /// Surfaces `WallpaperManager.lastError` until dismissed.
+    private func errorBanner(_ message: String) -> some View {
+        HStack(spacing: 10) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundStyle(Color.cdDanger)
+            Text(message)
+                .font(.system(size: 12))
+                .foregroundStyle(Color.cdTextPrimary)
+                .lineLimit(2)
+            Spacer(minLength: 0)
+            Button {
+                manager.lastError = nil
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(Color.cdTextSecondary)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Dismiss error")
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .background(Color.cdDanger.opacity(0.12))
+        .overlay(alignment: .bottom) {
+            Rectangle().fill(Color.cdBorder).frame(height: 1)
+        }
     }
 
     // MARK: - Toolbar (height 52)

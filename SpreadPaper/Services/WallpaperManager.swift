@@ -201,7 +201,7 @@ class WallpaperManager {
         do {
             try store.save(presets)
         } catch {
-            print("Failed to save presets json: \(error)")
+            lastError = "Failed to save presets: \(error.localizedDescription)"
         }
     }
 
@@ -213,7 +213,10 @@ class WallpaperManager {
             if loaded.needsMigrationRewrite {
                 persistPresets()
             }
-        } catch { }
+        } catch {
+            presets = []
+            lastError = error.localizedDescription
+        }
     }
 
     // --- SCREEN LOGIC ---
