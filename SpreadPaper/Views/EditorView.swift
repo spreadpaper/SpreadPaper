@@ -345,8 +345,10 @@ struct EditorView: View {
                 zoomSection
                 InspectorDivider()
                 orientationSection
-                InspectorDivider()
-                displaysSection
+                if manager.connectedScreens.count > 1 {
+                    InspectorDivider()
+                    displaysSection
+                }
                 Spacer(minLength: 0)
             }
             .padding(28)
@@ -537,76 +539,56 @@ struct EditorView: View {
 
     // MARK: - Displays
 
-    /// Bezel widths live in AppSettings (hardware property) but are tuned here, against the live canvas.
-    /// The slider sets one gap for the whole array and clears per-display overrides; the rows
-    /// below set each display's own frame width.
+    /// Bezel widths live in AppSettings (hardware property) but are tuned here, against the
+    /// live canvas. Each connected display gets a horizontal and a vertical slider.
+    /// Only shown with two or more displays.
     private var displaysSection: some View {
-        InspectorField(label: "Display gap") {
-            if manager.connectedScreens.count > 1 {
-                VStack(alignment: .leading, spacing: 10) {
-                    HStack(spacing: 12) {
-                        NativeRange(
-                            value: Binding(
-                                get: { CGFloat(settings.bezelGap) },
-                                set: { newValue in
-                                    settings.bezelWidths = [:]
-                                    settings.bezelGap = Double(newValue.rounded())
-                                }
-                            ),
-                            range: 0...300
-                        )
-                        bezelField(
-                            value: Binding(
-                                get: { settings.bezelGap },
-                                set: { newValue in
-                                    settings.bezelWidths = [:]
-                                    settings.bezelGap = max(0, min(newValue.rounded(), 1000))
-                                }
-                            )
-                        )
-                    }
-
-                    ForEach(manager.connectedScreens) { display in
-                        HStack(spacing: 8) {
-                            Text(display.name)
-                                .font(.system(size: 12))
-                                .foregroundStyle(Color.cdTextSecondary)
-                                .lineLimit(1)
-                                .truncationMode(.middle)
-                            Spacer(minLength: 8)
-                            bezelField(
-                                value: Binding(
-                                    get: { settings.bezelWidth(for: display.displayID) },
-                                    set: { settings.setBezelWidth($0.rounded(), for: display.displayID) }
-                                )
-                            )
-                        }
+        InspectorField(label: "Display bezels") {
+            VStack(alignment: .leading, spacing: 14) {
+                ForEach(manager.connectedScreens) { display in
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(display.name)
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundStyle(Color.cdTextPrimary)
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                        bezelSlider(label: "Horizontal", displayID: display.displayID, edge: \.horizontal)
+                        bezelSlider(label: "Vertical", displayID: display.displayID, edge: \.vertical)
                     }
                 }
-                .onChange(of: settings.bezelGap) { _, _ in manager.refreshScreens() }
-                .onChange(of: settings.bezelWidths) { _, _ in manager.refreshScreens() }
-            } else {
-                Text("Connect a second display to set the bezel gap.")
-                    .font(.system(size: 12))
-                    .foregroundStyle(Color.cdTextTertiary)
             }
+            .onChange(of: settings.bezelWidths) { _, _ in manager.refreshScreens() }
         } hint: {
-            Text("Slider: one gap for all displays. Rows: each display's own frame width, so mixed bezels line up too.")
+            Text("Frame width of each display: horizontal for the left and right edges, vertical for top and bottom.")
                 .font(.system(size: 12))
                 .foregroundStyle(Color.cdTextTertiary)
         }
     }
 
-    /// Numeric field in points, shared by the uniform gap and the per-display rows.
-    private func bezelField(value: Binding<Double>) -> some View {
-        HStack(spacing: 4) {
-            TextField("0", value: value, format: .number.precision(.fractionLength(0)))
+    /// One labelled slider plus numeric field for a single edge of one display's bezel.
+    private func bezelSlider(label: String, displayID: CGDirectDisplayID, edge: WritableKeyPath<Bezel, CGFloat>) -> some View {
+        let value = Binding<CGFloat>(
+            get: { settings.bezel(for: displayID)[keyPath: edge] },
+            set: { newValue in
+                var bezel = settings.bezel(for: displayID)
+                bezel[keyPath: edge] = newValue.rounded()
+                settings.setBezel(bezel, for: displayID)
+            }
+        )
+        return HStack(spacing: 10) {
+            Text(label)
+                .font(.system(size: 11))
+                .foregroundStyle(Color.cdTextTertiary)
+                .frame(width: 62, alignment: .leading)
+            NativeRange(value: value, range: 0...150)
+            TextField("0", value: Binding(get: { Double(value.wrappedValue) }, set: { value.wrappedValue = CGFloat($0) }),
+                      format: .number.precision(.fractionLength(0)))
                 .textFieldStyle(.plain)
                 .multilineTextAlignment(.trailing)
                 .font(.system(size: 12.5, weight: .medium))
                 .monospacedDigit()
                 .foregroundStyle(Color.cdTextPrimary)
-                .frame(width: 40)
+                .frame(width: 34)
             Text("pt")
                 .font(.system(size: 12))
                 .foregroundStyle(Color.cdTextTertiary)

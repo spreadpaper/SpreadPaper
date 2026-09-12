@@ -32,25 +32,30 @@ class AppSettings {
         }
     }
 
-    /// Per-display frame width in screen points, keyed by `CGDirectDisplayID` as a string.
-    var bezelWidths: [String: Double] {
+    /// Per-display frame widths in screen points, keyed by `CGDirectDisplayID` as a string.
+    /// Each entry holds `"horizontal"` and `"vertical"` edge widths.
+    var bezelWidths: [String: [String: Double]] {
         didSet {
             UserDefaults.standard.set(bezelWidths, forKey: "bezelWidths")
         }
     }
 
-    /// Frame width of one display, falling back to half the uniform gap.
-    func bezelWidth(for displayID: CGDirectDisplayID) -> Double {
-        bezelWidths[String(displayID)] ?? bezelGap / 2
+    /// Frame widths of one display, falling back to half the uniform gap on every edge.
+    func bezel(for displayID: CGDirectDisplayID) -> Bezel {
+        let entry = bezelWidths[String(displayID)]
+        let fallback = bezelGap / 2
+        return Bezel(
+            horizontal: CGFloat(entry?["horizontal"] ?? fallback),
+            vertical: CGFloat(entry?["vertical"] ?? fallback)
+        )
     }
 
-    /// Sets a per-display width. Pass nil to fall back to the uniform gap.
-    func setBezelWidth(_ width: Double?, for displayID: CGDirectDisplayID) {
-        if let width {
-            bezelWidths[String(displayID)] = max(0, min(width, 500))
-        } else {
-            bezelWidths.removeValue(forKey: String(displayID))
-        }
+    /// Stores one display's frame widths, clamped to 0...500 points.
+    func setBezel(_ bezel: Bezel, for displayID: CGDirectDisplayID) {
+        bezelWidths[String(displayID)] = [
+            "horizontal": Double(max(0, min(bezel.horizontal, 500))),
+            "vertical": Double(max(0, min(bezel.vertical, 500))),
+        ]
     }
 
     var colorScheme: ColorScheme? {
@@ -66,6 +71,6 @@ class AppSettings {
         self.appearanceMode = AppearanceMode(rawValue: raw) ?? .system
         self.hasCompletedWizard = UserDefaults.standard.bool(forKey: "hasCompletedWizard")
         self.bezelGap = UserDefaults.standard.double(forKey: "bezelGap")
-        self.bezelWidths = UserDefaults.standard.dictionary(forKey: "bezelWidths") as? [String: Double] ?? [:]
+        self.bezelWidths = UserDefaults.standard.dictionary(forKey: "bezelWidths") as? [String: [String: Double]] ?? [:]
     }
 }

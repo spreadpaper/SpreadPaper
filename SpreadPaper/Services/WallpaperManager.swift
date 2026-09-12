@@ -246,7 +246,7 @@ class WallpaperManager {
     func refreshScreens() {
         let settings = AppSettings.shared
         let physical = NSScreen.screens.map { DisplayInfo(screen: $0) }
-        let bezels = physical.map { CGFloat(settings.bezelWidth(for: $0.displayID)) }
+        let bezels = physical.map { settings.bezel(for: $0.displayID) }
         let frames = DisplayLayout.spacedFrames(physical.map(\.frame), bezels: bezels)
         self.connectedScreens = zip(physical, frames).map { DisplayInfo(screen: $0.screen, frame: $1) }
         self.totalCanvas = frames.reduce(CGRect.null) { $0.union($1) }
