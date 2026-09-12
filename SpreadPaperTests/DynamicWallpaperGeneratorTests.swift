@@ -56,6 +56,40 @@ struct DynamicWallpaperGeneratorTests {
         }
     }
 
+    @Test func timeBasedRejectsMismatchedMinutesAlone() throws {
+        #expect(throws: DynamicWallpaperError.countMismatch) {
+            try DynamicWallpaperGenerator.generateTimeBasedHEIC(
+                images: [try solidImage(0.5)], hours: [1], minutes: [0, 0], outputURL: tempURL()
+            )
+        }
+    }
+
+    @Test func writeSweepsStaleTempSiblings() throws {
+        let directory = FileManager.default.temporaryDirectory.appending(path: "gen-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let url = directory.appending(path: "1.heic")
+        try Data("stale".utf8).write(to: directory.appending(path: ".1.heic.killed.tmp"))
+        try Data("other".utf8).write(to: directory.appending(path: ".2.heic.killed.tmp"))
+
+        try DynamicWallpaperGenerator.generateAppearanceHEIC(
+            lightImage: try solidImage(1), darkImage: try solidImage(0), outputURL: url
+        )
+
+        let contents = try FileManager.default.contentsOfDirectory(atPath: directory.path).sorted()
+        #expect(contents == [".2.heic.killed.tmp", "1.heic"])
+    }
+
+    @Test func writeFailsWithFileWriteErrorWhenDirectoryIsMissing() throws {
+        let url = FileManager.default.temporaryDirectory
+            .appending(path: "gen-missing-\(UUID().uuidString)").appending(path: "1.heic")
+        #expect(throws: DynamicWallpaperError.fileWriteFailed) {
+            try DynamicWallpaperGenerator.generateAppearanceHEIC(
+                lightImage: try solidImage(1), darkImage: try solidImage(0), outputURL: url
+            )
+        }
+    }
+
     @Test func timeBasedRejectsEmptyImages() throws {
         #expect(throws: DynamicWallpaperError.noImages) {
             try DynamicWallpaperGenerator.generateTimeBasedHEIC(

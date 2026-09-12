@@ -164,9 +164,14 @@ enum DynamicWallpaperGenerator {
             throw DynamicWallpaperError.metadataCreationFailed
         }
 
-        // Fixed per-display names are the live wallpaper; a partial file at outputURL would be picked up by macOS.
-        let tempURL = outputURL.deletingLastPathComponent()
-            .appending(path: ".\(outputURL.lastPathComponent).\(UUID().uuidString).tmp")
+        let directory = outputURL.deletingLastPathComponent()
+        guard FileManager.default.isWritableFile(atPath: directory.path) else {
+            throw DynamicWallpaperError.fileWriteFailed
+        }
+        removeStaleTempFiles(for: outputURL)
+
+        // Sibling temp keeps a half-written file off the live wallpaper path.
+        let tempURL = directory.appending(path: tempName(for: outputURL, id: UUID().uuidString))
         guard let destination = CGImageDestinationCreateWithURL(
             tempURL as CFURL, UTType.heic.identifier as CFString, images.count, nil
         ) else {
@@ -193,6 +198,27 @@ enum DynamicWallpaperGenerator {
         } catch {
             try? FileManager.default.removeItem(at: tempURL)
             throw DynamicWallpaperError.fileWriteFailed
+        }
+    }
+
+    /// Hidden sibling name for an in-progress write of `outputURL`; the `.tmp`
+    /// suffix keeps it clear of the `.heic` legacy cleanup.
+    nonisolated private static func tempName(for outputURL: URL, id: String) -> String {
+        "\(tempPrefix(for: outputURL))\(id).tmp"
+    }
+
+    /// Leading part shared by every temp sibling of `outputURL`.
+    nonisolated private static func tempPrefix(for outputURL: URL) -> String {
+        ".\(outputURL.lastPathComponent)."
+    }
+
+    /// Deletes temp siblings of `outputURL` left behind by a killed encode.
+    nonisolated private static func removeStaleTempFiles(for outputURL: URL) {
+        let directory = outputURL.deletingLastPathComponent()
+        let prefix = tempPrefix(for: outputURL)
+        guard let names = try? FileManager.default.contentsOfDirectory(atPath: directory.path) else { return }
+        for name in names where name.hasPrefix(prefix) && name.hasSuffix(".tmp") {
+            try? FileManager.default.removeItem(at: directory.appending(path: name))
         }
     }
 }
