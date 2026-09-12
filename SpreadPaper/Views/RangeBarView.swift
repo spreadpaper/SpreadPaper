@@ -30,10 +30,11 @@ nonisolated enum RangeBarMath {
     }
 
     /// Day fraction moved by a number of steps from the given one, clamped.
-    static func fraction(_ fraction: Double, steppedBy steps: Int) -> Double {
-        self.fraction(forMinutes: clamped(minutes(for: fraction) + steps * stepMinutes))
+    static func fraction(_ base: Double, steppedBy steps: Int) -> Double {
+        fraction(forMinutes: clamped(minutes(for: base) + steps * stepMinutes))
     }
 
+    /// Minutes pinned to the 0...23:50 range.
     private static func clamped(_ minutes: Int) -> Int {
         min(max(minutes, 0), maxMinutes)
     }
@@ -47,7 +48,7 @@ struct RangeBarView: View {
     var accentColor: Color = .cdAccent
     var isSelected: Bool = false
 
-    @State private var isDragging = false
+    @GestureState private var grabOffset: CGFloat?
 
     private static let barHeight: CGFloat = 8
     private static let handleWidth: CGFloat = 8
@@ -55,6 +56,8 @@ struct RangeBarView: View {
     private static let ticks: [Double] = [0.25, 0.5, 0.75]
     private static let tickColor = Color.white.opacity(0.06)
     private static let dividerColor = Color.cdTextTertiary.opacity(0.6)
+    private static let timeStyle = Date.FormatStyle(date: .omitted, time: .shortened)
+    private static let dayStart = Calendar.current.startOfDay(for: .now)
 
     var body: some View {
         GeometryReader { geometry in
@@ -124,24 +127,24 @@ struct RangeBarView: View {
         }
     }
 
-    /// Drag that only engages when it begins on the handle, then follows the pointer.
+    /// Drag that engages only when it begins on the handle and keeps the grab point under the pointer.
+    /// The grab offset lives in gesture state so a cancelled drag resets it.
     private func dragGesture(width: CGFloat) -> some Gesture {
         DragGesture(minimumDistance: 0)
-            .onChanged { value in
-                if !isDragging {
-                    let handleX = width * startFraction
-                    guard abs(value.startLocation.x - handleX) <= Self.hitRadius else { return }
-                    isDragging = true
-                }
-                startFraction = RangeBarMath.fraction(atX: value.location.x, trackWidth: width)
+            .updating($grabOffset) { value, state, _ in
+                guard state == nil else { return }
+                let delta = value.startLocation.x - width * startFraction
+                if abs(delta) <= Self.hitRadius { state = delta }
             }
-            .onEnded { _ in isDragging = false }
+            .onChanged { value in
+                guard let grabOffset else { return }
+                startFraction = RangeBarMath.fraction(atX: value.location.x - grabOffset, trackWidth: width)
+            }
     }
 
+    /// Spoken start time for VoiceOver.
     private var accessibilityTime: String {
         let minutes = RangeBarMath.minutes(for: startFraction)
-        let components = DateComponents(hour: minutes / 60, minute: minutes % 60)
-        guard let date = Calendar.current.date(from: components) else { return "" }
-        return date.formatted(date: .omitted, time: .shortened)
+        return Self.dayStart.addingTimeInterval(TimeInterval(minutes * 60)).formatted(Self.timeStyle)
     }
 }
