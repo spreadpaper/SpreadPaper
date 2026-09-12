@@ -7,7 +7,10 @@ private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "SpreadPa
 @Observable
 class WallpaperManager {
     var connectedScreens: [DisplayInfo] = []
+    /// Union of the display panels; the render canvas.
     var totalCanvas: CGRect = .zero
+    /// Union of the panels plus their bezels; what the editor canvas shows.
+    var previewBounds: CGRect = .zero
     var presets: [SavedPreset] = []
     var lastError: String?
     var activePresetId: UUID?
@@ -248,8 +251,11 @@ class WallpaperManager {
         let physical = NSScreen.screens.map { DisplayInfo(screen: $0) }
         let bezels = physical.map { settings.bezel(for: $0.displayID) }
         let frames = DisplayLayout.spacedFrames(physical.map(\.frame), bezels: bezels)
-        self.connectedScreens = zip(physical, frames).map { DisplayInfo(screen: $0.screen, frame: $1) }
+        self.connectedScreens = zip(physical, zip(frames, bezels)).map { info, layout in
+            DisplayInfo(screen: info.screen, frame: layout.0, bezel: layout.1)
+        }
         self.totalCanvas = frames.reduce(CGRect.null) { $0.union($1) }
+        self.previewBounds = connectedScreens.reduce(CGRect.null) { $0.union($1.frameWithBezel) }
     }
 
     // --- RENDERING ---

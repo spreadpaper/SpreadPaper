@@ -21,8 +21,14 @@ struct EditorCanvasView: View {
         GeometryReader { geo in
             let previewScale = calculatePreviewScale(geo: geo)
             let _ = updatePreviewScale(previewScale)
-            let canvasWidth = manager.totalCanvas.width * previewScale
-            let canvasHeight = manager.totalCanvas.height * previewScale
+            let bounds = manager.previewBounds
+            let canvasWidth = bounds.width * previewScale
+            let canvasHeight = bounds.height * previewScale
+            // The image is centred on the render canvas, which sits inside the bezel bounds.
+            let centerShift = CGSize(
+                width: (manager.totalCanvas.midX - bounds.midX) * previewScale,
+                height: (bounds.midY - manager.totalCanvas.midY) * previewScale
+            )
 
             ZStack {
                 // Image layer
@@ -36,7 +42,7 @@ struct EditorCanvasView: View {
                             width: pixelSize.width * previewScale * imageScale,
                             height: pixelSize.height * previewScale * imageScale
                         )
-                        .offset(imageOffset)
+                        .offset(CGSize(width: imageOffset.width + centerShift.width, height: imageOffset.height + centerShift.height))
                         .opacity(isDragging ? 0.7 : 1.0)
                         .highPriorityGesture(
                             DragGesture()
@@ -77,7 +83,7 @@ struct EditorCanvasView: View {
                 if selectedImage != nil {
                     MonitorPreviewView(
                         screens: manager.connectedScreens,
-                        totalCanvas: manager.totalCanvas,
+                        bounds: bounds,
                         previewScale: previewScale,
                         canvasWidth: canvasWidth,
                         canvasHeight: canvasHeight
@@ -104,8 +110,8 @@ struct EditorCanvasView: View {
     }
 
     private func calculatePreviewScale(geo: GeometryProxy) -> CGFloat {
-        let scaleX = geo.size.width / max(manager.totalCanvas.width, 1)
-        let scaleY = geo.size.height / max(manager.totalCanvas.height, 1)
+        let scaleX = geo.size.width / max(manager.previewBounds.width, 1)
+        let scaleY = geo.size.height / max(manager.previewBounds.height, 1)
         return min(scaleX, scaleY) * 0.85
     }
 
