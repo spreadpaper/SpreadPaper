@@ -776,8 +776,8 @@ private struct SkeletonBlock: View {
             )
             .frame(width: geo.size.width, height: geo.size.height)
         }
-        // Scoped to `phase` on purpose. A `withAnimation(.repeatForever)` transaction leaks into
-        // unrelated state changes elsewhere in the window, e.g. the search field's focus border.
+        // Scoped to `phase` on purpose. A repeating `withAnimation` started from `onAppear` leaks
+        // into unrelated state changes elsewhere in the window, e.g. the search field's border.
         .animation(.easeInOut(duration: 1.4).repeatForever(autoreverses: false), value: phase)
         .onAppear { phase = 2.0 }
     }
