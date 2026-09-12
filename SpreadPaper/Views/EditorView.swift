@@ -135,8 +135,7 @@ struct EditorView: View {
                     loadExistingPreset(preset)
                 }
             } else {
-                // The take clears the hand-off, so a re-appear adds nothing twice.
-                addImages(from: navigation.takePendingImageURLs())
+                importImages(navigation.takePendingImageURLs(), quiet: true)
             }
         }
     }
@@ -260,7 +259,7 @@ struct EditorView: View {
                 isFlipped: isFlippedBinding,
                 manager: manager,
                 onSelectImage: addImages,
-                onDropImages: addDroppedImages,
+                onDropImages: { importImages($0) },
                 currentPreviewScale: $currentPreviewScale
             )
             .padding(64)
@@ -785,23 +784,32 @@ struct EditorView: View {
         panel.allowedContentTypes = [.image]
         panel.allowsMultipleSelection = wallpaperType == .dynamic
         guard panel.runModal() == .OK else { return }
-        addImages(from: panel.urls)
+        importImages(panel.urls)
     }
 
-    /// Loads dropped image files and reports the outcome in a toast.
-    /// Files already in the editor are skipped.
-    private func addDroppedImages(_ urls: [URL]) {
+    /// Loads image files past the duplicate and limit checks and reports the outcome.
+    /// With `quiet` the toast only appears when a file was left out.
+    private func importImages(_ urls: [URL], quiet: Bool = false) {
         let fresh = urls.filter { !originalUrls.contains($0) }
         guard !fresh.isEmpty else {
-            showToast("Already added")
+            if !urls.isEmpty { showToast("Already added") }
             return
         }
-        guard loadedImages.count < maxImages else {
+        let room = maxImages - loadedImages.count
+        guard room > 0 else {
             showToast("Limit is \(maxImages) image\(maxImages == 1 ? "" : "s")")
             return
         }
         let added = addImages(from: fresh)
-        showToast(added == 0 ? "Couldn't read image" : "Added \(added) image\(added == 1 ? "" : "s")")
+        let overLimit = max(0, fresh.count - room)
+        let unreadable = fresh.count - added - overLimit
+        if overLimit > 0 {
+            showToast("Added \(added), limit is \(maxImages)")
+        } else if unreadable > 0 {
+            showToast(added == 0 ? "Couldn't read image" : "Added \(added), skipped \(unreadable) unreadable")
+        } else if !quiet {
+            showToast("Added \(added) image\(added == 1 ? "" : "s")")
+        }
     }
 
     /// Most images the current wallpaper type can hold.

@@ -4,8 +4,14 @@ import Testing
 
 /// Issue #73: dropped and picked files must be narrowed to images before they reach the editor.
 struct ImageFileFilterTests {
+    /// Builds a local file URL for a name under /tmp.
     private func url(_ name: String) -> URL {
         URL(fileURLWithPath: "/tmp/\(name)")
+    }
+
+    @Test func webLinksAreDroppedEvenWithImageExtensions() {
+        let web = URL(string: "https://example.com/photo.png")!
+        #expect(ImageFileFilter.imageURLs(from: [web, url("local.png")]) == [url("local.png")])
     }
 
     @Test func commonImageExtensionsAreKept() {

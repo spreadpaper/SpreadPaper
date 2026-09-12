@@ -36,7 +36,7 @@ class AppNavigation {
     var route: AppRoute = .gallery
     var showCreationModal = false
     /// Image files for the next new editor, read once via `takePendingImageURLs()`.
-    private(set) var pendingImageURLs: [URL] = []
+    private var pendingImageURLs: [URL] = []
 
     func navigateToGallery() {
         withAnimation(.easeInOut(duration: 0.2)) {
