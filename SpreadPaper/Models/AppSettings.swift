@@ -40,6 +40,13 @@ class AppSettings {
         }
     }
 
+    /// When false the editor shows one pair of bezel sliders that writes to every display.
+    var bezelPerDisplay: Bool {
+        didSet {
+            UserDefaults.standard.set(bezelPerDisplay, forKey: "bezelPerDisplay")
+        }
+    }
+
     /// Frame widths of one display, falling back to half the uniform gap on every edge.
     func bezel(for displayID: CGDirectDisplayID) -> Bezel {
         let entry = bezelWidths[String(displayID)]
@@ -72,5 +79,6 @@ class AppSettings {
         self.hasCompletedWizard = UserDefaults.standard.bool(forKey: "hasCompletedWizard")
         self.bezelGap = UserDefaults.standard.double(forKey: "bezelGap")
         self.bezelWidths = UserDefaults.standard.dictionary(forKey: "bezelWidths") as? [String: [String: Double]] ?? [:]
+        self.bezelPerDisplay = UserDefaults.standard.bool(forKey: "bezelPerDisplay")
     }
 }

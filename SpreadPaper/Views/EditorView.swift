@@ -540,34 +540,69 @@ struct EditorView: View {
     // MARK: - Displays
 
     /// Bezel widths live in AppSettings (hardware property) but are tuned here, against the
-    /// live canvas. Each connected display gets a horizontal and a vertical slider.
-    /// Only shown with two or more displays.
+    /// live canvas. One synced pair of sliders by default; a toggle reveals per-display
+    /// pairs for arrays with mixed frames. Only shown with two or more displays.
     private var displaysSection: some View {
         InspectorField(label: "Display bezels") {
             VStack(alignment: .leading, spacing: 14) {
-                ForEach(manager.connectedScreens) { display in
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(display.name)
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundStyle(Color.cdTextPrimary)
-                            .lineLimit(1)
-                            .truncationMode(.middle)
-                        bezelSlider(label: "Horizontal", displayID: display.displayID, edge: \.horizontal)
-                        bezelSlider(label: "Vertical", displayID: display.displayID, edge: \.vertical)
+                VStack(alignment: .leading, spacing: 6) {
+                    bezelSlider(label: "Horizontal", value: allDisplaysBezelBinding(\.horizontal), disabled: settings.bezelPerDisplay)
+                    bezelSlider(label: "Vertical", value: allDisplaysBezelBinding(\.vertical), disabled: settings.bezelPerDisplay)
+                }
+
+                NativeCheckbox(
+                    label: "Set per display",
+                    isOn: Binding(
+                        get: { settings.bezelPerDisplay },
+                        set: { perDisplay in
+                            if !perDisplay { syncBezelsToFirstDisplay() }
+                            settings.bezelPerDisplay = perDisplay
+                        }
+                    )
+                )
+
+                if settings.bezelPerDisplay {
+                    ForEach(manager.connectedScreens) { display in
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text(display.name)
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundStyle(Color.cdTextPrimary)
+                                .lineLimit(1)
+                                .truncationMode(.middle)
+                            bezelSlider(label: "Horizontal", value: displayBezelBinding(display.displayID, \.horizontal))
+                            bezelSlider(label: "Vertical", value: displayBezelBinding(display.displayID, \.vertical))
+                        }
                     }
                 }
             }
             .onChange(of: settings.bezelWidths) { _, _ in manager.refreshScreens() }
         } hint: {
-            Text("Frame width of each display: horizontal for the left and right edges, vertical for top and bottom.")
+            Text("Frame width around each panel: horizontal for the left and right edges, vertical for top and bottom.")
                 .font(.system(size: 12))
                 .foregroundStyle(Color.cdTextTertiary)
         }
     }
 
-    /// One labelled slider plus numeric field for a single edge of one display's bezel.
-    private func bezelSlider(label: String, displayID: CGDirectDisplayID, edge: WritableKeyPath<Bezel, CGFloat>) -> some View {
-        let value = Binding<CGFloat>(
+    /// Reads the first display's edge and writes the value to every connected display.
+    private func allDisplaysBezelBinding(_ edge: WritableKeyPath<Bezel, CGFloat>) -> Binding<CGFloat> {
+        Binding(
+            get: {
+                guard let first = manager.connectedScreens.first else { return 0 }
+                return settings.bezel(for: first.displayID)[keyPath: edge]
+            },
+            set: { newValue in
+                for display in manager.connectedScreens {
+                    var bezel = settings.bezel(for: display.displayID)
+                    bezel[keyPath: edge] = newValue.rounded()
+                    settings.setBezel(bezel, for: display.displayID)
+                }
+            }
+        )
+    }
+
+    /// Reads and writes one edge of one display's bezel.
+    private func displayBezelBinding(_ displayID: CGDirectDisplayID, _ edge: WritableKeyPath<Bezel, CGFloat>) -> Binding<CGFloat> {
+        Binding(
             get: { settings.bezel(for: displayID)[keyPath: edge] },
             set: { newValue in
                 var bezel = settings.bezel(for: displayID)
@@ -575,7 +610,20 @@ struct EditorView: View {
                 settings.setBezel(bezel, for: displayID)
             }
         )
-        return HStack(spacing: 10) {
+    }
+
+    /// Copies the first display's bezel to all others when leaving per-display mode.
+    private func syncBezelsToFirstDisplay() {
+        guard let first = manager.connectedScreens.first else { return }
+        let bezel = settings.bezel(for: first.displayID)
+        for display in manager.connectedScreens.dropFirst() {
+            settings.setBezel(bezel, for: display.displayID)
+        }
+    }
+
+    /// One labelled slider plus numeric field for a single bezel edge.
+    private func bezelSlider(label: String, value: Binding<CGFloat>, disabled: Bool = false) -> some View {
+        HStack(spacing: 10) {
             Text(label)
                 .font(.system(size: 11))
                 .foregroundStyle(Color.cdTextTertiary)
@@ -593,6 +641,8 @@ struct EditorView: View {
                 .font(.system(size: 12))
                 .foregroundStyle(Color.cdTextTertiary)
         }
+        .disabled(disabled)
+        .opacity(disabled ? 0.4 : 1)
     }
 
     // MARK: - Schedule helpers
