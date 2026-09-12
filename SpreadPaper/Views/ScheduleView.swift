@@ -232,15 +232,13 @@ struct ScheduleDetailModal: View {
                             startFraction: Binding(
                                 get: { variant.dayFraction },
                                 set: { newVal in
-                                    let totalMinutes = Int(newVal * 24 * 60)
-                                    let snapped = (totalMinutes / 10) * 10
-                                    variant.hour = snapped / 60
-                                    variant.minute = snapped % 60
+                                    let minutes = RangeBarMath.minutes(for: newVal)
+                                    variant.hour = minutes / 60
+                                    variant.minute = minutes % 60
                                 }
                             ),
-                            endFraction: .constant(nextVariant.dayFraction),
-                            isSelected: true,
-                            endInteractive: false
+                            endFraction: nextVariant.dayFraction,
+                            isSelected: true
                         )
                         .frame(height: 24)
 

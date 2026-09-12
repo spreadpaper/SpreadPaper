@@ -1,180 +1,147 @@
 // SpreadPaper/Views/RangeBarView.swift
 
 import SwiftUI
-import AppKit
 
-struct RangeBarView: NSViewRepresentable {
-    @Binding var startFraction: Double  // 0.0–1.0 (fraction of 24h)
-    @Binding var endFraction: Double    // 0.0–1.0
-    var accentColor: NSColor = NSColor(Color.cdAccent)
-    var isSelected: Bool = false
-    var endInteractive: Bool = true
+/// Value math for the schedule time bar, kept pure so it can be unit tested.
+/// Fractions run 0...1 over a day; values snap to ten-minute marks.
+/// The last valid mark is 23:50, so a start never lands on 24:00.
+nonisolated enum RangeBarMath {
+    static let minutesPerDay = 1440
+    static let stepMinutes = 10
+    static let maxMinutes = minutesPerDay - stepMinutes
 
-    func makeNSView(context: Context) -> RangeBarNSView {
-        let view = RangeBarNSView()
-        view.onRangeChanged = { start, end in
-            startFraction = start
-            endFraction = end
-        }
-        return view
+    /// Minutes since midnight for a day fraction, snapped to the step and clamped.
+    static func minutes(for fraction: Double) -> Int {
+        guard fraction.isFinite else { return 0 }
+        let steps = (fraction * Double(minutesPerDay) / Double(stepMinutes)).rounded()
+        let bounded = min(max(steps, 0), Double(maxMinutes / stepMinutes))
+        return Int(bounded) * stepMinutes
     }
 
-    func updateNSView(_ nsView: RangeBarNSView, context: Context) {
-        nsView.startFraction = startFraction
-        nsView.endFraction = endFraction
-        nsView.accentColor = accentColor
-        nsView.isSelected = isSelected
-        nsView.endInteractive = endInteractive
-        nsView.needsDisplay = true
+    /// Day fraction for a minute count.
+    static func fraction(forMinutes minutes: Int) -> Double {
+        Double(minutes) / Double(minutesPerDay)
+    }
+
+    /// Snapped and clamped day fraction under a pointer x on a track of the given width.
+    static func fraction(atX x: CGFloat, trackWidth: CGFloat) -> Double {
+        guard trackWidth > 0 else { return 0 }
+        return fraction(forMinutes: minutes(for: Double(x / trackWidth)))
+    }
+
+    /// Day fraction moved by a number of steps from the given one, clamped.
+    static func fraction(_ fraction: Double, steppedBy steps: Int) -> Double {
+        self.fraction(forMinutes: clamped(minutes(for: fraction) + steps * stepMinutes))
+    }
+
+    private static func clamped(_ minutes: Int) -> Int {
+        min(max(minutes, 0), maxMinutes)
     }
 }
 
-class RangeBarNSView: NSView {
-    var startFraction: Double = 0.0
-    var endFraction: Double = 1.0
-    var accentColor: NSColor = .systemIndigo
+/// Schedule time bar: a day-long track with one draggable start handle.
+/// The end marker is display-only; the fill wraps past midnight.
+struct RangeBarView: View {
+    @Binding var startFraction: Double
+    var endFraction: Double
+    var accentColor: Color = .cdAccent
     var isSelected: Bool = false
-    var endInteractive: Bool = true
-    var onRangeChanged: ((Double, Double) -> Void)?
 
-    private var dragging: DragTarget = .none
-    private let handleWidth: CGFloat = 8
-    private let barHeight: CGFloat = 8
-    private let snapInterval: Double = 10.0 / (24.0 * 60.0) // 10 minutes as fraction of day
+    @State private var isDragging = false
 
-    private enum DragTarget {
-        case none, start, end
+    private static let barHeight: CGFloat = 8
+    private static let handleWidth: CGFloat = 8
+    private static let hitRadius: CGFloat = 12
+    private static let ticks: [Double] = [0.25, 0.5, 0.75]
+    private static let tickColor = Color.white.opacity(0.06)
+    private static let dividerColor = Color.cdTextTertiary.opacity(0.6)
+
+    var body: some View {
+        GeometryReader { geometry in
+            let width = geometry.size.width
+            ZStack(alignment: .leading) {
+                Capsule()
+                    .fill(Color.cdBorder)
+                    .frame(height: Self.barHeight)
+
+                ForEach(Self.ticks, id: \.self) { tick in
+                    Rectangle()
+                        .fill(Self.tickColor)
+                        .frame(width: 1, height: Self.barHeight)
+                        .offset(x: width * tick)
+                }
+
+                activeFill(width: width)
+
+                Rectangle()
+                    .fill(Self.dividerColor)
+                    .frame(width: 1, height: Self.barHeight + 6)
+                    .offset(x: width * endFraction - 0.5)
+
+                RoundedRectangle(cornerRadius: 3)
+                    .fill(Color.white)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 3)
+                            .stroke(isSelected ? accentColor : Color.cdBorder, lineWidth: 1.5)
+                    )
+                    .frame(width: Self.handleWidth, height: Self.barHeight + 4)
+                    .offset(x: width * startFraction - Self.handleWidth / 2)
+                    .pointerStyle(.columnResize(directions: .all))
+            }
+            .frame(width: width, height: geometry.size.height)
+            .contentShape(Rectangle())
+            .gesture(dragGesture(width: width))
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Start time")
+        .accessibilityValue(accessibilityTime)
+        .accessibilityAdjustableAction { direction in
+            switch direction {
+            case .increment: startFraction = RangeBarMath.fraction(startFraction, steppedBy: 1)
+            case .decrement: startFraction = RangeBarMath.fraction(startFraction, steppedBy: -1)
+            @unknown default: break
+            }
+        }
     }
 
-    override var isFlipped: Bool { true }
-
-    override func draw(_ dirtyRect: NSRect) {
-        super.draw(dirtyRect)
-        guard let ctx = NSGraphicsContext.current?.cgContext else { return }
-
-        let barY = (bounds.height - barHeight) / 2
-        let barRect = CGRect(x: 0, y: barY, width: bounds.width, height: barHeight)
-
-        // Background track
-        ctx.setFillColor(NSColor(Color.cdBorder).cgColor)
-        let bgPath = CGPath(roundedRect: barRect, cornerWidth: barHeight / 2, cornerHeight: barHeight / 2, transform: nil)
-        ctx.addPath(bgPath)
-        ctx.fillPath()
-
-        // 6-hour tick marks
-        ctx.setStrokeColor(NSColor.white.withAlphaComponent(0.06).cgColor)
-        ctx.setLineWidth(1)
-        for tick in [0.25, 0.5, 0.75] {
-            let x = bounds.width * tick
-            ctx.move(to: CGPoint(x: x, y: barY))
-            ctx.addLine(to: CGPoint(x: x, y: barY + barHeight))
-            ctx.strokePath()
-        }
-
-        // Active range fill
-        let wraps = endFraction < startFraction
-        let alpha: CGFloat = isSelected ? 0.45 : 0.25
-        ctx.setFillColor(accentColor.withAlphaComponent(alpha).cgColor)
-
-        if wraps {
-            // Wraps around midnight: fill end..1.0 and 0.0..start
-            let rightRect = CGRect(x: bounds.width * startFraction, y: barY, width: bounds.width * (1.0 - startFraction), height: barHeight)
-            ctx.fill(rightRect)
-            let leftRect = CGRect(x: 0, y: barY, width: bounds.width * endFraction, height: barHeight)
-            ctx.fill(leftRect)
+    /// Accent fill from start to end, split in two when the range crosses midnight.
+    @ViewBuilder
+    private func activeFill(width: CGFloat) -> some View {
+        let color = accentColor.opacity(isSelected ? 0.45 : 0.25)
+        if endFraction < startFraction {
+            Rectangle()
+                .fill(color)
+                .frame(width: width * (1 - startFraction), height: Self.barHeight)
+                .offset(x: width * startFraction)
+            Rectangle()
+                .fill(color)
+                .frame(width: width * endFraction, height: Self.barHeight)
         } else {
-            let fillRect = CGRect(x: bounds.width * startFraction, y: barY, width: bounds.width * (endFraction - startFraction), height: barHeight)
-            ctx.fill(fillRect)
-        }
-
-        // Draw handles
-        drawHandle(ctx: ctx, fraction: startFraction, barY: barY)
-        if endInteractive {
-            drawHandle(ctx: ctx, fraction: endFraction, barY: barY)
-        } else {
-            drawEndDivider(ctx: ctx, fraction: endFraction, barY: barY)
+            Rectangle()
+                .fill(color)
+                .frame(width: width * (endFraction - startFraction), height: Self.barHeight)
+                .offset(x: width * startFraction)
         }
     }
 
-    private func drawHandle(ctx: CGContext, fraction: Double, barY: CGFloat) {
-        let x = bounds.width * fraction
-        let handleRect = CGRect(x: x - handleWidth / 2, y: barY - 2, width: handleWidth, height: barHeight + 4)
-
-        // Handle body
-        ctx.setFillColor(NSColor.white.cgColor)
-        let handlePath = CGPath(roundedRect: handleRect, cornerWidth: 3, cornerHeight: 3, transform: nil)
-        ctx.addPath(handlePath)
-        ctx.fillPath()
-
-        // Handle border
-        let borderColor = isSelected ? accentColor : NSColor(Color.cdBorder)
-        ctx.setStrokeColor(borderColor.cgColor)
-        ctx.setLineWidth(1.5)
-        ctx.addPath(handlePath)
-        ctx.strokePath()
+    /// Drag that only engages when it begins on the handle, then follows the pointer.
+    private func dragGesture(width: CGFloat) -> some Gesture {
+        DragGesture(minimumDistance: 0)
+            .onChanged { value in
+                if !isDragging {
+                    let handleX = width * startFraction
+                    guard abs(value.startLocation.x - handleX) <= Self.hitRadius else { return }
+                    isDragging = true
+                }
+                startFraction = RangeBarMath.fraction(atX: value.location.x, trackWidth: width)
+            }
+            .onEnded { _ in isDragging = false }
     }
 
-    private func drawEndDivider(ctx: CGContext, fraction: Double, barY: CGFloat) {
-        let x = bounds.width * fraction
-        ctx.setStrokeColor(NSColor(Color.cdTextTertiary).withAlphaComponent(0.6).cgColor)
-        ctx.setLineWidth(1)
-        ctx.move(to: CGPoint(x: x, y: barY - 3))
-        ctx.addLine(to: CGPoint(x: x, y: barY + barHeight + 3))
-        ctx.strokePath()
-    }
-
-    override func mouseDown(with event: NSEvent) {
-        let point = convert(event.locationInWindow, from: nil)
-        let x = point.x / bounds.width
-
-        let startX = startFraction
-        let endX = endFraction
-
-        if abs(x - startX) < 0.03 {
-            dragging = .start
-        } else if endInteractive && abs(x - endX) < 0.03 {
-            dragging = .end
-        } else {
-            dragging = .none
-        }
-    }
-
-    override func mouseDragged(with event: NSEvent) {
-        guard dragging != .none else { return }
-        let point = convert(event.locationInWindow, from: nil)
-        let raw = max(0, min(1, point.x / bounds.width))
-
-        // Snap to 10-minute marks
-        let snapped = (raw / snapInterval).rounded() * snapInterval
-
-        switch dragging {
-        case .start:
-            startFraction = snapped
-        case .end:
-            endFraction = snapped
-        case .none:
-            break
-        }
-
-        onRangeChanged?(startFraction, endFraction)
-        needsDisplay = true
-    }
-
-    override func mouseUp(with event: NSEvent) {
-        dragging = .none
-    }
-
-    override func resetCursorRects() {
-        let barY = (bounds.height - barHeight) / 2
-        let startX = bounds.width * startFraction
-
-        let startRect = CGRect(x: startX - handleWidth, y: barY - 4, width: handleWidth * 2, height: barHeight + 8)
-        addCursorRect(startRect, cursor: .resizeLeftRight)
-
-        if endInteractive {
-            let endX = bounds.width * endFraction
-            let endRect = CGRect(x: endX - handleWidth, y: barY - 4, width: handleWidth * 2, height: barHeight + 8)
-            addCursorRect(endRect, cursor: .resizeLeftRight)
-        }
+    private var accessibilityTime: String {
+        let minutes = RangeBarMath.minutes(for: startFraction)
+        let components = DateComponents(hour: minutes / 60, minute: minutes % 60)
+        guard let date = Calendar.current.date(from: components) else { return "" }
+        return date.formatted(date: .omitted, time: .shortened)
     }
 }
