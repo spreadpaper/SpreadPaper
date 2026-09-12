@@ -241,8 +241,10 @@ class WallpaperManager {
     // --- SCREEN LOGIC ---
     func refreshScreens() {
         let screens = NSScreen.screens
-        self.totalCanvas = screens.reduce(CGRect.zero) { $0.union($1.frame) }
-        self.connectedScreens = screens.map(DisplayInfo.init(screen:))
+        let gap = CGFloat(AppSettings.shared.bezelGap)
+        let frames = DisplayLayout.spacedFrames(screens.map(\.frame), gap: gap)
+        self.connectedScreens = zip(screens, frames).map { DisplayInfo(screen: $0, frame: $1) }
+        self.totalCanvas = frames.reduce(CGRect.null) { $0.union($1) }
     }
 
     // --- RENDERING ---

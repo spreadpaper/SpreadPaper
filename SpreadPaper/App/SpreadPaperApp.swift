@@ -45,7 +45,7 @@ struct SpreadPaperApp: App {
         .windowStyle(.hiddenTitleBar)
 
         Settings {
-            SettingsView()
+            SettingsView(manager: manager)
         }
     }
 

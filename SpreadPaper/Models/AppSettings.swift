@@ -24,6 +24,13 @@ class AppSettings {
         }
     }
 
+    /// Physical gap between adjacent displays in screen points. 0 disables bezel compensation.
+    var bezelGap: Double {
+        didSet {
+            UserDefaults.standard.set(bezelGap, forKey: "bezelGap")
+        }
+    }
+
     var colorScheme: ColorScheme? {
         switch appearanceMode {
         case .system: return nil
@@ -36,5 +43,6 @@ class AppSettings {
         let raw = UserDefaults.standard.string(forKey: "appearanceMode") ?? AppearanceMode.system.rawValue
         self.appearanceMode = AppearanceMode(rawValue: raw) ?? .system
         self.hasCompletedWizard = UserDefaults.standard.bool(forKey: "hasCompletedWizard")
+        self.bezelGap = UserDefaults.standard.double(forKey: "bezelGap")
     }
 }

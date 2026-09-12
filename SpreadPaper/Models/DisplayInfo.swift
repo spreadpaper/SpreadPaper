@@ -11,9 +11,10 @@ struct DisplayInfo: Identifiable {
     /// Human-readable name for messages. Not unique across identical monitors.
     var name: String { screen.localizedName }
 
-    init(screen: NSScreen) {
+    /// - Parameter frame: Layout frame to use instead of `screen.frame`, e.g. after bezel spacing.
+    init(screen: NSScreen, frame: CGRect? = nil) {
         self.screen = screen
-        self.frame = screen.frame
+        self.frame = frame ?? screen.frame
         let number = screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber
         self.displayID = number?.uint32Value ?? 0
     }

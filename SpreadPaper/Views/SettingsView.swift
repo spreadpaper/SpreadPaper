@@ -11,8 +11,10 @@ enum SettingsTab: Hashable {
 // MARK: - Cmd+, window (kept for macOS standard behavior)
 
 struct SettingsView: View {
+    let manager: WallpaperManager
+
     var body: some View {
-        SettingsInWindowView(onClose: nil)
+        SettingsInWindowView(manager: manager, onClose: nil)
             .frame(width: 640, height: 520)
     }
 }
@@ -28,6 +30,7 @@ struct SettingsInWindowView: View {
     @AppStorage("showInMenuBar") private var showInMenuBarStored: Bool = false
     @AppStorage("launchAtLogin") private var launchAtLoginStored: Bool = false
 
+    let manager: WallpaperManager
     let onClose: (() -> Void)?
 
     private let version: String = (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String) ?? "1.0.0"
@@ -151,6 +154,19 @@ struct SettingsInWindowView: View {
                         get: { settings.appearanceMode },
                         set: { settings.appearanceMode = $0 }
                     ))
+                }
+            }
+
+            SectionGroup(header: "DISPLAYS") {
+                SettingsRow(
+                    label: "Gap between displays",
+                    hint: "Bezel width in screen points. On non-Retina displays 1 point is 1 pixel."
+                ) {
+                    BezelGapField(value: Binding(
+                        get: { settings.bezelGap },
+                        set: { settings.bezelGap = max(0, min($0, 1000)) }
+                    ))
+                    .onChange(of: settings.bezelGap) { _, _ in manager.refreshScreens() }
                 }
             }
 
@@ -419,6 +435,34 @@ private struct DividerLine: View {
         Rectangle()
             .fill(Color.cdBorder)
             .frame(height: 1)
+    }
+}
+
+/// Numeric field plus stepper for the bezel gap, in screen points.
+private struct BezelGapField: View {
+    @Binding var value: Double
+
+    var body: some View {
+        HStack(spacing: 6) {
+            TextField("0", value: $value, format: .number.precision(.fractionLength(0)))
+                .textFieldStyle(.plain)
+                .multilineTextAlignment(.trailing)
+                .font(.system(size: 13))
+                .monospacedDigit()
+                .foregroundStyle(Color.cdTextPrimary)
+                .frame(width: 48)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 5)
+                .background(Color.cdBgElevated)
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.cdBorder, lineWidth: 1))
+            Text("pt")
+                .font(.system(size: 12))
+                .foregroundStyle(Color.cdTextTertiary)
+            Stepper("Gap between displays", value: $value, in: 0...1000, step: 1)
+                .labelsHidden()
+        }
+        .accessibilityElement(children: .contain)
     }
 }
 

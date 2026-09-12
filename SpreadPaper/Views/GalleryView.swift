@@ -44,7 +44,7 @@ struct GalleryView: View {
     var body: some View {
         Group {
             if showSettings {
-                SettingsShell(onClose: { showSettings = false })
+                SettingsShell(manager: manager, onClose: { showSettings = false })
             } else {
                 HStack(spacing: 0) {
                     sidebar
@@ -712,10 +712,11 @@ private struct FilterRow: View {
 // MARK: - Settings shell (in-window)
 
 struct SettingsShell: View {
+    let manager: WallpaperManager
     let onClose: () -> Void
 
     var body: some View {
-        SettingsInWindowView(onClose: onClose)
+        SettingsInWindowView(manager: manager, onClose: onClose)
     }
 }
 
