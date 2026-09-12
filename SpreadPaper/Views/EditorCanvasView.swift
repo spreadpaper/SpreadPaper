@@ -1,7 +1,6 @@
 // SpreadPaper/Views/EditorCanvasView.swift
 
 import SwiftUI
-import UniformTypeIdentifiers
 import PhosphorSwift
 
 struct EditorCanvasView: View {
@@ -11,11 +10,13 @@ struct EditorCanvasView: View {
     @Binding var isFlipped: Bool
     let manager: WallpaperManager
     let onSelectImage: () -> Void
-    let onDropImage: ([NSItemProvider]) -> Void
+    /// Receives dropped file URLs already narrowed to images.
+    let onDropImages: ([URL]) -> Void
     @Binding var currentPreviewScale: CGFloat
 
     @State private var dragStartOffset: CGSize = .zero
     @State private var isDragging = false
+    @State private var isDropTargeted = false
 
     var body: some View {
         GeometryReader { geo in
@@ -92,13 +93,29 @@ struct EditorCanvasView: View {
             }
             .frame(width: canvasWidth, height: canvasHeight)
             .clipShape(RoundedRectangle(cornerRadius: 6))
+            .overlay(
+                RoundedRectangle(cornerRadius: 6)
+                    .stroke(Color.cdAccent, lineWidth: 2)
+                    .opacity(isDropTargeted ? 1 : 0)
+            )
+            .animation(.easeInOut(duration: 0.15), value: isDropTargeted)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .onDrop(of: [UTType.fileURL], isTargeted: nil) { providers in
-                onDropImage(providers)
-                return true
+            .contentShape(Rectangle())
+            .dropDestination(for: URL.self) { urls, _ in
+                acceptDrop(urls)
+            } isTargeted: { targeted in
+                isDropTargeted = targeted
             }
         }
         .background(Color.cdCanvasBg)
+    }
+
+    /// Forwards the image files in a drop; refuses drops that carry none.
+    private func acceptDrop(_ urls: [URL]) -> Bool {
+        let images = ImageFileFilter.imageURLs(from: urls)
+        guard !images.isEmpty else { return false }
+        onDropImages(images)
+        return true
     }
 
     private func updatePreviewScale(_ scale: CGFloat) {

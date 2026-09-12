@@ -9,6 +9,7 @@ struct WizardView: View {
     @State private var settings = AppSettings.shared
     @State private var step = 1
     @State private var displayCount = NSScreen.screens.count
+    @State private var isDropTargeted = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -138,12 +139,18 @@ struct WizardView: View {
                 .background(
                     RoundedRectangle(cornerRadius: 12)
                         .strokeBorder(style: StrokeStyle(lineWidth: 2, dash: [8, 4]))
-                        .foregroundStyle(Color.cdBorder)
+                        .foregroundStyle(isDropTargeted ? Color.cdAccent : Color.cdBorder)
                 )
                 .background(Color.cdBgElevated.opacity(0.5))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             .buttonStyle(.plain)
+            .animation(.easeInOut(duration: 0.15), value: isDropTargeted)
+            .dropDestination(for: URL.self) { urls, _ in
+                acceptDrop(urls)
+            } isTargeted: { targeted in
+                isDropTargeted = targeted
+            }
         }
     }
 
@@ -152,11 +159,24 @@ struct WizardView: View {
         panel.allowedContentTypes = [.image]
         panel.allowsMultipleSelection = true
         panel.message = "Select one or more images"
-        guard panel.runModal() == .OK, !panel.urls.isEmpty else { return }
+        guard panel.runModal() == .OK else { return }
+        openEditor(with: panel.urls)
+    }
 
-        // Mark wizard complete and route based on image count
+    /// Opens the editor with the dropped images; refuses drops that carry none.
+    private func acceptDrop(_ urls: [URL]) -> Bool {
+        let images = ImageFileFilter.imageURLs(from: urls)
+        guard !images.isEmpty else { return false }
+        openEditor(with: images)
+        return true
+    }
+
+    /// Finishes the wizard and hands the images to a new editor.
+    /// One image means static, two or more mean dynamic.
+    private func openEditor(with urls: [URL]) {
+        guard !urls.isEmpty else { return }
         settings.hasCompletedWizard = true
-        let type: WallpaperType = panel.urls.count == 1 ? .standard : .dynamic
-        navigation.navigateToNewEditor(type: type)
+        let type: WallpaperType = urls.count == 1 ? .standard : .dynamic
+        navigation.navigateToNewEditor(type: type, imageURLs: urls)
     }
 }

@@ -35,6 +35,8 @@ enum AppRoute: Equatable {
 class AppNavigation {
     var route: AppRoute = .gallery
     var showCreationModal = false
+    /// Image files for the next new editor, read once via `takePendingImageURLs()`.
+    private(set) var pendingImageURLs: [URL] = []
 
     func navigateToGallery() {
         withAnimation(.easeInOut(duration: 0.2)) {
@@ -48,10 +50,20 @@ class AppNavigation {
         }
     }
 
-    func navigateToNewEditor(type: WallpaperType) {
+    /// Opens a fresh editor of the given type, optionally preloaded with image files.
+    /// The URLs wait in `pendingImageURLs` until the editor appears.
+    func navigateToNewEditor(type: WallpaperType, imageURLs: [URL] = []) {
         showCreationModal = false
+        pendingImageURLs = imageURLs
         withAnimation(.easeInOut(duration: 0.2)) {
             route = .editorNew(type: type)
         }
+    }
+
+    /// Returns the pending image files and clears them.
+    /// A re-appearing editor therefore gets nothing.
+    func takePendingImageURLs() -> [URL] {
+        defer { pendingImageURLs = [] }
+        return pendingImageURLs
     }
 }

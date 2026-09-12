@@ -130,8 +130,13 @@ struct EditorView: View {
             }
         }
         .onAppear {
-            if let presetId, let preset = manager.presets.first(where: { $0.id == presetId }) {
-                loadExistingPreset(preset)
+            if let presetId {
+                if let preset = manager.presets.first(where: { $0.id == presetId }) {
+                    loadExistingPreset(preset)
+                }
+            } else {
+                // The take clears the hand-off, so a re-appear adds nothing twice.
+                addImages(from: navigation.takePendingImageURLs())
             }
         }
     }
@@ -255,7 +260,7 @@ struct EditorView: View {
                 isFlipped: isFlippedBinding,
                 manager: manager,
                 onSelectImage: addImages,
-                onDropImage: { _ in },
+                onDropImages: addDroppedImages,
                 currentPreviewScale: $currentPreviewScale
             )
             .padding(64)
@@ -780,11 +785,38 @@ struct EditorView: View {
         panel.allowedContentTypes = [.image]
         panel.allowsMultipleSelection = wallpaperType == .dynamic
         guard panel.runModal() == .OK else { return }
+        addImages(from: panel.urls)
+    }
 
+    /// Loads dropped image files and reports the outcome in a toast.
+    /// Files already in the editor are skipped.
+    private func addDroppedImages(_ urls: [URL]) {
+        let fresh = urls.filter { !originalUrls.contains($0) }
+        guard !fresh.isEmpty else {
+            showToast("Already added")
+            return
+        }
+        guard loadedImages.count < maxImages else {
+            showToast("Limit is \(maxImages) image\(maxImages == 1 ? "" : "s")")
+            return
+        }
+        let added = addImages(from: fresh)
+        showToast(added == 0 ? "Couldn't read image" : "Added \(added) image\(added == 1 ? "" : "s")")
+    }
+
+    /// Most images the current wallpaper type can hold.
+    private var maxImages: Int {
+        wallpaperType == .appearance ? 2 : wallpaperType == .dynamic ? 16 : 1
+    }
+
+    /// Appends readable images up to the type's limit and returns how many were added.
+    /// Each slot gets the default time of day for its position.
+    @discardableResult
+    private func addImages(from urls: [URL]) -> Int {
         let dayPhases = [(7,0),(9,0),(12,0),(15,0),(17,0),(19,0),(21,0),(23,0),(1,0),(3,0),(5,0),(6,0),(8,0),(10,0),(14,0),(16,0)]
-        let maxImages = wallpaperType == .appearance ? 2 : wallpaperType == .dynamic ? 16 : 1
+        let countBefore = loadedImages.count
 
-        for url in panel.urls {
+        for url in urls {
             guard loadedImages.count < maxImages else { break }
             guard let image = NSImage(contentsOf: url) else { continue }
 
@@ -810,6 +842,7 @@ struct EditorView: View {
                 fitImage()
             }
         }
+        return loadedImages.count - countBefore
     }
 
     private func removeVariant(at index: Int) {
