@@ -91,8 +91,21 @@ jobs:
         run: |
           cd build/Payload
           chmod +x "SpreadPaper.app/Contents/MacOS/SpreadPaper"
-          codesign --force --sign - "SpreadPaper.app"
+          codesign --force --sign - --entitlements "$GITHUB_WORKSPACE/SpreadPaper/SpreadPaper.entitlements" "SpreadPaper.app"
           codesign --verify --deep --strict --verbose=2 "SpreadPaper.app"
+
+      # 3b. Prove the shipped bundle carries the App Sandbox
+      # The archive builds with CODE_SIGNING_ALLOWED=NO, so the ad-hoc signature above is the
+      # only thing that can attach entitlements; without this gate a dropped flag ships silently.
+      - name: Verify Sandbox Entitlement
+        run: |
+          cd build/Payload
+          if ! codesign -d --entitlements :- "SpreadPaper.app" 2>/dev/null | grep -q 'com.apple.security.app-sandbox'; then
+            echo "Signed bundle is missing com.apple.security.app-sandbox" >&2
+            codesign -d --entitlements :- "SpreadPaper.app" >&2 || true
+            exit 1
+          fi
+          echo "App Sandbox entitlement present"
 
       # 4. Create ZIP (Recommended fallback for FOSS)
       - name: Create ZIP

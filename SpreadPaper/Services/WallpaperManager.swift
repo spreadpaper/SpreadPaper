@@ -25,7 +25,13 @@ class WallpaperManager {
 
     /// Loads screens, presets and the active preset id; `store` defaults to the app support directory.
     init(store: PresetStore? = nil) {
-        self.store = store ?? PresetStore(directory: Self.defaultDataDirectory())
+        let resolved = store ?? PresetStore(directory: Self.defaultDataDirectory())
+        self.store = resolved
+        // Only the app's own directory can hold data from an unsandboxed install; an injected store
+        // is a caller's choice of directory and is left alone.
+        if store == nil {
+            LegacyDataMigration.runIfNeeded(destination: resolved.directory)
+        }
         refreshScreens()
         loadPresets()
         if let raw = UserDefaults.standard.string(forKey: activePresetKey) {
