@@ -72,10 +72,14 @@ struct EditorView: View {
 
     private var canSave: Bool {
         switch wallpaperType {
-        case .standard: return !loadedImages.isEmpty
+        case .standard, .dynamic: return !loadedImages.isEmpty
         case .appearance: return loadedImages.count == 2
-        case .dynamic: return loadedImages.count >= 2
         }
+    }
+
+    /// A dynamic schedule with a single image is saved and applied as a static wallpaper.
+    private var effectiveType: WallpaperType {
+        wallpaperType == .dynamic && loadedImages.count < 2 ? .standard : wallpaperType
     }
 
     var body: some View {
@@ -886,7 +890,7 @@ struct EditorView: View {
             variants[i].previewScale = currentPreviewScale
         }
 
-        switch wallpaperType {
+        switch effectiveType {
         case .standard:
             guard let image = loadedImages.first else { return }
             await manager.setWallpaper(
@@ -932,8 +936,8 @@ struct EditorView: View {
         if let presetId, let index = manager.presets.firstIndex(where: { $0.id == presetId }) {
             manager.presets[index].name = name
             manager.presets[index].timeVariants = variants
-            manager.presets[index].isAppearanceBased = (wallpaperType == .appearance)
-            manager.presets[index].isDynamic = (wallpaperType != .standard)
+            manager.presets[index].isAppearanceBased = (effectiveType == .appearance)
+            manager.presets[index].isDynamic = (effectiveType != .standard)
             if let first = variants.first {
                 manager.presets[index].offsetX = first.offsetX
                 manager.presets[index].offsetY = first.offsetY
@@ -943,7 +947,7 @@ struct EditorView: View {
             }
             manager.persistPresetsPublic()
         } else {
-            if wallpaperType == .standard, let firstUrl = originalUrls.first, let v = variants.first {
+            if effectiveType == .standard, let firstUrl = originalUrls.first, let v = variants.first {
                 manager.savePreset(
                     name: name,
                     originalUrl: firstUrl,
