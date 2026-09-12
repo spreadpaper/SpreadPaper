@@ -191,11 +191,11 @@ struct EditorView: View {
             Button(action: previewWallpaper) {
                 HStack(spacing: 5) {
                     Ph.eye.regular
-                        .color(Color.cdTextSecondary)
+                        .color(Color.cdTextPrimary)
                         .frame(width: 13, height: 13)
                     Text("Preview")
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundStyle(Color.cdTextSecondary)
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(Color.cdTextPrimary)
                 }
                 .padding(.horizontal, 12)
                 .frame(height: 26)
@@ -1299,21 +1299,24 @@ private struct HoverRowButtonStyle: ButtonStyle {
     }
 }
 
+/// Header button chrome for Preview and Save. Dims when the button is disabled so
+/// the enabled state is readable against the panel background.
 private struct HeaderSecondaryButtonStyle: ButtonStyle {
+    @Environment(\.isEnabled) private var isEnabled
     @State private var hovering = false
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .background(
                 RoundedRectangle(cornerRadius: 7)
-                    .fill(hovering ? Color.cdBgElevated : Color.cdBgSecondary)
+                    .fill(hovering && isEnabled ? Color.cdBgHover : Color.cdBgElevated)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 7)
-                    .stroke(Color.cdBorder, lineWidth: 1)
+                    .stroke(Color.cdBorderStrong, lineWidth: 1)
             )
             .onHover { hovering = $0 }
-            .opacity(configuration.isPressed ? 0.8 : 1.0)
+            .opacity(!isEnabled ? 0.4 : configuration.isPressed ? 0.8 : 1.0)
     }
 }
 
