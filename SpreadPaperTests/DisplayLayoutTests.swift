@@ -53,6 +53,36 @@ struct DisplayLayoutTests {
         #expect(spaced[1].minX == 0)
     }
 
+    // Issue #58: per-display bezel widths.
+
+    @Test func gapBetweenTwoDisplaysIsTheSumOfTheirBezels() {
+        let frames = [CGRect(x: 0, y: 0, width: w, height: h), CGRect(x: w, y: 0, width: w, height: h)]
+        let spaced = DisplayLayout.spacedFrames(frames, bezels: [10, 30])
+        #expect(spaced[0].minX == 0)
+        #expect(spaced[1].minX == w + 40)
+    }
+
+    @Test func rowOfThreeAccumulatesEachPairsBezels() {
+        let frames = [
+            CGRect(x: 0, y: 0, width: w, height: h),
+            CGRect(x: w, y: 0, width: w, height: h),
+            CGRect(x: 2 * w, y: 0, width: w, height: h),
+        ]
+        let spaced = DisplayLayout.spacedFrames(frames, bezels: [10, 20, 30])
+        #expect(spaced[1].minX == w + 30)
+        #expect(spaced[2].minX == 2 * w + 30 + 50)
+    }
+
+    @Test func uniformGapMatchesHalfBezelPerSide() {
+        let frames = [CGRect(x: 0, y: 0, width: w, height: h), CGRect(x: w, y: 0, width: w, height: h)]
+        #expect(DisplayLayout.spacedFrames(frames, gap: 50) == DisplayLayout.spacedFrames(frames, bezels: [25, 25]))
+    }
+
+    @Test func mismatchedBezelCountLeavesFramesUntouched() {
+        let frames = [CGRect(x: 0, y: 0, width: w, height: h), CGRect(x: w, y: 0, width: w, height: h)]
+        #expect(DisplayLayout.spacedFrames(frames, bezels: [10]) == frames)
+    }
+
     @Test func stackedPairLeftOfOneDisplayCountsAsOneColumn() {
         let frames = [
             CGRect(x: 0, y: 0, width: w, height: h / 2),

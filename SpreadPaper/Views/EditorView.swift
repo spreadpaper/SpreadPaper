@@ -537,40 +537,77 @@ struct EditorView: View {
 
     // MARK: - Displays
 
-    /// Bezel gap lives in AppSettings (hardware property) but is tuned here, against the live canvas.
+    /// Bezel widths live in AppSettings (hardware property) but are tuned here, against the live canvas.
+    /// The slider sets one gap for the whole array and clears per-display overrides; the rows
+    /// below set each display's own frame width.
     private var displaysSection: some View {
         InspectorField(label: "Display gap") {
             if manager.connectedScreens.count > 1 {
-                HStack(spacing: 12) {
-                    NativeRange(
-                        value: Binding(
-                            get: { CGFloat(settings.bezelGap) },
-                            set: { settings.bezelGap = Double($0.rounded()) }
-                        ),
-                        range: 0...300
-                    )
-                    TextField("0", value: Binding(
-                        get: { settings.bezelGap },
-                        set: { settings.bezelGap = max(0, min($0.rounded(), 1000)) }
-                    ), format: .number.precision(.fractionLength(0)))
-                        .textFieldStyle(.plain)
-                        .multilineTextAlignment(.trailing)
-                        .font(.system(size: 12.5, weight: .medium))
-                        .monospacedDigit()
-                        .foregroundStyle(Color.cdTextPrimary)
-                        .frame(width: 40)
-                    Text("pt")
-                        .font(.system(size: 12))
-                        .foregroundStyle(Color.cdTextTertiary)
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack(spacing: 12) {
+                        NativeRange(
+                            value: Binding(
+                                get: { CGFloat(settings.bezelGap) },
+                                set: { newValue in
+                                    settings.bezelWidths = [:]
+                                    settings.bezelGap = Double(newValue.rounded())
+                                }
+                            ),
+                            range: 0...300
+                        )
+                        bezelField(
+                            value: Binding(
+                                get: { settings.bezelGap },
+                                set: { newValue in
+                                    settings.bezelWidths = [:]
+                                    settings.bezelGap = max(0, min(newValue.rounded(), 1000))
+                                }
+                            )
+                        )
+                    }
+
+                    ForEach(manager.connectedScreens) { display in
+                        HStack(spacing: 8) {
+                            Text(display.name)
+                                .font(.system(size: 12))
+                                .foregroundStyle(Color.cdTextSecondary)
+                                .lineLimit(1)
+                                .truncationMode(.middle)
+                            Spacer(minLength: 8)
+                            bezelField(
+                                value: Binding(
+                                    get: { settings.bezelWidth(for: display.displayID) },
+                                    set: { settings.setBezelWidth($0.rounded(), for: display.displayID) }
+                                )
+                            )
+                        }
+                    }
                 }
                 .onChange(of: settings.bezelGap) { _, _ in manager.refreshScreens() }
+                .onChange(of: settings.bezelWidths) { _, _ in manager.refreshScreens() }
             } else {
                 Text("Connect a second display to set the bezel gap.")
                     .font(.system(size: 12))
                     .foregroundStyle(Color.cdTextTertiary)
             }
         } hint: {
-            Text("Width of the frames between your monitors, so the image lines up across them.")
+            Text("Slider: one gap for all displays. Rows: each display's own frame width, so mixed bezels line up too.")
+                .font(.system(size: 12))
+                .foregroundStyle(Color.cdTextTertiary)
+        }
+    }
+
+    /// Numeric field in points, shared by the uniform gap and the per-display rows.
+    private func bezelField(value: Binding<Double>) -> some View {
+        HStack(spacing: 4) {
+            TextField("0", value: value, format: .number.precision(.fractionLength(0)))
+                .textFieldStyle(.plain)
+                .multilineTextAlignment(.trailing)
+                .font(.system(size: 12.5, weight: .medium))
+                .monospacedDigit()
+                .foregroundStyle(Color.cdTextPrimary)
+                .frame(width: 40)
+            Text("pt")
                 .font(.system(size: 12))
                 .foregroundStyle(Color.cdTextTertiary)
         }

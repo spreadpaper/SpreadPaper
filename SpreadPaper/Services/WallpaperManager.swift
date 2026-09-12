@@ -44,6 +44,7 @@ class WallpaperManager {
     }
 
     // --- FILE SYSTEM ---
+    /// App data root under Application Support; created lazily by `getAppDataDirectory`.
     private static func defaultDataDirectory() -> URL {
         URL.applicationSupportDirectory.appending(path: "SpreadPaper")
     }
@@ -243,17 +244,18 @@ class WallpaperManager {
 
     // --- SCREEN LOGIC ---
     func refreshScreens() {
-        let screens = NSScreen.screens
-        let gap = CGFloat(AppSettings.shared.bezelGap)
-        let frames = DisplayLayout.spacedFrames(screens.map(\.frame), gap: gap)
-        self.connectedScreens = zip(screens, frames).map { DisplayInfo(screen: $0, frame: $1) }
+        let settings = AppSettings.shared
+        let physical = NSScreen.screens.map { DisplayInfo(screen: $0) }
+        let bezels = physical.map { CGFloat(settings.bezelWidth(for: $0.displayID)) }
+        let frames = DisplayLayout.spacedFrames(physical.map(\.frame), bezels: bezels)
+        self.connectedScreens = zip(physical, frames).map { DisplayInfo(screen: $0.screen, frame: $1) }
         self.totalCanvas = frames.reduce(CGRect.null) { $0.union($1) }
     }
 
     // --- RENDERING ---
 
-    /// Everything a detached render task needs to know about one display. No AppKit objects,
-    /// and the output URL is precomputed here so the closure calls nothing main-actor isolated.
+    /// Everything a detached render task needs to know about one display. No AppKit objects;
+    /// the output URL is precomputed so the closure calls nothing main-actor isolated.
     private struct RenderTarget: Sendable {
         let displayID: CGDirectDisplayID
         let frame: CGRect
@@ -290,6 +292,7 @@ class WallpaperManager {
         return true
     }
 
+    /// Pairs one display's geometry with one image placement for the renderer.
     private func spec(for target: RenderTarget, canvas: CGRect, offset: CGSize, scale: CGFloat, previewScale: CGFloat, isFlipped: Bool) -> RenderSpec {
         RenderSpec(
             screenFrame: target.frame,
@@ -317,9 +320,9 @@ class WallpaperManager {
         await Task.detached(priority: .userInitiated) { work() }.value
     }
 
-    /// Sets each rendered file as the desktop image on main.
-    /// Returns the displays whose wallpaper was actually set; a display that connected during the
-    /// render has no result and is not counted as succeeded.
+    /// Sets each rendered file as the desktop image on main and returns the displays whose
+    /// wallpaper was actually set. A display that connected during the render has no
+    /// result and is not counted as succeeded.
     private func applyRendered(
         _ results: RenderResults,
         options: [NSWorkspace.DesktopImageOptionKey: Any],

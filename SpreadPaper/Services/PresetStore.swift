@@ -1,9 +1,8 @@
 import Foundation
 
-/// Reads and writes the presets JSON file in the app data directory.
-///
-/// A file that fails to decode is moved aside to a `.bak` sibling before the error surfaces,
-/// so a later save can never overwrite the user's only copy.
+/// Reads and writes the presets JSON file in the app data directory. A file that
+/// fails to decode is moved to a `.bak` sibling before the error surfaces, so a
+/// later save can never overwrite the user's only copy.
 struct PresetStore {
     static let filename = "spreadpaper_presets.json"
     static let backupFilename = "spreadpaper_presets.json.bak"
@@ -31,8 +30,8 @@ struct PresetStore {
     var fileURL: URL { directory.appending(path: Self.filename) }
     var backupURL: URL { directory.appending(path: Self.backupFilename) }
 
-    /// Loads presets from disk. Returns nil when no presets file exists yet.
-    /// Throws `LoadError.corrupted` after moving an undecodable file to `backupURL`.
+    /// Loads presets from disk, returning nil when no presets file exists yet, and
+    /// throwing `LoadError.corrupted` after moving an undecodable file aside.
     func load() throws -> Loaded? {
         guard FileManager.default.fileExists(atPath: fileURL.path) else { return nil }
         let data = try Data(contentsOf: fileURL)
@@ -52,6 +51,7 @@ struct PresetStore {
         try data.write(to: fileURL, options: .atomic)
     }
 
+    /// Moves the presets file to `backupURL`, replacing any earlier backup.
     private func quarantineCorruptFile() throws {
         let fm = FileManager.default
         if fm.fileExists(atPath: backupURL.path) {

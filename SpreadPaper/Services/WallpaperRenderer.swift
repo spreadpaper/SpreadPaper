@@ -2,10 +2,9 @@ import CoreGraphics
 import ImageIO
 import UniformTypeIdentifiers
 
-/// Placement of one source image on one display.
-///
-/// Every field is `Sendable`, so a spec built on the main actor can be handed to a detached
-/// rendering task without copying screen objects across isolation boundaries.
+/// Placement of one source image on one display. Every field is `Sendable`, so a
+/// spec built on the main actor can be handed to a detached rendering task
+/// without moving screen objects across isolation boundaries.
 nonisolated struct RenderSpec: Sendable {
     /// Display frame in the spaced (bezel-compensated) layout, in points.
     var screenFrame: CGRect
