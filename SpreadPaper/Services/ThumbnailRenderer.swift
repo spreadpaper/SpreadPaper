@@ -5,7 +5,7 @@ import Foundation
 import ImageIO
 
 /// Downsampled thumbnails via ImageIO, so no AppKit touches a background thread.
-/// Reads only what the target size needs instead of decoding the full source.
+/// Keeps nothing decoded after the thumbnail is made, unlike NSImage.
 /// Safe to call from any isolation.
 enum ThumbnailRenderer {
     /// Builds a thumbnail for the image at `url` whose longest side is `maxPixelSize`.
@@ -28,13 +28,13 @@ enum ThumbnailRenderer {
         return flipped ? mirrored(image) : image
     }
 
-    /// Mirrors `image` horizontally by redrawing it into a fresh bitmap context.
+    /// Mirrors `image` horizontally by redrawing it into a fresh sRGB bitmap context.
+    /// Source spaces that an 8-bit context rejects (indexed, gray, extended) are
+    /// not worth keeping at thumbnail size.
     private nonisolated static func mirrored(_ image: CGImage) -> CGImage? {
         let width = image.width
         let height = image.height
-        // Indexed and gray sources cannot back a bitmap context; fall back to sRGB for those.
-        let sourceSpace = image.colorSpace.flatMap { $0.model == .rgb ? $0 : nil }
-        let space = sourceSpace ?? CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB()
+        let space = CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB()
         guard let context = CGContext(
             data: nil,
             width: width,

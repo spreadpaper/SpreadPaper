@@ -546,11 +546,15 @@ struct GalleryView: View {
             )
         }
 
+        // Match the screen's backing scale so Retina cards stay sharp.
+        let scale = NSScreen.main?.backingScaleFactor ?? 2
+        let maxPixelSize = Int((CGFloat(thumbnailMaxPointSize) * scale).rounded())
+
         Task.detached(priority: .userInitiated) {
-            let results = renderThumbnails(jobs: jobs)
+            let results = renderThumbnails(jobs: jobs, maxPixelSize: maxPixelSize)
             await MainActor.run {
                 for r in results {
-                    let size = NSSize(width: r.image.width, height: r.image.height)
+                    let size = NSSize(width: CGFloat(r.image.width) / scale, height: CGFloat(r.image.height) / scale)
                     thumbnailCache[r.presetId] = NSImage(cgImage: r.image, size: size)
                 }
                 isLoadingThumbnails = false
@@ -708,28 +712,30 @@ private struct FilterRow: View {
 
 // MARK: - Background thumbnail rendering
 
+/// Everything the detached renderer needs for one preset, snapshotted on the main actor.
 private struct ThumbnailJob: Sendable {
     let presetId: UUID
     let imageURL: URL
     let shouldFlip: Bool
 }
 
+/// One finished thumbnail, keyed by the preset it belongs to.
 private struct ThumbnailResult: Sendable {
     let presetId: UUID
     let image: CGImage
 }
 
-/// Longest side of a gallery thumbnail, in pixels.
-nonisolated private let thumbnailMaxPixelSize = 480
+/// Longest side of a gallery thumbnail, in points.
+nonisolated private let thumbnailMaxPointSize = 480
 
 /// Downsamples every job's image off the main actor. Jobs whose file
 /// cannot be read are skipped, so the caller keeps its placeholder.
-nonisolated private func renderThumbnails(jobs: [ThumbnailJob]) -> [ThumbnailResult] {
+nonisolated private func renderThumbnails(jobs: [ThumbnailJob], maxPixelSize: Int) -> [ThumbnailResult] {
     var out: [ThumbnailResult] = []
     out.reserveCapacity(jobs.count)
     for job in jobs {
         guard let image = ThumbnailRenderer.thumbnail(
-            for: job.imageURL, maxPixelSize: thumbnailMaxPixelSize, flipped: job.shouldFlip
+            for: job.imageURL, maxPixelSize: maxPixelSize, flipped: job.shouldFlip
         ) else { continue }
         out.append(ThumbnailResult(presetId: job.presetId, image: image))
     }
