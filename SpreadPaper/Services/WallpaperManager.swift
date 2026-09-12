@@ -61,7 +61,7 @@ class WallpaperManager {
     }
 
     private func getWallpapersDirectory() -> URL {
-        let wallpapersDir = getAppDataDirectory().appendingPathComponent("wallpapers")
+        let wallpapersDir = getAppDataDirectory().appending(path: "wallpapers", directoryHint: .isDirectory)
         if !FileManager.default.fileExists(atPath: wallpapersDir.path) {
             try? FileManager.default.createDirectory(at: wallpapersDir, withIntermediateDirectories: true)
         }
@@ -69,7 +69,7 @@ class WallpaperManager {
     }
 
     func getDynamicDirectory() -> URL {
-        let dynamicDir = getAppDataDirectory().appendingPathComponent("dynamic")
+        let dynamicDir = getAppDataDirectory().appending(path: "dynamic", directoryHint: .isDirectory)
         if !FileManager.default.fileExists(atPath: dynamicDir.path) {
             try? FileManager.default.createDirectory(at: dynamicDir, withIntermediateDirectories: true)
         }
@@ -77,7 +77,7 @@ class WallpaperManager {
     }
 
     private func getDynamicPresetDirectory(presetId: UUID) -> URL {
-        let dir = getDynamicDirectory().appendingPathComponent(presetId.uuidString)
+        let dir = getDynamicDirectory().appending(path: presetId.uuidString, directoryHint: .isDirectory)
         if !FileManager.default.fileExists(atPath: dir.path) {
             try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         }
@@ -117,7 +117,7 @@ class WallpaperManager {
     func savePreset(name: String, originalUrl: URL, offset: CGSize, scale: CGFloat, previewScale: CGFloat, isFlipped: Bool) {
         let destDir = getAppDataDirectory()
         let newFilename = FilenameUtils.storedName(uuid: UUID(), originalFilename: originalUrl.lastPathComponent)
-        let destUrl = destDir.appendingPathComponent(newFilename)
+        let destUrl = destDir.appending(path: newFilename)
 
         do {
             try FileManager.default.copyItem(at: originalUrl, to: destUrl)
@@ -155,7 +155,7 @@ class WallpaperManager {
 
         for (index, url) in imageUrls.enumerated() {
             let filename = FilenameUtils.storedName(uuid: UUID(), originalFilename: url.lastPathComponent)
-            let destUrl = destDir.appendingPathComponent(filename)
+            let destUrl = destDir.appending(path: filename)
 
             do {
                 try FileManager.default.copyItem(at: url, to: destUrl)
@@ -199,7 +199,7 @@ class WallpaperManager {
     }
 
     func deletePreset(_ preset: SavedPreset) {
-        let fileUrl = getAppDataDirectory().appendingPathComponent(preset.imageFilename)
+        let fileUrl = getAppDataDirectory().appending(path: preset.imageFilename)
         try? FileManager.default.removeItem(at: fileUrl)
         if let idx = presets.firstIndex(where: { $0.id == preset.id }) {
             presets.remove(at: idx)
@@ -211,7 +211,7 @@ class WallpaperManager {
     }
 
     func getImageUrl(for preset: SavedPreset) -> URL {
-        return getAppDataDirectory().appendingPathComponent(preset.imageFilename)
+        return getAppDataDirectory().appending(path: preset.imageFilename)
     }
 
     func persistPresetsPublic() { persistPresets() }

@@ -15,7 +15,7 @@ struct GitHubRelease: Codable {
     let name: String
     let body: String
     let htmlUrl: String
-    let publishedAt: String
+    let publishedAt: Date?
     let assets: [GitHubAsset]
 
     enum CodingKeys: String, CodingKey {
@@ -25,6 +25,14 @@ struct GitHubRelease: Codable {
         case htmlUrl = "html_url"
         case publishedAt = "published_at"
         case assets
+    }
+
+    /// Decodes a GitHub release payload, reading `published_at` as ISO 8601.
+    /// Drafts carry `null` there, which decodes to `nil`.
+    static func decode(from data: Data) throws -> GitHubRelease {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return try decoder.decode(GitHubRelease.self, from: data)
     }
 }
 
@@ -100,7 +108,7 @@ class UpdateChecker {
             request.setValue("SpreadPaper/\(currentVersion)", forHTTPHeaderField: "User-Agent")
 
             let (data, _) = try await URLSession.shared.data(for: request)
-            let release = try JSONDecoder().decode(GitHubRelease.self, from: data)
+            let release = try GitHubRelease.decode(from: data)
             processRelease(release)
 
             if updateInfo?.isUpdateAvailable == true {
@@ -152,16 +160,13 @@ class UpdateChecker {
         let dmgAsset = release.assets.first { $0.name.hasSuffix(".dmg") }
         let zipAsset = release.assets.first { $0.name.hasSuffix(".zip") }
 
-        let dateFormatter = ISO8601DateFormatter()
-        let publishedDate = dateFormatter.date(from: release.publishedAt)
-
         updateInfo = UpdateInfo(
             currentVersion: currentVersion,
             latestVersion: latestVersion,
             releaseUrl: release.htmlUrl,
             dmgUrl: dmgAsset?.browserDownloadUrl,
             zipUrl: zipAsset?.browserDownloadUrl,
-            publishedAt: publishedDate,
+            publishedAt: release.publishedAt,
             isUpdateAvailable: isUpdateAvailable
         )
     }
@@ -183,45 +188,21 @@ class UpdateChecker {
         return false
     }
 
-    private func parseChangelog(_ content: String) {
-        var entries: [ChangelogEntry] = []
-        let lines = content.components(separatedBy: "\n")
-
-        var currentVersion: String?
-        var currentDate: String?
-
-        for line in lines {
-            // Match version headers like "## [1.1.3](url) (2025-11-22)" or "## 1.0.0 (2025-11-22)"
-            if line.hasPrefix("## ") {
-                // Save previous entry
-                if let version = currentVersion {
-                    entries.append(ChangelogEntry(version: version, date: currentDate))
-                }
-
-                // Parse new version
-                let headerContent = String(line.dropFirst(3))
-
-                // Extract version number
-                if let versionMatch = headerContent.range(of: #"\[?(\d+\.\d+\.\d+)\]?"#, options: .regularExpression) {
-                    currentVersion = String(headerContent[versionMatch])
-                        .replacingOccurrences(of: "[", with: "")
-                        .replacingOccurrences(of: "]", with: "")
-                }
-
-                // Extract date
-                if let dateMatch = headerContent.range(of: #"\((\d{4}-\d{2}-\d{2})\)"#, options: .regularExpression) {
-                    currentDate = String(headerContent[dateMatch])
-                        .replacingOccurrences(of: "(", with: "")
-                        .replacingOccurrences(of: ")", with: "")
-                }
+    /// Reads release headers out of a release-please changelog into `changelog`.
+    /// Accepts `## [1.1.3](url) (2025-11-22)` and `## 1.0.0 (2025-11-22)`.
+    /// Headers without a version are skipped.
+    func parseChangelog(_ content: String) {
+        changelog = content
+            .split(whereSeparator: \.isNewline)
+            .filter { $0.hasPrefix("## ") }
+            .compactMap { line -> ChangelogEntry? in
+                let header = line.dropFirst(3)
+                guard let versionMatch = header.firstMatch(of: #/\[?(?<version>\d+\.\d+\.\d+)\]?/#) else { return nil }
+                let dateMatch = header.firstMatch(of: #/\((?<date>\d{4}-\d{2}-\d{2})\)/#)
+                return ChangelogEntry(
+                    version: String(versionMatch.version),
+                    date: dateMatch.map { String($0.date) }
+                )
             }
-        }
-
-        // Add last entry
-        if let version = currentVersion {
-            entries.append(ChangelogEntry(version: version, date: currentDate))
-        }
-
-        changelog = entries
     }
 }

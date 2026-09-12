@@ -163,6 +163,9 @@ struct ScheduleDetailModal: View {
     let onRemove: () -> Void
     let onDone: () -> Void
 
+    /// Hours marked under the range bar, midnight to midnight.
+    private static let axisHours = [0, 6, 12, 18, 24]
+
     var body: some View {
         ZStack {
             Color.black.opacity(0.5)
@@ -243,15 +246,12 @@ struct ScheduleDetailModal: View {
                         .frame(height: 24)
 
                         HStack {
-                            Text("12 AM").font(.system(size: 8)).foregroundStyle(Color.cdTextTertiary)
-                            Spacer()
-                            Text("6 AM").font(.system(size: 8)).foregroundStyle(Color.cdTextTertiary)
-                            Spacer()
-                            Text("12 PM").font(.system(size: 8)).foregroundStyle(Color.cdTextTertiary)
-                            Spacer()
-                            Text("6 PM").font(.system(size: 8)).foregroundStyle(Color.cdTextTertiary)
-                            Spacer()
-                            Text("12 AM").font(.system(size: 8)).foregroundStyle(Color.cdTextTertiary)
+                            ForEach(Array(Self.axisHours.enumerated()), id: \.offset) { index, hour in
+                                if index > 0 { Spacer() }
+                                Text(TimeVariant.clockString(hour: hour, minute: 0))
+                                    .font(.system(size: 8))
+                                    .foregroundStyle(Color.cdTextTertiary)
+                            }
                         }
                     }
 
