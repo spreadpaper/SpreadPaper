@@ -711,7 +711,7 @@ struct EditorView: View {
 
     // MARK: - Behavior
 
-    /// Changes the wallpaper kind, trimming images the new kind cannot hold and resetting their times.
+    /// Changes the wallpaper kind and trims images the new kind cannot hold.
     /// Static and light/dark pin their slots to noon and midnight.
     private func switchType(to newType: WallpaperType) {
         guard newType != wallpaperType else { return }

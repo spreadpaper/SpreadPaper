@@ -25,7 +25,7 @@ struct SavedPreset: Identifiable, Codable, Hashable {
         return .standard
     }
 
-    /// Persisted keys, kept explicit so the decoder can probe for the optional ones.
+    /// Keys of the presets JSON; the dynamic and appearance keys may be absent in files on disk.
     private enum CodingKeys: String, CodingKey {
         case id, name, imageFilename, offsetX, offsetY, scale, previewScale, isFlipped
         case isDynamic, timeVariants, isAppearanceBased

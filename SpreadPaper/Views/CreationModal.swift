@@ -148,7 +148,7 @@ struct CreationModal: View {
 
 /// In-window HUD blur behind the card.
 private struct BackdropBlur: NSViewRepresentable {
-    /// Active HUD-material effect view blending within the window.
+    /// Built once; material and state never change afterwards.
     func makeNSView(context: Context) -> NSVisualEffectView {
         let v = NSVisualEffectView()
         v.material = .hudWindow
@@ -787,7 +787,7 @@ private struct KeyboardHandler: NSViewRepresentable {
     let onReturn: () -> Void
     let onEscape: () -> Void
 
-    /// Creates the key view and claims first responder once it is in a window.
+    /// Creates the key view and tries for first responder on the next run-loop turn.
     func makeNSView(context: Context) -> KeyView {
         let v = KeyView()
         v.onLeft = onLeft

@@ -92,8 +92,8 @@ class WallpaperManager {
         return dir
     }
 
-    /// Removes files written by versions that keyed on screen names. Called only after every
-    /// connected display has a replacement set, so the active wallpaper is never deleted.
+    /// Removes wallpaper files named by screen name, which no current version writes. Called only after
+    /// every connected display has a replacement set, so the active wallpaper is never deleted.
     private func removeLegacyFiles(in directory: URL, matching isLegacy: (String) -> Bool) {
         guard let files = try? FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil) else { return }
         for file in files where isLegacy(file.lastPathComponent) {
@@ -210,7 +210,8 @@ class WallpaperManager {
         persistPresets()
     }
 
-    /// Removes a preset and its stored image, clearing the active preset when it was the one applied.
+    /// Removes a preset and the image in `imageFilename`; variant images stay on disk.
+    /// Clears the active preset when it was the one applied.
     func deletePreset(_ preset: SavedPreset) {
         let fileUrl = getAppDataDirectory().appending(path: preset.imageFilename)
         try? FileManager.default.removeItem(at: fileUrl)

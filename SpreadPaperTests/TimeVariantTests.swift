@@ -2,7 +2,7 @@ import Foundation
 import Testing
 @testable import SpreadPaper
 
-/// Issue #85: schedule times must follow the locale's hour cycle, not a hardcoded 12-hour pattern.
+/// Issue #85: schedule times follow the locale's hour cycle.
 struct TimeVariantTests {
     private let sixThirty = TimeVariant(imageFilename: "a.png", hour: 6, minute: 30)
     private let enUS = Locale(identifier: "en_US")

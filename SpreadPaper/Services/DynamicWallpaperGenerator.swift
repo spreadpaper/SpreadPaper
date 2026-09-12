@@ -42,7 +42,8 @@ nonisolated struct AppearanceInfo: Codable {
     var lightIndex: Int
 }
 
-/// Root of the desktop plist; only the arrays for the chosen mode are set.
+/// Root of the h24 desktop plist: time keyframes plus the light and dark fallbacks.
+/// Solar items stay nil.
 nonisolated struct DynamicMetadata: Codable {
     /// Two-letter keys as Apple writes them.
     enum CodingKeys: String, CodingKey {

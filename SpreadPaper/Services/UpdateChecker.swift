@@ -14,7 +14,7 @@ private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "SpreadPa
 
 // MARK: - Models
 
-/// The fields of a GitHub release the checker reads: tag, page, publish date and assets.
+/// The fields of a GitHub release the checker decodes.
 struct GitHubRelease: Codable {
     let tagName: String
     let name: String

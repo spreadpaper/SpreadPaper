@@ -22,7 +22,7 @@ struct PresetStore {
     /// Result of a successful load.
     struct Loaded {
         let presets: [SavedPreset]
-        /// True when the file predates the `isAppearanceBased` key and should be rewritten once.
+        /// True when the file lacks the `isAppearanceBased` key.
         let needsMigrationRewrite: Bool
     }
 

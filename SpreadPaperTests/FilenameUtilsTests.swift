@@ -2,7 +2,7 @@ import Foundation
 import Testing
 @testable import SpreadPaper
 
-/// Issue #85: the URL-based path helpers must produce the same names as the NSString ones did.
+/// Issue #85: stored names keep spaces and inner dots, split on the last extension, and cap the base.
 struct FilenameUtilsTests {
     private let uuid = UUID(uuidString: "0B2C1A2E-6F6A-4D4B-9B0F-0C1D2E3F4A5B")!
 
