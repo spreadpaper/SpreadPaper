@@ -122,26 +122,28 @@ class WallpaperManager {
         }
     }
 
-    /// Drops this display's other renders in a preset directory, keeping the one now on screen.
-    /// Best-effort: leftovers go on the next apply.
-    private func cleanupOldDynamicWallpapers(for displayID: CGDirectDisplayID, in directory: URL, except currentFilename: String) {
-        guard let files = try? FileManager.default.contentsOfDirectory(atPath: directory.path) else { return }
-        let stale = WallpaperFilenames.staleDynamicFiles(in: files, displayID: displayID, keeping: currentFilename)
-        for filename in stale {
-            try? FileManager.default.removeItem(at: directory.appending(path: filename))
-        }
-    }
-
-    /// Prunes a preset directory after a dynamic apply, sparing displays whose set failed.
-    /// Legacy files go once every display is showing a new render.
+    /// Prunes a preset directory after a dynamic apply, from a single directory listing.
+    /// Removal is best-effort; leftovers go on the next apply.
     private func cleanupDynamicDirectory(_ directory: URL, results: RenderResults, succeeded: Set<CGDirectDisplayID>) {
+        guard let filenames = try? FileManager.default.contentsOfDirectory(atPath: directory.path) else { return }
+        var keeping: [CGDirectDisplayID: String] = [:]
         for displayID in succeeded {
             if case .success(let url)? = results[displayID] {
-                cleanupOldDynamicWallpapers(for: displayID, in: directory, except: url.lastPathComponent)
+                keeping[displayID] = url.lastPathComponent
             }
         }
-        if allDisplaysSucceeded(succeeded) {
-            removeLegacyFiles(in: directory, matching: WallpaperFilenames.isLegacyDynamicName)
+        let removable = WallpaperFilenames.removableDynamicFiles(
+            in: filenames,
+            displayIDs: connectedScreens.map(\.displayID),
+            keeping: keeping,
+            sweepLegacy: allDisplaysSucceeded(succeeded)
+        )
+        for filename in removable {
+            do {
+                try FileManager.default.removeItem(at: directory.appending(path: filename))
+            } catch {
+                logger.error("Removing wallpaper file \(filename, privacy: .public) failed: \(error, privacy: .public)")
+            }
         }
     }
 

@@ -1,4 +1,3 @@
-import Foundation
 import Testing
 @testable import SpreadPaper
 
@@ -45,48 +44,75 @@ struct WallpaperFilenamesTests {
     @Test func legacyDynamicNamesAreDetected() {
         #expect(WallpaperFilenames.isLegacyDynamicName("LG ULTRAWIDE.heic"))
         #expect(WallpaperFilenames.isLegacyDynamicName("69734400.heic"))
+        #expect(WallpaperFilenames.isLegacyDynamicName("27_2.heic"))
         #expect(!WallpaperFilenames.isLegacyDynamicName(WallpaperFilenames.dynamicName(displayID: 69734400, timestamp: 1700000000000)))
         #expect(!WallpaperFilenames.isLegacyDynamicName("notes.txt"))
     }
 
-    @Test func staleDynamicFilesSkipTheCurrentRender() {
+    @Test func dynamicTimestampReadsOnlyCurrentNames() {
+        #expect(WallpaperFilenames.dynamicTimestamp("1_1700000000000.heic") == 1700000000000)
+        #expect(WallpaperFilenames.dynamicTimestamp("1.heic") == nil)
+        #expect(WallpaperFilenames.dynamicTimestamp("LG ULTRAWIDE.heic") == nil)
+        #expect(WallpaperFilenames.dynamicTimestamp(".1_100.heic.killed.tmp") == nil)
+    }
+
+    @Test func dynamicTempTargetsAreRecognised() {
+        #expect(WallpaperFilenames.dynamicTempTarget(".1_100.heic.killed.tmp") == "1_100.heic")
+        #expect(WallpaperFilenames.dynamicTempTarget(".LG ULTRAWIDE.heic.killed.tmp") == "LG ULTRAWIDE.heic")
+        #expect(WallpaperFilenames.dynamicTempTarget("1_100.heic") == nil)
+        #expect(WallpaperFilenames.dynamicTempTarget(".notes.txt.tmp") == nil)
+    }
+
+    @Test func aSetDisplayKeepsOnlyItsNewRender() {
         let current = WallpaperFilenames.dynamicName(displayID: 1, timestamp: 300)
         let listing = [current, "1_100.heic", "1_200.heic"]
-        let stale = WallpaperFilenames.staleDynamicFiles(in: listing, displayID: 1, keeping: current)
-        #expect(stale.sorted() == ["1_100.heic", "1_200.heic"])
+        let removable = WallpaperFilenames.removableDynamicFiles(
+            in: listing, displayIDs: [1], keeping: [1: current], sweepLegacy: true
+        )
+        #expect(removable.sorted() == ["1_100.heic", "1_200.heic"])
     }
 
-    @Test func staleDynamicFilesSpareOtherDisplaysAndOtherFiles() {
+    @Test func otherDisplaysAndUnrelatedFilesAreSpared() {
         let current = WallpaperFilenames.dynamicName(displayID: 1, timestamp: 300)
-        let listing = [current, "1_100.heic", "12_100.heic", "2_100.heic", "1.heic", "LG ULTRAWIDE.heic", "1_100.txt"]
-        let stale = WallpaperFilenames.staleDynamicFiles(in: listing, displayID: 1, keeping: current)
-        #expect(stale == ["1_100.heic"])
+        let listing = [current, "1_100.heic", "12_100.heic", "2_100.heic", "1_100.txt"]
+        let removable = WallpaperFilenames.removableDynamicFiles(
+            in: listing, displayIDs: [1, 2], keeping: [1: current, 2: "2_100.heic"], sweepLegacy: false
+        )
+        #expect(removable == ["1_100.heic"])
     }
 
-    @Test func staleDynamicFilesSweepAbandonedTempSiblings() {
-        let current = WallpaperFilenames.dynamicName(displayID: 1, timestamp: 300)
-        let listing = [current, ".1_100.heic.killed.tmp", ".\(current).live.tmp", ".2_100.heic.killed.tmp"]
-        let stale = WallpaperFilenames.staleDynamicFiles(in: listing, displayID: 1, keeping: current)
-        #expect(stale == [".1_100.heic.killed.tmp"])
+    @Test func aFailedDisplayKeepsItsOldestAndNewestRenders() {
+        let listing = ["1_100.heic", "1_200.heic", "1_300.heic", "1_400.heic"]
+        let removable = WallpaperFilenames.removableDynamicFiles(
+            in: listing, displayIDs: [1], keeping: [:], sweepLegacy: false
+        )
+        #expect(removable.sorted() == ["1_200.heic", "1_300.heic"])
     }
 
-    @Test func staleDynamicFilesAreRemovedFromDisk() throws {
-        let directory = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString, directoryHint: .isDirectory)
-        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-        defer { try? FileManager.default.removeItem(at: directory) }
+    @Test func legacyNamesGoOnlyWhenEveryDisplayWasSet() {
+        let current = WallpaperFilenames.dynamicName(displayID: 1, timestamp: 1700000000000)
+        let listing = [current, "1.heic", "LG ULTRAWIDE.heic"]
+        let spared = WallpaperFilenames.removableDynamicFiles(
+            in: listing, displayIDs: [1, 2], keeping: [1: current], sweepLegacy: false
+        )
+        #expect(spared.isEmpty)
+        let swept = WallpaperFilenames.removableDynamicFiles(
+            in: listing, displayIDs: [1], keeping: [1: current], sweepLegacy: true
+        )
+        #expect(swept.sorted() == ["1.heic", "LG ULTRAWIDE.heic"])
+    }
 
+    @Test func abandonedTempSiblingsAlwaysGo() {
         let current = WallpaperFilenames.dynamicName(displayID: 1, timestamp: 300)
-        let written = [current, "1_100.heic", "2_100.heic", "1.heic"]
-        for filename in written {
-            try Data().write(to: directory.appending(path: filename))
-        }
-
-        let listing = try FileManager.default.contentsOfDirectory(atPath: directory.path)
-        for filename in WallpaperFilenames.staleDynamicFiles(in: listing, displayID: 1, keeping: current) {
-            try FileManager.default.removeItem(at: directory.appending(path: filename))
-        }
-
-        let remaining = try FileManager.default.contentsOfDirectory(atPath: directory.path).sorted()
-        #expect(remaining == ["1.heic", "1_300.heic", "2_100.heic"])
+        let listing = [
+            current, ".\(current).live.tmp", ".1_100.heic.killed.tmp",
+            ".1.heic.killed.tmp", ".LG ULTRAWIDE.heic.killed.tmp", ".2_100.heic.killed.tmp"
+        ]
+        let removable = WallpaperFilenames.removableDynamicFiles(
+            in: listing, displayIDs: [1], keeping: [1: current], sweepLegacy: false
+        )
+        #expect(removable.sorted() == [
+            ".1.heic.killed.tmp", ".1_100.heic.killed.tmp", ".2_100.heic.killed.tmp", ".LG ULTRAWIDE.heic.killed.tmp"
+        ])
     }
 }

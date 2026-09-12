@@ -24,16 +24,53 @@ enum WallpaperFilenames {
         "\(dynamicPrefix(displayID: displayID))\(timestamp).heic"
     }
 
-    /// This display's other dynamic renders and their abandoned temp siblings.
-    /// Everything else in the listing is left alone.
-    static func staleDynamicFiles(in filenames: [String], displayID: CGDirectDisplayID, keeping: String) -> [String] {
-        let prefix = dynamicPrefix(displayID: displayID)
-        // The HEIC writer only sweeps temps of the name it is writing, so earlier names' temps land here.
-        let tempPrefix = ".\(prefix)"
-        let keptTempPrefix = ".\(keeping)."
+    /// Output file a `.<name>.<id>.tmp` sibling of the HEIC writer belongs to.
+    /// Nil for every other filename.
+    static func dynamicTempTarget(_ filename: String) -> String? {
+        guard filename.hasPrefix("."), filename.hasSuffix(".tmp") else { return nil }
+        let body = filename.dropFirst()
+        guard let suffix = body.range(of: ".heic") else { return nil }
+        return String(body[body.startIndex ..< suffix.upperBound])
+    }
+
+    /// Millisecond timestamp a current dynamic name ends with, for ordering a display's renders.
+    /// Nil for every other shape.
+    static func dynamicTimestamp(_ filename: String) -> Int? {
+        guard filename.hasSuffix(".heic") else { return nil }
+        let stem = filename.dropLast(".heic".count)
+        guard let separator = stem.lastIndex(of: "_") else { return nil }
+        return Int(stem[stem.index(after: separator)...])
+    }
+
+    /// Names a dynamic preset directory can lose after an apply; a display that was set keeps its new render.
+    /// One whose set failed keeps its oldest and newest; abandoned temp siblings always go.
+    /// Legacy names go once every display is set.
+    static func removableDynamicFiles(
+        in filenames: [String],
+        displayIDs: [CGDirectDisplayID],
+        keeping: [CGDirectDisplayID: String],
+        sweepLegacy: Bool
+    ) -> [String] {
+        var kept: Set<String> = []
+        var owned: Set<String> = []
+        for displayID in displayIDs {
+            let prefix = dynamicPrefix(displayID: displayID)
+            let renders = filenames.filter { $0.hasPrefix(prefix) && $0.hasSuffix(".heic") }
+            owned.formUnion(renders)
+            if let current = keeping[displayID] {
+                kept.insert(current)
+                continue
+            }
+            // A successful apply leaves one render behind, so the oldest is what this display still shows.
+            let ordered = renders.sorted { (dynamicTimestamp($0) ?? 0) < (dynamicTimestamp($1) ?? 0) }
+            if let oldest = ordered.first { kept.insert(oldest) }
+            if let newest = ordered.last { kept.insert(newest) }
+        }
         return filenames.filter { name in
-            if name.hasPrefix(prefix), name.hasSuffix(".heic") { return name != keeping }
-            return name.hasPrefix(tempPrefix) && name.hasSuffix(".tmp") && !name.hasPrefix(keptTempPrefix)
+            // The HEIC writer only sweeps temps of the name it is writing, so earlier names' temps land here.
+            if let target = dynamicTempTarget(name) { return !kept.contains(target) }
+            guard name.hasSuffix(".heic"), !kept.contains(name) else { return false }
+            return owned.contains(name) || (sweepLegacy && isLegacyDynamicName(name))
         }
     }
 
@@ -44,9 +81,9 @@ enum WallpaperFilenames {
     }
 
     /// True for a dynamic wallpaper keyed on the screen name or on a bare display ID.
-    /// Only `<displayID>_<timestamp>.heic` is current.
+    /// Current names end in a millisecond timestamp, which no screen name reaches.
     static func isLegacyDynamicName(_ filename: String) -> Bool {
         guard filename.hasSuffix(".heic") else { return false }
-        return filename.wholeMatch(of: /\d+_\d+\.heic/) == nil
+        return filename.wholeMatch(of: /\d+_\d{10,}\.heic/) == nil
     }
 }
