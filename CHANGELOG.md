@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.8.0](https://github.com/spreadpaper/SpreadPaper/compare/v1.7.0...v1.8.0) (2026-09-12)
+
+
+### Features
+
+* bezel compensation between displays ([#57](https://github.com/spreadpaper/SpreadPaper/issues/57)) ([407264b](https://github.com/spreadpaper/SpreadPaper/commit/407264bad3e9d24d119b24540cd56c6dc3d8c72b))
+* per-display bezel widths ([#61](https://github.com/spreadpaper/SpreadPaper/issues/61)) ([a473b3b](https://github.com/spreadpaper/SpreadPaper/commit/a473b3ba9970cb9ca5179f1397ca01061335fcfe))
+
+
+### Bug Fixes
+
+* key per-display wallpaper files on CGDirectDisplayID ([#56](https://github.com/spreadpaper/SpreadPaper/issues/56)) ([f7d91c5](https://github.com/spreadpaper/SpreadPaper/commit/f7d91c5990178ec306ff1da8ace3b9caabf3f9e1))
+* quarantine corrupt presets file instead of overwriting it ([#54](https://github.com/spreadpaper/SpreadPaper/issues/54)) ([8bf9289](https://github.com/spreadpaper/SpreadPaper/commit/8bf92899c1189fe71dfff540e55ab59bf609681c))
+* render and encode wallpapers off the main actor ([#60](https://github.com/spreadpaper/SpreadPaper/issues/60)) ([8c81d2f](https://github.com/spreadpaper/SpreadPaper/commit/8c81d2fd12ef3e03a103c7422760e436bf8c7dfd))
+* use pixel dimensions for wallpaper images ([#45](https://github.com/spreadpaper/SpreadPaper/issues/45)) ([8ea3306](https://github.com/spreadpaper/SpreadPaper/commit/8ea3306fb3b6979f599d76b5120f196e6c497b39))
+
 ## [1.7.0](https://github.com/spreadpaper/SpreadPaper/compare/v1.6.0...v1.7.0) (2026-05-07)
 
 
