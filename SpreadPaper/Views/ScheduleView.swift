@@ -6,6 +6,7 @@ import CoreTransferable
 import UniformTypeIdentifiers
 import PhosphorSwift
 
+/// Drag payload carrying a variant's id so rows can swap start times by drop.
 struct VariantDragID: Codable, Transferable {
     let id: UUID
     static var transferRepresentation: some TransferRepresentation {
@@ -13,6 +14,7 @@ struct VariantDragID: Codable, Transferable {
     }
 }
 
+/// Lists a dynamic preset's variants in start-time order with drag-to-swap and per-row editing.
 struct ScheduleView: View {
     @Binding var variants: [TimeVariant]
     @Binding var selectedIndex: Int
@@ -41,6 +43,7 @@ struct ScheduleView: View {
         }
     }
 
+    /// One schedule row: thumbnail, name, active range, and the drop target that swaps start times.
     private func compactRow(index: Int) -> some View {
         let variant = variants[index]
         let isSelected = index == selectedIndex
@@ -133,6 +136,7 @@ struct ScheduleView: View {
         }
     }
 
+    /// Variant's custom name, else the stored image's original name, else a numbered fallback.
     func displayName(for index: Int) -> String {
         let variant = variants[index]
         if !variant.name.isEmpty { return variant.name }
@@ -140,6 +144,7 @@ struct ScheduleView: View {
         return resolved.isEmpty ? "Image \(index + 1)" : resolved
     }
 
+    /// The variant that starts next in the day, wrapping to the earliest one past midnight.
     func nextVariantAfter(index: Int) -> TimeVariant {
         let sorted = sortedIndices
         guard let pos = sorted.firstIndex(of: index) else { return variants[index] }
@@ -147,6 +152,7 @@ struct ScheduleView: View {
         return variants[sorted[nextPos]]
     }
 
+    /// Whole hours between two start times, wrapping past midnight and never below one.
     private func durationHours(from: TimeVariant, to: TimeVariant) -> Int {
         var diff = to.dayFraction - from.dayFraction
         if diff <= 0 { diff += 1.0 }
@@ -156,6 +162,7 @@ struct ScheduleView: View {
 
 // MARK: - Centered Detail Modal
 
+/// Centered sheet for renaming a variant and dragging its start time on a range bar.
 struct ScheduleDetailModal: View {
     @Binding var variant: TimeVariant
     let defaultName: String

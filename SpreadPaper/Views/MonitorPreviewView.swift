@@ -58,6 +58,7 @@ private struct BezelFrameShape: Shape {
     let outer: CGRect
     let inner: CGRect
 
+    /// Outer and inner rects on one path; the even-odd fill leaves only the ring.
     func path(in rect: CGRect) -> Path {
         var path = Path()
         path.addRect(outer)

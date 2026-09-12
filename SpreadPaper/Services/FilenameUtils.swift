@@ -1,6 +1,8 @@
 import Foundation
 
+/// Builds and reads the `<uuid>_<original>` names images are stored under.
 enum FilenameUtils {
+    /// Original filename recovered from a stored name by dropping the UUID prefix.
     static func displayName(for storedFilename: String) -> String {
         let base = baseName(of: storedFilename)
         if let underscore = base.firstIndex(of: "_") {
@@ -9,6 +11,8 @@ enum FilenameUtils {
         return base
     }
 
+    /// Unique on-disk name that keeps the original filename readable after the UUID prefix.
+    /// Path separators become dashes; the base is capped at 80 characters.
     static func storedName(uuid: UUID, originalFilename: String) -> String {
         let ext = pathExtension(of: originalFilename)
         let rawBase = baseName(of: originalFilename)

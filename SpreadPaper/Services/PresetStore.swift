@@ -7,6 +7,7 @@ struct PresetStore {
     static let filename = "spreadpaper_presets.json"
     static let backupFilename = "spreadpaper_presets.json.bak"
 
+    /// Load failure carrying the backup location for the user-facing message.
     enum LoadError: LocalizedError {
         case corrupted(backup: URL, underlying: any Error)
 

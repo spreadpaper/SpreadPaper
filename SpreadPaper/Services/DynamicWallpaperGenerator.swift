@@ -7,7 +7,9 @@ import UniformTypeIdentifiers
 // Based on the metadata format reverse-engineered by wallpapper
 // (https://github.com/mczachurski/wallpapper) by Marcin Czachurski (MIT).
 
+/// One sun-position keyframe in Apple's desktop plist, selecting the frame to show.
 nonisolated struct SolarItem: Codable {
+    /// Single-letter keys as Apple writes them.
     enum CodingKeys: String, CodingKey {
         case altitude = "a"
         case azimuth = "z"
@@ -18,7 +20,9 @@ nonisolated struct SolarItem: Codable {
     var imageIndex: Int
 }
 
+/// One time-of-day keyframe: a day fraction and the frame it switches to.
 nonisolated struct TimeBasedItem: Codable {
+    /// Single-letter keys as Apple writes them.
     enum CodingKeys: String, CodingKey {
         case time = "t"
         case imageIndex = "i"
@@ -27,7 +31,9 @@ nonisolated struct TimeBasedItem: Codable {
     var imageIndex: Int
 }
 
+/// Which frames stand in for light and dark mode.
 nonisolated struct AppearanceInfo: Codable {
+    /// Single-letter keys as Apple writes them.
     enum CodingKeys: String, CodingKey {
         case darkIndex = "d"
         case lightIndex = "l"
@@ -36,7 +42,9 @@ nonisolated struct AppearanceInfo: Codable {
     var lightIndex: Int
 }
 
+/// Root of the desktop plist; only the arrays for the chosen mode are set.
 nonisolated struct DynamicMetadata: Codable {
+    /// Two-letter keys as Apple writes them.
     enum CodingKeys: String, CodingKey {
         case solarItems = "si"
         case timeItems = "ti"
@@ -49,6 +57,7 @@ nonisolated struct DynamicMetadata: Codable {
 
 // MARK: - Errors
 
+/// Failures raised while building or writing a dynamic desktop HEIC.
 enum DynamicWallpaperError: Error, LocalizedError, Equatable {
     case noImages
     case countMismatch

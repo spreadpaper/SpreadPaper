@@ -4,6 +4,8 @@ import os
 /// Technical failure details go here; `lastError` carries only plain, actionable copy for the UI.
 private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "SpreadPaper", category: "wallpaper")
 
+/// Owns display detection, preset persistence and wallpaper application for the whole app.
+/// Renders off-main over Sendable specs, then sets each desktop image on main.
 @Observable
 class WallpaperManager {
     var connectedScreens: [DisplayInfo] = []
@@ -21,7 +23,7 @@ class WallpaperManager {
     private let store: PresetStore
     private let activePresetKey = "activePresetId"
 
-    /// - Parameter store: Presets persistence. Defaults to the app support directory.
+    /// Loads screens, presets and the active preset id; `store` defaults to the app support directory.
     init(store: PresetStore? = nil) {
         self.store = store ?? PresetStore(directory: Self.defaultDataDirectory())
         refreshScreens()
@@ -31,6 +33,7 @@ class WallpaperManager {
         }
     }
 
+    /// Records which preset is on the desktop and keeps that choice across launches.
     func setActivePreset(_ id: UUID?) {
         activePresetId = id
         if let id {
@@ -40,6 +43,7 @@ class WallpaperManager {
         }
     }
 
+    /// Refreshes the display list on every screen-parameter change until the calling task is cancelled.
     func listenForScreenChanges() async {
         for await _ in NotificationCenter.default.notifications(named: NSApplication.didChangeScreenParametersNotification) {
             refreshScreens()
@@ -52,6 +56,7 @@ class WallpaperManager {
         URL.applicationSupportDirectory.appending(path: "SpreadPaper")
     }
 
+    /// Store directory, created on first use so callers can write into it right away.
     private func getAppDataDirectory() -> URL {
         let dir = store.directory
         if !FileManager.default.fileExists(atPath: dir.path) {
@@ -60,6 +65,7 @@ class WallpaperManager {
         return dir
     }
 
+    /// Directory for rendered static PNGs, created on first use.
     private func getWallpapersDirectory() -> URL {
         let wallpapersDir = getAppDataDirectory().appending(path: "wallpapers", directoryHint: .isDirectory)
         if !FileManager.default.fileExists(atPath: wallpapersDir.path) {
@@ -68,6 +74,7 @@ class WallpaperManager {
         return wallpapersDir
     }
 
+    /// Parent of the per-preset dynamic HEIC folders, created on first use.
     func getDynamicDirectory() -> URL {
         let dynamicDir = getAppDataDirectory().appending(path: "dynamic", directoryHint: .isDirectory)
         if !FileManager.default.fileExists(atPath: dynamicDir.path) {
@@ -76,6 +83,7 @@ class WallpaperManager {
         return dynamicDir
     }
 
+    /// Folder holding one dynamic preset's per-display HEIC files, created on first use.
     private func getDynamicPresetDirectory(presetId: UUID) -> URL {
         let dir = getDynamicDirectory().appending(path: presetId.uuidString, directoryHint: .isDirectory)
         if !FileManager.default.fileExists(atPath: dir.path) {
@@ -98,8 +106,8 @@ class WallpaperManager {
         }
     }
 
+    /// Deletes earlier static renders for one display so reapplying does not bloat the disk.
     private func cleanupOldWallpapers(for displayID: CGDirectDisplayID, in directory: URL, except currentFilename: String) {
-        // Remove old wallpaper files for this display to prevent disk bloat.
         let prefix = WallpaperFilenames.staticPrefix(displayID: displayID)
         do {
             let files = try FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil)
@@ -110,10 +118,12 @@ class WallpaperManager {
                 }
             }
         } catch {
-            // Cleanup is best-effort; if it fails, old files will be cleaned up on next application
+            // Best-effort; the next apply retries.
         }
     }
 
+    /// Copies the image into the app data directory and appends a static preset with its placement.
+    /// A failed copy surfaces as a plain error message instead of a half-saved preset.
     func savePreset(name: String, originalUrl: URL, offset: CGSize, scale: CGFloat, previewScale: CGFloat, isFlipped: Bool) {
         let destDir = getAppDataDirectory()
         let newFilename = FilenameUtils.storedName(uuid: UUID(), originalFilename: originalUrl.lastPathComponent)
@@ -138,6 +148,8 @@ class WallpaperManager {
         }
     }
 
+    /// Copies every image into the app data directory and stores one time variant per image, sorted by start.
+    /// The parallel arrays are indexed by image; a missing placement entry falls back to the default.
     func saveDynamicPreset(
         name: String,
         imageUrls: [URL],
@@ -198,6 +210,7 @@ class WallpaperManager {
         persistPresets()
     }
 
+    /// Removes a preset and its stored image, clearing the active preset when it was the one applied.
     func deletePreset(_ preset: SavedPreset) {
         let fileUrl = getAppDataDirectory().appending(path: preset.imageFilename)
         try? FileManager.default.removeItem(at: fileUrl)
@@ -210,12 +223,15 @@ class WallpaperManager {
         }
     }
 
+    /// Location of a preset's stored image inside the app data directory.
     func getImageUrl(for preset: SavedPreset) -> URL {
         return getAppDataDirectory().appending(path: preset.imageFilename)
     }
 
+    /// Lets views that edit `presets` in place, such as a rename, write the change to disk.
     func persistPresetsPublic() { persistPresets() }
 
+    /// Writes the presets file, reporting a plain error message when the write fails.
     private func persistPresets() {
         _ = getAppDataDirectory()
         do {
@@ -226,6 +242,8 @@ class WallpaperManager {
         }
     }
 
+    /// Reads presets from disk, rewriting them once after a migration and recovering from a corrupt file.
+    /// A corrupt file is quarantined and the user is told where the backup went.
     private func loadPresets() {
         do {
             guard let loaded = try store.load() else { return }
@@ -246,6 +264,7 @@ class WallpaperManager {
     }
 
     // --- SCREEN LOGIC ---
+    /// Rebuilds the display list from NSScreen with bezel-spaced frames and recomputes both canvases.
     func refreshScreens() {
         let settings = AppSettings.shared
         let physical = NSScreen.screens.map { DisplayInfo(screen: $0) }
@@ -357,6 +376,8 @@ class WallpaperManager {
         succeeded.count == connectedScreens.count
     }
 
+    /// Renders one static PNG per display off-main and sets each as that display's desktop image.
+    /// Earlier renders are removed only for displays that now show the new file.
     func setWallpaper(originalImage: NSImage, imageOffset: CGSize, scale: CGFloat, previewScale: CGFloat, isFlipped: Bool) async {
         guard beginApply() else { return }
         defer { isApplying = false }
@@ -407,6 +428,8 @@ class WallpaperManager {
         }
     }
 
+    /// Renders every variant per display into a time-based HEIC and sets it as the desktop image.
+    /// All displays share one schedule so they transition together.
     func applyDynamicWallpaper(
         preset: SavedPreset,
         images: [NSImage],
@@ -464,6 +487,7 @@ class WallpaperManager {
         }
     }
 
+    /// Renders the light and dark images per display into an appearance HEIC and sets it as the desktop image.
     func applyAppearanceWallpaper(
         preset: SavedPreset,
         lightImage: NSImage,
@@ -518,6 +542,7 @@ class WallpaperManager {
     }
 }
 
+/// Failures raised while converting, rendering or encoding a wallpaper image.
 enum WallpaperError: LocalizedError {
     case imageConversionFailed
     case contextCreationFailed

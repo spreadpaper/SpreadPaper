@@ -2,8 +2,8 @@
 
 import SwiftUI
 
-/// Shared layout shell for Gallery and Editor views.
-/// Wizard bypasses this entirely (full-screen onboarding).
+/// Top bar, main content and a fixed-width sidebar shared by Gallery and Editor.
+/// The wizard renders full-screen without it.
 struct AppShell<TopBar: View, MainContent: View, SidebarContent: View>: View {
     @ViewBuilder let topBar: () -> TopBar
     @ViewBuilder let mainContent: () -> MainContent

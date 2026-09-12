@@ -5,6 +5,7 @@ import PhosphorSwift
 
 // MARK: - Custom Text Field
 
+/// Plain text field on the dark fill with an accent ring while focused.
 struct CoolDarkTextField: View {
     let placeholder: String
     @Binding var text: String
@@ -31,6 +32,7 @@ struct CoolDarkTextField: View {
 
 // MARK: - Toast
 
+/// Elevated pill for a short transient confirmation.
 struct ToastView: View {
     let message: String
 
@@ -52,6 +54,7 @@ struct ToastView: View {
 
 // MARK: - Dashed Add Button
 
+/// Full-width dashed outline button for appending an item to a list.
 struct DashedAddButton: View {
     let label: String
     let action: () -> Void

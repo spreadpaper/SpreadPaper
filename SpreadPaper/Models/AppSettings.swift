@@ -1,5 +1,6 @@
 import SwiftUI
 
+/// User preferences backed by UserDefaults; every property writes through on change.
 @Observable
 class AppSettings {
     static let shared = AppSettings()
@@ -51,13 +52,14 @@ class AppSettings {
         ]
     }
 
+    /// Restores every setting from UserDefaults and drops stale keys.
     init() {
         self.hasCompletedWizard = UserDefaults.standard.bool(forKey: "hasCompletedWizard")
         self.bezelGap = UserDefaults.standard.double(forKey: "bezelGap")
         self.bezelWidths = UserDefaults.standard.dictionary(forKey: "bezelWidths") as? [String: [String: Double]] ?? [:]
         self.bezelPerDisplay = UserDefaults.standard.bool(forKey: "bezelPerDisplay")
 
-        // Keys written by settings that no longer exist (removed in #64).
+        // Clears keys no current setting reads.
         UserDefaults.standard.removeObject(forKey: "showInMenuBar")
         UserDefaults.standard.removeObject(forKey: "launchAtLogin")
         UserDefaults.standard.removeObject(forKey: "appearanceMode")

@@ -1,5 +1,6 @@
 import Foundation
 
+/// One image in a dynamic preset with its start time and its own placement.
 struct TimeVariant: Identifiable, Codable, Hashable {
     var id = UUID()
     var imageFilename: String

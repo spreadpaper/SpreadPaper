@@ -20,6 +20,7 @@ extension Color {
     static let cdCanvasBg = Color(hex: 0x111114)
     static let cdDanger = Color(hex: 0xFF453A)
 
+    /// sRGB colour from a 0xRRGGBB literal.
     init(hex: UInt, alpha: Double = 1.0) {
         self.init(
             .sRGB,
@@ -86,6 +87,7 @@ struct CoolDarkButtonStyle: ButtonStyle {
         isSuccess ? Color.cdSuccess : isPrimary ? Color.cdAccent : Color.cdBgElevated
     }
 
+    /// Applies the variant's fill, border and glow, dimming while pressed or disabled.
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.system(size: size.fontSize, weight: .semibold))
@@ -108,6 +110,7 @@ struct CoolDarkButtonStyle: ButtonStyle {
 
 // MARK: - Section Header
 
+/// Small uppercase tertiary label that titles a panel section.
 struct SectionHeader: View {
     let title: String
 

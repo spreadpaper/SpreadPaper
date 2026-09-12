@@ -3,6 +3,8 @@
 import SwiftUI
 import PhosphorSwift
 
+/// Scaled preview of the display layout with the draggable, snapping image laid over it.
+/// Doubles as the drop zone for new images.
 struct EditorCanvasView: View {
     let selectedImage: NSImage?
     @Binding var imageOffset: CGSize
@@ -118,6 +120,7 @@ struct EditorCanvasView: View {
         return true
     }
 
+    /// Pushes the fitted scale to the parent binding; deferred because it runs during body evaluation.
     private func updatePreviewScale(_ scale: CGFloat) {
         DispatchQueue.main.async {
             if currentPreviewScale != scale {
@@ -126,12 +129,14 @@ struct EditorCanvasView: View {
         }
     }
 
+    /// Scale that fits the bezel bounds into the available space with a 15% margin.
     private func calculatePreviewScale(geo: GeometryProxy) -> CGFloat {
         let scaleX = geo.size.width / max(manager.previewBounds.width, 1)
         let scaleY = geo.size.height / max(manager.previewBounds.height, 1)
         return min(scaleX, scaleY) * 0.85
     }
 
+    /// Snaps a dragged offset to the canvas centre and edges within a 10 pt threshold.
     private func calculateSnapping(raw: CGSize, imgSize: NSSize, canvasSize: CGSize, previewScale: CGFloat, zoomScale: CGFloat) -> CGSize {
         var newX = raw.width
         var newY = raw.height
@@ -142,11 +147,9 @@ struct EditorCanvasView: View {
         let cw = canvasSize.width * previewScale
         let ch = canvasSize.height * previewScale
 
-        // Snap to center
         if abs(newX) < threshold { newX = 0 }
         if abs(newY) < threshold { newY = 0 }
 
-        // Snap to edges
         if abs(newX - (w - cw) / 2.0) < threshold { newX = (w - cw) / 2.0 }
         if abs(newX - -(w - cw) / 2.0) < threshold { newX = -(w - cw) / 2.0 }
         if abs(newY - (h - ch) / 2.0) < threshold { newY = (h - ch) / 2.0 }

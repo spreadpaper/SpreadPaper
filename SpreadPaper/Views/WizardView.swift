@@ -4,6 +4,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 import PhosphorSwift
 
+/// Two-step first-launch flow: display count, then image selection that opens the editor.
 struct WizardView: View {
     @Bindable var navigation: AppNavigation
     @State private var settings = AppSettings.shared
@@ -154,6 +155,7 @@ struct WizardView: View {
         }
     }
 
+    /// Opens a multi-select image panel and hands the chosen files to the editor.
     private func pickImage() {
         let panel = NSOpenPanel()
         panel.allowedContentTypes = [.image]
