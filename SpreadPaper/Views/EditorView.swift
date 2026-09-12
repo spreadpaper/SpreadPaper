@@ -22,6 +22,7 @@ struct EditorView: View {
     @State private var presetName = ""
     @State private var editingScheduleIndex: Int? = nil
     @State private var toastMessage: String? = nil
+    @State private var settings = AppSettings.shared
 
     @State private var showingSaveDialog = false
     @State private var saveDialogApplyOnSave = false
@@ -344,6 +345,8 @@ struct EditorView: View {
                 zoomSection
                 InspectorDivider()
                 orientationSection
+                InspectorDivider()
+                displaysSection
                 Spacer(minLength: 0)
             }
             .padding(28)
@@ -529,6 +532,47 @@ struct EditorView: View {
                 label: "Mirror horizontally",
                 isOn: isFlippedBinding
             )
+        }
+    }
+
+    // MARK: - Displays
+
+    /// Bezel gap lives in AppSettings (hardware property) but is tuned here, against the live canvas.
+    private var displaysSection: some View {
+        InspectorField(label: "Display gap") {
+            if manager.connectedScreens.count > 1 {
+                HStack(spacing: 12) {
+                    NativeRange(
+                        value: Binding(
+                            get: { CGFloat(settings.bezelGap) },
+                            set: { settings.bezelGap = Double($0.rounded()) }
+                        ),
+                        range: 0...300
+                    )
+                    TextField("0", value: Binding(
+                        get: { settings.bezelGap },
+                        set: { settings.bezelGap = max(0, min($0.rounded(), 1000)) }
+                    ), format: .number.precision(.fractionLength(0)))
+                        .textFieldStyle(.plain)
+                        .multilineTextAlignment(.trailing)
+                        .font(.system(size: 12.5, weight: .medium))
+                        .monospacedDigit()
+                        .foregroundStyle(Color.cdTextPrimary)
+                        .frame(width: 40)
+                    Text("pt")
+                        .font(.system(size: 12))
+                        .foregroundStyle(Color.cdTextTertiary)
+                }
+                .onChange(of: settings.bezelGap) { _, _ in manager.refreshScreens() }
+            } else {
+                Text("Connect a second display to set the bezel gap.")
+                    .font(.system(size: 12))
+                    .foregroundStyle(Color.cdTextTertiary)
+            }
+        } hint: {
+            Text("Width of the frames between your monitors, so the image lines up across them.")
+                .font(.system(size: 12))
+                .foregroundStyle(Color.cdTextTertiary)
         }
     }
 
