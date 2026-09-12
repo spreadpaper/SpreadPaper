@@ -8,10 +8,12 @@ class WallpaperManager {
     var lastError: String?
     var activePresetId: UUID?
 
-    private let presetsFile = "spreadpaper_presets.json"
+    private let store: PresetStore
     private let activePresetKey = "activePresetId"
 
-    init() {
+    /// - Parameter store: Presets persistence. Defaults to the app support directory.
+    init(store: PresetStore? = nil) {
+        self.store = store ?? PresetStore(directory: Self.defaultDataDirectory())
         refreshScreens()
         loadPresets()
         if let raw = UserDefaults.standard.string(forKey: activePresetKey) {
@@ -35,14 +37,16 @@ class WallpaperManager {
     }
 
     // --- FILE SYSTEM ---
+    private static func defaultDataDirectory() -> URL {
+        URL.applicationSupportDirectory.appending(path: "SpreadPaper")
+    }
+
     private func getAppDataDirectory() -> URL {
-        let paths = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)
-        let appSupport = paths[0]
-        let spreadPaperDir = appSupport.appendingPathComponent("SpreadPaper")
-        if !FileManager.default.fileExists(atPath: spreadPaperDir.path) {
-            try? FileManager.default.createDirectory(at: spreadPaperDir, withIntermediateDirectories: true)
+        let dir = store.directory
+        if !FileManager.default.fileExists(atPath: dir.path) {
+            try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         }
-        return spreadPaperDir
+        return dir
     }
 
     private func getWallpapersDirectory() -> URL {
@@ -193,25 +197,20 @@ class WallpaperManager {
     func persistPresetsPublic() { persistPresets() }
 
     private func persistPresets() {
+        _ = getAppDataDirectory()
         do {
-            let data = try JSONEncoder().encode(presets)
-            let url = getAppDataDirectory().appendingPathComponent(presetsFile)
-            try data.write(to: url)
+            try store.save(presets)
         } catch {
             print("Failed to save presets json: \(error)")
         }
     }
 
     private func loadPresets() {
-        let url = getAppDataDirectory().appendingPathComponent(presetsFile)
         do {
-            let data = try Data(contentsOf: url)
-            let decoded = try JSONDecoder().decode([SavedPreset].self, from: data)
-            presets = decoded
-
+            guard let loaded = try store.load() else { return }
+            presets = loaded.presets
             // Persist any flags inferred during migration so the heuristic only runs once.
-            let needsRewrite = !data.contains("\"isAppearanceBased\"".data(using: .utf8) ?? Data())
-            if needsRewrite && !decoded.isEmpty {
+            if loaded.needsMigrationRewrite {
                 persistPresets()
             }
         } catch { }

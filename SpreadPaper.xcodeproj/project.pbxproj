@@ -12,12 +12,28 @@
 
 /* Begin PBXFileReference section */
 		00AEF9372ED126E6002D10EE /* SpreadPaper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SpreadPaper.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		51AA000000000000000000A1 /* SpreadPaperTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SpreadPaperTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXContainerItemProxy section */
+		51AA000000000000000000A6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 00AEF92F2ED126E6002D10EE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 00AEF9362ED126E6002D10EE;
+			remoteInfo = SpreadPaper;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		00AEF9392ED126E6002D10EE /* SpreadPaper */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = SpreadPaper;
+			sourceTree = "<group>";
+		};
+		51AA000000000000000000A2 /* SpreadPaperTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = SpreadPaperTests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -31,6 +47,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		51AA000000000000000000A3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -38,6 +61,7 @@
 			isa = PBXGroup;
 			children = (
 				00AEF9392ED126E6002D10EE /* SpreadPaper */,
+				51AA000000000000000000A2 /* SpreadPaperTests */,
 				00AEF9382ED126E6002D10EE /* Products */,
 			);
 			sourceTree = "<group>";
@@ -46,6 +70,7 @@
 			isa = PBXGroup;
 			children = (
 				00AEF9372ED126E6002D10EE /* SpreadPaper.app */,
+				51AA000000000000000000A1 /* SpreadPaperTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -53,6 +78,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		51AA000000000000000000A8 /* SpreadPaperTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 51AA000000000000000000A9 /* Build configuration list for PBXNativeTarget "SpreadPaperTests" */;
+			buildPhases = (
+				51AA000000000000000000A5 /* Sources */,
+				51AA000000000000000000A3 /* Frameworks */,
+				51AA000000000000000000A4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				51AA000000000000000000A7 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				51AA000000000000000000A2 /* SpreadPaperTests */,
+			);
+			name = SpreadPaperTests;
+			packageProductDependencies = (
+			);
+			productName = SpreadPaperTests;
+			productReference = 51AA000000000000000000A1 /* SpreadPaperTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		00AEF9362ED126E6002D10EE /* SpreadPaper */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 00AEF9422ED126E7002D10EE /* Build configuration list for PBXNativeTarget "SpreadPaper" */;
@@ -89,6 +137,10 @@
 					00AEF9362ED126E6002D10EE = {
 						CreatedOnToolsVersion = 26.1.1;
 					};
+					51AA000000000000000000A8 = {
+						CreatedOnToolsVersion = 26.6;
+						TestTargetID = 00AEF9362ED126E6002D10EE;
+					};
 				};
 			};
 			buildConfigurationList = 00AEF9322ED126E6002D10EE /* Build configuration list for PBXProject "SpreadPaper" */;
@@ -109,12 +161,20 @@
 			projectRoot = "";
 			targets = (
 				00AEF9362ED126E6002D10EE /* SpreadPaper */,
+				51AA000000000000000000A8 /* SpreadPaperTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		00AEF9352ED126E6002D10EE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		51AA000000000000000000A4 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -131,7 +191,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		51AA000000000000000000A5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		51AA000000000000000000A7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 00AEF9362ED126E6002D10EE /* SpreadPaper */;
+			targetProxy = 51AA000000000000000000A6 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		00AEF9402ED126E7002D10EE /* Debug */ = {
@@ -324,6 +399,48 @@
 			};
 			name = Release;
 		};
+		51AA0000000000000000000A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cattlea.SpreadPaperTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SpreadPaper.app/Contents/MacOS/SpreadPaper";
+			};
+			name = Debug;
+		};
+		51AA0000000000000000000B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cattlea.SpreadPaperTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SpreadPaper.app/Contents/MacOS/SpreadPaper";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -341,6 +458,15 @@
 			buildConfigurations = (
 				00AEF9432ED126E7002D10EE /* Debug */,
 				00AEF9442ED126E7002D10EE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		51AA000000000000000000A9 /* Build configuration list for PBXNativeTarget "SpreadPaperTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				51AA0000000000000000000A /* Debug */,
+				51AA0000000000000000000B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
