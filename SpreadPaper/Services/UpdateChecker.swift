@@ -52,11 +52,18 @@ struct GitHubAsset: Codable {
     }
 }
 
-/// A non-2xx reply from GitHub, surfaced by status code only.
-nonisolated struct GitHubStatusError: LocalizedError {
+/// A non-2xx reply from GitHub, worded for the Updates tab.
+/// The status code stays in the debug log.
+nonisolated struct GitHubStatusError: LocalizedError, Equatable {
     let statusCode: Int
 
-    var errorDescription: String? { "GitHub returned status \(statusCode)" }
+    var errorDescription: String? {
+        switch statusCode {
+        case 403, 429: "GitHub is limiting requests right now, try again later"
+        case 404: "No release found on GitHub"
+        default: "GitHub replied with an error (\(statusCode))"
+        }
+    }
 }
 
 struct UpdateInfo {
@@ -127,6 +134,9 @@ class UpdateChecker {
             if updateInfo?.isUpdateAvailable == true {
                 await fetchChangelog()
             }
+        } catch let decodingError as DecodingError {
+            logger.error("Release payload did not decode: \(decodingError, privacy: .public)")
+            self.error = "Failed to check for updates: GitHub sent an unexpected reply"
         } catch {
             self.error = "Failed to check for updates: \(error.localizedDescription)"
         }
@@ -188,7 +198,8 @@ class UpdateChecker {
     // MARK: - Private Methods
 
     /// Throws `GitHubStatusError` for a non-2xx reply; logs the body size first.
-    private static func checkStatus(_ response: URLResponse, body: Data) throws {
+    /// Replies that are not HTTP pass through.
+    static func checkStatus(_ response: URLResponse, body: Data) throws {
         guard let http = response as? HTTPURLResponse, !(200..<300).contains(http.statusCode) else { return }
         logger.debug("GitHub returned \(http.statusCode) with a \(body.count) byte body")
         throw GitHubStatusError(statusCode: http.statusCode)

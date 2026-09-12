@@ -41,7 +41,23 @@ struct UpdateCheckerTests {
     }
 
     @Test func statusErrorReadsAsPlainCopy() {
-        #expect(GitHubStatusError(statusCode: 403).localizedDescription == "GitHub returned status 403")
+        #expect(GitHubStatusError(statusCode: 403).localizedDescription == "GitHub is limiting requests right now, try again later")
+        #expect(GitHubStatusError(statusCode: 429).localizedDescription == "GitHub is limiting requests right now, try again later")
+        #expect(GitHubStatusError(statusCode: 404).localizedDescription == "No release found on GitHub")
+        #expect(GitHubStatusError(statusCode: 500).localizedDescription == "GitHub replied with an error (500)")
+    }
+
+    // Issue #83: a non-2xx reply stops before decoding; non-HTTP replies pass through.
+    @Test func checkStatusThrowsOnlyForNon2xxHTTP() throws {
+        let url = URL(string: "https://api.github.com/repos/spreadpaper/SpreadPaper/releases/latest")!
+        let ok = try #require(HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil))
+        let forbidden = try #require(HTTPURLResponse(url: url, statusCode: 403, httpVersion: nil, headerFields: nil))
+
+        #expect(throws: Never.self) { try UpdateChecker.checkStatus(ok, body: Data()) }
+        #expect(throws: Never.self) { try UpdateChecker.checkStatus(URLResponse(), body: Data()) }
+        #expect(throws: GitHubStatusError(statusCode: 403)) {
+            try UpdateChecker.checkStatus(forbidden, body: Data("<html>".utf8))
+        }
     }
 
     // Issue #85: release-please headers, one linked with a date and one bare without.

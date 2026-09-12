@@ -47,8 +47,15 @@ struct SemanticVersionTests {
         #expect(try !(version("1.9.0+abc") < version("1.9.0+def")))
     }
 
+    @Test func equalityMatchesOrdering() throws {
+        let alpha = try version("1.0.0-alpha")
+        #expect(try alpha == version("1.0.0-alpha"))
+        #expect(!(alpha < alpha))
+        #expect(try version("1.0.0-alpha") != version("1.0.0-beta"))
+    }
+
     @Test func rejectsInvalidStrings() {
-        for invalid in ["", "1", "1.2", "1.2.x", "v1.2.3", "01.2.3", "1.2.3-", "1.2.3-beta..1", "1.2.3+", "banana", "1.2.3 "] {
+        for invalid in ["", "1", "1.2", "1.2.x", "v1.2.3", "01.2.3", "-1.2.3", "1.2.3-", "1.2.3-01", "1.2.3-beta.01", "1.2.3-beta..1", "1.2.3+", "1.2.3-٣a", "banana", "1.2.3 "] {
             #expect(SemanticVersion(invalid) == nil, "\(invalid) should not parse")
         }
     }

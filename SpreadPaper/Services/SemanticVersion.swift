@@ -7,13 +7,15 @@ nonisolated struct SemanticVersion: Comparable, Sendable, CustomStringConvertibl
     let major: Int
     let minor: Int
     let patch: Int
+    /// Dot-split identifiers after the hyphen, empty for a release.
     let prerelease: [String]
+    /// Text after `+`, kept verbatim.
     let build: String?
 
     /// Accepts `major.minor.patch`, `-prerelease` and `+build` per semver 2.0.
     /// Returns nil for anything else, including leading zeros.
     init?(_ string: String) {
-        let pattern = #/^(?<major>0|[1-9]\d*)\.(?<minor>0|[1-9]\d*)\.(?<patch>0|[1-9]\d*)(?:-(?<prerelease>(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\+(?<build>[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$/#
+        let pattern = #/(?<major>0|[1-9][0-9]*)\.(?<minor>0|[1-9][0-9]*)\.(?<patch>0|[1-9][0-9]*)(?:-(?<prerelease>(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\+(?<build>[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?/#
         guard let match = string.wholeMatch(of: pattern),
               let major = Int(match.major),
               let minor = Int(match.minor),
@@ -25,16 +27,18 @@ nonisolated struct SemanticVersion: Comparable, Sendable, CustomStringConvertibl
         self.build = match.build.map(String.init)
     }
 
-    /// The version as written, without build metadata.
+    /// Core and prerelease, build metadata dropped.
     var description: String {
         let core = "\(major).\(minor).\(patch)"
         return prerelease.isEmpty ? core : "\(core)-\(prerelease.joined(separator: "."))"
     }
 
+    /// Equal when core and prerelease match; build is ignored.
     static func == (lhs: SemanticVersion, rhs: SemanticVersion) -> Bool {
         lhs.core == rhs.core && lhs.prerelease == rhs.prerelease
     }
 
+    /// Semver 2.0 section 11 ordering: core, then prerelease identifiers.
     static func < (lhs: SemanticVersion, rhs: SemanticVersion) -> Bool {
         if lhs.core != rhs.core {
             return lhs.core.lexicographicallyPrecedes(rhs.core)
