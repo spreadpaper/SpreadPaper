@@ -1,6 +1,5 @@
 name: Bug Report
 description: Report a bug or issue with SpreadPaper
-title: "[Bug]: "
 labels: ["bug"]
 body:
   - type: markdown
