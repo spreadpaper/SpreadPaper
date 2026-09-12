@@ -25,10 +25,6 @@ struct SettingsInWindowView: View {
     @State private var settings = AppSettings.shared
     @State private var updateChecker = UpdateChecker.shared
     @State private var selectedTab: SettingsTab = .general
-    @State private var launchAtLogin: Bool = false
-    @State private var showInMenuBar: Bool = false
-    @AppStorage("showInMenuBar") private var showInMenuBarStored: Bool = false
-    @AppStorage("launchAtLogin") private var launchAtLoginStored: Bool = false
 
     let manager: WallpaperManager
     let onClose: (() -> Void)?
@@ -62,8 +58,6 @@ struct SettingsInWindowView: View {
             }
         }
         .onAppear {
-            showInMenuBar = showInMenuBarStored
-            launchAtLogin = launchAtLoginStored
             if updateChecker.updateInfo?.isUpdateAvailable == true {
                 selectedTab = .updates
             }
@@ -148,15 +142,6 @@ struct SettingsInWindowView: View {
 
     private var generalPane: some View {
         VStack(alignment: .leading, spacing: 24) {
-            SectionGroup(header: "APPEARANCE") {
-                SettingsRow(label: "Mode", hint: nil) {
-                    AppearancePicker(mode: Binding(
-                        get: { settings.appearanceMode },
-                        set: { settings.appearanceMode = $0 }
-                    ))
-                }
-            }
-
             SectionGroup(header: "DISPLAYS") {
                 SettingsRow(
                     label: "Gap between displays",
@@ -167,18 +152,6 @@ struct SettingsInWindowView: View {
                         set: { settings.bezelGap = max(0, min($0, 1000)) }
                     ))
                     .onChange(of: settings.bezelGap) { _, _ in manager.refreshScreens() }
-                }
-            }
-
-            SectionGroup(header: "BEHAVIOR") {
-                SettingsRow(label: "Show in menu bar", hint: "Quick access from anywhere") {
-                    SPToggle(isOn: $showInMenuBar)
-                        .onChange(of: showInMenuBar) { _, new in showInMenuBarStored = new }
-                }
-                DividerLine()
-                SettingsRow(label: "Launch at login", hint: nil) {
-                    SPToggle(isOn: $launchAtLogin)
-                        .onChange(of: launchAtLogin) { _, new in launchAtLoginStored = new }
                 }
             }
         }
@@ -466,59 +439,6 @@ private struct BezelGapField: View {
     }
 }
 
-private struct SPToggle: View {
-    @Binding var isOn: Bool
-
-    var body: some View {
-        ZStack(alignment: isOn ? .trailing : .leading) {
-            Capsule()
-                .fill(isOn ? Color.cdAccent : Color.cdBgHover)
-                .frame(width: 32, height: 19)
-                .shadow(color: isOn ? Color.cdAccentGlow : .clear, radius: 6, y: 2)
-
-            Circle()
-                .fill(Color.white)
-                .frame(width: 15, height: 15)
-                .padding(.horizontal, 2)
-                .shadow(color: .black.opacity(0.25), radius: 1.5, y: 1)
-        }
-        .animation(.easeInOut(duration: 0.16), value: isOn)
-        .onTapGesture { isOn.toggle() }
-    }
-}
-
-private struct AppearancePicker: View {
-    @Binding var mode: AppearanceMode
-
-    var body: some View {
-        HStack(spacing: 2) {
-            ForEach(AppearanceMode.allCases) { m in
-                Button(action: { mode = m }) {
-                    Text(m.rawValue)
-                        .font(.system(size: 12, weight: mode == m ? .semibold : .medium))
-                        .foregroundStyle(mode == m ? Color.white : Color.cdTextSecondary)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 5)
-                        .background(
-                            RoundedRectangle(cornerRadius: 6)
-                                .fill(mode == m ? Color.cdAccent : Color.clear)
-                        )
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-            }
-        }
-        .padding(2)
-        .background(
-            RoundedRectangle(cornerRadius: 8)
-                .fill(Color.cdBgElevated)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(Color.cdBorder, lineWidth: 1)
-        )
-    }
-}
 
 private struct DownloadRow: View {
     let title: String
