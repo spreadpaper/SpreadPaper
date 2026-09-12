@@ -187,8 +187,6 @@ struct GalleryView: View {
                 .font(.system(size: 12.5))
                 .foregroundStyle(Color.cdTextPrimary)
                 .focused($searchFocused)
-                // The system focus ring animates on top of the accent border below and reads as a pulse.
-                .focusEffectDisabled()
                 .onSubmit { searchFocused = false }
             if !searchQuery.isEmpty {
                 Button(action: { searchQuery = "" }) {
@@ -213,6 +211,7 @@ struct GalleryView: View {
             RoundedRectangle(cornerRadius: 6)
                 .stroke(searchFocused ? Color.cdAccent : Color.cdBorder, lineWidth: 1)
         )
+        .animation(.easeInOut(duration: 0.12), value: searchFocused)
         .background(
             Button(action: { searchFocused = true }) { EmptyView() }
                 .keyboardShortcut("f", modifiers: .command)
@@ -777,10 +776,9 @@ private struct SkeletonBlock: View {
             )
             .frame(width: geo.size.width, height: geo.size.height)
         }
-        .onAppear {
-            withAnimation(.easeInOut(duration: 1.4).repeatForever(autoreverses: false)) {
-                phase = 2.0
-            }
-        }
+        // Scoped to `phase` on purpose. A `withAnimation(.repeatForever)` transaction leaks into
+        // unrelated state changes elsewhere in the window, e.g. the search field's focus border.
+        .animation(.easeInOut(duration: 1.4).repeatForever(autoreverses: false), value: phase)
+        .onAppear { phase = 2.0 }
     }
 }
