@@ -47,8 +47,8 @@ extension Color {
     /// Red of destructive actions and errors.
     static let cdDanger = Color(hex: 0xFF453A)
 
-    /// Amber that marks the dynamic kind and warnings.
-    static let cdWarning = Color(hex: 0xf5a524)
+    /// Amber that marks the dynamic kind.
+    static let cdDynamicTint = Color(hex: 0xf5a524)
 
     /// Periwinkle that marks the light/dark kind.
     static let cdAppearanceTint = Color(hex: 0x7c7cff)
@@ -82,6 +82,9 @@ extension Color {
 
     /// Hairline ring that keeps a white knob off a pale backdrop.
     static let cdOutlineOnLight = Color.black.opacity(0.08)
+
+    /// Face of a draggable slider or range-bar handle.
+    static let cdKnob = Color.white
 
     /// sRGB colour from a 0xRRGGBB literal.
     fileprivate init(hex: UInt, alpha: Double = 1.0) {
@@ -218,7 +221,7 @@ struct CoolDarkButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.system(size: size.fontSize, weight: .semibold))
-            .foregroundStyle(isFilled ? .white : Color.cdTextSecondary)
+            .foregroundStyle(isFilled ? Color.cdTextPrimary : Color.cdTextSecondary)
             .padding(.horizontal, size.horizontalPadding)
             .padding(.vertical, size.verticalPadding)
             .frame(minHeight: size.minHeight)

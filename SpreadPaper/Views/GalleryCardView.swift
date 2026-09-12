@@ -118,7 +118,7 @@ struct GalleryCardView: View {
                 .shadow(color: Color.cdSuccess.opacity(0.9), radius: 3)
             Text("Applied")
                 .font(.system(size: 10.5, weight: .semibold))
-                .foregroundStyle(.white)
+                .foregroundStyle(Color.cdTextPrimary)
         }
         .padding(EdgeInsets(top: 3, leading: 6, bottom: 3, trailing: 7))
         .background(
@@ -148,7 +148,7 @@ struct GalleryCardView: View {
                 if isApplying {
                     ProgressView()
                         .controlSize(.small)
-                        .tint(.white)
+                        .tint(Color.cdTextPrimary)
                 } else {
                     Image(systemName: "checkmark")
                         .font(.system(size: 11, weight: .bold))
@@ -181,7 +181,7 @@ struct GalleryCardView: View {
         } label: {
             Image(systemName: "ellipsis")
                 .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(.white)
+                .foregroundStyle(Color.cdTextPrimary)
                 .frame(width: 30, height: 30)
                 .background(glassButtonBackground)
                 .contentShape(Rectangle())

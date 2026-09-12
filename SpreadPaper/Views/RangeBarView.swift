@@ -82,7 +82,7 @@ struct RangeBarView: View {
                     .offset(x: width * endFraction - 0.5)
 
                 RoundedRectangle(cornerRadius: 3)
-                    .fill(Color.white)
+                    .fill(Color.cdKnob)
                     .overlay(
                         RoundedRectangle(cornerRadius: 3)
                             .stroke(isSelected ? accentColor : Color.cdBorder, lineWidth: 1.5)

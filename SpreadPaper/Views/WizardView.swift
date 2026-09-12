@@ -119,7 +119,7 @@ struct WizardView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                         .overlay {
                             Ph.arrowDown.bold
-                                .color(.white)
+                                .color(Color.cdTextPrimary)
                                 .frame(width: 22, height: 22)
                         }
 

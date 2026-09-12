@@ -615,7 +615,7 @@ private struct PillPicker: View {
                         Text(type.title)
                             .font(.system(size: 13, weight: isActive ? .semibold : .medium))
                     }
-                    .foregroundStyle(isActive ? Color.white : Color.cdTextSecondary)
+                    .foregroundStyle(isActive ? Color.cdTextPrimary : Color.cdTextSecondary)
                     .padding(.horizontal, 14)
                     .padding(.vertical, 10)
                     .frame(maxWidth: .infinity)
@@ -743,7 +743,7 @@ private struct Footer: View {
                 Button(action: onContinue) {
                     Text("Continue with \(selectedType.title)")
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.cdTextPrimary)
                         .padding(.horizontal, 18)
                         .padding(.vertical, 11)
                         .background(

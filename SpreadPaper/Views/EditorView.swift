@@ -224,11 +224,11 @@ struct EditorView: View {
             Button(action: { openSaveDialog(applyOnSave: true) }) {
                 HStack(spacing: 6) {
                     if isApplying {
-                        ProgressView().controlSize(.small).tint(.white)
+                        ProgressView().controlSize(.small).tint(Color.cdTextPrimary)
                     }
                     Text(isApplying ? "Applying…" : "Save & Apply")
                         .font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.cdTextPrimary)
                 }
                 .padding(.horizontal, 14)
                 .frame(height: 26)
@@ -1191,7 +1191,7 @@ struct NativeRange: View {
                     .frame(width: thumbX, height: 4)
 
                 Circle()
-                    .fill(.white)
+                    .fill(Color.cdKnob)
                     .overlay(Circle().stroke(Color.cdOutlineOnLight, lineWidth: 0.5))
                     .frame(width: 18, height: 18)
                     .shadow(color: .cdShadow, radius: 1.5, y: 1)
@@ -1232,7 +1232,7 @@ struct NativeCheckbox: View {
                     if isOn {
                         Image(systemName: "checkmark")
                             .font(.system(size: 10, weight: .bold))
-                            .foregroundStyle(.white)
+                            .foregroundStyle(Color.cdTextPrimary)
                     }
                 }
                 Text(label)

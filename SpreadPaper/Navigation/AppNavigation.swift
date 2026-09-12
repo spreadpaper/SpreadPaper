@@ -43,7 +43,7 @@ enum WallpaperType: String, CaseIterable, Codable {
         switch self {
         case .standard:   return Color.cdTextTertiary
         case .appearance: return Color.cdAppearanceTint
-        case .dynamic:    return Color.cdWarning
+        case .dynamic:    return Color.cdDynamicTint
         }
     }
 }

@@ -7,9 +7,11 @@ import Testing
 /// Views name tokens; only the theme mints them.
 struct ThemeTokensTests {
     /// Patterns that mint a colour from raw components.
-    private static let literalPatterns = ["Color(hex:", "Color(red:", "Color(white:"]
+    private static let literalPatterns = [
+        "Color(hex:", "Color(red:", "Color(white:", ".white.opacity(", ".black.opacity("
+    ]
 
-    /// App sources outside the theme folder, where no literal colour may appear.
+    /// App sources outside the theme file, where no literal colour may appear.
     private static func nonThemeSources() throws -> [URL] {
         let app = URL(filePath: #filePath)
             .deletingLastPathComponent()
@@ -17,7 +19,7 @@ struct ThemeTokensTests {
             .appending(path: "SpreadPaper")
         let files = FileManager.default.enumerator(at: app, includingPropertiesForKeys: nil)?
             .compactMap { $0 as? URL }
-            .filter { $0.pathExtension == "swift" && !$0.path.contains("/Theme/") } ?? []
+            .filter { $0.pathExtension == "swift" && !$0.path.hasSuffix("Theme/CoolDarkTheme.swift") } ?? []
         #expect(files.count > 10, "source scan found no app files to check")
         return files
     }
@@ -28,11 +30,11 @@ struct ThemeTokensTests {
             .cdBorder, .cdBorderStrong,
             .cdTextPrimary, .cdTextSecondary, .cdTextTertiary,
             .cdAccent, .cdAccentGlow, .cdAccentSecondary,
-            .cdSuccess, .cdDanger, .cdWarning, .cdAppearanceTint,
+            .cdSuccess, .cdDanger, .cdDynamicTint, .cdAppearanceTint,
             .cdCanvasBg, .cdOverlayScrim, .cdOverlayScrimSoft,
             .cdShadow, .cdShadowStrong,
             .cdHighlightStroke, .cdHighlightStrokeSoft,
-            .cdHoverFill, .cdActiveFill, .cdOutlineOnLight
+            .cdHoverFill, .cdActiveFill, .cdOutlineOnLight, .cdKnob
         ]
         #expect(Set(tokens).count == tokens.count, "two tokens carry the same colour")
     }
@@ -57,7 +59,7 @@ struct ThemeTokensTests {
     @Test func wallpaperKindsTintFromTokens() {
         #expect(WallpaperType.standard.tint == Color.cdTextTertiary)
         #expect(WallpaperType.appearance.tint == Color.cdAppearanceTint)
-        #expect(WallpaperType.dynamic.tint == Color.cdWarning)
+        #expect(WallpaperType.dynamic.tint == Color.cdDynamicTint)
     }
 
     @Test func noSourceOutsideTheThemeMintsALiteralColour() throws {

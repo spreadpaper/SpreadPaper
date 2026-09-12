@@ -33,7 +33,7 @@ struct MonitorPreviewView: View {
 
                     Text(display.name)
                         .font(.system(size: 8, weight: .medium))
-                        .foregroundStyle(Color.cdTextTertiary)
+                        .foregroundStyle(Color.cdTextPrimary.opacity(0.4))
                         .padding(6)
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
                 }
