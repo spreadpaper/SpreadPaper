@@ -77,16 +77,9 @@ class WallpaperManager {
         return dir
     }
 
-    private func sanitizeScreenName(_ name: String) -> String {
-        // Remove characters that aren't safe for filenames
-        let allowed = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "-_ "))
-        return name.unicodeScalars.filter { allowed.contains($0) }.map { String($0) }.joined()
-    }
-
-    private func cleanupOldWallpapers(for screenName: String, in directory: URL, except currentFilename: String) {
-        // Remove old wallpaper files for this screen to prevent disk bloat
-        // Pattern: spreadpaper_wall_[screenName]_[timestamp].png
-        let prefix = "spreadpaper_wall_\(screenName)_"
+    private func cleanupOldWallpapers(for displayID: CGDirectDisplayID, in directory: URL, except currentFilename: String) {
+        // Remove old wallpaper files for this display to prevent disk bloat.
+        let prefix = WallpaperFilenames.staticPrefix(displayID: displayID)
         do {
             let files = try FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil)
             for file in files {
@@ -235,9 +228,7 @@ class WallpaperManager {
     func refreshScreens() {
         let screens = NSScreen.screens
         self.totalCanvas = screens.reduce(CGRect.zero) { $0.union($1.frame) }
-        self.connectedScreens = screens.map { screen in
-            DisplayInfo(screen: screen, frame: screen.frame)
-        }
+        self.connectedScreens = screens.map(DisplayInfo.init(screen:))
     }
 
     // --- RENDERING ---
@@ -249,7 +240,8 @@ class WallpaperManager {
              frame: display.frame,
              scaleFactor: display.screen.backingScaleFactor,
              colorSpace: display.screen.colorSpace?.cgColorSpace,
-             name: display.screen.localizedName)
+             name: display.name,
+             displayID: display.displayID)
         }
 
         for display in displays {
@@ -265,7 +257,7 @@ class WallpaperManager {
                     deviceScale: display.scaleFactor,
                     screenColorSpace: display.colorSpace
                 )
-                try saveAndSetWallpaper(image, screenName: display.name, screen: display.screen)
+                try saveAndSetWallpaper(image, displayID: display.displayID, screen: display.screen)
             } catch {
                 logger.error("Setting wallpaper for \(display.name, privacy: .public) failed: \(error, privacy: .public)")
                 lastError = "The wallpaper couldn't be set on \(display.name)."
@@ -285,7 +277,8 @@ class WallpaperManager {
              frame: display.frame,
              scaleFactor: display.screen.backingScaleFactor,
              colorSpace: display.screen.colorSpace?.cgColorSpace,
-             name: display.screen.localizedName)
+             name: display.name,
+             displayID: display.displayID)
         }
 
         let presetDir = getDynamicPresetDirectory(presetId: preset.id)
@@ -321,8 +314,7 @@ class WallpaperManager {
                     renderedImages.append(rendered)
                 }
 
-                let sanitizedName = sanitizeScreenName(display.name)
-                let heicURL = presetDir.appendingPathComponent("\(sanitizedName).heic")
+                let heicURL = presetDir.appendingPathComponent(WallpaperFilenames.dynamicName(displayID: display.displayID))
 
                 try DynamicWallpaperGenerator.generateTimeBasedHEIC(
                     images: renderedImages,
@@ -353,7 +345,8 @@ class WallpaperManager {
              frame: display.frame,
              scaleFactor: display.screen.backingScaleFactor,
              colorSpace: display.screen.colorSpace?.cgColorSpace,
-             name: display.screen.localizedName)
+             name: display.name,
+             displayID: display.displayID)
         }
 
         let presetDir = getDynamicPresetDirectory(presetId: preset.id)
@@ -375,8 +368,7 @@ class WallpaperManager {
                     deviceScale: display.scaleFactor, screenColorSpace: display.colorSpace
                 )
 
-                let sanitizedName = sanitizeScreenName(display.name)
-                let heicURL = presetDir.appendingPathComponent("\(sanitizedName).heic")
+                let heicURL = presetDir.appendingPathComponent(WallpaperFilenames.dynamicName(displayID: display.displayID))
 
                 try DynamicWallpaperGenerator.generateAppearanceHEIC(
                     lightImage: renderedLight, darkImage: renderedDark, outputURL: heicURL
@@ -463,19 +455,18 @@ class WallpaperManager {
         return outputImage
     }
 
-    private func saveAndSetWallpaper(_ image: CGImage, screenName: String, screen: NSScreen) throws {
+    private func saveAndSetWallpaper(_ image: CGImage, displayID: CGDirectDisplayID, screen: NSScreen) throws {
         let bitmapRep = NSBitmapImageRep(cgImage: image)
         guard let pngData = bitmapRep.representation(using: .png, properties: [:]) else {
             throw WallpaperError.pngEncodingFailed
         }
 
-        let sanitizedName = sanitizeScreenName(screenName)
         let timestamp = Int(Date().timeIntervalSince1970 * 1000)
-        let filename = "spreadpaper_wall_\(sanitizedName)_\(timestamp).png"
+        let filename = WallpaperFilenames.staticName(displayID: displayID, timestamp: timestamp)
         let wallpapersDir = getWallpapersDirectory()
         let url = wallpapersDir.appendingPathComponent(filename)
 
-        cleanupOldWallpapers(for: sanitizedName, in: wallpapersDir, except: filename)
+        cleanupOldWallpapers(for: displayID, in: wallpapersDir, except: filename)
 
         try pngData.write(to: url)
         try NSWorkspace.shared.setDesktopImageURL(url, for: screen, options: [
