@@ -224,7 +224,7 @@ struct GalleryCardView: View {
         HStack(spacing: 4) {
             typeIcon
                 .frame(width: 10, height: 10)
-            Text(typeBadgeLabel)
+            Text(preset.kind.title)
                 .font(.system(size: 11, weight: .medium))
                 .foregroundStyle(Color.cdTextTertiary)
         }
@@ -244,9 +244,5 @@ struct GalleryCardView: View {
         Image(systemName: preset.kind.systemImage)
             .font(.system(size: 9, weight: .semibold))
             .foregroundStyle(preset.kind.tint)
-    }
-
-    private var typeBadgeLabel: String {
-        preset.kind.title
     }
 }

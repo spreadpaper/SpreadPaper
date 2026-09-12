@@ -689,10 +689,6 @@ private struct Footer: View {
         return "displays detected"
     }
 
-    private var typeLabel: String {
-        selectedType.title
-    }
-
     var body: some View {
         HStack(spacing: 12) {
             HStack(spacing: 6) {
@@ -727,7 +723,7 @@ private struct Footer: View {
                 .buttonStyle(.plain)
 
                 Button(action: onContinue) {
-                    Text("Continue with \(typeLabel)")
+                    Text("Continue with \(selectedType.title)")
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundStyle(.white)
                         .padding(.horizontal, 18)

@@ -375,15 +375,11 @@ struct EditorView: View {
                 options: WallpaperType.allCases.map { ($0, $0.title) }
             )
         } hint: {
-            Text(typeHint)
+            Text(wallpaperType.subtitle)
                 .font(.system(size: 12))
                 .foregroundStyle(Color.cdTextTertiary)
                 .fixedSize(horizontal: false, vertical: true)
         }
-    }
-
-    private var typeHint: String {
-        wallpaperType.subtitle
     }
 
     // MARK: - Images
