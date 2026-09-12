@@ -63,6 +63,13 @@ struct WallpaperFilenamesTests {
         #expect(stale == ["1_100.heic"])
     }
 
+    @Test func staleDynamicFilesSweepAbandonedTempSiblings() {
+        let current = WallpaperFilenames.dynamicName(displayID: 1, timestamp: 300)
+        let listing = [current, ".1_100.heic.killed.tmp", ".\(current).live.tmp", ".2_100.heic.killed.tmp"]
+        let stale = WallpaperFilenames.staleDynamicFiles(in: listing, displayID: 1, keeping: current)
+        #expect(stale == [".1_100.heic.killed.tmp"])
+    }
+
     @Test func staleDynamicFilesAreRemovedFromDisk() throws {
         let directory = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString, directoryHint: .isDirectory)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)

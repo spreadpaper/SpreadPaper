@@ -24,11 +24,17 @@ enum WallpaperFilenames {
         "\(dynamicPrefix(displayID: displayID))\(timestamp).heic"
     }
 
-    /// This display's other dynamic renders in a preset directory listing.
-    /// Everything else is left alone.
+    /// This display's other dynamic renders and their abandoned temp siblings.
+    /// Everything else in the listing is left alone.
     static func staleDynamicFiles(in filenames: [String], displayID: CGDirectDisplayID, keeping: String) -> [String] {
         let prefix = dynamicPrefix(displayID: displayID)
-        return filenames.filter { $0.hasPrefix(prefix) && $0.hasSuffix(".heic") && $0 != keeping }
+        // The HEIC writer only sweeps temps of the name it is writing, so earlier names' temps land here.
+        let tempPrefix = ".\(prefix)"
+        let keptTempPrefix = ".\(keeping)."
+        return filenames.filter { name in
+            if name.hasPrefix(prefix), name.hasSuffix(".heic") { return name != keeping }
+            return name.hasPrefix(tempPrefix) && name.hasSuffix(".tmp") && !name.hasPrefix(keptTempPrefix)
+        }
     }
 
     /// True for a static wallpaper written before 1.7.1, when files were keyed on the screen name.
