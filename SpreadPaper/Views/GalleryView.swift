@@ -550,7 +550,8 @@ struct GalleryView: View {
             let results = renderThumbnails(jobs: jobs)
             await MainActor.run {
                 for r in results {
-                    thumbnailCache[r.presetId] = r.image
+                    let size = NSSize(width: r.image.width, height: r.image.height)
+                    thumbnailCache[r.presetId] = NSImage(cgImage: r.image, size: size)
                 }
                 isLoadingThumbnails = false
             }
@@ -713,34 +714,24 @@ private struct ThumbnailJob: Sendable {
     let shouldFlip: Bool
 }
 
-private struct ThumbnailResult: @unchecked Sendable {
+private struct ThumbnailResult: Sendable {
     let presetId: UUID
-    let image: NSImage
+    let image: CGImage
 }
 
+/// Longest side of a gallery thumbnail, in pixels.
+nonisolated private let thumbnailMaxPixelSize = 480
+
+/// Downsamples every job's image off the main actor. Jobs whose file
+/// cannot be read are skipped, so the caller keeps its placeholder.
 nonisolated private func renderThumbnails(jobs: [ThumbnailJob]) -> [ThumbnailResult] {
     var out: [ThumbnailResult] = []
     out.reserveCapacity(jobs.count)
     for job in jobs {
-        guard let image = NSImage(contentsOf: job.imageURL) else { continue }
-        let maxDim: CGFloat = 480
-        let pixelSize = image.pixelSize
-        let ratio = min(maxDim / pixelSize.width, maxDim / pixelSize.height, 1.0)
-        let newSize = NSSize(
-            width: pixelSize.width * ratio,
-            height: pixelSize.height * ratio
-        )
-        let thumb = NSImage(size: newSize)
-        thumb.lockFocus()
-        if job.shouldFlip {
-            let t = NSAffineTransform()
-            t.translateX(by: newSize.width, yBy: 0)
-            t.scaleX(by: -1, yBy: 1)
-            t.concat()
-        }
-        image.draw(in: NSRect(origin: .zero, size: newSize))
-        thumb.unlockFocus()
-        out.append(ThumbnailResult(presetId: job.presetId, image: thumb))
+        guard let image = ThumbnailRenderer.thumbnail(
+            for: job.imageURL, maxPixelSize: thumbnailMaxPixelSize, flipped: job.shouldFlip
+        ) else { continue }
+        out.append(ThumbnailResult(presetId: job.presetId, image: image))
     }
     return out
 }
