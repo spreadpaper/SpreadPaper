@@ -1,8 +1,5 @@
-<p align="center">
-  <img src=".github/assets/app-icon-256.png" alt="SpreadPaper app icon" width="200"/>
-</p>
-
 <div align="center">
+  <img src=".github/assets/app-icon-256.png" alt="SpreadPaper app icon" width="200"/>
 
   # SpreadPaper
 
