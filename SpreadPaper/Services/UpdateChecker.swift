@@ -7,6 +7,10 @@
 
 import Foundation
 import AppKit
+import os
+
+/// Technical failure details go here; `error` carries only plain copy for the UI.
+private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "SpreadPaper", category: "updates")
 
 // MARK: - Models
 
@@ -48,9 +52,17 @@ struct GitHubAsset: Codable {
     }
 }
 
+/// A non-2xx reply from GitHub, surfaced by status code only.
+nonisolated struct GitHubStatusError: LocalizedError {
+    let statusCode: Int
+
+    var errorDescription: String? { "GitHub returned status \(statusCode)" }
+}
+
 struct UpdateInfo {
     let currentVersion: String
     let latestVersion: String
+    let latestTag: String
     let releaseUrl: String
     let dmgUrl: String?
     let zipUrl: String?
@@ -107,7 +119,8 @@ class UpdateChecker {
             request.setValue("application/vnd.github.v3+json", forHTTPHeaderField: "Accept")
             request.setValue("SpreadPaper/\(currentVersion)", forHTTPHeaderField: "User-Agent")
 
-            let (data, _) = try await URLSession.shared.data(for: request)
+            let (data, response) = try await URLSession.shared.data(for: request)
+            try Self.checkStatus(response, body: data)
             let release = try GitHubRelease.decode(from: data)
             processRelease(release)
 
@@ -122,15 +135,36 @@ class UpdateChecker {
         lastCheckDate = Date()
     }
 
+    /// Reads the changelog at the latest release tag, or from `main` without one.
+    /// Best-effort: failures leave `changelog` untouched.
     func fetchChangelog() async {
-        do {
-            let url = URL(string: "https://raw.githubusercontent.com/\(Self.repoOwner)/\(Self.repoName)/main/CHANGELOG.md")!
-            let (data, _) = try await URLSession.shared.data(from: url)
-            let content = String(data: data, encoding: .utf8) ?? ""
+        if let tag = updateInfo?.latestTag,
+           let content = try? await fetchText(Self.changelogURL(ref: "refs/tags/\(tag)")) {
             parseChangelog(content)
-        } catch {
-            // Changelog fetch is best-effort
+            return
         }
+        guard let content = try? await fetchText(Self.changelogURL(ref: "main")) else { return }
+        parseChangelog(content)
+    }
+
+    /// Raw `CHANGELOG.md` at a git ref such as `main` or `refs/tags/v1.2.0`.
+    static func changelogURL(ref: String) -> URL {
+        URL(string: "https://raw.githubusercontent.com/\(repoOwner)/\(repoName)/\(ref)/CHANGELOG.md")!
+    }
+
+    /// Strips one leading `v` from a release tag; anything else stays as is.
+    static func version(fromTag tag: String) -> String {
+        tag.hasPrefix("v") ? String(tag.dropFirst()) : tag
+    }
+
+    /// True when both strings parse as semver and `latest` sorts above `current`.
+    /// Unparseable input never reports an update.
+    static func isUpdateAvailable(latest: String, current: String) -> Bool {
+        guard let latest = SemanticVersion(latest), let current = SemanticVersion(current) else {
+            logger.error("Cannot compare versions \(latest, privacy: .public) and \(current, privacy: .public)")
+            return false
+        }
+        return latest > current
     }
 
     func openReleasePage() {
@@ -153,9 +187,23 @@ class UpdateChecker {
 
     // MARK: - Private Methods
 
+    /// Throws `GitHubStatusError` for a non-2xx reply; logs the body size first.
+    private static func checkStatus(_ response: URLResponse, body: Data) throws {
+        guard let http = response as? HTTPURLResponse, !(200..<300).contains(http.statusCode) else { return }
+        logger.debug("GitHub returned \(http.statusCode) with a \(body.count) byte body")
+        throw GitHubStatusError(statusCode: http.statusCode)
+    }
+
+    /// Body of a GET as UTF-8; throws on transport failure or a non-2xx reply.
+    private func fetchText(_ url: URL) async throws -> String {
+        let (data, response) = try await URLSession.shared.data(from: url)
+        try Self.checkStatus(response, body: data)
+        return String(decoding: data, as: UTF8.self)
+    }
+
     private func processRelease(_ release: GitHubRelease) {
-        let latestVersion = release.tagName.replacingOccurrences(of: "v", with: "")
-        let isUpdateAvailable = compareVersions(current: currentVersion, latest: latestVersion)
+        let latestVersion = Self.version(fromTag: release.tagName)
+        let isUpdateAvailable = Self.isUpdateAvailable(latest: latestVersion, current: currentVersion)
 
         let dmgAsset = release.assets.first { $0.name.hasSuffix(".dmg") }
         let zipAsset = release.assets.first { $0.name.hasSuffix(".zip") }
@@ -163,29 +211,13 @@ class UpdateChecker {
         updateInfo = UpdateInfo(
             currentVersion: currentVersion,
             latestVersion: latestVersion,
+            latestTag: release.tagName,
             releaseUrl: release.htmlUrl,
             dmgUrl: dmgAsset?.browserDownloadUrl,
             zipUrl: zipAsset?.browserDownloadUrl,
             publishedAt: release.publishedAt,
             isUpdateAvailable: isUpdateAvailable
         )
-    }
-
-    private func compareVersions(current: String, latest: String) -> Bool {
-        let currentParts = current.split(separator: ".").compactMap { Int($0) }
-        let latestParts = latest.split(separator: ".").compactMap { Int($0) }
-
-        for i in 0..<max(currentParts.count, latestParts.count) {
-            let currentPart = i < currentParts.count ? currentParts[i] : 0
-            let latestPart = i < latestParts.count ? latestParts[i] : 0
-
-            if latestPart > currentPart {
-                return true
-            } else if latestPart < currentPart {
-                return false
-            }
-        }
-        return false
     }
 
     /// Reads release headers out of a release-please changelog into `changelog`.
