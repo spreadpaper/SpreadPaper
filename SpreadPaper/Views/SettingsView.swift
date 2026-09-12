@@ -1,265 +1,139 @@
 // SpreadPaper/Views/SettingsView.swift
 
 import SwiftUI
-import PhosphorSwift
 
-enum SettingsTab: Hashable {
-    case general
-    case updates
-}
-
-// MARK: - Cmd+, window (kept for macOS standard behavior)
-
+/// Native macOS Settings window with a General and an Updates tab.
 struct SettingsView: View {
     let manager: WallpaperManager
 
     var body: some View {
-        SettingsInWindowView(manager: manager, onClose: nil)
-            .frame(width: 640, height: 520)
+        TabView {
+            GeneralSettingsTab(manager: manager)
+                .tabItem { Label("General", systemImage: "gearshape") }
+            UpdatesSettingsTab()
+                .tabItem { Label("Updates", systemImage: "arrow.triangle.2.circlepath") }
+        }
+        .frame(width: 480)
     }
 }
 
-// MARK: - In-window settings (replaces gallery split)
+// MARK: - General
 
-struct SettingsInWindowView: View {
+/// Display settings that apply to every connected screen.
+private struct GeneralSettingsTab: View {
     @State private var settings = AppSettings.shared
-    @State private var updateChecker = UpdateChecker.shared
-    @State private var selectedTab: SettingsTab = .general
-
     let manager: WallpaperManager
-    let onClose: (() -> Void)?
-
-    private let version: String = (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String) ?? "1.0.0"
 
     var body: some View {
-        HStack(spacing: 0) {
-            sidebar
-                .frame(width: 220, alignment: .leading)
-                .background(Color.cdBgSecondary)
-
-            Divider().overlay(Color.cdBorder)
-
-            VStack(spacing: 0) {
-                toolbar
-                Divider().overlay(Color.cdBorder)
-                ScrollView {
-                    Group {
-                        switch selectedTab {
-                        case .general: generalPane
-                        case .updates: updatesPane
-                        }
-                    }
-                    .frame(maxWidth: 540)
-                    .padding(.horizontal, 40)
-                    .padding(.vertical, 32)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color.cdBgPrimary)
-            }
-        }
-        .onAppear {
-            if updateChecker.updateInfo?.isUpdateAvailable == true {
-                selectedTab = .updates
-            }
-        }
-    }
-
-    // MARK: - Sidebar
-
-    private var sidebar: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Color.clear.frame(height: 44)
-
-            if let onClose {
-                Button(action: onClose) {
+        Form {
+            Section {
+                LabeledContent("Default display gap") {
                     HStack(spacing: 6) {
-                        Image(systemName: "chevron.left")
-                            .font(.system(size: 11, weight: .semibold))
-                        Text("Back to Library")
-                            .font(.system(size: 13, weight: .medium))
-                        Spacer()
+                        TextField("Default display gap", value: gap, format: .number.precision(.fractionLength(0)))
+                            .labelsHidden()
+                            .multilineTextAlignment(.trailing)
+                            .monospacedDigit()
+                            .frame(width: 64)
+                        Text("pt")
+                            .foregroundStyle(.secondary)
+                        Stepper("Default display gap", value: gap, in: 0...1000, step: 1)
+                            .labelsHidden()
                     }
-                    .foregroundStyle(Color.cdTextSecondary)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 7)
-                    .background(Color.clear)
-                    .contentShape(Rectangle())
                 }
-                .buttonStyle(HoverFillButtonStyle())
-                .padding(.horizontal, 10)
-                .padding(.bottom, 12)
-            }
-
-            Text("SETTINGS")
-                .font(.system(size: 11, weight: .semibold))
-                .tracking(0.4)
-                .foregroundStyle(Color.cdTextTertiary)
-                .padding(.horizontal, 14)
-                .padding(.bottom, 8)
-
-            VStack(spacing: 2) {
-                SettingsSidebarRow(
-                    label: "General",
-                    icon: AnyView(Ph.gear.regular.color(selectedTab == .general ? .white : Color.cdTextSecondary)),
-                    isSelected: selectedTab == .general,
-                    onTap: { selectedTab = .general }
-                )
-                SettingsSidebarRow(
-                    label: "Updates",
-                    icon: AnyView(Image(systemName: "arrow.triangle.2.circlepath")
-                        .foregroundStyle(selectedTab == .updates ? .white : Color.cdTextSecondary)),
-                    isSelected: selectedTab == .updates,
-                    onTap: { selectedTab = .updates }
-                )
-            }
-            .padding(.horizontal, 10)
-
-            Spacer()
-
-            Text("SpreadPaper \(version)")
-                .font(.system(size: 11))
-                .foregroundStyle(Color.cdTextTertiary)
-                .padding(.horizontal, 14)
-                .padding(.bottom, 14)
-        }
-    }
-
-    // MARK: - Toolbar
-
-    private var toolbar: some View {
-        HStack {
-            Text(selectedTab == .general ? "General" : "Updates")
-                .font(.system(size: 15, weight: .semibold))
-                .foregroundStyle(Color.cdTextPrimary)
-            Spacer()
-        }
-        .padding(.horizontal, 20)
-        .frame(height: 52)
-        .background(Color.cdBgPrimary)
-    }
-
-    // MARK: - General
-
-    private var generalPane: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            SectionGroup(header: "DISPLAYS") {
-                SettingsRow(
-                    label: "Gap between displays",
-                    hint: "Bezel width in screen points. On non-Retina displays 1 point is 1 pixel."
-                ) {
-                    BezelGapField(value: Binding(
-                        get: { settings.bezelGap },
-                        set: { settings.bezelGap = max(0, min($0, 1000)) }
-                    ))
-                    .onChange(of: settings.bezelGap) { _, _ in manager.refreshScreens() }
-                }
+            } header: {
+                Text("Displays")
+            } footer: {
+                Text("Gap between adjacent displays in screen points. Per-display widths are set in the editor.")
             }
         }
+        .formStyle(.grouped)
+        .frame(height: 170)
+        .onChange(of: settings.bezelGap) { _, _ in manager.refreshScreens() }
     }
 
-    // MARK: - Updates
+    /// Binding that keeps typed values inside the stepper range.
+    private var gap: Binding<Double> {
+        Binding(
+            get: { settings.bezelGap },
+            set: { settings.bezelGap = min(max($0, 0), 1000) }
+        )
+    }
+}
 
-    private var updatesPane: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            SectionGroup(header: "VERSION") {
-                SettingsRow(label: "Current", hint: nil) {
-                    Text(version)
-                        .font(.system(size: 13, weight: .medium))
-                        .monospacedDigit()
-                        .foregroundStyle(Color.cdTextPrimary)
-                }
-                DividerLine()
-                SettingsRow(label: "Status", hint: nil) {
-                    statusLabel
-                }
-                DividerLine()
-                SettingsRow(label: "Last checked", hint: nil) {
-                    Text(lastCheckedText)
-                        .font(.system(size: 12))
-                        .foregroundStyle(Color.cdTextSecondary)
-                }
-            }
+// MARK: - Updates
 
-            Button(action: { Task { await updateChecker.checkForUpdates() } }) {
-                HStack(spacing: 8) {
+/// Update status, downloads and release note links.
+private struct UpdatesSettingsTab: View {
+    @State private var updateChecker = UpdateChecker.shared
+    @State private var isLoadingChangelog = false
+
+    private let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
+    private let maxReleaseNotes = 8
+
+    var body: some View {
+        Form {
+            Section {
+                LabeledContent("Version", value: version)
+                LabeledContent("Status", value: statusText)
+                LabeledContent("Last checked", value: lastCheckedText)
+                HStack {
+                    Spacer()
                     if updateChecker.isChecking {
-                        ProgressView().controlSize(.small).tint(Color.cdTextPrimary)
-                    } else {
-                        Image(systemName: "arrow.triangle.2.circlepath")
+                        ProgressView()
+                            .controlSize(.small)
                     }
-                    Text(updateChecker.isChecking ? "Checking…" : "Check for Updates")
+                    Button("Check for Updates") {
+                        Task { await updateChecker.checkForUpdates() }
+                    }
+                    .disabled(updateChecker.isChecking)
                 }
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(Color.cdTextPrimary)
-                .frame(maxWidth: .infinity)
-                .frame(height: 34)
-                .background(
-                    RoundedRectangle(cornerRadius: 8).fill(Color.cdBgElevated)
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8).stroke(Color.cdBorder, lineWidth: 1)
-                )
-                .contentShape(Rectangle())
+            } footer: {
+                if let error = updateChecker.error {
+                    Text(error)
+                        .foregroundStyle(.red)
+                }
             }
-            .buttonStyle(.plain)
-            .disabled(updateChecker.isChecking)
 
             if let info = updateChecker.updateInfo, info.isUpdateAvailable {
-                SectionGroup(header: "DOWNLOAD") {
+                Section("Update to v\(info.latestVersion)") {
                     if info.dmgUrl != nil {
-                        DownloadRow(title: "Download DMG", icon: "arrow.down.doc") { updateChecker.downloadDMG() }
-                        DividerLine()
+                        Button("Download DMG") { updateChecker.downloadDMG() }
                     }
                     if info.zipUrl != nil {
-                        DownloadRow(title: "Download ZIP", icon: "arrow.down.circle") { updateChecker.downloadZIP() }
-                        DividerLine()
+                        Button("Download ZIP") { updateChecker.downloadZIP() }
                     }
-                    DownloadRow(title: "View on GitHub", icon: "safari") { updateChecker.openReleasePage() }
-                }
-
-                SectionGroup(header: "WHAT'S NEW") {
-                    VStack(alignment: .leading, spacing: 14) {
-                        changelogContent(for: info)
-                    }
-                    .padding(14)
+                    Button("View on GitHub") { updateChecker.openReleasePage() }
                 }
             }
 
-            if let error = updateChecker.error {
-                Text(error)
-                    .font(.system(size: 12))
-                    .foregroundStyle(Color.cdDanger)
+            Section("Release notes") {
+                if updateChecker.changelog.isEmpty {
+                    Text(isLoadingChangelog ? "Loading…" : "No release notes available.")
+                        .foregroundStyle(.secondary)
+                } else {
+                    ForEach(updateChecker.changelog.prefix(maxReleaseNotes), id: \.version) { entry in
+                        releaseLink(for: entry)
+                    }
+                }
             }
         }
+        .formStyle(.grouped)
+        .frame(height: 520)
         .task {
             if updateChecker.updateInfo == nil && !updateChecker.isChecking {
                 await updateChecker.checkForUpdates()
             }
+            if updateChecker.changelog.isEmpty {
+                isLoadingChangelog = true
+                await updateChecker.fetchChangelog()
+                isLoadingChangelog = false
+            }
         }
     }
 
-    private var statusLabel: some View {
-        Group {
-            if let info = updateChecker.updateInfo {
-                if info.isUpdateAvailable {
-                    HStack(spacing: 6) {
-                        Image(systemName: "arrow.down.circle.fill")
-                        Text("Update available (v\(info.latestVersion))")
-                    }
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(Color(hex: 0xf5a524))
-                } else {
-                    HStack(spacing: 6) {
-                        Image(systemName: "checkmark.circle.fill")
-                        Text("Up to date")
-                    }
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(Color.cdSuccess)
-                }
-            } else {
-                Text("—").foregroundStyle(Color.cdTextTertiary)
-            }
-        }
+    private var statusText: String {
+        guard let info = updateChecker.updateInfo else { return "Not checked" }
+        return info.isUpdateAvailable ? "Update available (v\(info.latestVersion))" : "Up to date"
     }
 
     private var lastCheckedText: String {
@@ -269,201 +143,20 @@ struct SettingsInWindowView: View {
         return formatter.localizedString(for: date, relativeTo: Date())
     }
 
+    /// Row linking one changelog entry to its GitHub release page.
     @ViewBuilder
-    private func changelogContent(for info: UpdateInfo) -> some View {
-        let relevant = updateChecker.getChangelogBetweenVersions()
-        if relevant.isEmpty && !info.releaseNotes.isEmpty {
-            markdownText(info.releaseNotes)
-        } else {
-            ForEach(relevant, id: \.version) { entry in
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack(spacing: 6) {
-                        Text("v\(entry.version)")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundStyle(Color.cdTextPrimary)
-                        if let date = entry.date {
-                            Text(date)
-                                .font(.system(size: 11))
-                                .foregroundStyle(Color.cdTextTertiary)
-                        }
-                    }
-                    markdownText(entry.content)
+    private func releaseLink(for entry: ChangelogEntry) -> some View {
+        let url = URL(string: "https://github.com/spreadpaper/SpreadPaper/releases/tag/v\(entry.version)")!
+        Link(destination: url) {
+            HStack {
+                Text("v\(entry.version)")
+                Spacer()
+                if let date = entry.date {
+                    Text(date)
+                        .foregroundStyle(.secondary)
                 }
             }
-        }
-    }
-
-    private func markdownText(_ content: String) -> some View {
-        Group {
-            if let attributed = try? AttributedString(markdown: content) {
-                Text(attributed)
-            } else {
-                Text(content)
-            }
-        }
-        .font(.system(size: 12))
-        .foregroundStyle(Color.cdTextSecondary)
-    }
-}
-
-// MARK: - Reusable components
-
-private struct SettingsSidebarRow: View {
-    let label: String
-    let icon: AnyView
-    let isSelected: Bool
-    let onTap: () -> Void
-
-    @State private var hovering = false
-
-    var body: some View {
-        Button(action: onTap) {
-            HStack(spacing: 9) {
-                icon
-                    .frame(width: 14, height: 14)
-                Text(label)
-                    .font(.system(size: 13, weight: isSelected ? .semibold : .medium))
-                Spacer()
-            }
-            .foregroundStyle(isSelected ? Color.white : Color.cdTextSecondary)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 7)
-            .background(
-                RoundedRectangle(cornerRadius: 6)
-                    .fill(isSelected ? Color.cdAccent : (hovering ? Color.cdBgHover : Color.clear))
-            )
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
-        .onHover { hovering = $0 }
-    }
-}
-
-private struct HoverFillButtonStyle: ButtonStyle {
-    @State private var hovering = false
-
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .background(
-                RoundedRectangle(cornerRadius: 6)
-                    .fill(hovering ? Color.cdBgHover : Color.clear)
-            )
-            .onHover { hovering = $0 }
-            .opacity(configuration.isPressed ? 0.7 : 1.0)
-    }
-}
-
-private struct SectionGroup<Content: View>: View {
-    let header: String
-    @ViewBuilder var content: () -> Content
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(header)
-                .font(.system(size: 11, weight: .semibold))
-                .tracking(0.4)
-                .foregroundStyle(Color.cdTextTertiary)
-                .padding(.horizontal, 4)
-
-            VStack(spacing: 0) {
-                content()
-            }
-            .background(Color.cdBgSecondary)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(Color.cdBorder, lineWidth: 1)
-            )
-        }
-    }
-}
-
-private struct SettingsRow<Control: View>: View {
-    let label: String
-    let hint: String?
-    @ViewBuilder var control: () -> Control
-
-    var body: some View {
-        HStack(alignment: .center, spacing: 14) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(label)
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundStyle(Color.cdTextPrimary)
-                if let hint {
-                    Text(hint)
-                        .font(.system(size: 11))
-                        .foregroundStyle(Color.cdTextTertiary)
-                }
-            }
-            Spacer(minLength: 12)
-            control()
-        }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 10)
-    }
-}
-
-private struct DividerLine: View {
-    var body: some View {
-        Rectangle()
-            .fill(Color.cdBorder)
-            .frame(height: 1)
-    }
-}
-
-/// Numeric field plus stepper for the bezel gap, in screen points.
-private struct BezelGapField: View {
-    @Binding var value: Double
-
-    var body: some View {
-        HStack(spacing: 6) {
-            TextField("0", value: $value, format: .number.precision(.fractionLength(0)))
-                .textFieldStyle(.plain)
-                .multilineTextAlignment(.trailing)
-                .font(.system(size: 13))
-                .monospacedDigit()
-                .foregroundStyle(Color.cdTextPrimary)
-                .frame(width: 48)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 5)
-                .background(Color.cdBgElevated)
-                .clipShape(RoundedRectangle(cornerRadius: 6))
-                .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.cdBorder, lineWidth: 1))
-            Text("pt")
-                .font(.system(size: 12))
-                .foregroundStyle(Color.cdTextTertiary)
-            Stepper("Gap between displays", value: $value, in: 0...1000, step: 1)
-                .labelsHidden()
-        }
-        .accessibilityElement(children: .contain)
-    }
-}
-
-
-private struct DownloadRow: View {
-    let title: String
-    let icon: String
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 10) {
-                Image(systemName: icon)
-                    .font(.system(size: 13))
-                    .foregroundStyle(Color.cdAccent)
-                    .frame(width: 16)
-                Text(title)
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundStyle(Color.cdTextPrimary)
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 10, weight: .semibold))
-                    .foregroundStyle(Color.cdTextTertiary)
-            }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 10)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
     }
 }

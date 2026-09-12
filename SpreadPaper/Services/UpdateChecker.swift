@@ -232,14 +232,4 @@ class UpdateChecker {
 
         changelog = entries
     }
-
-    /// Returns changelog entries between current version and latest version
-    func getChangelogBetweenVersions() -> [ChangelogEntry] {
-        guard let info = updateInfo else { return [] }
-
-        return changelog.filter { entry in
-            compareVersions(current: info.currentVersion, latest: entry.version) &&
-            !compareVersions(current: info.latestVersion, latest: entry.version)
-        }
-    }
 }

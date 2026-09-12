@@ -49,7 +49,7 @@ Source files organized under `SpreadPaper/`:
 - **Views/MonitorPreviewView.swift** — Individual monitor outline for the canvas
 - **Views/ScheduleView.swift** — Time variant schedule editor with per-row range bars for dynamic presets
 - **Views/RangeBarView.swift** — AppKit-backed custom range bar control for time selection
-- **Views/SettingsView.swift** — Settings window with appearance and update tabs
+- **Views/SettingsView.swift** — Native Settings window with General and Updates tabs
 
 ### Services
 
