@@ -5,22 +5,13 @@ body:
   - type: markdown
     attributes:
       value: |
-        Describe the problem, not the fix. Symptom and exact steps are what make a report actionable.
-
-  - type: input
-    id: summary
-    attributes:
-      label: Summary
-      description: One line. What is broken?
-      placeholder: The search field border pulses while focused
-    validations:
-      required: true
+        Use the title as a one-line summary of what is broken. Below, tell us what you saw and how to make it happen again. The fix can wait for the pull request.
 
   - type: textarea
     id: steps
     attributes:
       label: Steps to reproduce
-      description: Numbered, from launch, so someone else can hit the same thing.
+      description: Numbered, from launch, so someone else can see the same thing.
       placeholder: |
         1. Launch SpreadPaper
         2. Open a preset in the editor
@@ -40,8 +31,7 @@ body:
   - type: textarea
     id: expected
     attributes:
-      label: Expected
-      description: What should have happened instead.
+      label: What should happen
       placeholder: The border turns solid and stays solid until focus leaves.
     validations:
       required: true
@@ -83,9 +73,9 @@ body:
       required: false
 
   - type: textarea
-    id: screenshots
+    id: extra
     attributes:
-      label: Screenshots or logs
-      description: Drag images here. For logs, run `log show --predicate 'subsystem == "com.cattlea.SpreadPaper"' --last 10m` in Terminal and paste the output.
+      label: Screenshots, logs, or anything else
+      description: Drag images here. Anything else that might matter, like when it started, other displays, or what you tried. If the wallpaper failed to apply, run `log show --predicate 'subsystem == "com.cattlea.SpreadPaper"' --info --last 10m` in Terminal and paste the output.
     validations:
       required: false
