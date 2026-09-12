@@ -43,7 +43,6 @@ struct GitHubAsset: Codable {
 struct UpdateInfo {
     let currentVersion: String
     let latestVersion: String
-    let releaseNotes: String
     let releaseUrl: String
     let dmgUrl: String?
     let zipUrl: String?
@@ -54,7 +53,9 @@ struct UpdateInfo {
 struct ChangelogEntry {
     let version: String
     let date: String?
-    let content: String
+
+    /// GitHub release page for this version.
+    var releaseURL: URL { UpdateChecker.releaseURL(for: version) }
 }
 
 // MARK: - UpdateChecker
@@ -69,15 +70,20 @@ class UpdateChecker {
     var error: String?
     var changelog: [ChangelogEntry] = []
 
-    private let repoOwner = "spreadpaper"
-    private let repoName = "SpreadPaper"
+    private static let repoOwner = "spreadpaper"
+    private static let repoName = "SpreadPaper"
+
+    /// GitHub release page for a version tag.
+    static func releaseURL(for version: String) -> URL {
+        URL(string: "https://github.com/\(repoOwner)/\(repoName)/releases/tag/v\(version)")!
+    }
 
     private var currentVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
     }
 
     private var apiBaseUrl: String {
-        "https://api.github.com/repos/\(repoOwner)/\(repoName)"
+        "https://api.github.com/repos/\(Self.repoOwner)/\(Self.repoName)"
     }
 
     // MARK: - Public Methods
@@ -110,7 +116,7 @@ class UpdateChecker {
 
     func fetchChangelog() async {
         do {
-            let url = URL(string: "https://raw.githubusercontent.com/\(repoOwner)/\(repoName)/main/CHANGELOG.md")!
+            let url = URL(string: "https://raw.githubusercontent.com/\(Self.repoOwner)/\(Self.repoName)/main/CHANGELOG.md")!
             let (data, _) = try await URLSession.shared.data(from: url)
             let content = String(data: data, encoding: .utf8) ?? ""
             parseChangelog(content)
@@ -152,7 +158,6 @@ class UpdateChecker {
         updateInfo = UpdateInfo(
             currentVersion: currentVersion,
             latestVersion: latestVersion,
-            releaseNotes: release.body,
             releaseUrl: release.htmlUrl,
             dmgUrl: dmgAsset?.browserDownloadUrl,
             zipUrl: zipAsset?.browserDownloadUrl,
@@ -184,18 +189,13 @@ class UpdateChecker {
 
         var currentVersion: String?
         var currentDate: String?
-        var currentContent: [String] = []
 
         for line in lines {
             // Match version headers like "## [1.1.3](url) (2025-11-22)" or "## 1.0.0 (2025-11-22)"
             if line.hasPrefix("## ") {
                 // Save previous entry
                 if let version = currentVersion {
-                    entries.append(ChangelogEntry(
-                        version: version,
-                        date: currentDate,
-                        content: currentContent.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
-                    ))
+                    entries.append(ChangelogEntry(version: version, date: currentDate))
                 }
 
                 // Parse new version
@@ -214,20 +214,12 @@ class UpdateChecker {
                         .replacingOccurrences(of: "(", with: "")
                         .replacingOccurrences(of: ")", with: "")
                 }
-
-                currentContent = []
-            } else if currentVersion != nil && !line.hasPrefix("# ") {
-                currentContent.append(line)
             }
         }
 
         // Add last entry
         if let version = currentVersion {
-            entries.append(ChangelogEntry(
-                version: version,
-                date: currentDate,
-                content: currentContent.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
-            ))
+            entries.append(ChangelogEntry(version: version, date: currentDate))
         }
 
         changelog = entries

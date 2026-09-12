@@ -26,7 +26,6 @@ struct SpreadPaperApp: App {
             }
             .ignoresSafeArea()
             .frame(minWidth: 900, minHeight: 600)
-            .preferredColorScheme(.dark)
             .background(Color.cdBgPrimary)
             .task {
                 await manager.listenForScreenChanges()

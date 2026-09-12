@@ -68,7 +68,7 @@ private struct UpdatesSettingsTab: View {
     @State private var isLoadingChangelog = false
 
     private let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
-    private let maxReleaseNotes = 8
+    private let maxReleaseNotes = 6
 
     var body: some View {
         Form {
@@ -118,7 +118,7 @@ private struct UpdatesSettingsTab: View {
             }
         }
         .formStyle(.grouped)
-        .frame(height: 520)
+        .frame(height: updateChecker.updateInfo?.isUpdateAvailable == true ? 600 : 520)
         .task {
             if updateChecker.updateInfo == nil && !updateChecker.isChecking {
                 await updateChecker.checkForUpdates()
@@ -131,6 +131,7 @@ private struct UpdatesSettingsTab: View {
         }
     }
 
+    /// Update state as a short label for the Status row.
     private var statusText: String {
         guard let info = updateChecker.updateInfo else { return "Not checked" }
         return info.isUpdateAvailable ? "Update available (v\(info.latestVersion))" : "Up to date"
@@ -146,8 +147,7 @@ private struct UpdatesSettingsTab: View {
     /// Row linking one changelog entry to its GitHub release page.
     @ViewBuilder
     private func releaseLink(for entry: ChangelogEntry) -> some View {
-        let url = URL(string: "https://github.com/spreadpaper/SpreadPaper/releases/tag/v\(entry.version)")!
-        Link(destination: url) {
+        Link(destination: entry.releaseURL) {
             HStack {
                 Text("v\(entry.version)")
                 Spacer()
