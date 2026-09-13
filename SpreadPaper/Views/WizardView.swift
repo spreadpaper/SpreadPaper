@@ -48,7 +48,7 @@ struct WizardView: View {
                 Spacer()
 
                 if step == 1 {
-                    Button("Get Started") {
+                    Button("Continue") {
                         withAnimation { step = 2 }
                     }
                     .buttonStyle(CoolDarkButtonStyle(isPrimary: true))
@@ -69,13 +69,13 @@ struct WizardView: View {
                 .font(.system(size: 28, weight: .bold))
                 .foregroundStyle(Color.cdTextPrimary)
 
-            Text("One wallpaper across all your monitors.\nPick an image, position it, and your desk comes alive.")
+            Text("One wallpaper across all your monitors.\nPick an image and position it.")
                 .font(.system(size: 14))
                 .foregroundStyle(Color.cdTextSecondary)
                 .multilineTextAlignment(.center)
                 .lineSpacing(3)
 
-            Text("\(displayCount) display\(displayCount == 1 ? "" : "s") detected")
+            Text("\(displayCount) display\(displayCount == 1 ? "" : "s") connected")
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundStyle(Color.cdAccent)
                 .padding(.horizontal, 14)
@@ -91,7 +91,7 @@ struct WizardView: View {
                 .font(.system(size: 22, weight: .bold))
                 .foregroundStyle(Color.cdTextPrimary)
 
-            Text("Drop images or click to browse.\nSelect multiple for dynamic wallpapers.")
+            Text("Drop images or click to browse.\nTwo or more make a dynamic wallpaper.")
                 .font(.system(size: 14))
                 .foregroundStyle(Color.cdTextSecondary)
                 .multilineTextAlignment(.center)
@@ -108,7 +108,7 @@ struct WizardView: View {
                                 .cdIcon(Color.cdTextPrimary, size: 22)
                         }
 
-                    Text("Drag & drop images here")
+                    Text("Drop images here")
                         .font(.system(size: 13))
                         .foregroundStyle(Color.cdTextSecondary)
 
