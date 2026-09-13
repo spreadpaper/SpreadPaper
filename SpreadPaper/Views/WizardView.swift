@@ -39,7 +39,7 @@ struct WizardView: View {
                 if step > 1 {
                     Button(action: { withAnimation { step -= 1 } }) {
                         Text("← Back")
-                            .font(.system(size: 11))
+                            .font(.cd(.subheadline))
                             .foregroundStyle(Color.cdTextTertiary)
                     }
                     .buttonStyle(.plain)
@@ -66,17 +66,17 @@ struct WizardView: View {
             MonitorPairIllustration()
 
             Text("Welcome to SpreadPaper")
-                .font(.system(size: 28, weight: .bold))
+                .font(.cd(.largeTitle, .bold))
                 .foregroundStyle(Color.cdTextPrimary)
 
             Text("One wallpaper across all your monitors.\nPick an image and position it.")
-                .font(.system(size: 14))
+                .font(.cd(.body))
                 .foregroundStyle(Color.cdTextSecondary)
                 .multilineTextAlignment(.center)
                 .lineSpacing(3)
 
             Text(DisplayInfo.countLabel(displayCount))
-                .font(.system(size: 12, weight: .semibold))
+                .font(.cd(.callout, .semibold))
                 .foregroundStyle(Color.cdAccent)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 5)
@@ -88,11 +88,11 @@ struct WizardView: View {
     private var pickImageStep: some View {
         VStack(spacing: 12) {
             Text("Choose your wallpaper images")
-                .font(.system(size: 22, weight: .bold))
+                .font(.cd(.title, .bold))
                 .foregroundStyle(Color.cdTextPrimary)
 
             Text("Two or more make a dynamic wallpaper.")
-                .font(.system(size: 14))
+                .font(.cd(.body))
                 .foregroundStyle(Color.cdTextSecondary)
                 .multilineTextAlignment(.center)
                 .lineSpacing(3)
@@ -109,11 +109,11 @@ struct WizardView: View {
                         }
 
                     Text("Drop images here")
-                        .font(.system(size: 13))
+                        .font(.cd(.body))
                         .foregroundStyle(Color.cdTextSecondary)
 
                     Text("or browse files")
-                        .font(.system(size: 12))
+                        .font(.cd(.callout))
                         .foregroundStyle(Color.cdAccent)
                 }
                 .frame(maxWidth: 300)

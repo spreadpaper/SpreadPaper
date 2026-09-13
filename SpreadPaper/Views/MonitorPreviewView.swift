@@ -32,7 +32,7 @@ struct MonitorPreviewView: View {
                         .strokeBorder(Color.cdHighlightStroke, lineWidth: 1)
 
                     Text(display.name)
-                        .font(.system(size: 8, weight: .medium))
+                        .font(.cd(.caption2, .medium))
                         .foregroundStyle(Color.cdTextPrimary.opacity(0.4))
                         .padding(6)
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)

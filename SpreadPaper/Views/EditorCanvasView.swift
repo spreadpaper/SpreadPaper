@@ -74,7 +74,7 @@ struct EditorCanvasView: View {
                         Ph.fileArrowDown.regular
                             .cdIcon(Color.cdTextTertiary, size: 32)
                         Text("Drop image here")
-                            .font(.system(size: 12))
+                            .font(.cd(.callout))
                             .foregroundStyle(Color.cdTextSecondary)
                         Button("Browse Files", action: onSelectImage)
                             .buttonStyle(CoolDarkButtonStyle(isPrimary: true))

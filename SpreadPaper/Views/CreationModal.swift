@@ -60,11 +60,11 @@ struct CreationModal: View {
                 // Head
                 VStack(spacing: 6) {
                     Text("NEW WALLPAPER")
-                        .font(.system(size: 11, weight: .semibold))
+                        .font(.cd(.subheadline, .semibold))
                         .tracking(1.1)
                         .foregroundStyle(Color.cdAccent.opacity(0.9))
                     Text("Let's make something beautiful.")
-                        .font(.system(size: 24, weight: .bold))
+                        .font(.cd(.largeTitle, .bold))
                         .tracking(-0.48)
                         .foregroundStyle(Color.cdTextPrimary)
                 }
@@ -178,12 +178,13 @@ private struct CloseButton: View {
                             .stroke(Color.cdBorder, lineWidth: 1)
                     )
                 Image(systemName: "xmark")
-                    .font(.system(size: 10, weight: .bold))
+                    .font(.cd(.caption, .bold))
                     .foregroundStyle(hover ? Color.cdTextPrimary : Color.cdTextSecondary)
             }
             .frame(width: 28, height: 28)
         }
         .buttonStyle(.plain)
+        .accessibilityLabel("Close")
         .onHover { hover = $0 }
     }
 }
@@ -266,10 +267,10 @@ private struct HeroView: View {
         // A time that ticks through a loop is chrome on the animation, and only noise read aloud.
         HStack(alignment: .firstTextBaseline, spacing: 5) {
             Text("Time")
-                .font(.system(size: 9, weight: .medium))
+                .font(.cd(.caption2, .medium))
                 .tracking(0.4)
             Text(TimeVariant.clockString(hour: HeroDayCycle.hour(at: clock.day), minute: 0))
-                .font(.system(size: 11, weight: .medium).monospacedDigit())
+                .font(.cd(.subheadline, .medium).monospacedDigit())
         }
         .foregroundStyle(Color.cdTextTertiary)
         .padding(.leading, 20)
@@ -309,7 +310,7 @@ private struct PhotoCredit: View {
             Link("Unsplash", destination: page)
                 .underline()
         }
-        .font(.system(size: 10))
+        .font(.cd(.caption))
         .foregroundStyle(Color.cdTextSecondary)
         .tint(Color.cdTextSecondary)
     }
@@ -518,10 +519,10 @@ private struct PillPicker: View {
                 Button(action: { tap(type) }) {
                     HStack(spacing: 8) {
                         Image(systemName: type.systemImage)
-                            .font(.system(size: 11, weight: .semibold))
+                            .font(.cd(.subheadline, .semibold))
                             .frame(width: 14, height: 14)
                         Text(type.title)
-                            .font(.system(size: 13, weight: isActive ? .semibold : .medium))
+                            .font(.cd(.body, isActive ? .semibold : .medium))
                     }
                     .foregroundStyle(isActive ? Color.cdTextPrimary : Color.cdTextSecondary)
                     .padding(.horizontal, 14)
@@ -586,11 +587,11 @@ private struct Caption: View {
         let c = copy
         (
             Text(c.lead)
-                .font(.system(size: 14, weight: .semibold))
+                .font(.cd(.body, .semibold))
                 .foregroundColor(Color.cdTextPrimary)
             +
             Text(c.body)
-                .font(.system(size: 14))
+                .font(.cd(.body))
                 .foregroundColor(Color.cdTextSecondary)
         )
         .multilineTextAlignment(.center)
@@ -626,7 +627,7 @@ private struct Footer: View {
                     .frame(width: 6, height: 6)
                     .shadow(color: dotColor.opacity(displayCount > 0 ? 0.6 : 0), radius: 4)
                 Text(hintText)
-                    .font(.system(size: 12))
+                    .font(.cd(.callout))
                     .foregroundStyle(Color.cdTextTertiary)
             }
 
@@ -635,7 +636,7 @@ private struct Footer: View {
             HStack(spacing: 8) {
                 Button(action: onCancel) {
                     Text("Cancel")
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.cd(.body, .semibold))
                         .foregroundStyle(Color.cdTextSecondary)
                         .padding(.horizontal, 18)
                         .padding(.vertical, 11)
@@ -653,7 +654,7 @@ private struct Footer: View {
 
                 Button(action: onContinue) {
                     Text("Continue with \(selectedType.title)")
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.cd(.body, .semibold))
                         .foregroundStyle(Color.cdTextPrimary)
                         .padding(.horizontal, 18)
                         .padding(.vertical, 11)

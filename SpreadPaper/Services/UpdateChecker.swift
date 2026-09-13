@@ -63,9 +63,9 @@ nonisolated struct GitHubStatusError: LocalizedError, Equatable {
 
     var errorDescription: String? {
         switch statusCode {
-        case 403, 429: "GitHub is limiting requests right now, try again later"
-        case 404: "No release found on GitHub"
-        default: "GitHub replied with an error (\(statusCode))"
+        case 403, 429: String(localized: "GitHub is limiting requests right now, try again later")
+        case 404: String(localized: "No release found on GitHub")
+        default: String(localized: "GitHub replied with an error (\(statusCode))")
         }
     }
 }

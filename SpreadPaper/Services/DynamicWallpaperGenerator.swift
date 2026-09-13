@@ -69,12 +69,12 @@ enum DynamicWallpaperError: Error, LocalizedError, Equatable {
 
     var errorDescription: String? {
         switch self {
-        case .noImages:                   return "No images provided."
-        case .countMismatch:              return "Hours and minutes must have one entry per image."
-        case .destinationCreationFailed:  return "Failed to create CGImageDestination."
-        case .metadataCreationFailed:     return "Failed to create image metadata."
-        case .finalizationFailed:         return "Failed to finalize the HEIC file."
-        case .fileWriteFailed:            return "Failed to write the HEIC file to disk."
+        case .noImages:                   return String(localized: "No images provided.")
+        case .countMismatch:              return String(localized: "Hours and minutes must have one entry per image.")
+        case .destinationCreationFailed:  return String(localized: "Failed to create CGImageDestination.")
+        case .metadataCreationFailed:     return String(localized: "Failed to create image metadata.")
+        case .finalizationFailed:         return String(localized: "Failed to finalize the HEIC file.")
+        case .fileWriteFailed:            return String(localized: "Failed to write the HEIC file to disk.")
         }
     }
 }

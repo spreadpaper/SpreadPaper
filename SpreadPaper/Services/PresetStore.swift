@@ -14,7 +14,7 @@ struct PresetStore {
         var errorDescription: String? {
             switch self {
             case .corrupted(let backup, _):
-                return "Could not load presets. A backup was saved as \(backup.lastPathComponent)."
+                return String(localized: "Could not load presets. A backup was saved as \(backup.lastPathComponent).")
             }
         }
     }

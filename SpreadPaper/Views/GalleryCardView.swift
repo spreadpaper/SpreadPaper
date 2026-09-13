@@ -23,8 +23,9 @@ struct GalleryCardView: View {
     let onDelete: () -> Void
 
     @State private var isHovering = false
+    @FocusState private var isFocused: Bool
 
-    private var showOverlay: Bool { isHovering || isSelected }
+    private var showOverlay: Bool { isHovering || isSelected || isFocused }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 9) {
@@ -34,15 +35,35 @@ struct GalleryCardView: View {
         .contentShape(Rectangle())
         .onHover { hovering in isHovering = hovering }
         .onTapGesture { onTap() }
-        .contextMenu {
-            Button("Apply") { onApply() }
-            Button("Edit") { onEdit() }
-            Button("Rename…") { onRename() }
-            Button("Duplicate") { onDuplicate() }
-            Button("Show in Finder") { onRevealInFinder() }
-            Divider()
-            Button("Delete", role: .destructive) { onDelete() }
+        .focusable()
+        .focused($isFocused)
+        .onKeyPress(.return) {
+            guard !isApplying && !applyDisabled else { return .handled }
+            onApply()
+            return .handled
         }
+        .onKeyPress(.space) {
+            onTap()
+            return .handled
+        }
+        .contextMenu { cardActions }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(preset.name)
+        .accessibilityHint("Return applies this wallpaper, Space selects it")
+        .accessibilityActions { cardActions }
+    }
+
+    /// The card's six actions, shared by the context menu and the accessibility
+    /// rotor so the two can never drift apart.
+    @ViewBuilder
+    private var cardActions: some View {
+        Button("Apply") { onApply() }
+        Button("Edit") { onEdit() }
+        Button("Rename…") { onRename() }
+        Button("Duplicate") { onDuplicate() }
+        Button("Show in Finder") { onRevealInFinder() }
+        Divider()
+        Button("Delete", role: .destructive) { onDelete() }
     }
 
     // MARK: - Thumbnail (16:10)
@@ -80,15 +101,16 @@ struct GalleryCardView: View {
             .offset(y: isHovering ? -1 : 0)
             .animation(.easeOut(duration: 0.16), value: isHovering)
             .animation(.easeInOut(duration: 0.14), value: showOverlay)
+            .animation(.easeOut(duration: 0.12), value: isFocused)
             .animation(.easeInOut(duration: 0.18), value: isActive)
     }
 
     private var ringColor: Color {
-        (isActive || isSelected) ? Color.cdAccent : Color.cdBorder
+        (isActive || isSelected || isFocused) ? Color.cdAccent : Color.cdBorder
     }
 
     private var ringWidth: CGFloat {
-        (isActive || isSelected) ? 2 : 1
+        (isActive || isSelected || isFocused) ? 2 : 1
     }
 
     private var thumbnailImage: some View {
@@ -122,7 +144,7 @@ struct GalleryCardView: View {
                 .frame(width: 6, height: 6)
                 .shadow(color: Color.cdSuccess.opacity(0.9), radius: 3)
             Text("Applied")
-                .font(.system(size: 10.5, weight: .semibold))
+                .font(.cd(.caption, .semibold))
                 .foregroundStyle(Color.cdTextPrimary)
         }
         .padding(EdgeInsets(top: 3, leading: 6, bottom: 3, trailing: 7))
@@ -156,7 +178,7 @@ struct GalleryCardView: View {
                         .tint(Color.cdTextPrimary)
                 } else {
                     Image(systemName: "checkmark")
-                        .font(.system(size: 11, weight: .bold))
+                        .font(.cd(.subheadline, .bold))
                 }
                 Text(isApplying ? "Applying…" : "Apply")
             }
@@ -169,7 +191,7 @@ struct GalleryCardView: View {
         Button(action: onEdit) {
             HStack(spacing: 5) {
                 Image(systemName: "pencil")
-                    .font(.system(size: 12, weight: .medium))
+                    .font(.cd(.callout, .medium))
                 Text("Edit")
             }
         }
@@ -185,7 +207,7 @@ struct GalleryCardView: View {
             Button("Delete", role: .destructive) { onDelete() }
         } label: {
             Image(systemName: "ellipsis")
-                .font(.system(size: 13, weight: .semibold))
+                .font(.cd(.body, .semibold))
                 .foregroundStyle(Color.cdTextPrimary)
                 .frame(width: 30, height: 30)
                 .background(glassButtonBackground)
@@ -194,6 +216,7 @@ struct GalleryCardView: View {
         .menuStyle(.borderlessButton)
         .menuIndicator(.hidden)
         .fixedSize()
+        .accessibilityLabel("More actions")
     }
 
     private var glassButtonBackground: some View {
@@ -215,7 +238,7 @@ struct GalleryCardView: View {
     private var metaRow: some View {
         HStack(spacing: 8) {
             Text(preset.name)
-                .font(.system(size: 13, weight: .semibold))
+                .font(.cd(.body, .semibold))
                 .foregroundStyle(Color.cdTextPrimary)
                 .lineLimit(1)
                 .truncationMode(.tail)
@@ -231,7 +254,7 @@ struct GalleryCardView: View {
             typeIcon
                 .frame(width: 10, height: 10)
             Text(preset.kind.title)
-                .font(.system(size: 11, weight: .medium))
+                .font(.cd(.subheadline, .medium))
                 .foregroundStyle(Color.cdTextTertiary)
         }
         .padding(.horizontal, 7)
@@ -248,7 +271,7 @@ struct GalleryCardView: View {
 
     private var typeIcon: some View {
         Image(systemName: preset.kind.systemImage)
-            .font(.system(size: 9, weight: .semibold))
+            .font(.cd(.caption2, .semibold))
             .foregroundStyle(preset.kind.tint)
     }
 }

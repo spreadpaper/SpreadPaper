@@ -177,7 +177,7 @@ struct EditorView: View {
                     Ph.caretLeft.regular
                         .cdIcon(Color.cdTextSecondary, size: 12)
                     Text("Gallery")
-                        .font(.system(size: 13, weight: .medium))
+                        .font(.cd(.body, .medium))
                         .foregroundStyle(Color.cdTextSecondary)
                 }
                 .padding(.horizontal, 10)
@@ -193,7 +193,7 @@ struct EditorView: View {
             Rectangle().fill(Color.cdBorder).frame(width: 1, height: 18)
 
             Text(presetName.isEmpty ? "Untitled" : presetName)
-                .font(.system(size: 13, weight: .semibold))
+                .font(.cd(.body, .semibold))
                 .foregroundStyle(Color.cdTextPrimary)
                 .lineLimit(1)
 
@@ -204,7 +204,7 @@ struct EditorView: View {
                     Ph.eye.regular
                         .cdIcon(Color.cdTextPrimary, size: 13)
                     Text("Preview")
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(.cd(.body, .semibold))
                         .foregroundStyle(Color.cdTextPrimary)
                 }
                 .padding(.horizontal, 12)
@@ -216,7 +216,7 @@ struct EditorView: View {
 
             Button(action: { openSaveDialog(applyOnSave: false) }) {
                 Text("Save")
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.cd(.body, .semibold))
                     .foregroundStyle(Color.cdTextPrimary)
                     .padding(.horizontal, 14)
                     .frame(height: 26)
@@ -231,7 +231,7 @@ struct EditorView: View {
                         ProgressView().controlSize(.small).tint(Color.cdTextPrimary)
                     }
                     Text(isApplying ? "Applying…" : "Save & Apply")
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(.cd(.body, .semibold))
                         .foregroundStyle(Color.cdTextPrimary)
                 }
                 .padding(.horizontal, 14)
@@ -287,27 +287,27 @@ struct EditorView: View {
 
     private var canvasHUD: some View {
         HStack(spacing: 2) {
-            hudIconButton(icon: Ph.minus.regular, isActive: false, isEnabled: currentImage != nil) {
+            hudIconButton(icon: Ph.minus.regular, label: "Zoom out", isActive: false, isEnabled: currentImage != nil) {
                 setZoom(imageScaleBinding.wrappedValue - 0.1)
             }
 
             Text("\(Int((imageScaleBinding.wrappedValue * 100).rounded()))%")
-                .font(.system(size: 12, weight: .medium))
+                .font(.cd(.callout, .medium))
                 .monospacedDigit()
                 .foregroundStyle(Color.cdTextPrimary)
                 .frame(minWidth: 44)
 
-            hudIconButton(icon: Ph.plus.regular, isActive: false, isEnabled: currentImage != nil) {
+            hudIconButton(icon: Ph.plus.regular, label: "Zoom in", isActive: false, isEnabled: currentImage != nil) {
                 setZoom(imageScaleBinding.wrappedValue + 0.1)
             }
 
             Rectangle().fill(Color.cdHighlightStrokeSoft).frame(width: 1, height: 16).padding(.horizontal, 4)
 
-            hudIconButton(icon: Ph.arrowsOutSimple.regular, isActive: false, isEnabled: currentImage != nil) {
+            hudIconButton(icon: Ph.arrowsOutSimple.regular, label: "Fit to canvas", isActive: false, isEnabled: currentImage != nil) {
                 fitImage()
             }
 
-            hudIconButton(icon: Ph.arrowsLeftRight.regular, isActive: isFlippedBinding.wrappedValue, isEnabled: currentImage != nil) {
+            hudIconButton(icon: Ph.arrowsLeftRight.regular, label: "Flip horizontally", isActive: isFlippedBinding.wrappedValue, isEnabled: currentImage != nil) {
                 isFlippedBinding.wrappedValue.toggle()
             }
         }
@@ -328,9 +328,10 @@ struct EditorView: View {
         .shadow(color: .cdShadow, radius: 24, y: 8)
     }
 
-    /// Icon-only HUD button with an active highlight.
+    /// Icon-only HUD button with an active highlight. `label` names it for
+    /// VoiceOver, which the glyph alone cannot.
     @ViewBuilder
-    private func hudIconButton<I: View>(icon: I, isActive: Bool, isEnabled: Bool, action: @escaping () -> Void) -> some View {
+    private func hudIconButton<I: View>(icon: I, label: LocalizedStringKey, isActive: Bool, isEnabled: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             icon
                 .frame(width: 14, height: 14)
@@ -338,6 +339,7 @@ struct EditorView: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(HUDButtonStyle(isActive: isActive))
+        .accessibilityLabel(label)
         .disabled(!isEnabled)
     }
 
@@ -384,7 +386,7 @@ struct EditorView: View {
             )
         } hint: {
             Text(wallpaperType.subtitle)
-                .font(.system(size: 12))
+                .font(.cd(.callout))
                 .foregroundStyle(Color.cdTextTertiary)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -416,8 +418,8 @@ struct EditorView: View {
                 }
             } hint: {
                 if !variants.isEmpty {
-                    Text("\(variants.count) time slot\(variants.count == 1 ? "" : "s")")
-                        .font(.system(size: 12))
+                    Text("^[\(variants.count) time slot](inflect: true)")
+                        .font(.cd(.callout))
                         .foregroundStyle(Color.cdTextTertiary)
                 }
             }
@@ -490,7 +492,7 @@ struct EditorView: View {
                 Ph.plus.regular
                     .cdIcon(hoveringAddSlot ? Color.cdTextSecondary : Color.cdTextTertiary, size: 12)
                 Text("Add time slot")
-                    .font(.system(size: 12.5, weight: .medium))
+                    .font(.cd(.callout, .medium))
                     .foregroundStyle(hoveringAddSlot ? Color.cdTextSecondary : Color.cdTextTertiary)
                 Spacer()
             }
@@ -530,7 +532,7 @@ struct EditorView: View {
                     range: 0.5...3.0
                 )
                 Text("\(Int((imageScaleBinding.wrappedValue * 100).rounded()))%")
-                    .font(.system(size: 12.5, weight: .medium))
+                    .font(.cd(.callout, .medium))
                     .monospacedDigit()
                     .foregroundStyle(Color.cdTextPrimary)
                     .frame(width: 40, alignment: .trailing)
@@ -577,7 +579,7 @@ struct EditorView: View {
                     ForEach(manager.connectedScreens) { display in
                         VStack(alignment: .leading, spacing: 6) {
                             Text(display.name)
-                                .font(.system(size: 12, weight: .medium))
+                                .font(.cd(.callout, .medium))
                                 .foregroundStyle(Color.cdTextPrimary)
                                 .lineLimit(1)
                                 .truncationMode(.middle)
@@ -590,7 +592,7 @@ struct EditorView: View {
             .onChange(of: settings.bezelWidths) { _, _ in manager.refreshScreens() }
         } hint: {
             Text("Frame width around each panel: horizontal for the left and right edges, vertical for top and bottom.")
-                .font(.system(size: 12))
+                .font(.cd(.callout))
                 .foregroundStyle(Color.cdTextTertiary)
         }
     }
@@ -637,7 +639,7 @@ struct EditorView: View {
     private func bezelSlider(label: String, value: Binding<CGFloat>, disabled: Bool = false) -> some View {
         HStack(spacing: 10) {
             Text(label)
-                .font(.system(size: 11))
+                .font(.cd(.subheadline))
                 .foregroundStyle(Color.cdTextTertiary)
                 .frame(width: 62, alignment: .leading)
             NativeRange(value: value, range: 0...150)
@@ -645,12 +647,12 @@ struct EditorView: View {
                       format: .number.precision(.fractionLength(0)))
                 .textFieldStyle(.plain)
                 .multilineTextAlignment(.trailing)
-                .font(.system(size: 12.5, weight: .medium))
+                .font(.cd(.callout, .medium))
                 .monospacedDigit()
                 .foregroundStyle(Color.cdTextPrimary)
                 .frame(width: 34)
             Text("pt")
-                .font(.system(size: 12))
+                .font(.cd(.callout))
                 .foregroundStyle(Color.cdTextTertiary)
         }
         .disabled(disabled)
@@ -1075,7 +1077,7 @@ private struct InspectorField<Control: View>: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text(label)
-                .font(.system(size: 12, weight: .medium))
+                .font(.cd(.callout, .medium))
                 .foregroundStyle(Color.cdTextSecondary)
 
             control()
@@ -1112,7 +1114,7 @@ struct NativeSelect<Value: Hashable>: View {
         Button(action: { isOpen.toggle() }) {
             HStack(spacing: 6) {
                 Text(currentLabel)
-                    .font(.system(size: 13))
+                    .font(.cd(.body))
                     .foregroundStyle(Color.cdTextPrimary)
                     .lineLimit(1)
                 Spacer(minLength: 6)
@@ -1166,12 +1168,12 @@ private struct NativeSelectRow: View {
         Button(action: action) {
             HStack(spacing: 8) {
                 Text(label)
-                    .font(.system(size: 13))
+                    .font(.cd(.body))
                     .foregroundStyle(Color.cdTextPrimary)
                 Spacer(minLength: 8)
                 if isSelected {
                     Image(systemName: "checkmark")
-                        .font(.system(size: 11, weight: .semibold))
+                        .font(.cd(.subheadline, .semibold))
                         .foregroundStyle(Color.cdAccent)
                 }
             }
@@ -1249,12 +1251,12 @@ struct NativeCheckbox: View {
                         .frame(width: 18, height: 18)
                     if isOn {
                         Image(systemName: "checkmark")
-                            .font(.system(size: 10, weight: .bold))
+                            .font(.cd(.caption, .bold))
                             .foregroundStyle(Color.cdTextPrimary)
                     }
                 }
                 Text(label)
-                    .font(.system(size: 13))
+                    .font(.cd(.body))
                     .foregroundStyle(Color.cdTextPrimary)
                 Spacer()
             }
@@ -1284,12 +1286,12 @@ struct ImageRow: View {
                 thumbnailView
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title.isEmpty ? "Untitled" : title)
-                        .font(.system(size: 13, weight: .medium))
+                        .font(.cd(.body, .medium))
                         .foregroundStyle(Color.cdTextPrimary)
                         .lineLimit(1)
                         .truncationMode(.tail)
                     Text(subtitle)
-                        .font(.system(size: 11.5))
+                        .font(.cd(.subheadline))
                         .foregroundStyle(Color.cdTextTertiary)
                         .lineLimit(1)
                 }

@@ -114,11 +114,11 @@ struct ScheduleDetailModal: View {
     private var header: some View {
         HStack(alignment: .firstTextBaseline, spacing: 8) {
             Text("Edit schedule entry")
-                .font(.system(size: 15, weight: .semibold))
+                .font(.cd(.title3, .semibold))
                 .foregroundStyle(Color.cdTextPrimary)
             Spacer(minLength: 0)
             Text(ScheduleEntryText.position(index: position, count: count))
-                .font(.system(size: 12))
+                .font(.cd(.callout))
                 .foregroundStyle(Color.cdTextTertiary)
                 .lineLimit(1)
         }
@@ -137,7 +137,7 @@ struct ScheduleDetailModal: View {
                 HStack(alignment: .firstTextBaseline, spacing: Self.handoverGap) {
                     startTimeField
                     Text(handover)
-                        .font(.system(size: 12.5))
+                        .font(.cd(.callout))
                         .foregroundStyle(Self.handoverColor)
                         .fixedSize(horizontal: false, vertical: true)
                     Spacer(minLength: 0)
@@ -156,9 +156,9 @@ struct ScheduleDetailModal: View {
         HStack(spacing: 8) {
             Button("Remove") { confirmingRemove = true }
                 .buttonStyle(.plain)
-                .font(.system(size: 13, weight: .medium))
+                .font(.cd(.body, .medium))
                 .foregroundStyle(Color.cdDanger)
-                .frame(height: CoolDarkMetrics.compactControlHeight)
+                .frame(minHeight: CoolDarkMetrics.compactControlHeight)
                 .contentShape(Rectangle())
 
             Spacer(minLength: 0)
@@ -182,7 +182,7 @@ struct ScheduleDetailModal: View {
         HStack(spacing: 12) {
             thumbnailView
             Text(entryName)
-                .font(.system(size: CoolDarkMetrics.fieldFontSize, weight: .medium))
+                .font(.cd(.body, .medium))
                 .foregroundStyle(Color.cdTextPrimary)
                 .lineLimit(2)
                 .truncationMode(.middle)

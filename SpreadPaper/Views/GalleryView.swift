@@ -118,7 +118,7 @@ struct GalleryView: View {
             Image(systemName: "exclamationmark.triangle.fill")
                 .foregroundStyle(Color.cdDanger)
             Text(message)
-                .font(.system(size: 12))
+                .font(.cd(.callout))
                 .foregroundStyle(Color.cdTextPrimary)
                 .lineLimit(2)
             Spacer(minLength: 0)
@@ -126,7 +126,7 @@ struct GalleryView: View {
                 manager.lastError = nil
             } label: {
                 Image(systemName: "xmark")
-                    .font(.system(size: 11, weight: .semibold))
+                    .font(.cd(.subheadline, .semibold))
                     .foregroundStyle(Color.cdTextSecondary)
             }
             .buttonStyle(.plain)
@@ -151,13 +151,13 @@ struct GalleryView: View {
             Ph.image.regular
                 .cdIcon(Color.cdTextSecondary, size: 14)
             Text(GalleryLoading.failureMessage(outstandingPasses: passGate.outstanding))
-                .font(.system(size: 12))
+                .font(.cd(.callout))
                 .foregroundStyle(Color.cdTextPrimary)
                 .lineLimit(2)
             Spacer(minLength: 0)
             Button(action: { reloadThumbnails() }) {
                 Text("Try again")
-                    .font(.system(size: 12, weight: .medium))
+                    .font(.cd(.callout, .medium))
                     .foregroundStyle(Color.cdTextPrimary)
                     .padding(.horizontal, 12)
                     .frame(height: 24)
@@ -179,7 +179,7 @@ struct GalleryView: View {
                 hasDismissedFailure = true
             } label: {
                 Image(systemName: "xmark")
-                    .font(.system(size: 11, weight: .semibold))
+                    .font(.cd(.subheadline, .semibold))
                     .foregroundStyle(Color.cdTextSecondary)
             }
             .buttonStyle(.plain)
@@ -198,11 +198,11 @@ struct GalleryView: View {
     private var toolbar: some View {
         HStack(spacing: 12) {
             Text(toolbarTitle)
-                .font(.system(size: 14, weight: .semibold))
+                .font(.cd(.body, .semibold))
                 .foregroundStyle(Color.cdTextPrimary)
 
-            Text("\(filteredPresets.count) item\(filteredPresets.count == 1 ? "" : "s")")
-                .font(.system(size: 12))
+            Text("^[\(filteredPresets.count) item](inflect: true)")
+                .font(.cd(.callout))
                 .monospacedDigit()
                 .foregroundStyle(Color.cdTextTertiary)
 
@@ -215,7 +215,7 @@ struct GalleryView: View {
                     Ph.plus.bold
                         .cdIcon(Color.cdTextPrimary, size: 12)
                     Text("New Wallpaper")
-                        .font(.system(size: 12.5, weight: .semibold))
+                        .font(.cd(.callout, .semibold))
                         .foregroundStyle(Color.cdTextPrimary)
                 }
                 .padding(.horizontal, 12)
@@ -246,14 +246,14 @@ struct GalleryView: View {
                 .cdIcon(Color.cdTextTertiary, size: 12)
             TextField("Search", text: $searchQuery)
                 .textFieldStyle(.plain)
-                .font(.system(size: 12.5))
+                .font(.cd(.callout))
                 .foregroundStyle(Color.cdTextPrimary)
                 .focused($searchFocused)
                 .onSubmit { searchFocused = false }
             if !searchQuery.isEmpty {
                 Button(action: { searchQuery = "" }) {
                     Text("esc")
-                        .font(.system(size: 11))
+                        .font(.cd(.subheadline))
                         .foregroundStyle(Color.cdTextTertiary)
                         .padding(.horizontal, 5)
                         .padding(.vertical, 1)
@@ -299,7 +299,7 @@ struct GalleryView: View {
 
             // LIBRARY header (4/10/14 padding per prototype)
             Text("LIBRARY")
-                .font(.system(size: 11, weight: .semibold))
+                .font(.cd(.subheadline, .semibold))
                 .tracking(0.4)
                 .foregroundStyle(Color.cdTextTertiary)
                 .padding(.top, 4)
@@ -326,7 +326,7 @@ struct GalleryView: View {
                     Ph.gear.regular
                         .cdIcon(Color.cdTextSecondary, size: 13)
                     Text("Settings")
-                        .font(.system(size: 12.5, weight: .medium))
+                        .font(.cd(.callout, .medium))
                         .foregroundStyle(Color.cdTextSecondary)
                     Spacer()
                 }
@@ -440,10 +440,10 @@ struct GalleryView: View {
 
             VStack(spacing: 6) {
                 Text("No wallpapers yet")
-                    .font(.system(size: 17, weight: .semibold))
+                    .font(.cd(.title2, .semibold))
                     .foregroundStyle(Color.cdTextPrimary)
                 Text("Create your first wallpaper to spread an image across your monitors. Static, dynamic, and light/dark presets are all supported.")
-                    .font(.system(size: 13))
+                    .font(.cd(.body))
                     .foregroundStyle(Color.cdTextSecondary)
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: 360)
@@ -454,7 +454,7 @@ struct GalleryView: View {
                     Ph.plus.bold
                         .cdIcon(Color.cdTextPrimary, size: 12)
                     Text("New Wallpaper")
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(.cd(.body, .semibold))
                         .foregroundStyle(Color.cdTextPrimary)
                 }
                 .padding(.horizontal, 16)
@@ -490,11 +490,11 @@ struct GalleryView: View {
             }
 
             Text("No matches")
-                .font(.system(size: 15, weight: .semibold))
+                .font(.cd(.title3, .semibold))
                 .foregroundStyle(Color.cdTextPrimary)
 
             Text(noResultsBody)
-                .font(.system(size: 12.5))
+                .font(.cd(.callout))
                 .foregroundStyle(Color.cdTextSecondary)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: 340)
@@ -504,7 +504,7 @@ struct GalleryView: View {
                 searchQuery = ""
             }) {
                 Text("Clear filters")
-                    .font(.system(size: 12, weight: .medium))
+                    .font(.cd(.callout, .medium))
                     .foregroundStyle(Color.cdTextPrimary)
                     .padding(.horizontal, 14)
                     .frame(height: 28)
@@ -821,10 +821,10 @@ private struct FilterRow: View {
                 icon
                     .frame(width: 14, height: 14)
                 Text(label)
-                    .font(.system(size: 13, weight: isSelected ? .semibold : .medium))
+                    .font(.cd(.body, isSelected ? .semibold : .medium))
                 Spacer()
                 Text("\(count)")
-                    .font(.system(size: 11, weight: .medium))
+                    .font(.cd(.subheadline, .medium))
                     .monospacedDigit()
                     .foregroundStyle(isSelected ? Color.cdTextPrimary.opacity(0.75) : Color.cdTextTertiary)
             }
@@ -843,7 +843,7 @@ private struct FilterRow: View {
 
     private var icon: some View {
         Image(systemName: filter.systemImage)
-            .font(.system(size: 11, weight: .semibold))
+            .font(.cd(.subheadline, .semibold))
             .foregroundStyle(isSelected ? Color.cdTextPrimary : Color.cdTextSecondary)
     }
 }

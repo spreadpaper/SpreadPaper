@@ -19,9 +19,9 @@ enum WallpaperType: String, CaseIterable, Codable {
     /// One wording for every screen.
     var title: String {
         switch self {
-        case .standard:   return "Static"
-        case .appearance: return "Light & Dark"
-        case .dynamic:    return "Dynamic"
+        case .standard:   return String(localized: "Static")
+        case .appearance: return String(localized: "Light & Dark")
+        case .dynamic:    return String(localized: "Dynamic")
         }
     }
 
@@ -30,9 +30,9 @@ enum WallpaperType: String, CaseIterable, Codable {
     /// Each fits the editor inspector.
     var subtitle: String {
         switch self {
-        case .standard:   return "One image, spread across every display."
-        case .appearance: return "One image for light mode, another for dark."
-        case .dynamic:    return "A schedule of images through the day."
+        case .standard:   return String(localized: "One image, spread across every display.")
+        case .appearance: return String(localized: "One image for light mode, another for dark.")
+        case .dynamic:    return String(localized: "A schedule of images through the day.")
         }
     }
 
@@ -75,7 +75,7 @@ enum GalleryFilter: Int, CaseIterable {
 
     /// Sidebar and toolbar label, taken from the kind's title where there is one.
     var label: String {
-        type?.title ?? "All Wallpapers"
+        type?.title ?? String(localized: "All Wallpapers")
     }
 
     /// SF Symbol for the sidebar row, taken from the kind where there is one.

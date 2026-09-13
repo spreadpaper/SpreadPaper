@@ -139,10 +139,10 @@ struct CoolDarkButtonStyle: ButtonStyle {
         case regular
         case compact
 
-        var fontSize: CGFloat {
+        var font: Font {
             switch self {
-            case .regular: 14
-            case .compact: 13
+            case .regular: .cd(.body, .semibold)
+            case .compact: .cd(.callout, .semibold)
             }
         }
 
@@ -160,7 +160,8 @@ struct CoolDarkButtonStyle: ButtonStyle {
             }
         }
 
-        /// Pinned height so compact buttons line up with 30 pt neighbours.
+        /// Floor height so compact buttons line up with 30 pt neighbours and still
+    /// grow when the system text size does.
         var minHeight: CGFloat? {
             switch self {
             case .regular: nil
@@ -186,7 +187,7 @@ struct CoolDarkButtonStyle: ButtonStyle {
     /// Applies the variant's fill, border and glow, dimming while pressed or disabled.
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.system(size: size.fontSize, weight: .semibold))
+            .font(size.font)
             .foregroundStyle(isFilled ? Color.cdTextPrimary : Color.cdTextSecondary)
             .padding(.horizontal, size.horizontalPadding)
             .padding(.vertical, size.verticalPadding)
@@ -212,7 +213,7 @@ struct SectionHeader: View {
 
     var body: some View {
         Text(title)
-            .font(.system(size: 11, weight: .semibold))
+            .font(.cd(.subheadline, .semibold))
             .foregroundStyle(Color.cdTextTertiary)
             .textCase(.uppercase)
             .tracking(0.5)

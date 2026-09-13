@@ -98,6 +98,7 @@ struct CoolDarkTimeField: View {
         HStack(spacing: Self.menuGap) {
             hourMenu
             Text(TimeVariant.clockSeparator(locale: locale))
+                // Fixed, not scaled: the menus beside it are NSPopUpButtons at this size.
                 .font(.system(size: CoolDarkMetrics.timeFontSize, weight: .semibold))
                 .foregroundStyle(Color.cdTextTertiary)
             minuteMenu

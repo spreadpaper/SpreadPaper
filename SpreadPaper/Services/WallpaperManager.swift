@@ -646,10 +646,10 @@ enum WallpaperError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .imageConversionFailed: return "Failed to convert image to CGImage"
-        case .contextCreationFailed: return "Failed to create rendering context"
-        case .renderingFailed: return "Failed to render wallpaper image"
-        case .pngEncodingFailed: return "Failed to encode image as PNG"
+        case .imageConversionFailed: return String(localized: "Failed to convert image to CGImage")
+        case .contextCreationFailed: return String(localized: "Failed to create rendering context")
+        case .renderingFailed: return String(localized: "Failed to render wallpaper image")
+        case .pngEncodingFailed: return String(localized: "Failed to encode image as PNG")
         }
     }
 }

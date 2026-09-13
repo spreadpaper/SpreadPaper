@@ -26,10 +26,10 @@ struct CoolDarkTextField: View {
         TextField(placeholder, text: $text)
             .textFieldStyle(.plain)
             .focused($isFocused)
-            .font(.system(size: CoolDarkMetrics.fieldFontSize))
+            .font(.cd(.body))
             .foregroundStyle(Color.cdTextPrimary)
             .padding(.horizontal, CoolDarkMetrics.fieldTextInset)
-            .frame(height: CoolDarkMetrics.fieldHeight)
+            .frame(minHeight: CoolDarkMetrics.fieldHeight)
             .background(Color.cdBgPrimary)
             .clipShape(RoundedRectangle(cornerRadius: CoolDarkMetrics.controlCornerRadius))
             .overlay(
@@ -53,7 +53,7 @@ struct ToastView: View {
 
     var body: some View {
         Text(message)
-            .font(.system(size: 12, weight: .medium))
+            .font(.cd(.callout, .medium))
             .foregroundStyle(Color.cdTextPrimary)
             .padding(.horizontal, 14)
             .padding(.vertical, 8)

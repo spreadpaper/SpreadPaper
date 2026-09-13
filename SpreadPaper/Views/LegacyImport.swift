@@ -37,16 +37,16 @@ struct LegacyImportBanner: View {
     private var message: some View {
         HStack(alignment: .top, spacing: 12) {
             Image(systemName: "square.and.arrow.down")
-                .font(.system(size: 14, weight: .semibold))
+                .font(.cd(.body, .semibold))
                 .foregroundStyle(Color.cdAccent)
                 .padding(.top, 2)
 
             VStack(alignment: .leading, spacing: 3) {
                 Text("Import your saved wallpapers")
-                    .font(.system(size: 12.5, weight: .semibold))
+                    .font(.cd(.callout, .semibold))
                     .foregroundStyle(Color.cdTextPrimary)
                 Text("Wallpapers you saved in earlier versions won't show up until you import them. They're still on this Mac.")
-                    .font(.system(size: 12))
+                    .font(.cd(.callout))
                     .foregroundStyle(Color.cdTextSecondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -59,7 +59,7 @@ struct LegacyImportBanner: View {
         HStack(spacing: 8) {
             Button("Don't ask again", action: onSuppress)
                 .buttonStyle(.plain)
-                .font(.system(size: 12, weight: .medium))
+                .font(.cd(.callout, .medium))
                 .foregroundStyle(Color.cdTextSecondary)
                 .padding(.horizontal, 8)
                 .frame(height: 30)

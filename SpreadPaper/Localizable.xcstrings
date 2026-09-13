@@ -1,0 +1,378 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "" : {
+
+    },
+    " on " : {
+
+    },
+    "%lld" : {
+
+    },
+    "%lld%%" : {
+
+    },
+    "0" : {
+
+    },
+    "A schedule of images through the day." : {
+
+    },
+    "Add time slot" : {
+
+    },
+    "All Wallpapers" : {
+
+    },
+    "Applied" : {
+
+    },
+    "Apply" : {
+
+    },
+    "Applying…" : {
+
+    },
+    "Browse Files" : {
+
+    },
+    "Cancel" : {
+
+    },
+    "Check for Updates" : {
+
+    },
+    "Choose your wallpaper images" : {
+
+    },
+    "Clear filters" : {
+
+    },
+    "Close" : {
+
+    },
+    "Continue" : {
+
+    },
+    "Continue with %@" : {
+
+    },
+    "Could not load presets. A backup was saved as %@." : {
+
+    },
+    "Create your first wallpaper to spread an image across your monitors. Static, dynamic, and light/dark presets are all supported." : {
+
+    },
+    "Default display gap" : {
+
+    },
+    "Delete" : {
+
+    },
+    "Delete '%@'?" : {
+
+    },
+    "Dismiss" : {
+
+    },
+    "Dismiss error" : {
+
+    },
+    "Displays" : {
+
+    },
+    "Don't ask again" : {
+
+    },
+    "Done" : {
+
+    },
+    "Download DMG" : {
+
+    },
+    "Download ZIP" : {
+
+    },
+    "Drop image here" : {
+
+    },
+    "Drop images here" : {
+
+    },
+    "Duplicate" : {
+
+    },
+    "Dynamic" : {
+
+    },
+    "Edit" : {
+
+    },
+    "Edit schedule entry" : {
+
+    },
+    "Failed to convert image to CGImage" : {
+
+    },
+    "Failed to create CGImageDestination." : {
+
+    },
+    "Failed to create image metadata." : {
+
+    },
+    "Failed to create rendering context" : {
+
+    },
+    "Failed to encode image as PNG" : {
+
+    },
+    "Failed to finalize the HEIC file." : {
+
+    },
+    "Failed to render wallpaper image" : {
+
+    },
+    "Failed to write the HEIC file to disk." : {
+
+    },
+    "Fit to canvas" : {
+
+    },
+    "Flip horizontally" : {
+
+    },
+    "Frame width around each panel: horizontal for the left and right edges, vertical for top and bottom." : {
+
+    },
+    "Gallery" : {
+
+    },
+    "Gap between adjacent displays in screen points. Per-display widths are set in the editor." : {
+
+    },
+    "General" : {
+
+    },
+    "GitHub is limiting requests right now, try again later" : {
+
+    },
+    "GitHub replied with an error (%lld)" : {
+
+    },
+    "Give this wallpaper a name so you can find it later." : {
+
+    },
+    "Hours and minutes must have one entry per image." : {
+
+    },
+    "Import" : {
+
+    },
+    "Import wallpapers from an earlier version" : {
+
+    },
+    "Import your saved wallpapers" : {
+
+    },
+    "Import…" : {
+
+    },
+    "LIBRARY" : {
+
+    },
+    "Last checked" : {
+
+    },
+    "Let's make something beautiful." : {
+
+    },
+    "Light & Dark" : {
+
+    },
+    "Load the previews again" : {
+
+    },
+    "Loading…" : {
+
+    },
+    "More actions" : {
+
+    },
+    "Move to Trash" : {
+
+    },
+    "NEW WALLPAPER" : {
+
+    },
+    "Name" : {
+
+    },
+    "New Wallpaper" : {
+
+    },
+    "No images provided." : {
+
+    },
+    "No matches" : {
+
+    },
+    "No preview" : {
+
+    },
+    "No release found on GitHub" : {
+
+    },
+    "No release notes available." : {
+
+    },
+    "No wallpapers yet" : {
+
+    },
+    "Not now" : {
+
+    },
+    "One image for light mode, another for dark." : {
+
+    },
+    "One image, spread across every display." : {
+
+    },
+    "One wallpaper across all your monitors.\nPick an image and position it." : {
+
+    },
+    "Photo by " : {
+
+    },
+    "Preview" : {
+
+    },
+    "Release notes" : {
+
+    },
+    "Remove" : {
+
+    },
+    "Remove the wallpapers saved by earlier versions?" : {
+
+    },
+    "Remove this image from the schedule?" : {
+
+    },
+    "Remove wallpapers from the earlier version" : {
+
+    },
+    "Remove…" : {
+
+    },
+    "Rename" : {
+
+    },
+    "Rename preset" : {
+
+    },
+    "Rename…" : {
+
+    },
+    "Return applies this wallpaper, Space selects it" : {
+
+    },
+    "Save" : {
+
+    },
+    "Save & Apply" : {
+
+    },
+    "Save wallpaper" : {
+
+    },
+    "Search" : {
+
+    },
+    "Settings" : {
+
+    },
+    "Show in Finder" : {
+
+    },
+    "Static" : {
+
+    },
+    "Status" : {
+
+    },
+    "The schedule loses this entry. The image file stays where it is." : {
+
+    },
+    "They'll be moved to the Trash. Wallpapers you've already imported stay in SpreadPaper." : {
+
+    },
+    "This preset will be removed. The source image isn't affected." : {
+
+    },
+    "Time" : {
+
+    },
+    "Try again" : {
+
+    },
+    "Two or more make a dynamic wallpaper." : {
+
+    },
+    "Unsplash" : {
+
+    },
+    "Update to v%@" : {
+
+    },
+    "Updates" : {
+
+    },
+    "Version" : {
+
+    },
+    "View on GitHub" : {
+
+    },
+    "Waiting for the last attempt to stop" : {
+
+    },
+    "Wallpaper name" : {
+
+    },
+    "Wallpapers you saved in earlier versions won't show up until you import them. They're still on this Mac." : {
+
+    },
+    "Welcome to SpreadPaper" : {
+
+    },
+    "Zoom in" : {
+
+    },
+    "Zoom out" : {
+
+    },
+    "^[%lld item](inflect: true)" : {
+
+    },
+    "^[%lld time slot](inflect: true)" : {
+
+    },
+    "esc" : {
+
+    },
+    "or browse files" : {
+
+    },
+    "pt" : {
+
+    },
+    "v%@" : {
+
+    },
+    "← Back" : {
+
+    }
+  },
+  "version" : "1.0"
+}

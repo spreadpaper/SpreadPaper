@@ -53,26 +53,27 @@ struct SaveDialog: View {
         VStack(alignment: .leading, spacing: 14) {
             VStack(alignment: .leading, spacing: CoolDarkMetrics.labelGap) {
                 Text("Save wallpaper")
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(.cd(.title3, .semibold))
                     .foregroundStyle(Color.cdTextPrimary)
                 Text("Give this wallpaper a name so you can find it later.")
-                    .font(.system(size: 12.5))
+                    .font(.cd(.callout))
                     .foregroundStyle(Color.cdTextTertiary)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
             VStack(alignment: .leading, spacing: CoolDarkMetrics.labelGap) {
                 Text("Name")
-                    .font(.system(size: 12, weight: .medium))
+                    .font(.cd(.callout, .medium))
                     .foregroundStyle(Color.cdTextSecondary)
 
                 TextField("", text: $name)
+                    .accessibilityLabel("Wallpaper name")
                     .textFieldStyle(.plain)
                     .focused($nameFocused)
-                    .font(.system(size: CoolDarkMetrics.fieldFontSize))
+                    .font(.cd(.body))
                     .foregroundStyle(Color.cdTextPrimary)
                     .padding(.horizontal, CoolDarkMetrics.fieldTextInset)
-                    .frame(height: CoolDarkMetrics.fieldHeight)
+                    .frame(minHeight: CoolDarkMetrics.fieldHeight)
                     .background(Color.cdBgPrimary)
                     .clipShape(RoundedRectangle(cornerRadius: CoolDarkMetrics.controlCornerRadius))
                     .overlay(
