@@ -1,4 +1,4 @@
-// SpreadPaper/Views/GalleryLoading.swift
+// SpreadPaper/Services/GalleryLoading.swift
 
 import CoreGraphics
 import Foundation

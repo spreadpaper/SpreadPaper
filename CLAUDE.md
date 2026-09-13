@@ -48,7 +48,6 @@ Source files organized under `SpreadPaper/`. One external package: PhosphorSwift
 - **Views/WizardView.swift** — 2-step first-run wizard: display count, then an image picker that also accepts drops. One image opens a static editor, several open a dynamic one
 - **Views/GalleryView.swift** — Home screen: sidebar filters, search, preset grid, error banner, New Wallpaper button, rename alert and delete confirmation
 - **Views/GalleryCardView.swift** — Preset card with thumbnail, type badge and a Rename / Duplicate / Show in Finder / Delete menu
-- **Views/GalleryLoading.swift** — No view of its own: the gallery's thumbnail run. `renderThumbnails` reports one event per job as it goes, `ThumbnailRun.consume` applies each one and gives up on a run that stops moving, and `GalleryLoading` holds the idle wait, the phase rules, the per-card pending rule and the log lines. Pure and unit-tested
 - **Views/CreationModal.swift** — Overlay modal picking the wallpaper type (Static / Light & Dark / Dynamic) before a new preset, with an animated monitor hero, a photo credit, a time readout for the Dynamic schedule and arrow-key navigation
 - **Views/EditorView.swift** — Full editor: header, canvas with a floating zoom/fit/flip HUD, and an inspector with type, images, zoom and orientation sections, plus a displays section for bezels that appears only with two or more displays
 - **Views/EditorCanvasView.swift** — Monitor canvas rendering with image overlay, drag, zoom, snap and image drops
@@ -65,6 +64,7 @@ Source files organized under `SpreadPaper/`. One external package: PhosphorSwift
 - **Services/WallpaperRenderer.swift** — Pure, `nonisolated` CGContext rendering of one `RenderSpec` (a `Sendable` placement) plus PNG encoding
 - **Services/DynamicWallpaperGenerator.swift** — HEIC dynamic desktop file generation with Apple XMP metadata, time-based and appearance-based (based on wallpapper's reverse engineering)
 - **Services/ThumbnailRenderer.swift** — ImageIO downsampling for gallery thumbnails, safe off the main actor
+- **Services/GalleryLoading.swift** — The gallery's thumbnail run, with no view of its own. `renderThumbnails` reports one event per job as it goes, `ThumbnailRun.consume` applies each one and gives up on a run that stops moving, and `GalleryLoading` holds the idle wait, the phase rules, the per-card pending rule and the log lines. Pure and unit-tested
 - **Services/PresetStore.swift** — Reads and writes the presets JSON, backs up a corrupt file, flags legacy files needing a migration rewrite
 - **Services/LegacyDataMigration.swift** — Detects a library left by an unsandboxed build, copies a user-chosen folder into the app's own, and moves it to the Trash on request
 - **Services/DisplayLayout.swift** — `Bezel` struct and the frame spacing that pushes displays apart by the bezels between them
@@ -114,5 +114,6 @@ Automated via GitHub Actions with `release-please`:
 - Wallpaper rendering and gallery thumbnails run in detached tasks over `Sendable` specs; HEIC encoding runs inside the detached render task; everything else is main-actor isolated by default
 - async/await for asynchronous work (update checker, rendering); no Combine
 - SwiftUI with `@Observable` macro for managers, `@State` for local UI state, `UserDefaults` behind `AppSettings` for persisted settings
+- A file under `Views/` declares a view. A helper with a file to itself and nothing to draw belongs under `Services/`; a helper small enough to read beside the one view that uses it stays in that view's file, as `HeroCrossfade` and `ScheduleEntryText` do
 - Tests use Swift Testing (`import Testing`, `@Test`, `#expect`) and cover the pure helpers, not the views
 - Conventional commits (feat/fix/chore) — release-please generates CHANGELOG.md from these
