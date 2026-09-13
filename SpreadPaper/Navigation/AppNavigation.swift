@@ -8,6 +8,13 @@ enum WallpaperType: String, CaseIterable, Codable {
     case appearance = "Light/Dark"
     case dynamic = "Dynamic"
 
+    /// The kinds in the order the creation modal offers them.
+    /// The one that does most with several images leads.
+    static let creationOrder: [WallpaperType] = [.dynamic, .appearance, .standard]
+
+    /// The kind the creation modal opens on, which is the one it lists first.
+    static var creationDefault: WallpaperType { creationOrder.first ?? .standard }
+
     /// Short label shown on cards, filters and the type picker.
     /// One wording for every screen.
     var title: String {

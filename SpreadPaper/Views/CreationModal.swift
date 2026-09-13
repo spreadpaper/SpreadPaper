@@ -9,7 +9,7 @@ struct CreationModal: View {
     @Bindable var navigation: AppNavigation
     let manager: WallpaperManager
 
-    @State private var selectedType: WallpaperType = .standard
+    @State private var selectedType: WallpaperType = .creationDefault
     @State private var monitorScale: CGFloat = 1.0
     @State private var hasAppeared = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -123,7 +123,7 @@ struct CreationModal: View {
 
     /// Moves the selection by `delta` through the kinds, wrapping at both ends.
     private func cycle(by delta: Int) {
-        let order = WallpaperType.allCases
+        let order = WallpaperType.creationOrder
         guard let idx = order.firstIndex(of: selectedType) else { return }
         let next = order[(idx + delta + order.count) % order.count]
         let prev = selectedType
@@ -513,7 +513,7 @@ private struct PillPicker: View {
 
     var body: some View {
         HStack(spacing: 0) {
-            ForEach(WallpaperType.allCases, id: \.self) { type in
+            ForEach(WallpaperType.creationOrder, id: \.self) { type in
                 let isActive = type == selection
                 Button(action: { tap(type) }) {
                     HStack(spacing: 8) {
