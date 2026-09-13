@@ -99,8 +99,7 @@ struct GalleryCardView: View {
                 Color.cdBgElevated
                     .overlay {
                         Ph.image.regular
-                            .color(Color.cdTextTertiary)
-                            .frame(width: 28, height: 28)
+                            .cdIcon(Color.cdTextTertiary, size: 28)
                     }
             }
         }

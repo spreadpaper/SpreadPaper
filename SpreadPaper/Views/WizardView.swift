@@ -119,8 +119,7 @@ struct WizardView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                         .overlay {
                             Ph.arrowDown.bold
-                                .color(Color.cdTextPrimary)
-                                .frame(width: 22, height: 22)
+                                .cdIcon(Color.cdTextPrimary, size: 22)
                         }
 
                     Text("Drag & drop images here")

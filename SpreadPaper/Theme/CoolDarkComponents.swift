@@ -2,6 +2,18 @@
 
 import SwiftUI
 
+// MARK: - Icon
+
+extension Image {
+    /// Draws a glyph at a square size in one theme colour.
+    /// Template rendering tints it through `foregroundStyle`.
+    func cdIcon(_ token: Color, size: CGFloat) -> some View {
+        renderingMode(.template)
+            .foregroundStyle(token)
+            .frame(width: size, height: size)
+    }
+}
+
 // MARK: - Custom Text Field
 
 /// Plain text field on the dark fill with an accent ring while focused.

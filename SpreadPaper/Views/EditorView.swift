@@ -169,8 +169,7 @@ struct EditorView: View {
             Button(action: backToGallery) {
                 HStack(spacing: 4) {
                     Ph.caretLeft.regular
-                        .color(Color.cdTextSecondary)
-                        .frame(width: 12, height: 12)
+                        .cdIcon(Color.cdTextSecondary, size: 12)
                     Text("Gallery")
                         .font(.system(size: 13, weight: .medium))
                         .foregroundStyle(Color.cdTextSecondary)
@@ -197,8 +196,7 @@ struct EditorView: View {
             Button(action: previewWallpaper) {
                 HStack(spacing: 5) {
                     Ph.eye.regular
-                        .color(Color.cdTextPrimary)
-                        .frame(width: 13, height: 13)
+                        .cdIcon(Color.cdTextPrimary, size: 13)
                     Text("Preview")
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundStyle(Color.cdTextPrimary)
@@ -484,8 +482,7 @@ struct EditorView: View {
         Button(action: addImages) {
             HStack(spacing: 8) {
                 Ph.plus.regular
-                    .color(Color.cdTextTertiary)
-                    .frame(width: 12, height: 12)
+                    .cdIcon(Color.cdTextTertiary, size: 12)
                 Text("Add time slot")
                     .font(.system(size: 12.5, weight: .medium))
                     .foregroundStyle(Color.cdTextTertiary)
@@ -1098,8 +1095,7 @@ struct NativeSelect<Value: Hashable>: View {
                     .lineLimit(1)
                 Spacer(minLength: 6)
                 Ph.caretDown.regular
-                    .color(Color.cdTextTertiary)
-                    .frame(width: 12, height: 12)
+                    .cdIcon(Color.cdTextTertiary, size: 12)
             }
             .padding(.horizontal, 11)
             .frame(maxWidth: .infinity)
@@ -1321,8 +1317,7 @@ struct ImageRow: View {
                 RoundedRectangle(cornerRadius: 5)
                     .strokeBorder(Color.cdBorder, style: StrokeStyle(lineWidth: 1, dash: [3, 2]))
                 Ph.plus.regular
-                    .color(Color.cdTextTertiary)
-                    .frame(width: 12, height: 12)
+                    .cdIcon(Color.cdTextTertiary, size: 12)
             }
             .frame(width: 56, height: 36)
         }

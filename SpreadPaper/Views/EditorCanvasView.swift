@@ -72,8 +72,7 @@ struct EditorCanvasView: View {
                     // Drop zone
                     VStack(spacing: 12) {
                         Ph.fileArrowDown.regular
-                            .color(Color.cdTextTertiary)
-                            .frame(width: 32, height: 32)
+                            .cdIcon(Color.cdTextTertiary, size: 32)
                         Text("Drop image here")
                             .font(.system(size: 12))
                             .foregroundStyle(Color.cdTextSecondary)

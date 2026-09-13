@@ -31,8 +31,7 @@ struct ScheduleDetailModal: View {
                     Spacer()
                     Button(action: onRemove) {
                         Ph.trash.regular
-                            .color(Color.cdDanger)
-                            .frame(width: 14, height: 14)
+                            .cdIcon(Color.cdDanger, size: 14)
                     }
                     .buttonStyle(.plain)
                 }
@@ -63,8 +62,7 @@ struct ScheduleDetailModal: View {
                                     .foregroundStyle(Color.cdTextPrimary)
                             }
                             Ph.arrowRight.regular
-                                .color(Color.cdTextTertiary)
-                                .frame(width: 14, height: 14)
+                                .cdIcon(Color.cdTextTertiary, size: 14)
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Until")
                                     .font(.system(size: 10))

@@ -35,7 +35,7 @@ Source files organized under `SpreadPaper/`. One external package: PhosphorSwift
 ### Theme (Cool Dark design system)
 
 - **Theme/CoolDarkTheme.swift** — Color tokens (`Color.cd*` extensions), `CoolDarkButtonStyle`, `SectionHeader`
-- **Theme/CoolDarkComponents.swift** — Reusable styled components: `CoolDarkTextField`, `ToastView`
+- **Theme/CoolDarkComponents.swift** — Reusable styled components: `CoolDarkTextField`, `ToastView`, and `Image.cdIcon(_:size:)`, which tints every Phosphor glyph by template rendering
 
 ### Navigation
 

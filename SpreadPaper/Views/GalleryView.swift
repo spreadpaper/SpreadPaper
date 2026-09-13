@@ -133,8 +133,7 @@ struct GalleryView: View {
             Button(action: { navigation.showCreationModal = true }) {
                 HStack(spacing: 6) {
                     Ph.plus.bold
-                        .color(Color.cdTextPrimary)
-                        .frame(width: 12, height: 12)
+                        .cdIcon(Color.cdTextPrimary, size: 12)
                     Text("New Wallpaper")
                         .font(.system(size: 12.5, weight: .semibold))
                         .foregroundStyle(Color.cdTextPrimary)
@@ -164,8 +163,7 @@ struct GalleryView: View {
     private var searchField: some View {
         HStack(spacing: 6) {
             Ph.magnifyingGlass.regular
-                .color(Color.cdTextTertiary)
-                .frame(width: 12, height: 12)
+                .cdIcon(Color.cdTextTertiary, size: 12)
             TextField("Search", text: $searchQuery)
                 .textFieldStyle(.plain)
                 .font(.system(size: 12.5))
@@ -246,8 +244,7 @@ struct GalleryView: View {
             Button(action: { openSettings() }) {
                 HStack(spacing: 8) {
                     Ph.gear.regular
-                        .color(Color.cdTextSecondary)
-                        .frame(width: 13, height: 13)
+                        .cdIcon(Color.cdTextSecondary, size: 13)
                     Text("Settings")
                         .font(.system(size: 12.5, weight: .medium))
                         .foregroundStyle(Color.cdTextSecondary)
@@ -353,8 +350,7 @@ struct GalleryView: View {
                     .shadow(color: .cdShadow, radius: 18, y: 6)
                     .frame(width: 96, height: 96)
                 Ph.image.regular
-                    .color(Color.cdTextTertiary)
-                    .frame(width: 40, height: 40)
+                    .cdIcon(Color.cdTextTertiary, size: 40)
             }
 
             VStack(spacing: 6) {
@@ -371,8 +367,7 @@ struct GalleryView: View {
             Button(action: { navigation.showCreationModal = true }) {
                 HStack(spacing: 6) {
                     Ph.plus.bold
-                        .color(Color.cdTextPrimary)
-                        .frame(width: 12, height: 12)
+                        .cdIcon(Color.cdTextPrimary, size: 12)
                     Text("New Wallpaper")
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundStyle(Color.cdTextPrimary)
@@ -406,8 +401,7 @@ struct GalleryView: View {
                     )
                     .frame(width: 64, height: 64)
                 Ph.magnifyingGlass.regular
-                    .color(Color.cdTextTertiary)
-                    .frame(width: 24, height: 24)
+                    .cdIcon(Color.cdTextTertiary, size: 24)
             }
 
             Text("No matches")
