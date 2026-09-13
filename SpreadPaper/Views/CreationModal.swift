@@ -63,7 +63,7 @@ struct CreationModal: View {
                         .font(.system(size: 11, weight: .semibold))
                         .tracking(1.1)
                         .foregroundStyle(Color.cdAccent.opacity(0.9))
-                    Text("Pick a wallpaper kind.")
+                    Text("Let's make something beautiful.")
                         .font(.system(size: 24, weight: .bold))
                         .tracking(-0.48)
                         .foregroundStyle(Color.cdTextPrimary)
