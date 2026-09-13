@@ -63,12 +63,30 @@ struct TimeFieldTimeZoneTests {
         var results: [String: [Int]] = [:]
         for zone in Self.zones {
             try inZone(zone) {
-                results[zone] = TimeFieldMath.offered(including: 6 * 60 + 47)
+                results[zone] = TimeFieldMath.hourOptions(namingHalf: false)
+                    + TimeFieldMath.minuteOptions(including: 6 * 60 + 47)
             }
         }
         let first = try #require(results[Self.zones[0]])
         for zone in Self.zones.dropFirst() {
             #expect(results[zone] == first, "\(zone) offered different times")
+        }
+    }
+
+    @Test func eachPartOfTheClockWritesTheSameWayInEveryZone() throws {
+        var written: [String: [String]] = [:]
+        for zone in Self.zones {
+            try inZone(zone) {
+                written[zone] = Self.locales.flatMap { locale in
+                    (0..<24).map { TimeVariant.hourString(hour: $0, locale: locale) }
+                        + (0..<60).map { TimeVariant.minuteString(minute: $0, locale: locale) }
+                        + [true, false].map { TimeVariant.halfOfDayString(isAfternoon: $0, locale: locale) }
+                }
+            }
+        }
+        let first = try #require(written[Self.zones[0]])
+        for zone in Self.zones.dropFirst() {
+            #expect(written[zone] == first, "\(zone) wrote the clock's parts differently")
         }
     }
 

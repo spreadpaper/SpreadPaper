@@ -64,8 +64,9 @@ struct ScheduleDetailModal: View {
     /// Size of the entry thumbnail, in points.
     private static let thumbnailSize = CGSize(width: 72, height: 45)
 
-    /// Width of the dialog card.
-    static let cardWidth: CGFloat = 420
+    /// Width of the dialog card, wide enough to set the time menus and the
+    /// sentence beside them on one line each.
+    static let cardWidth: CGFloat = 500
 
     /// Gap between the time field and the sentence beside it.
     static let handoverGap: CGFloat = 14

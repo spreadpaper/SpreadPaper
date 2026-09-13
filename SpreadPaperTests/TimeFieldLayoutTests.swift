@@ -3,7 +3,7 @@ import SwiftUI
 import Testing
 @testable import SpreadPaper
 
-/// Issue #129: the time field stands on the same grid as the name field.
+/// Issue #129: the time menus stand on the same grid as the name field.
 /// The scan holds the tokens, the render holds the measurements.
 @MainActor
 struct TimeFieldLayoutTests {
@@ -23,15 +23,20 @@ struct TimeFieldLayoutTests {
     /// Face the handover sentence is set in.
     private static let sentenceFont = Font.system(size: 12.5)
 
-    /// Width the handover sentence is given beside the field, in one locale's writing.
-    private static func sentenceColumn(locale: Locale) -> CGFloat {
+    /// Width the whole row of menus takes in one locale's writing.
+    private static func fieldWidth(locale: Locale) -> CGFloat {
         let field = NSHostingView(rootView: AnyView(
             CoolDarkTimeField(minutes: .constant(545), label: "Starts at", locale: locale).fixedSize()
         ))
         field.layoutSubtreeIfNeeded()
-        return ScheduleDetailModal.cardWidth
+        return field.fittingSize.width
+    }
+
+    /// Width the handover sentence is given beside the menus.
+    private static func sentenceColumn(locale: Locale) -> CGFloat {
+        ScheduleDetailModal.cardWidth
             - CoolDarkMetrics.dialogPadding * 2
-            - field.fittingSize.width
+            - fieldWidth(locale: locale)
             - ScheduleDetailModal.handoverGap
     }
 
@@ -57,20 +62,28 @@ struct TimeFieldLayoutTests {
         return (pair[1] + 0.05) / (pair[0] + 0.05)
     }
 
-    @Test func theTimeFieldStandsAsTallAsTheNameField() {
+    @Test func theTimeMenusStandAsTallAsTheNameField() {
         let time = Self.height(of: CoolDarkTimeField(minutes: .constant(545), label: "Starts at"))
         let name = Self.height(of: CoolDarkTextField(placeholder: "Name", text: .constant("")))
-        #expect(time == name, "the time field renders \(time)pt against the name field's \(name)pt")
+        #expect(time == name, "the time menus render \(time)pt against the name field's \(name)pt")
         #expect(time == CoolDarkMetrics.fieldHeight)
     }
 
-    @Test func theTimeFieldTakesItsChromeFromTheSharedMetrics() throws {
+    @Test func theTimeMenusTakeTheirChromeFromTheSharedMetrics() throws {
         let text = try source("CoolDarkTimeField.swift")
         for token in ["fieldHeight", "controlCornerRadius", "fieldTextInset"] {
-            #expect(text.contains("CoolDarkMetrics.\(token)"), "the time field does not read \(token)")
+            #expect(text.contains("CoolDarkMetrics.\(token)"), "the time menus do not read \(token)")
         }
-        #expect(text.contains("Color.cdBgPrimary"), "the time field does not share the name field's fill")
-        #expect(text.contains("Color.cdBorder"), "the time field does not share the name field's border")
+        #expect(text.contains("Color.cdBgPrimary"), "the time menus do not share the name field's fill")
+        #expect(text.contains("Color.cdBorder"), "the time menus do not share the name field's border")
+    }
+
+    /// A menu styled SwiftUI picker measures the same at any type size, so the
+    /// digits only keep theirs through AppKit.
+    @Test func theMenusBridgeToAppKitSoTheDigitsKeepTheirSize() throws {
+        let text = try source("CoolDarkTimeField.swift")
+        #expect(text.contains("NSPopUpButton"), "the time menus no longer bridge to AppKit")
+        #expect(!text.contains("pickerStyle"), "a SwiftUI picker would drop the digit size")
     }
 
     @Test func theDigitsLeadTheRowAboveTheTypeAroundThem() {
@@ -78,15 +91,15 @@ struct TimeFieldLayoutTests {
         #expect(CoolDarkMetrics.timeFontSize >= 16)
     }
 
-    /// The menu is no wider in a twelve hour locale than the sentence can spare.
-    @Test func theMenuLeavesTheSentenceRoomInBothHourCycles() {
+    /// The menus are no wider in a twelve hour locale than the sentence can spare.
+    @Test func theMenusLeaveTheSentenceRoomInBothHourCycles() {
         let twelve = Self.sentenceColumn(locale: Locale(identifier: "en_US"))
         let twentyFour = Self.sentenceColumn(locale: Locale(identifier: "en_GB"))
         #expect(twelve > 0 && twentyFour > 0)
-        #expect(twelve <= twentyFour, "a twelve hour clock writes wider, so its column cannot be the wider one")
+        #expect(twelve <= twentyFour, "a twelve hour clock takes a third menu, so its column cannot be the wider one")
     }
 
-    @Test func everyHandoverSentenceHoldsOneLineBesideTheField() {
+    @Test func everyHandoverSentenceHoldsOneLineBesideTheMenus() {
         for identifier in ["en_US", "en_GB", "de_DE"] {
             let locale = Locale(identifier: identifier)
             let column = Self.sentenceColumn(locale: locale)
@@ -116,18 +129,22 @@ struct TimeFieldLayoutTests {
         #expect(dialog.contains("keyboardShortcut(.defaultAction)"), "the dialog has no default action")
     }
 
-    /// Two entries that read alike would collapse into one row of the menu.
-    @Test func everyTimeOnOfferIsWrittenDifferently() {
+    /// Two entries that read alike would collapse into one row of a menu.
+    @Test func everyEntryOfAMenuIsWrittenDifferently() {
         for identifier in ["en_US", "en_GB", "de_DE"] {
             let locale = Locale(identifier: identifier)
-            let offered = TimeFieldMath.offered(including: 6 * 60 + 47)
-            let written = offered.map { TimeFieldMath.text(for: $0, locale: locale) }
-            #expect(Set(written).count == offered.count, "\(identifier) writes two of its times the same way")
+            let namingHalf = TimeFieldMath.namesHalfOfDay(locale)
+            let hours = TimeFieldMath.hourOptions(namingHalf: namingHalf)
+                .map { TimeVariant.hourString(hour: $0, locale: locale) }
+            #expect(Set(hours).count == hours.count, "\(identifier) writes two of its hours the same way")
+            let minutes = TimeFieldMath.minuteOptions(including: 6 * 60 + 47)
+                .map { TimeVariant.minuteString(minute: $0, locale: locale) }
+            #expect(Set(minutes).count == minutes.count, "\(identifier) writes two of its minutes the same way")
         }
     }
 
-    /// Opening a schedule never nudges a time saved before the grid existed.
-    @Test func aStoredTimeOffTheGridSurvivesBeingShown() {
+    /// Opening a schedule never nudges a time saved before the step existed.
+    @Test func aStoredTimeOffTheStepSurvivesBeingShown() {
         final class Stored { var minutes = 6 * 60 + 47 }
         let stored = Stored()
         let host = NSHostingView(rootView: AnyView(
