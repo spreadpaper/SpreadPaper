@@ -17,47 +17,26 @@ struct UserFacingCopyTests {
         ("  ", "a double space")
     ]
 
-    /// Every double-quoted run on a line, interpolations and escapes included.
-    private static func literals(in line: Substring) -> [String] {
-        var found: [String] = []
-        var current: String?
-        var escaped = false
-        for character in line {
-            if escaped {
-                current?.append(character)
-                escaped = false
-                continue
+    /// Banned punctuation in one file's copy, as `file:line: fault` lines.
+    /// A construct the scanner cannot read is a fault too.
+    static func offences(in source: String, file: String) -> [String] {
+        do {
+            return try CopyLiteralScanner.fragments(in: source, file: file).flatMap { fragment in
+                banned.filter { fragment.text.contains($0.needle) }
+                    .map { "\(file):\(fragment.line): \($0.name) in \"\(fragment.text)\"" }
             }
-            if character == "\\" {
-                current?.append(character)
-                escaped = current != nil
-                continue
-            }
-            if character == "\"" {
-                if let literal = current {
-                    found.append(literal)
-                    current = nil
-                } else {
-                    current = ""
-                }
-                continue
-            }
-            current?.append(character)
+        } catch let failure as CopyScanError {
+            return ["\(failure.description), so the copy here goes unchecked"]
+        } catch {
+            return ["\(file): the scan failed with \(error)"]
         }
-        return found
     }
 
     @Test func noStringInTheAppUsesADashOrDoubleSpace() throws {
         var offenders: [String] = []
         for file in try AppSources.all() {
             let source = try String(contentsOf: file, encoding: .utf8)
-            for (number, line) in source.split(separator: "\n", omittingEmptySubsequences: false).enumerated() {
-                for literal in Self.literals(in: line) {
-                    for rule in Self.banned where literal.contains(rule.needle) {
-                        offenders.append("\(file.lastPathComponent):\(number + 1): \(rule.name) in \"\(literal)\"")
-                    }
-                }
-            }
+            offenders += Self.offences(in: source, file: file.lastPathComponent)
         }
         #expect(offenders.isEmpty, "banned punctuation in app strings:\n\(offenders.joined(separator: "\n"))")
     }
