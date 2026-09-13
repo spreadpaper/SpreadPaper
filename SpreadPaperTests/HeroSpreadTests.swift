@@ -4,6 +4,7 @@ import Testing
 
 /// Issue #118: the hero panels are windows onto one image, not three copies of it.
 struct HeroSpreadTests {
+    /// Hero height in points, the 260 pt header less its top and bottom insets.
     private static let height: CGFloat = 170
 
     /// Two lengths in points that agree to well under a pixel.

@@ -35,9 +35,6 @@ extension Color {
     /// Indigo of primary actions and selection.
     static let cdAccent = Color(hex: 0x5e5ce6)
 
-    /// Glow cast by an accent surface.
-    static let cdAccentGlow = Color(hex: 0x5e5ce6).opacity(0.2)
-
     /// Green that confirms an applied wallpaper.
     static let cdSuccess = Color(hex: 0x34C759)
 
@@ -52,9 +49,6 @@ extension Color {
 
     /// Periwinkle that marks the light/dark kind.
     static let cdAppearanceTint = Color(hex: 0x7c7cff)
-
-    /// Violet companion stop for accent gradients.
-    static let cdAccentSecondary = Color(hex: 0xAF52DE)
 
     /// Dims whatever sits behind a modal or a badge.
     static let cdOverlayScrim = Color.black.opacity(0.55)

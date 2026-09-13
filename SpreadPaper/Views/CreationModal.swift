@@ -223,6 +223,8 @@ private struct HeroView: View {
         .overlay(alignment: .bottom) {
             PhotoCredit()
                 .padding(.bottom, 12)
+                .opacity(selectedType == .standard ? 1 : 0)
+                .animation(.easeInOut(duration: 0.4), value: selectedType)
         }
     }
 }
@@ -242,8 +244,8 @@ private struct PhotoCredit: View {
             .underline()
         }
         .font(.system(size: 10))
-        .foregroundStyle(Color.cdTextTertiary)
-        .tint(Color.cdTextTertiary)
+        .foregroundStyle(Color.cdTextSecondary)
+        .tint(Color.cdTextSecondary)
     }
 }
 
@@ -504,7 +506,6 @@ private struct DynamicScene: View {
                     TimelineView(.animation(minimumInterval: 1.0 / 60.0, paused: reduceMotion)) { context in
                         let phase = phase(at: context.date)
                         ZStack {
-                            // Traveling dot
                             let dotSize = h * 0.18
                             let dotX = w * (0.06 + 0.88 * phase)
                             Circle()
@@ -520,7 +521,6 @@ private struct DynamicScene: View {
                                 .blur(radius: 1)
                                 .position(x: dotX, y: h * 0.24 + dotSize / 2)
 
-                            // Timeline track + fill
                             let trackInset: CGFloat = w * 0.06
                             let trackWidth = w - trackInset * 2
                             ZStack(alignment: .leading) {

@@ -23,7 +23,7 @@ struct ThemeTokensTests {
             .cdBgPrimary, .cdBgSecondary, .cdBgElevated, .cdBgHover,
             .cdBorder, .cdBorderStrong,
             .cdTextPrimary, .cdTextSecondary, .cdTextTertiary,
-            .cdAccent, .cdAccentGlow, .cdAccentSecondary,
+            .cdAccent,
             .cdSuccess, .cdDanger, .cdDynamicTint, .cdAppearanceTint,
             .cdCanvasBg, .cdOverlayScrim, .cdOverlayScrimSoft,
             .cdShadow, .cdShadowStrong,

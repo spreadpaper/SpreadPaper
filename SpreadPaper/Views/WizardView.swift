@@ -167,9 +167,13 @@ struct WizardView: View {
 /// Two monitors side by side showing one photograph spread across both.
 /// The scene runs on behind the gap, as the app spreads a wallpaper.
 private struct MonitorPairIllustration: View {
+    /// Size of one monitor panel.
     private let panel = CGSize(width: 80, height: 52)
+
+    /// Space between the two panels, which the scene runs on behind.
     private let gap: CGFloat = 3
 
+    /// Size of the scene both panels are cut from.
     private var spread: CGSize {
         CGSize(width: panel.width * 2 + gap, height: panel.height)
     }

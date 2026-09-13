@@ -35,6 +35,7 @@ struct SpreadPhoto: View {
             Image(.heroBeach)
                 .resizable()
                 .aspectRatio(contentMode: .fill)
+                .accessibilityHidden(true)
         }
     }
 }
