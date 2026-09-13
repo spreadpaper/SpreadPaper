@@ -34,8 +34,10 @@ Source files organized under `SpreadPaper/`. One external package: PhosphorSwift
 
 ### Theme (Cool Dark design system)
 
-- **Theme/CoolDarkTheme.swift** — Color tokens (`Color.cd*` extensions), `CoolDarkButtonStyle`, `SectionHeader`
+- **Theme/CoolDarkTheme.swift** — Color tokens (`Color.cd*` extensions), `CoolDarkButtonStyle`, `SectionHeader`, and `CoolDarkMetrics`, the dialog, field and type sizes every control is cut to
 - **Theme/CoolDarkComponents.swift** — Reusable styled components: `CoolDarkTextField`, `ToastView`, the `.toast(_:)` modifier that floats and clears one, and `Image.cdIcon(_:size:)`, which tints every Phosphor glyph by template rendering
+- **Theme/CoolDarkTimeField.swift** — `CoolDarkTimeField`, the row of short menus one wall-clock time is set from, and `TimeFieldMath`, the minutes-since-midnight arithmetic behind it (pure, unit-tested). The menus bridge to `NSPopUpButton` so the digits keep the size the theme gives them
+- **Theme/ClockSettings.swift** — `.followsClockSettings()`, which hands the system locale down the view tree and hands it down again when the user changes their region or their 24-Hour Time setting, so written times follow System Settings without a relaunch
 
 ### Navigation
 
@@ -51,7 +53,7 @@ Source files organized under `SpreadPaper/`. One external package: PhosphorSwift
 - **Views/EditorCanvasView.swift** — Monitor canvas rendering with image overlay, drag, zoom, snap and image drops
 - **Views/MonitorPreviewView.swift** — Individual monitor outline for the canvas
 - **Views/SpreadPhoto.swift** — `PanelSlice`, `SpreadContent` and `SpreadPhoto`: one scene laid out across several illustration panels, each panel clipped to its own part of it. Used by the creation modal hero and the wizard. Also `HeroPhoto`, the two bundled photographs with their attribution, `HeroCrossfade` (pure, unit-tested), the day-to-night loop the Light & Dark hero reads off the wall clock, `HeroDayPhoto` and `HeroDayCycle` (pure, unit-tested), the four photographs the Dynamic hero runs through a day with the hour each stands for, and `HeroClock`, the one instant both loops are read from
-- **Views/ScheduleView.swift** — `ScheduleDetailModal`, opened from an editor schedule row: the image it schedules, its name, and a stepper field for the time it starts, with the following image named in a sentence beneath. Also `ScheduleEntryText` and `ScheduleClock` (pure, unit-tested)
+- **Views/ScheduleView.swift** — `ScheduleDetailModal`, opened from an editor schedule row: the image it schedules, its name, and the time it starts, set from an hour menu, a minute menu and, where the locale names one, a menu for the half of the day, with the following image named in a sentence beside them. Also `ScheduleEntryText` (pure, unit-tested)
 - **Views/SaveDialog.swift** — Overlay that names a preset before Save or Save & Apply
 - **Views/SettingsView.swift** — Native Settings window with General (default display gap, plus the import row while an earlier version's wallpapers are waiting and the remove row once they are in) and Updates tabs
 - **Views/LegacyImport.swift** — Gallery banner offering to bring in wallpapers an earlier version saved, plus the folder picker both it and Settings run

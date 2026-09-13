@@ -80,7 +80,7 @@ struct TimeFieldTimeZoneTests {
                 written[zone] = Self.locales.flatMap { locale in
                     (0..<24).map { TimeVariant.hourString(hour: $0, locale: locale) }
                         + (0..<60).map { TimeVariant.minuteString(minute: $0, locale: locale) }
-                        + [true, false].map { TimeVariant.halfOfDayString(isAfternoon: $0, locale: locale) }
+                        + (0..<24).map { TimeVariant.halfOfDayString(hour: $0, locale: locale) }
                 }
             }
         }

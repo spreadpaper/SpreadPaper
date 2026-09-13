@@ -23,6 +23,13 @@ struct TimeFieldLayoutTests {
     /// Face the handover sentence is set in.
     private static let sentenceFont = Font.system(size: 12.5)
 
+    /// Locales the menus are measured in: both hour cycles, the widest writings
+    /// of a half of the day, and a region whose clock reads one way
+    /// where its language reads the other.
+    private static let clocks = [
+        "en_US", "en_GB", "de_DE", "fr_CA", "es_MX", "zh_Hant_TW", "ko_KR", "ar_001", "en_001"
+    ]
+
     /// Width the whole row of menus takes in one locale's writing.
     private static func fieldWidth(locale: Locale) -> CGFloat {
         let field = NSHostingView(rootView: AnyView(
@@ -100,7 +107,7 @@ struct TimeFieldLayoutTests {
     }
 
     @Test func everyHandoverSentenceHoldsOneLineBesideTheMenus() {
-        for identifier in ["en_US", "en_GB", "de_DE"] {
+        for identifier in Self.clocks {
             let locale = Locale(identifier: identifier)
             let column = Self.sentenceColumn(locale: locale)
             for next in [0, 5, 6 * 60, 9 * 60 + 5, 12 * 60 + 30, 22 * 60 + 45, 23 * 60 + 59] {
@@ -131,7 +138,7 @@ struct TimeFieldLayoutTests {
 
     /// Two entries that read alike would collapse into one row of a menu.
     @Test func everyEntryOfAMenuIsWrittenDifferently() {
-        for identifier in ["en_US", "en_GB", "de_DE"] {
+        for identifier in Self.clocks {
             let locale = Locale(identifier: identifier)
             let namingHalf = TimeFieldMath.namesHalfOfDay(locale)
             let hours = TimeFieldMath.hourOptions(namingHalf: namingHalf)
@@ -140,6 +147,12 @@ struct TimeFieldLayoutTests {
             let minutes = TimeFieldMath.minuteOptions(including: 6 * 60 + 47)
                 .map { TimeVariant.minuteString(minute: $0, locale: locale) }
             #expect(Set(minutes).count == minutes.count, "\(identifier) writes two of its minutes the same way")
+            guard namingHalf else { continue }
+            for hour in TimeFieldMath.hourOptions(namingHalf: true) {
+                let morning = TimeVariant.halfOfDayString(hour: hour, locale: locale)
+                let evening = TimeVariant.halfOfDayString(hour: hour + 12, locale: locale)
+                #expect(morning != evening, "\(identifier) names both halves of hour \(hour) \"\(morning)\"")
+            }
         }
     }
 

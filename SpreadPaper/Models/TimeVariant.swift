@@ -47,20 +47,23 @@ struct TimeVariant: Identifiable, Codable, Hashable {
         return runs.count > 1 ? String(written[runs[1]]) : ""
     }
 
-    /// What the locale calls the half of the day an hour falls in.
-    /// Only a twelve hour clock names one.
-    nonisolated static func halfOfDayString(isAfternoon: Bool, locale: Locale = .current) -> String {
-        let formatter = DateFormatter()
-        formatter.locale = locale
-        return isAfternoon ? formatter.pmSymbol : formatter.amSymbol
+    /// What the locale writes beside an hour to name its half of the day.
+    /// Cut from the clock string, so a clock that names more than two
+    /// halves names the one this hour falls in.
+    nonisolated static func halfOfDayString(hour: Int, locale: Locale = .current) -> String {
+        let written = clockString(hour: hour, minute: 0, locale: locale)
+        let runs = digitRuns(written)
+        guard let first = runs.first, let last = runs.last else { return "" }
+        let around = written[..<first.lowerBound] + written[last.upperBound...]
+        return around.trimmingCharacters(in: designatorEdge)
     }
 
-    /// Whether the locale runs its clock to twelve and names a half of the day.
-    /// The system's 24-Hour Time setting reaches this through the locale.
+    /// Whether the clock writes every hour twice a day, leaving the half to be
+    /// named beside it. Read off the clock string, so the system's
+    /// 24-Hour Time setting reaches it.
     nonisolated static func namesHalfOfDay(_ locale: Locale = .current) -> Bool {
-        switch locale.hourCycle {
-        case .zeroToEleven, .oneToTwelve: true
-        default: false
+        (0..<12).allSatisfy {
+            hourString(hour: $0, locale: locale) == hourString(hour: $0 + 12, locale: locale)
         }
     }
 
@@ -72,6 +75,10 @@ struct TimeVariant: Identifiable, Codable, Hashable {
         guard runs.count > 1 else { return ":" }
         return String(written[runs[0].upperBound..<runs[1].lowerBound])
     }
+
+    /// Marks a locale sets around a designator that are not part of it.
+    nonisolated private static let designatorEdge = CharacterSet.whitespacesAndNewlines
+        .union(CharacterSet(charactersIn: "\u{200E}\u{200F}\u{2066}\u{2067}\u{2068}\u{2069}"))
 
     /// Where the digits sit in a written time, the hour's run first.
     nonisolated private static func digitRuns(_ written: String) -> [Range<String.Index>] {

@@ -149,13 +149,15 @@ struct CoolDarkTimeField: View {
     }
 
     /// Which half of the day the hour belongs to, on a twelve hour clock.
+    /// Each entry is named for the hour picking it would land on.
     private var halfOfDayMenu: some View {
-        menuField(
+        let morningHour = TimeFieldMath.hourOption(of: minutes, namingHalf: true)
+        return menuField(
             values: [0, 1],
             selected: TimeFieldMath.isAfternoon(minutes) ? 1 : 0,
             label: "Half of the day",
             font: Self.halfOfDayFont,
-            title: { TimeVariant.halfOfDayString(isAfternoon: $0 == 1, locale: locale) },
+            title: { TimeVariant.halfOfDayString(hour: morningHour + $0 * 12, locale: locale) },
             onSelect: { half in
                 minutes = TimeFieldMath.minutes(
                     hourOption: TimeFieldMath.hourOption(of: minutes, namingHalf: true),
