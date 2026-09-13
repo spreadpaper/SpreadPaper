@@ -9,12 +9,23 @@ struct HeroPhotoTests {
     /// Hero height in points, the 260 pt header less its top and bottom insets.
     private static let height: CGFloat = 170
 
-    /// Pixel size of the file behind an image set in the app's asset catalog.
-    private static func assetSize(_ imageSet: String, _ file: String) throws -> CGSize {
-        let url = URL(filePath: #filePath)
+    /// The two hero image sets, each with the file it holds.
+    private static let imageSets = [
+        (set: "HeroBeach", file: "hero-beach.jpg"),
+        (set: "HeroBeachNight", file: "hero-beach-night.jpg")
+    ]
+
+    /// Where an image set's file sits in the app's asset catalog.
+    private static func assetURL(_ imageSet: String, _ file: String) -> URL {
+        URL(filePath: #filePath)
             .deletingLastPathComponent()
             .deletingLastPathComponent()
             .appending(path: "SpreadPaper/Assets.xcassets/\(imageSet).imageset/\(file)")
+    }
+
+    /// Pixel size of the file behind an image set in the app's asset catalog.
+    private static func assetSize(_ imageSet: String, _ file: String) throws -> CGSize {
+        let url = assetURL(imageSet, file)
         let source = try #require(CGImageSourceCreateWithURL(url as CFURL, nil))
         let properties = try #require(
             CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any]
@@ -25,29 +36,26 @@ struct HeroPhotoTests {
     }
 
     @Test func bothPhotographsAreTheSameShape() throws {
-        let day = try Self.assetSize("HeroBeach", "hero-beach.jpg")
-        let night = try Self.assetSize("HeroBeachNight", "hero-beach-night.jpg")
-        #expect(day == night, "the two hero photographs would slice differently")
+        let sizes = try Self.imageSets.map { try Self.assetSize($0.set, $0.file) }
+        #expect(sizes[0] == sizes[1], "the two hero photographs would slice differently")
     }
 
     @Test func thePhotographsMatchTheSpreadTheyFill() throws {
         let spread = HeroSpread(height: Self.height).spread
-        let photo = try Self.assetSize("HeroBeachNight", "hero-beach-night.jpg")
-        let drift = abs(photo.width / photo.height - spread.width / spread.height)
-        #expect(drift < 0.01, "the night photograph is cropped off the spread's aspect")
+        for imageSet in Self.imageSets {
+            let photo = try Self.assetSize(imageSet.set, imageSet.file)
+            let drift = abs(photo.width / photo.height - spread.width / spread.height)
+            #expect(drift < 0.01, "\(imageSet.file) is cropped off the spread's aspect")
+        }
     }
 
     @Test func eachPhotographIsSmallEnoughToBundle() throws {
-        for name in ["HeroBeach/hero-beach.jpg", "HeroBeachNight/hero-beach-night.jpg"] {
-            let parts = name.split(separator: "/")
-            let url = URL(filePath: #filePath)
-                .deletingLastPathComponent()
-                .deletingLastPathComponent()
-                .appending(path: "SpreadPaper/Assets.xcassets/\(parts[0]).imageset/\(parts[1])")
+        for imageSet in Self.imageSets {
+            let url = Self.assetURL(imageSet.set, imageSet.file)
             let bytes = try #require(
                 try FileManager.default.attributesOfItem(atPath: url.path)[.size] as? Int
             )
-            #expect(bytes < 400_000, "\(name) is \(bytes) bytes")
+            #expect(bytes < 400_000, "\(imageSet.file) is \(bytes) bytes")
         }
     }
 
