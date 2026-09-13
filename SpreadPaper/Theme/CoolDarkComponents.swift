@@ -6,7 +6,7 @@ import SwiftUI
 
 extension Image {
     /// Draws a glyph at a square size in one theme colour.
-    /// Template rendering tints it through `foregroundStyle`.
+    /// Template rendering tints it, no offscreen pass.
     func cdIcon(_ token: Color, size: CGFloat) -> some View {
         renderingMode(.template)
             .foregroundStyle(token)
