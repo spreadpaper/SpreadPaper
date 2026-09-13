@@ -1372,17 +1372,16 @@ private struct InspectorRowButtonStyle: ButtonStyle {
 
 /// Transparent button that fills on hover.
 private struct HoverRowButtonStyle: ButtonStyle {
-    @State private var hovering = false
-
     /// Elevated fill on hover, dimmed while pressed.
     func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .background(
-                RoundedRectangle(cornerRadius: 7)
-                    .fill(hovering ? Color.cdBgElevated : Color.clear)
-            )
-            .onHover { hovering = $0 }
-            .opacity(configuration.isPressed ? 0.7 : 1.0)
+        HoverReader { hovering in
+            configuration.label
+                .background(
+                    RoundedRectangle(cornerRadius: 7)
+                        .fill(hovering ? Color.cdBgElevated : Color.clear)
+                )
+                .opacity(configuration.isPressed ? 0.7 : 1.0)
+        }
     }
 }
 
@@ -1390,43 +1389,43 @@ private struct HoverRowButtonStyle: ButtonStyle {
 /// the enabled state is readable against the panel background.
 private struct HeaderSecondaryButtonStyle: ButtonStyle {
     @Environment(\.isEnabled) private var isEnabled
-    @State private var hovering = false
 
     /// Bordered fill that brightens on hover and fades when disabled.
     func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .background(
-                RoundedRectangle(cornerRadius: 7)
-                    .fill(hovering && isEnabled ? Color.cdBgHover : Color.cdBgElevated)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 7)
-                    .stroke(Color.cdBorderStrong, lineWidth: 1)
-            )
-            .onHover { hovering = $0 }
-            .opacity(!isEnabled ? 0.4 : configuration.isPressed ? 0.8 : 1.0)
+        HoverReader { hovering in
+            configuration.label
+                .background(
+                    RoundedRectangle(cornerRadius: 7)
+                        .fill(hovering && isEnabled ? Color.cdBgHover : Color.cdBgElevated)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 7)
+                        .stroke(Color.cdBorderStrong, lineWidth: 1)
+                )
+                .opacity(!isEnabled ? 0.4 : configuration.isPressed ? 0.8 : 1.0)
+        }
     }
 }
 
 /// Translucent HUD button, highlighted while active.
 private struct HUDButtonStyle: ButtonStyle {
     let isActive: Bool
-    @State private var hovering = false
 
     /// White wash for the active or hovered state, dimmed while pressed.
     func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .foregroundStyle(isActive ? Color.cdTextPrimary : Color.cdTextSecondary)
-            .background(
-                RoundedRectangle(cornerRadius: 7)
-                    .fill(
-                        isActive
-                            ? Color.cdActiveFill
-                            : hovering ? Color.cdHoverFill : Color.clear
-                    )
-            )
-            .onHover { hovering = $0 }
-            .opacity(configuration.isPressed ? 0.7 : 1.0)
+        HoverReader { hovering in
+            configuration.label
+                .foregroundStyle(isActive ? Color.cdTextPrimary : Color.cdTextSecondary)
+                .background(
+                    RoundedRectangle(cornerRadius: 7)
+                        .fill(
+                            isActive
+                                ? Color.cdActiveFill
+                                : hovering ? Color.cdHoverFill : Color.clear
+                        )
+                )
+                .opacity(configuration.isPressed ? 0.7 : 1.0)
+        }
     }
 }
 

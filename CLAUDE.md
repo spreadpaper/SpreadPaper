@@ -35,7 +35,7 @@ Source files organized under `SpreadPaper/`. One external package: PhosphorSwift
 ### Theme (Cool Dark design system)
 
 - **Theme/CoolDarkTheme.swift** — Color tokens (`Color.cd*` extensions), `CoolDarkButtonStyle`, `SectionHeader`, and `CoolDarkMetrics`, the dialog, field and type sizes every control is cut to
-- **Theme/CoolDarkComponents.swift** — Reusable styled components: `CoolDarkTextField`, `ToastView`, the `.toast(_:)` modifier that floats and clears one, and `Image.cdIcon(_:size:)`, which tints every Phosphor glyph by template rendering
+- **Theme/CoolDarkComponents.swift** — Reusable styled components: `CoolDarkTextField`, `ToastView`, the `.toast(_:)` modifier that floats and clears one, `Image.cdIcon(_:size:)`, which tints every Phosphor glyph by template rendering, and `HoverReader`, which owns the pointer state a `ButtonStyle` cannot hold
 - **Theme/CoolDarkTimeField.swift** — `CoolDarkTimeField`, the row of short menus one wall-clock time is set from, and `TimeFieldMath`, the minutes-since-midnight arithmetic behind it (pure, unit-tested). The menus bridge to `NSPopUpButton` so the digits keep the size the theme gives them
 - **Theme/ClockSettings.swift** — `.followsClockSettings()`, which hands the system locale down the view tree and hands it down again when the user changes their region or their 24-Hour Time setting, so written times follow System Settings without a relaunch
 

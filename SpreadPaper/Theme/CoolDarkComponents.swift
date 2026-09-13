@@ -99,3 +99,30 @@ extension View {
         modifier(ToastOverlay(message: message, topPadding: topPadding))
     }
 }
+
+// MARK: - Hover
+
+/// Hands the pointer state to its content, holding the `@State` that a
+/// `ButtonStyle` has nowhere to keep. Hover drops when the pointer
+/// leaves, when the app deactivates, and on disappearance.
+struct HoverReader<Content: View>: View {
+    @ViewBuilder let content: (Bool) -> Content
+
+    @Environment(\.controlActiveState) private var activeState
+    @State private var pointerInside = false
+
+    var body: some View {
+        content(Self.isHovered(pointerInside: pointerInside, activeState: activeState))
+            .onHover { pointerInside = $0 }
+            .onDisappear { pointerInside = false }
+    }
+
+    /// Hover holds only while the pointer sits inside an active app.
+    ///
+    /// - Parameter pointerInside: Whether the pointer is over the content.
+    /// - Parameter activeState: Activation of the window drawing it.
+    /// - Returns: The hover state the content should draw.
+    static func isHovered(pointerInside: Bool, activeState: ControlActiveState) -> Bool {
+        pointerInside && activeState != .inactive
+    }
+}
