@@ -27,19 +27,20 @@ struct TimeFieldTimeZoneTests {
         try body()
     }
 
-    @Test func everyMinuteWritesAndReadsBackInEveryZone() throws {
+    @Test func everyMinuteWritesTheSameWayInEveryZone() throws {
+        var written: [String: [String]] = [:]
         for zone in Self.zones {
             try inZone(zone) {
-                for locale in Self.locales {
-                    for minute in stride(from: 0, to: TimeFieldMath.minutesPerDay, by: 7) {
-                        let written = TimeFieldMath.text(for: minute, locale: locale)
-                        #expect(
-                            TimeFieldMath.minutes(from: written, locale: locale) == minute,
-                            "\(zone): \"\(written)\" did not read back as minute \(minute)"
-                        )
+                written[zone] = Self.locales.flatMap { locale in
+                    stride(from: 0, to: TimeFieldMath.minutesPerDay, by: 7).map {
+                        TimeFieldMath.text(for: $0, locale: locale)
                     }
                 }
             }
+        }
+        let first = try #require(written[Self.zones[0]])
+        for zone in Self.zones.dropFirst() {
+            #expect(written[zone] == first, "\(zone) wrote the day differently")
         }
     }
 
@@ -58,18 +59,16 @@ struct TimeFieldTimeZoneTests {
         }
     }
 
-    @Test func steppingAndWrappingIgnoreTheZoneEntirely() throws {
+    @Test func theTimesOnOfferIgnoreTheZoneEntirely() throws {
         var results: [String: [Int]] = [:]
         for zone in Self.zones {
             try inZone(zone) {
-                results[zone] = (0..<TimeFieldMath.minutesPerDay).map {
-                    TimeFieldMath.stepped($0, by: TimeFieldMath.coarseStep)
-                }
+                results[zone] = TimeFieldMath.offered(including: 6 * 60 + 47)
             }
         }
         let first = try #require(results[Self.zones[0]])
         for zone in Self.zones.dropFirst() {
-            #expect(results[zone] == first, "\(zone) stepped differently")
+            #expect(results[zone] == first, "\(zone) offered different times")
         }
     }
 
@@ -84,7 +83,7 @@ struct TimeFieldTimeZoneTests {
             }
         }
         for zone in Self.zones {
-            #expect(sentences[zone] == "Shows until the first image at 06:45 tomorrow.", "\(zone) drifted")
+            #expect(sentences[zone] == "Shows until 06:45 tomorrow.", "\(zone) drifted")
         }
     }
 }

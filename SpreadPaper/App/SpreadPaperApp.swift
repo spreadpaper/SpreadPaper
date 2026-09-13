@@ -28,6 +28,7 @@ struct SpreadPaperApp: App {
             .ignoresSafeArea()
             .frame(minWidth: 900, minHeight: 600)
             .background(Color.cdBgPrimary)
+            .followsClockSettings()
             .task {
                 await manager.listenForScreenChanges()
             }

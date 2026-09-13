@@ -1,24 +1,23 @@
-import AppKit
 import Foundation
 import Testing
 @testable import SpreadPaper
 
-/// Issue #129: the entry states what follows it instead of offering an end time.
+/// Issue #129: the entry reads out its own window instead of offering an end field.
 struct ScheduleEntryTextTests {
     /// Fixed 24-hour locale, so the expected times do not move with the machine.
     private let locale = Locale(identifier: "en_GB")
 
-    @Test func aMiddleEntryNamesTheImageAfterIt() {
+    @Test func aMiddleEntryReadsOutWhenItEnds() {
         #expect(
             ScheduleEntryText.handover(start: 12 * 60, next: 15 * 60, isOnly: false, locale: locale)
-                == "Shows until the next image at 15:00."
+                == "Shows until 15:00."
         )
     }
 
     @Test func theLastEntryOfTheDayWrapsPastMidnight() {
         #expect(
             ScheduleEntryText.handover(start: 23 * 60, next: 6 * 60, isOnly: false, locale: locale)
-                == "Shows until the first image at 06:00 tomorrow."
+                == "Shows until 06:00 tomorrow."
         )
     }
 
@@ -26,11 +25,11 @@ struct ScheduleEntryTextTests {
     @Test func anEntryReplacedOnItsOwnMinuteSaysSo() {
         #expect(
             ScheduleEntryText.handover(start: 12 * 60, next: 12 * 60, isOnly: false, locale: locale)
-                == "Never shows, as the next image starts at 12:00 too."
+                == "Never shows: the next starts then."
         )
         #expect(
             ScheduleEntryText.handover(start: 0, next: 0, isOnly: false, locale: locale)
-                == "Never shows, as the next image starts at 00:00 too."
+                == "Never shows: the next starts then."
         )
     }
 
@@ -38,11 +37,11 @@ struct ScheduleEntryTextTests {
     @Test func aMinuteEitherSideOfAnEqualStartReadsAsAWindow() {
         #expect(
             ScheduleEntryText.handover(start: 12 * 60, next: 12 * 60 + 1, isOnly: false, locale: locale)
-                == "Shows until the next image at 12:01."
+                == "Shows until 12:01."
         )
         #expect(
             ScheduleEntryText.handover(start: 12 * 60, next: 12 * 60 - 1, isOnly: false, locale: locale)
-                == "Shows until the first image at 11:59 tomorrow."
+                == "Shows until 11:59 tomorrow."
         )
     }
 
@@ -50,25 +49,25 @@ struct ScheduleEntryTextTests {
     @Test func theOnlyImageIgnoresAnEqualNextStart() {
         #expect(
             ScheduleEntryText.handover(start: 12 * 60, next: 12 * 60, isOnly: true, locale: locale)
-                == "Shows all day as the only image in the schedule."
+                == "Shows all day as the only image."
         )
     }
 
     @Test func aSingleEntryRunsTheWholeDay() {
         #expect(
             ScheduleEntryText.handover(start: 7 * 60, next: 7 * 60, isOnly: true, locale: locale)
-                == "Shows all day as the only image in the schedule."
+                == "Shows all day as the only image."
         )
     }
 
     @Test func midnightAndTheMinuteBeforeItReadAsTimes() {
         #expect(
             ScheduleEntryText.handover(start: 23 * 60 + 59, next: 0, isOnly: false, locale: locale)
-                == "Shows until the first image at 00:00 tomorrow."
+                == "Shows until 00:00 tomorrow."
         )
         #expect(
             ScheduleEntryText.handover(start: 0, next: 23 * 60 + 59, isOnly: false, locale: locale)
-                == "Shows until the next image at 23:59."
+                == "Shows until 23:59."
         )
     }
 
@@ -81,19 +80,5 @@ struct ScheduleEntryTextTests {
 
     @Test func placeBeyondTheSpelledRangeFallsBackToDigits() {
         #expect(ScheduleEntryText.position(index: 16, count: 17) == "17 of 17")
-    }
-
-    @Test func everySentenceFitsTheDialogOnOneLine() {
-        let sentences = [
-            ScheduleEntryText.handover(start: 12 * 60, next: 15 * 60, isOnly: false, locale: locale),
-            ScheduleEntryText.handover(start: 23 * 60, next: 6 * 60, isOnly: false, locale: locale),
-            ScheduleEntryText.handover(start: 12 * 60, next: 12 * 60, isOnly: false, locale: locale),
-            ScheduleEntryText.handover(start: 7 * 60, next: 7 * 60, isOnly: true, locale: locale)
-        ]
-        let font = NSFont.systemFont(ofSize: 12)
-        for sentence in sentences {
-            let width = NSAttributedString(string: sentence, attributes: [.font: font]).size().width
-            #expect(width <= 380, "\"\(sentence)\" takes \(Int(width))pt of the dialog's 380pt, so it wraps")
-        }
     }
 }

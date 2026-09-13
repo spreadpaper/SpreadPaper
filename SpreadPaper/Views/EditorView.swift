@@ -11,6 +11,8 @@ struct EditorView: View {
     @Bindable var navigation: AppNavigation
     let presetId: UUID?
 
+    @Environment(\.locale) private var locale
+
     @State private var wallpaperType: WallpaperType
     @State private var loadedImages: [NSImage] = []
     @State private var originalUrls: [URL] = []
@@ -471,7 +473,7 @@ struct EditorView: View {
         return ImageRow(
             thumb: hasImage ? loadedImages[index] : nil,
             title: defaultScheduleName(for: index),
-            subtitle: v.timeString,
+            subtitle: v.timeString(locale: locale),
             isSelected: selectedVariantIndex == index,
             isEmpty: !hasImage,
             onTap: {

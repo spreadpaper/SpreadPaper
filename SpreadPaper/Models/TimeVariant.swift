@@ -19,13 +19,9 @@ struct TimeVariant: Identifiable, Codable, Hashable {
         Double(hour) / 24.0 + Double(minute) / 1440.0
     }
 
-    /// Start time in the user's locale, honouring the 24-hour setting.
-    var timeString: String {
-        timeString(locale: .current)
-    }
-
-    /// Start time formatted for an explicit locale.
-    /// Lets tests pin the output.
+    /// Start time as the given locale writes it, its 24-hour setting honoured.
+    /// The caller passes the locale so a change of that setting reaches
+    /// the screen without a relaunch.
     func timeString(locale: Locale) -> String {
         Self.clockString(hour: hour, minute: minute, locale: locale)
     }

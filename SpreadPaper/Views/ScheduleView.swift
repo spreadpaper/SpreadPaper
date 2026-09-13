@@ -30,15 +30,15 @@ nonisolated enum ScheduleEntryText {
         return "\(place) of \(total)"
     }
 
-    /// What takes over when an entry ends, named by the time it starts.
-    /// An entry the next one lands on never reaches the screen, and
-    /// an earlier next start belongs to tomorrow.
+    /// How long an entry holds the screen, given the start after it.
+    /// An entry the next one lands on never reaches the screen,
+    /// and an earlier next start belongs to tomorrow.
     static func handover(start: Int, next: Int, isOnly: Bool, locale: Locale = .current) -> String {
-        guard !isOnly else { return "Shows all day as the only image in the schedule." }
+        guard !isOnly else { return "Shows all day as the only image." }
         let time = TimeVariant.clockString(hour: next / 60, minute: next % 60, locale: locale)
-        if next == start { return "Never shows, as the next image starts at \(time) too." }
-        if next > start { return "Shows until the next image at \(time)." }
-        return "Shows until the first image at \(time) tomorrow."
+        if next == start { return "Never shows: the next starts then." }
+        if next > start { return "Shows until \(time)." }
+        return "Shows until \(time) tomorrow."
     }
 }
 
@@ -56,11 +56,22 @@ struct ScheduleDetailModal: View {
     let onRemove: () -> Void
     let onDone: () -> Void
 
+    @Environment(\.locale) private var locale
+
     @State private var thumbnail: CGImage?
     @State private var confirmingRemove = false
 
     /// Size of the entry thumbnail, in points.
     private static let thumbnailSize = CGSize(width: 72, height: 45)
+
+    /// Width of the dialog card.
+    static let cardWidth: CGFloat = 420
+
+    /// Gap between the time field and the sentence beside it.
+    static let handoverGap: CGFloat = 14
+
+    /// Colour the handover sentence is set in, bright enough to read as body text.
+    static let handoverColor = Color.cdTextSecondary
 
     var body: some View {
         ZStack {
@@ -75,7 +86,7 @@ struct ScheduleDetailModal: View {
                 Divider().overlay(Color.cdBorder)
                 footer
             }
-            .frame(width: 420)
+            .frame(width: Self.cardWidth)
             .background(Color.cdBgSecondary)
             .clipShape(RoundedRectangle(cornerRadius: CoolDarkMetrics.dialogCornerRadius))
             .overlay(
@@ -92,6 +103,7 @@ struct ScheduleDetailModal: View {
             } message: {
                 Text("The schedule loses this entry. The image file stays where it is.")
             }
+            .onExitCommand { onDone() }
         }
         .task(id: thumbnailRequest) { await loadThumbnail() }
     }
@@ -121,11 +133,11 @@ struct ScheduleDetailModal: View {
 
             VStack(alignment: .leading, spacing: CoolDarkMetrics.labelGap) {
                 SectionHeader(title: "Starts at")
-                HStack(alignment: .center, spacing: 14) {
+                HStack(alignment: .firstTextBaseline, spacing: Self.handoverGap) {
                     startTimeField
                     Text(handover)
                         .font(.system(size: 12.5))
-                        .foregroundStyle(Color.cdTextTertiary)
+                        .foregroundStyle(Self.handoverColor)
                         .fixedSize(horizontal: false, vertical: true)
                     Spacer(minLength: 0)
                 }
@@ -152,6 +164,7 @@ struct ScheduleDetailModal: View {
 
             Button("Done", action: onDone)
                 .buttonStyle(CoolDarkButtonStyle(isPrimary: true, size: .compact))
+                .keyboardShortcut(.defaultAction)
         }
         .padding(.horizontal, CoolDarkMetrics.dialogPadding)
         .padding(.vertical, 14)
@@ -159,7 +172,7 @@ struct ScheduleDetailModal: View {
 
     /// Clock the entry starts on, on the same grid as the name field below it.
     private var startTimeField: some View {
-        CoolDarkTimeField(minutes: startMinutes, label: "Starts at")
+        CoolDarkTimeField(minutes: startMinutes, label: "Starts at", locale: locale)
             .fixedSize()
     }
 
@@ -222,7 +235,8 @@ struct ScheduleDetailModal: View {
         ScheduleEntryText.handover(
             start: variant.hour * 60 + variant.minute,
             next: nextVariant.hour * 60 + nextVariant.minute,
-            isOnly: count <= 1
+            isOnly: count <= 1,
+            locale: locale
         )
     }
 
