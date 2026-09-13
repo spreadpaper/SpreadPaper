@@ -20,7 +20,7 @@ struct GalleryView: View {
     @State private var loadPhase: GalleryPhase = .loading
     @State private var loadRun: UUID = UUID()
     @State private var loadDelivery: Task<Void, Never>? = nil
-    @State private var passGate = ThumbnailPassGate()
+    @State private var passGate = ThumbnailPassGate.shared
     @State private var reportedPresets: Set<UUID> = []
     @State private var hasDismissedFailure: Bool = false
     @State private var selectedPresetId: UUID? = nil
@@ -80,6 +80,10 @@ struct GalleryView: View {
         .task { reloadThumbnails() }
         .onChange(of: colorScheme) { _, _ in reloadThumbnails() }
         .onChange(of: manager.presets.map(\.id)) { _, _ in reloadThumbnails() }
+        .onChange(of: passGate.outstanding) { _, outstanding in
+            guard outstanding == 0, passGate.takeHeldRequest() else { return }
+            reloadThumbnails()
+        }
         .confirmationDialog(
             "Delete '\(presetPendingDelete?.name ?? "")'?",
             isPresented: Binding(
@@ -628,9 +632,11 @@ struct GalleryView: View {
         }
         continuation.onTermination = { _ in render.cancel() }
 
+        // Never cancelled: the count has to come down even when the gallery
+        // that started the pass is long gone.
         Task {
             await render.value
-            if passGate.passReturned() { reloadThumbnails() }
+            passGate.passReturned()
         }
 
         loadDelivery?.cancel()

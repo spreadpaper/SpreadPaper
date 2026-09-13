@@ -176,6 +176,11 @@ enum GalleryLoading {
 @Observable
 @MainActor
 final class ThumbnailPassGate {
+    /// The gate the gallery uses. A pass outlives the view that started it,
+    /// since the route switch rebuilds the gallery on every trip out to an
+    /// editor, so the count it is held against has to outlive it too.
+    static let shared = ThumbnailPassGate()
+
     /// Passes started that have not returned. A pass sitting inside a slow
     /// read counts until the read comes back, however long that takes.
     private(set) var outstanding = 0
@@ -203,12 +208,17 @@ final class ThumbnailPassGate {
         return true
     }
 
-    /// Records that a pass returned, releasing whatever was held while
-    /// it was out. The caller runs the released request itself.
-    ///
-    /// - Returns: True when a held request should run now.
-    func passReturned() -> Bool {
+    /// Records that a pass returned. Counting down is all it does, so the
+    /// view that started the pass need not still be there to do it.
+    func passReturned() {
         outstanding = max(0, outstanding - 1)
+    }
+
+    /// Hands over a request held while a pass was out, clearing it so that
+    /// only one caller runs it. Whichever gallery is on screen asks.
+    ///
+    /// - Returns: True when a held request is now this caller's to run.
+    func takeHeldRequest() -> Bool {
         guard isHolding else { return false }
         isHolding = false
         return true
