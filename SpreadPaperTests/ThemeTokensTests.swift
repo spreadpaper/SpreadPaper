@@ -1,3 +1,4 @@
+import AppKit
 import Foundation
 import SwiftUI
 import Testing
@@ -11,17 +12,10 @@ struct ThemeTokensTests {
         "Color(hex:", "Color(red:", "Color(white:", ".white.opacity(", ".black.opacity("
     ]
 
-    /// App sources outside the theme file, where no literal colour may appear.
-    private static func nonThemeSources() throws -> [URL] {
-        let app = URL(filePath: #filePath)
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-            .appending(path: "SpreadPaper")
-        let files = FileManager.default.enumerator(at: app, includingPropertiesForKeys: nil)?
-            .compactMap { $0 as? URL }
-            .filter { $0.pathExtension == "swift" && !$0.path.hasSuffix("Theme/CoolDarkTheme.swift") } ?? []
-        #expect(files.count > 10, "source scan found no app files to check")
-        return files
+    /// sRGB components of a token.
+    private static func components(_ color: Color) -> (r: Double, g: Double, b: Double) {
+        let c = NSColor(color).usingColorSpace(.sRGB) ?? .black
+        return (c.redComponent, c.greenComponent, c.blueComponent)
     }
 
     @Test func themeExposesEveryTokenByName() {
@@ -63,14 +57,17 @@ struct ThemeTokensTests {
     }
 
     @Test func noSourceOutsideTheThemeMintsALiteralColour() throws {
-        var offenders: [String] = []
-        for file in try Self.nonThemeSources() {
-            let source = try String(contentsOf: file, encoding: .utf8)
-            for (number, line) in source.split(separator: "\n", omittingEmptySubsequences: false).enumerated()
-            where Self.literalPatterns.contains(where: { line.contains($0) }) {
-                offenders.append("\(file.lastPathComponent):\(number + 1): \(line.trimmingCharacters(in: .whitespaces))")
-            }
-        }
+        let offenders = try AppSources.lines(
+            in: AppSources.outsideTheTheme(),
+            containing: Self.literalPatterns
+        )
         #expect(offenders.isEmpty, "literal colours outside the theme:\n\(offenders.joined(separator: "\n"))")
+    }
+
+    @Test func anIconTokenContrastsWithTheSurfaceBehindIt() {
+        let icon = Self.components(.cdTextTertiary)
+        let surface = Self.components(.cdBgElevated)
+        let gap = abs(icon.r - surface.r) + abs(icon.g - surface.g) + abs(icon.b - surface.b)
+        #expect(gap > 0.3, "an icon token is too close to the surface it sits on")
     }
 }
