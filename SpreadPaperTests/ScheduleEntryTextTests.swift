@@ -20,9 +20,13 @@ struct ScheduleEntryTextTests {
             ScheduleEntryText.handover(start: 23 * 60, next: 6 * 60, isOnly: false, locale: locale)
                 == "Shows until the first image at 06:00 tomorrow."
         )
+    }
+
+    /// Two entries can share a minute, and the second still starts today.
+    @Test func anEqualStartBelongsToTheSameDay() {
         #expect(
             ScheduleEntryText.handover(start: 12 * 60, next: 12 * 60, isOnly: false, locale: locale)
-                == "Shows until the first image at 12:00 tomorrow."
+                == "Shows until the next image at 12:00."
         )
     }
 

@@ -31,12 +31,12 @@ nonisolated enum ScheduleEntryText {
     }
 
     /// What takes over when an entry ends, named by the time it starts.
-    /// A next start no later than this one belongs to the day after.
+    /// A next start earlier than this one belongs to the day after.
     static func handover(start: Int, next: Int, isOnly: Bool, locale: Locale = .current) -> String {
         guard !isOnly else { return "Shows all day as the only image in the schedule." }
         let time = TimeVariant.clockString(hour: next / 60, minute: next % 60, locale: locale)
-        guard next > start else { return "Shows until the first image at \(time) tomorrow." }
-        return "Shows until the next image at \(time)."
+        guard next < start else { return "Shows until the next image at \(time)." }
+        return "Shows until the first image at \(time) tomorrow."
     }
 }
 
@@ -88,8 +88,11 @@ struct ScheduleDetailModal: View {
     @State private var thumbnail: CGImage?
     @State private var confirmingRemove = false
 
-    /// Longest side of the entry thumbnail, in points.
-    private static let thumbnailPointSize: CGFloat = 72
+    /// Size of the entry thumbnail, in points.
+    private static let thumbnailSize = CGSize(width: 72, height: 45)
+
+    /// Headroom over the thumbnail's longest side, so a wide source still fills it.
+    private static let thumbnailOversample: CGFloat = 2
 
     var body: some View {
         ZStack {
@@ -211,7 +214,7 @@ struct ScheduleDetailModal: View {
                     .cdIcon(Color.cdTextTertiary, size: 16)
             }
         }
-        .frame(width: 72, height: 45)
+        .frame(width: Self.thumbnailSize.width, height: Self.thumbnailSize.height)
         .clipShape(RoundedRectangle(cornerRadius: 6))
         .overlay(
             RoundedRectangle(cornerRadius: 6)
@@ -250,13 +253,12 @@ struct ScheduleDetailModal: View {
     /// Renders the entry's thumbnail off the main actor.
     /// An unreadable file leaves the glyph in place.
     private func loadThumbnail() async {
-        guard let imageURL else {
-            thumbnail = nil
-            return
-        }
+        thumbnail = nil
+        guard let imageURL else { return }
         let flipped = variant.isFlipped
         let scale = NSScreen.main?.backingScaleFactor ?? 2
-        let maxPixelSize = Int((Self.thumbnailPointSize * scale).rounded())
+        let longestSide = max(Self.thumbnailSize.width, Self.thumbnailSize.height)
+        let maxPixelSize = Int((longestSide * Self.thumbnailOversample * scale).rounded())
         thumbnail = await Task.detached(priority: .userInitiated) {
             ThumbnailRenderer.thumbnail(for: imageURL, maxPixelSize: maxPixelSize, flipped: flipped)
         }.value
