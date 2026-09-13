@@ -1,3 +1,4 @@
+import AppKit
 import Foundation
 import Testing
 @testable import SpreadPaper
@@ -5,8 +6,9 @@ import Testing
 /// Issue #123: the copy the user reads stays plain and wraps cleanly.
 /// Strings carry no typographic dashes and no padded spacing.
 struct UserFacingCopyTests {
-    /// Longest a kind description may be and still fit the caption on one line.
-    private static let subtitleLimit = 60
+    /// Narrowest place a kind description renders: the editor inspector, 340pt inset by 28pt a side.
+    /// The creation modal gives it 536pt at 14pt.
+    private static let inspector = (width: 284.0, size: 12.0)
 
     /// What a string literal may never contain, with the name shown on a failure.
     private static let banned: [(needle: String, name: String)] = [
@@ -60,18 +62,28 @@ struct UserFacingCopyTests {
         #expect(offenders.isEmpty, "banned punctuation in app strings:\n\(offenders.joined(separator: "\n"))")
     }
 
-    @Test func everyKindDescriptionIsOneShortSentence() {
+    /// Width one string takes at the inspector's font, with no wrapping.
+    private static func width(_ text: String) -> Double {
+        let font = NSFont.systemFont(ofSize: Self.inspector.size)
+        return NSAttributedString(string: text, attributes: [.font: font]).size().width
+    }
+
+    @Test func everyKindDescriptionFitsTheNarrowestPlaceItRenders() {
         for type in WallpaperType.allCases {
             let subtitle = type.subtitle
-            #expect(subtitle.count <= Self.subtitleLimit, "\(type.title) runs \(subtitle.count) characters")
+            let width = Self.width(subtitle)
+            #expect(
+                width <= Self.inspector.width,
+                "\(type.title) takes \(Int(width))pt of the inspector's \(Int(Self.inspector.width))pt, so it wraps"
+            )
             #expect(subtitle.hasSuffix("."), "\(type.title) does not end in a full stop")
             #expect(!subtitle.contains("\n"), "\(type.title) carries its own line break")
         }
     }
 
     @Test func theKindDescriptionsAreCloseInLength() {
-        let lengths = WallpaperType.allCases.map(\.subtitle.count)
-        guard let shortest = lengths.min(), let longest = lengths.max() else { return }
-        #expect(longest - shortest <= 16, "kind descriptions run \(lengths), too uneven to wrap alike")
+        let widths = WallpaperType.allCases.map { Self.width($0.subtitle) }
+        guard let shortest = widths.min(), let longest = widths.max() else { return }
+        #expect(longest - shortest <= 60, "kind descriptions run \(widths.map { Int($0) })pt, too uneven to read as a set")
     }
 }

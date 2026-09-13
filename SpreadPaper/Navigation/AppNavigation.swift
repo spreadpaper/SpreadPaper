@@ -27,12 +27,12 @@ enum WallpaperType: String, CaseIterable, Codable {
 
     /// One-line description under the type picker and in the creation modal.
     /// Says what the kind does with its images.
-    /// Each fits one line.
+    /// Each fits the editor inspector.
     var subtitle: String {
         switch self {
         case .standard:   return "One image, spread across every display."
         case .appearance: return "One image for light mode, another for dark."
-        case .dynamic:    return "A schedule of images that changes through the day."
+        case .dynamic:    return "A schedule of images through the day."
         }
     }
 
