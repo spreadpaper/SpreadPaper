@@ -65,16 +65,21 @@ struct HoverReaderTests {
     }
 
     @Test func hoverHoldsWhileThePointerSitsInsideAnActiveApp() {
-        #expect(HoverReader<EmptyView>.isHovered(pointerInside: true, activeState: .key))
-        #expect(HoverReader<EmptyView>.isHovered(pointerInside: true, activeState: .active))
+        #expect(HoverReader<EmptyView>.isHovered(pointerInside: true, activeState: .key, isEnabled: true))
+        #expect(HoverReader<EmptyView>.isHovered(pointerInside: true, activeState: .active, isEnabled: true))
     }
 
     @Test func hoverClearsWhenThePointerLeaves() {
-        #expect(!HoverReader<EmptyView>.isHovered(pointerInside: false, activeState: .key))
+        #expect(!HoverReader<EmptyView>.isHovered(pointerInside: false, activeState: .key, isEnabled: true))
     }
 
     @Test func hoverClearsWhenTheAppGoesInactive() {
-        #expect(!HoverReader<EmptyView>.isHovered(pointerInside: true, activeState: .inactive))
+        #expect(!HoverReader<EmptyView>.isHovered(pointerInside: true, activeState: .inactive, isEnabled: true))
+    }
+
+    @Test func aDisabledControlNeverTakesTheHoverFill() {
+        #expect(!HoverReader<EmptyView>.isHovered(pointerInside: true, activeState: .key, isEnabled: false))
+        #expect(!HoverReader<EmptyView>.isHovered(pointerInside: true, activeState: .active, isEnabled: false))
     }
 
     @Test func aHostedReaderTracksThePointerOverItsContent() {
@@ -85,6 +90,17 @@ struct HoverReaderTests {
         #expect(tracked, "the hosted reader installed no pointer tracking")
     }
 
+    @Test func aDisabledButtonDrawsItsStyleWithTheDisabledEnvironment() {
+        var seen: [Bool] = []
+        let host = Self.host(
+            Button("Zoom") {}
+                .buttonStyle(EnabledProbeStyle(record: { seen.append($0) }))
+                .disabled(true)
+        )
+        host.displayIfNeeded()
+        #expect(seen == [false], "the disabled button drew its style with isEnabled \(seen)")
+    }
+
     @Test func aHostedReaderDrawsItsRestingBranchWithNoPointerOverIt() {
         var seen: [Bool] = []
         let host = Self.host(HoverReader { hovering in
@@ -93,5 +109,18 @@ struct HoverReaderTests {
         })
         host.displayIfNeeded()
         #expect(seen == [false], "the reader drew its content with hover \(seen)")
+    }
+}
+
+/// Button style that reports the enabled state its body is drawn with.
+private struct EnabledProbeStyle: ButtonStyle {
+    let record: (Bool) -> Void
+
+    @Environment(\.isEnabled) private var isEnabled
+
+    /// Reports once the label is on screen, and draws it unchanged.
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .onAppear { record(isEnabled) }
     }
 }

@@ -103,26 +103,31 @@ extension View {
 // MARK: - Hover
 
 /// Hands the pointer state to its content, holding the `@State` that a
-/// `ButtonStyle` has nowhere to keep. Hover drops when the pointer
-/// leaves, when the app deactivates, and on disappearance.
+/// `ButtonStyle` has nowhere to keep. Hover drops on exit, when the
+/// app deactivates, and over a control that cannot act.
 struct HoverReader<Content: View>: View {
     @ViewBuilder let content: (Bool) -> Content
 
     @Environment(\.controlActiveState) private var activeState
+    @Environment(\.isEnabled) private var isEnabled
     @State private var pointerInside = false
 
     var body: some View {
-        content(Self.isHovered(pointerInside: pointerInside, activeState: activeState))
-            .onHover { pointerInside = $0 }
-            .onDisappear { pointerInside = false }
+        content(
+            Self.isHovered(pointerInside: pointerInside, activeState: activeState, isEnabled: isEnabled)
+        )
+        .onHover { pointerInside = $0 }
+        .onDisappear { pointerInside = false }
     }
 
-    /// Hover holds only while the pointer sits inside an active app.
+    /// Hover holds only while the pointer sits inside an active app, over a
+    /// control that can act on the click it invites.
     ///
     /// - Parameter pointerInside: Whether the pointer is over the content.
     /// - Parameter activeState: Activation of the window drawing it.
+    /// - Parameter isEnabled: Whether the control takes input.
     /// - Returns: The hover state the content should draw.
-    static func isHovered(pointerInside: Bool, activeState: ControlActiveState) -> Bool {
-        pointerInside && activeState != .inactive
+    static func isHovered(pointerInside: Bool, activeState: ControlActiveState, isEnabled: Bool) -> Bool {
+        pointerInside && isEnabled && activeState != .inactive
     }
 }
