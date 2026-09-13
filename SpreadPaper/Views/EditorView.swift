@@ -328,8 +328,8 @@ struct EditorView: View {
         .shadow(color: .cdShadow, radius: 24, y: 8)
     }
 
-    /// Icon-only HUD button with an active highlight. `label` names it for
-    /// VoiceOver, which the glyph alone cannot.
+    /// Icon-only HUD button with an active highlight. `label` carries its
+    /// VoiceOver name.
     @ViewBuilder
     private func hudIconButton<I: View>(icon: I, label: LocalizedStringKey, isActive: Bool, isEnabled: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {

@@ -160,8 +160,8 @@ struct CoolDarkButtonStyle: ButtonStyle {
             }
         }
 
-        /// Floor height so compact buttons line up with 30 pt neighbours and still
-    /// grow when the system text size does.
+        /// Floor height so compact buttons line up with 30 pt neighbours and
+        /// still grow with the system text size.
         var minHeight: CGFloat? {
             switch self {
             case .regular: nil

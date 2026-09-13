@@ -53,8 +53,8 @@ struct GalleryCardView: View {
         .accessibilityActions { cardActions }
     }
 
-    /// The card's six actions, shared by the context menu and the accessibility
-    /// rotor so the two can never drift apart.
+    /// The card's six actions, shared by the context menu and the
+    /// accessibility rotor so the two cannot drift apart.
     @ViewBuilder
     private var cardActions: some View {
         Button("Apply") { onApply() }
