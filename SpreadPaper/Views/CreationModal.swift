@@ -222,10 +222,13 @@ private struct HeroView: View {
         }
         .overlay(alignment: .bottom) {
             ZStack {
+                // A faded-out credit still hit-tests, and would swallow the other's links.
                 PhotoCredit(photo: .day)
                     .opacity(selectedType == .standard ? 1 : 0)
+                    .allowsHitTesting(selectedType == .standard)
                 ThemedCredit()
                     .opacity(selectedType == .appearance ? 1 : 0)
+                    .allowsHitTesting(selectedType == .appearance)
             }
             .padding(.bottom, 12)
             .animation(.easeInOut(duration: 0.4), value: selectedType)
@@ -262,8 +265,10 @@ private struct ThemedCredit: View {
             let elapsed = HeroCrossfade.elapsed(at: context.date, reduceMotion: reduceMotion)
             ZStack {
                 ForEach(HeroPhoto.allCases, id: \.self) { photo in
+                    let opacity = HeroCrossfade.creditOpacity(of: photo, at: elapsed)
                     PhotoCredit(photo: photo)
-                        .opacity(HeroCrossfade.creditOpacity(of: photo, at: elapsed))
+                        .opacity(opacity)
+                        .allowsHitTesting(opacity > 0)
                 }
             }
         }
