@@ -3,12 +3,14 @@ import Foundation
 /// Builds and reads the `<uuid>_<original>` names images are stored under.
 enum FilenameUtils {
     /// Original filename recovered from a stored name by dropping the UUID prefix.
+    /// A name carrying no such prefix is its own display name.
     static func displayName(for storedFilename: String) -> String {
         let base = baseName(of: storedFilename)
-        if let underscore = base.firstIndex(of: "_") {
-            return String(base[base.index(after: underscore)...])
+        guard let underscore = base.firstIndex(of: "_"),
+              UUID(uuidString: String(base[base.startIndex..<underscore])) != nil else {
+            return base
         }
-        return base
+        return String(base[base.index(after: underscore)...])
     }
 
     /// Unique on-disk name that keeps the original filename readable after the UUID prefix.

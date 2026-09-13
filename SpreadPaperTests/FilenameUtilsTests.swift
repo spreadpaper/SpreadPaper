@@ -33,6 +33,18 @@ struct FilenameUtilsTests {
         #expect(FilenameUtils.displayName(for: stored) == "my photo.final")
     }
 
+    /// Issue #129: only a real UUID prefix is dropped, so `IMG_639647.jpg` keeps its name.
+    @Test func displayNameKeepsUnderscoresThatAreNotAUuidPrefix() {
+        #expect(FilenameUtils.displayName(for: "IMG_639647.jpg") == "IMG_639647")
+        #expect(FilenameUtils.displayName(for: "Screen_Shot_2026.png") == "Screen_Shot_2026")
+        #expect(FilenameUtils.displayName(for: "not-a-uuid_photo.jpg") == "not-a-uuid_photo")
+    }
+
+    @Test func displayNameDropsARealUuidPrefix() {
+        let stored = FilenameUtils.storedName(uuid: uuid, originalFilename: "IMG_639647.jpg")
+        #expect(FilenameUtils.displayName(for: stored) == "IMG_639647")
+    }
+
     @Test func displayNameHandlesUnprefixedAndEmptyNames() {
         #expect(FilenameUtils.displayName(for: "plain.png") == "plain")
         #expect(FilenameUtils.displayName(for: "50%.jpg") == "50%")

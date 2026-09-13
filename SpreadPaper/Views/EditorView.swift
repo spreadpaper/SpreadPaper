@@ -106,8 +106,11 @@ struct EditorView: View {
             if let idx = editingScheduleIndex, idx < variants.count {
                 ScheduleDetailModal(
                     variant: $variants[idx],
-                    defaultName: defaultScheduleName(for: idx),
+                    defaultName: fallbackScheduleName(for: idx),
                     nextVariant: nextVariantAfter(index: idx),
+                    imageURL: idx < originalUrls.count ? originalUrls[idx] : nil,
+                    position: schedulePosition(of: idx),
+                    count: variants.count,
                     onRemove: {
                         editingScheduleIndex = nil
                         removeVariant(at: idx)
@@ -647,13 +650,23 @@ struct EditorView: View {
 
     // MARK: - Schedule helpers
 
-    /// Variant's custom name, else the image's original name, else a numbered fallback.
+    /// The image's own name, else a numbered stand-in when its file carries none.
+    private func fallbackScheduleName(for index: Int) -> String {
+        guard index < variants.count else { return "" }
+        let resolved = FilenameUtils.displayName(for: variants[index].imageFilename)
+        return resolved.isEmpty ? "Image \(index + 1)" : resolved
+    }
+
+    /// Variant's custom name, else the name its image carries.
     private func defaultScheduleName(for index: Int) -> String {
         guard index < variants.count else { return "" }
-        let variant = variants[index]
-        if !variant.name.isEmpty { return variant.name }
-        let resolved = FilenameUtils.displayName(for: variant.imageFilename)
-        return resolved.isEmpty ? "Image \(index + 1)" : resolved
+        let custom = variants[index].name
+        return custom.isEmpty ? fallbackScheduleName(for: index) : custom
+    }
+
+    /// Where the variant sits once the day is read in time order.
+    private func schedulePosition(of index: Int) -> Int {
+        sortedVariantIndices.firstIndex(of: index) ?? index
     }
 
     /// The variant that starts next in the day, wrapping to the earliest one past midnight.

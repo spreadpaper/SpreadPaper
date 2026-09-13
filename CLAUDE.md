@@ -51,8 +51,7 @@ Source files organized under `SpreadPaper/`. One external package: PhosphorSwift
 - **Views/EditorCanvasView.swift** — Monitor canvas rendering with image overlay, drag, zoom, snap and image drops
 - **Views/MonitorPreviewView.swift** — Individual monitor outline for the canvas
 - **Views/SpreadPhoto.swift** — `PanelSlice`, `SpreadContent` and `SpreadPhoto`: one scene laid out across several illustration panels, each panel clipped to its own part of it. Used by the creation modal hero and the wizard. Also `HeroPhoto`, the two bundled photographs with their attribution, `HeroCrossfade` (pure, unit-tested), the day-to-night loop the Light & Dark hero reads off the wall clock, `HeroDayPhoto` and `HeroDayCycle` (pure, unit-tested), the four photographs the Dynamic hero runs through a day with the hour each stands for, and `HeroClock`, the one instant both loops are read from
-- **Views/ScheduleView.swift** — `ScheduleDetailModal`, opened from an editor schedule row: name, active period, one range bar
-- **Views/RangeBarView.swift** — SwiftUI time bar with one draggable, snapping handle, plus `RangeBarMath` (pure, unit-tested). Used once, inside `ScheduleDetailModal`
+- **Views/ScheduleView.swift** — `ScheduleDetailModal`, opened from an editor schedule row: the image it schedules, its name, and a stepper field for the time it starts, with the following image named in a sentence beneath. Also `ScheduleEntryText` and `ScheduleClock` (pure, unit-tested)
 - **Views/SaveDialog.swift** — Overlay that names a preset before Save or Save & Apply
 - **Views/SettingsView.swift** — Native Settings window with General (default display gap, plus the import row while an earlier version's wallpapers are waiting and the remove row once they are in) and Updates tabs
 - **Views/LegacyImport.swift** — Gallery banner offering to bring in wallpapers an earlier version saved, plus the folder picker both it and Settings run

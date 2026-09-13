@@ -32,21 +32,14 @@ struct TimeVariant: Identifiable, Codable, Hashable {
 
     /// Formats a wall-clock time the way the locale writes it.
     /// Hour 24 wraps to midnight.
-    static func clockString(hour: Int, minute: Int, locale: Locale = .current) -> String {
+    nonisolated static func clockString(hour: Int, minute: Int, locale: Locale = .current) -> String {
         referenceDate(hour: hour, minute: minute)
             .formatted(Date.FormatStyle(locale: locale).hour().minute())
     }
 
-    /// Formats a whole hour the way the locale writes it, for axis labels.
-    /// Reads `6 AM` or `06` depending on the hour cycle.
-    static func hourString(hour: Int, locale: Locale = .current) -> String {
-        referenceDate(hour: hour, minute: 0)
-            .formatted(Date.FormatStyle(locale: locale).hour())
-    }
-
     /// Fixed calendar day carrying only the wall-clock time.
     /// Hour 24 wraps to midnight.
-    private static func referenceDate(hour: Int, minute: Int) -> Date {
+    nonisolated private static func referenceDate(hour: Int, minute: Int) -> Date {
         DateComponents(calendar: .current, year: 2000, month: 1, day: 1, hour: hour % 24, minute: minute).date ?? .now
     }
 }

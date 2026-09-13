@@ -24,15 +24,8 @@ struct TimeVariantTests {
         #expect(sixThirty.timeString(locale: Locale(components: components)) == "06:30")
     }
 
-    @Test func axisLabelsFollowLocale() {
-        #expect(TimeVariant.hourString(hour: 0, locale: enUS) == "12\u{202F}AM")
-        #expect(TimeVariant.hourString(hour: 6, locale: enUS) == "6\u{202F}AM")
-        #expect(TimeVariant.hourString(hour: 0, locale: nlNL) == "00")
-        #expect(TimeVariant.hourString(hour: 18, locale: nlNL) == "18")
-    }
-
     @Test func hourTwentyFourWrapsToMidnight() {
-        #expect(TimeVariant.hourString(hour: 24, locale: enUS) == TimeVariant.hourString(hour: 0, locale: enUS))
+        #expect(TimeVariant.clockString(hour: 24, minute: 0, locale: enUS) == "12:00\u{202F}AM")
         #expect(TimeVariant.clockString(hour: 24, minute: 0, locale: nlNL) == "00:00")
     }
 }
