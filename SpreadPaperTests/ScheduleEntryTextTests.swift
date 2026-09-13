@@ -22,11 +22,35 @@ struct ScheduleEntryTextTests {
         )
     }
 
-    /// Two entries can share a minute, and the second still starts today.
-    @Test func anEqualStartBelongsToTheSameDay() {
+    /// An entry the next one lands on holds the screen for no time at all.
+    @Test func anEntryReplacedOnItsOwnMinuteSaysSo() {
         #expect(
             ScheduleEntryText.handover(start: 12 * 60, next: 12 * 60, isOnly: false, locale: locale)
-                == "Shows until the next image at 12:00."
+                == "Never shows, as the next image starts at 12:00 too."
+        )
+        #expect(
+            ScheduleEntryText.handover(start: 0, next: 0, isOnly: false, locale: locale)
+                == "Never shows, as the next image starts at 00:00 too."
+        )
+    }
+
+    /// One minute either side of a shared start still reads as a real window.
+    @Test func aMinuteEitherSideOfAnEqualStartReadsAsAWindow() {
+        #expect(
+            ScheduleEntryText.handover(start: 12 * 60, next: 12 * 60 + 1, isOnly: false, locale: locale)
+                == "Shows until the next image at 12:01."
+        )
+        #expect(
+            ScheduleEntryText.handover(start: 12 * 60, next: 12 * 60 - 1, isOnly: false, locale: locale)
+                == "Shows until the first image at 11:59 tomorrow."
+        )
+    }
+
+    /// The only image keeps its own sentence even when the next start matches it.
+    @Test func theOnlyImageIgnoresAnEqualNextStart() {
+        #expect(
+            ScheduleEntryText.handover(start: 12 * 60, next: 12 * 60, isOnly: true, locale: locale)
+                == "Shows all day as the only image in the schedule."
         )
     }
 
@@ -63,6 +87,7 @@ struct ScheduleEntryTextTests {
         let sentences = [
             ScheduleEntryText.handover(start: 12 * 60, next: 15 * 60, isOnly: false, locale: locale),
             ScheduleEntryText.handover(start: 23 * 60, next: 6 * 60, isOnly: false, locale: locale),
+            ScheduleEntryText.handover(start: 12 * 60, next: 12 * 60, isOnly: false, locale: locale),
             ScheduleEntryText.handover(start: 7 * 60, next: 7 * 60, isOnly: true, locale: locale)
         ]
         let font = NSFont.systemFont(ofSize: 12)

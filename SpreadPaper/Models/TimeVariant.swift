@@ -34,12 +34,26 @@ struct TimeVariant: Identifiable, Codable, Hashable {
     /// Hour 24 wraps to midnight.
     nonisolated static func clockString(hour: Int, minute: Int, locale: Locale = .current) -> String {
         referenceDate(hour: hour, minute: minute)
-            .formatted(Date.FormatStyle(locale: locale).hour().minute())
+            .formatted(
+                Date.FormatStyle(locale: locale, calendar: clockCalendar, timeZone: clockZone)
+                    .hour().minute()
+            )
     }
 
-    /// Fixed calendar day carrying only the wall-clock time.
+    /// Zone a clock string is both built and written in, so the machine's
+    /// own zone cannot move an hour it was never given.
+    nonisolated private static let clockZone = TimeZone.gmt
+
+    /// Calendar carrying that zone.
+    nonisolated private static let clockCalendar: Calendar = {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = clockZone
+        return calendar
+    }()
+
+    /// Instant standing for a wall-clock time, counted off the reference date.
     /// Hour 24 wraps to midnight.
     nonisolated private static func referenceDate(hour: Int, minute: Int) -> Date {
-        DateComponents(calendar: .current, year: 2000, month: 1, day: 1, hour: hour % 24, minute: minute).date ?? .now
+        Date(timeIntervalSinceReferenceDate: Double((hour % 24) * 3600 + minute * 60))
     }
 }

@@ -150,4 +150,68 @@ struct ThumbnailRendererTests {
         let url = FileManager.default.temporaryDirectory.appending(path: "thumb-\(UUID().uuidString).png")
         #expect(ThumbnailRenderer.thumbnail(for: url, maxPixelSize: 480, flipped: false) == nil)
     }
+
+    // MARK: - Covering a frame
+
+    /// The frame an entry thumbnail fills, in pixels on a retina display.
+    private let entryFrame = CGSize(width: 144, height: 90)
+
+    @Test func aPanoramaStillCoversTheFrameItFills() throws {
+        let url = try writeTwoTonePNG(width: 8000, height: 1000)
+        defer { try? FileManager.default.removeItem(at: url) }
+        let thumb = try #require(ThumbnailRenderer.thumbnail(for: url, covering: entryFrame, flipped: false))
+        #expect(CGFloat(thumb.width) >= entryFrame.width)
+        #expect(CGFloat(thumb.height) >= entryFrame.height)
+    }
+
+    @Test func aTowerStillCoversTheFrameItFills() throws {
+        let url = try writeTwoTonePNG(width: 1000, height: 8000)
+        defer { try? FileManager.default.removeItem(at: url) }
+        let thumb = try #require(ThumbnailRenderer.thumbnail(for: url, covering: entryFrame, flipped: false))
+        #expect(CGFloat(thumb.width) >= entryFrame.width)
+        #expect(CGFloat(thumb.height) >= entryFrame.height)
+    }
+
+    @Test func aSourceSmallerThanTheFrameIsNotBlownUp() throws {
+        let url = try writeTwoTonePNG(width: 40, height: 20)
+        defer { try? FileManager.default.removeItem(at: url) }
+        let thumb = try #require(ThumbnailRenderer.thumbnail(for: url, covering: entryFrame, flipped: false))
+        #expect(thumb.width == 40)
+        #expect(thumb.height == 20)
+    }
+
+    @Test func aCoveringSideScalesTheLongEdgeWithTheShortOne() {
+        let frame = CGSize(width: 144, height: 90)
+        #expect(ThumbnailRenderer.coveringSide(source: CGSize(width: 8000, height: 1000), target: frame) == 720)
+        #expect(ThumbnailRenderer.coveringSide(source: CGSize(width: 1000, height: 8000), target: frame) == 1152)
+        #expect(ThumbnailRenderer.coveringSide(source: CGSize(width: 1600, height: 1000), target: frame) == 144)
+    }
+
+    @Test func anUnreadableSourceFallsBackToTheFramesLongestSide() {
+        let frame = CGSize(width: 144, height: 90)
+        #expect(ThumbnailRenderer.coveringSide(source: .zero, target: frame) == 144)
+    }
+
+    @Test func pixelSizeReadsTheFileWithoutDecodingIt() throws {
+        let url = try writeTwoTonePNG(width: 2000, height: 1000)
+        defer { try? FileManager.default.removeItem(at: url) }
+        #expect(ThumbnailRenderer.pixelSize(of: url) == CGSize(width: 2000, height: 1000))
+    }
+
+    @Test func pixelSizeSwapsTheSidesOfAQuarterTurnedFile() throws {
+        let image = try makeTwoToneImage(width: 2000, height: 1000)
+        let url = try write(
+            image, as: .jpeg,
+            properties: [kCGImagePropertyOrientation: CGImagePropertyOrientation.right.rawValue]
+        )
+        defer { try? FileManager.default.removeItem(at: url) }
+        #expect(ThumbnailRenderer.pixelSize(of: url) == CGSize(width: 1000, height: 2000))
+    }
+
+    @Test func pixelSizeOfSomethingThatIsNotAnImageIsNil() throws {
+        let url = FileManager.default.temporaryDirectory.appending(path: "thumb-\(UUID().uuidString).txt")
+        try Data("not an image".utf8).write(to: url)
+        defer { try? FileManager.default.removeItem(at: url) }
+        #expect(ThumbnailRenderer.pixelSize(of: url) == nil)
+    }
 }

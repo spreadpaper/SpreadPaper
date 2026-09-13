@@ -16,7 +16,8 @@ struct DialogMetricsTests {
     /// Numbers that would put a dialog back on its own grid.
     private static let strayLiterals = [
         "cornerRadius: 7", "cornerRadius: 8", "cornerRadius: 12",
-        ".padding(20)", ".padding(22)", "height: 30", "height: 36"
+        ".padding(20)", ".padding(22)", "height: 30", "height: 36",
+        ".horizontal, 11"
     ]
 
     /// Text of one app source file, found by name.

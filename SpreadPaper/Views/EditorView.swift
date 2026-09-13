@@ -673,7 +673,7 @@ struct EditorView: View {
 
     /// Where the variant sits once the day is read in time order.
     private func schedulePosition(of index: Int) -> Int {
-        sortedVariantIndices.firstIndex(of: index) ?? index
+        sortedVariantIndices.prefix { $0 != index }.count
     }
 
     /// The variant that starts next in the day, wrapping to the earliest one past midnight.

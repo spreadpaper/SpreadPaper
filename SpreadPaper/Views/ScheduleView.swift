@@ -31,11 +31,13 @@ nonisolated enum ScheduleEntryText {
     }
 
     /// What takes over when an entry ends, named by the time it starts.
-    /// A next start earlier than this one belongs to the day after.
+    /// An entry the next one lands on never reaches the screen, and
+    /// an earlier next start belongs to tomorrow.
     static func handover(start: Int, next: Int, isOnly: Bool, locale: Locale = .current) -> String {
         guard !isOnly else { return "Shows all day as the only image in the schedule." }
         let time = TimeVariant.clockString(hour: next / 60, minute: next % 60, locale: locale)
-        guard next < start else { return "Shows until the next image at \(time)." }
+        if next == start { return "Never shows, as the next image starts at \(time) too." }
+        if next > start { return "Shows until the next image at \(time)." }
         return "Shows until the first image at \(time) tomorrow."
     }
 }
@@ -59,9 +61,6 @@ struct ScheduleDetailModal: View {
 
     /// Size of the entry thumbnail, in points.
     private static let thumbnailSize = CGSize(width: 72, height: 45)
-
-    /// Headroom over the thumbnail's longest side, so a wide source still fills it.
-    private static let thumbnailOversample: CGFloat = 2
 
     var body: some View {
         ZStack {
@@ -94,7 +93,7 @@ struct ScheduleDetailModal: View {
                 Text("The schedule loses this entry. The image file stays where it is.")
             }
         }
-        .task(id: imageURL) { await loadThumbnail() }
+        .task(id: thumbnailRequest) { await loadThumbnail() }
     }
 
     // MARK: - Sections
@@ -227,17 +226,36 @@ struct ScheduleDetailModal: View {
         )
     }
 
-    /// Renders the entry's thumbnail off the main actor.
-    /// An unreadable file leaves the glyph in place.
+    /// The file the thumbnail is drawn from and the way it is turned.
+    private var thumbnailRequest: ThumbnailRequest {
+        ThumbnailRequest(url: imageURL, isFlipped: variant.isFlipped)
+    }
+
+    /// Renders the entry's thumbnail off the main actor, sized to fill its frame.
+    /// A superseded request drops its result, and an unreadable file
+    /// leaves the glyph in place.
     private func loadThumbnail() async {
         thumbnail = nil
-        guard let imageURL else { return }
-        let flipped = variant.isFlipped
+        let request = thumbnailRequest
+        guard let url = request.url else { return }
         let scale = NSScreen.main?.backingScaleFactor ?? 2
-        let longestSide = max(Self.thumbnailSize.width, Self.thumbnailSize.height)
-        let maxPixelSize = Int((longestSide * Self.thumbnailOversample * scale).rounded())
-        thumbnail = await Task.detached(priority: .userInitiated) {
-            ThumbnailRenderer.thumbnail(for: imageURL, maxPixelSize: maxPixelSize, flipped: flipped)
+        let target = CGSize(
+            width: Self.thumbnailSize.width * scale,
+            height: Self.thumbnailSize.height * scale
+        )
+        let rendered = await Task.detached(priority: .userInitiated) {
+            ThumbnailRenderer.thumbnail(for: url, covering: target, flipped: request.isFlipped)
         }.value
+        guard !Task.isCancelled else { return }
+        thumbnail = rendered
     }
+}
+
+// MARK: - Thumbnail Request
+
+/// What one entry thumbnail is made of, so a change to either side redraws it.
+/// Two entries can name one file and turn it different ways.
+private struct ThumbnailRequest: Equatable {
+    let url: URL?
+    let isFlipped: Bool
 }
