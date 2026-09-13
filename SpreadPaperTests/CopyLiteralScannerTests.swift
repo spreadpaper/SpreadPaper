@@ -109,6 +109,21 @@ struct CopyLiteralScannerTests {
             fragments: ["Across ", " screens\nat once."]
         ),
         Shape(
+            name: "a multiline literal with a line continuation",
+            source: #"""
+                let blurb = """
+                    One image \
+                    spread.
+                    """
+                """#,
+            fragments: ["One image spread."]
+        ),
+        Shape(
+            name: "a bare regex ending in an escaped slash",
+            source: #"let pattern = /a\/\//; let label = "Clean.""#,
+            fragments: ["Clean."]
+        ),
+        Shape(
             name: "a concatenation across two lines",
             source: #"""
                 let blurb = "One image " +
@@ -184,6 +199,11 @@ struct CopyLiteralScannerTests {
             name: "a unicode escape without braces",
             source: "let label = \"One \\u2014 two\"\n",
             line: 1
+        ),
+        Unreadable(
+            name: "a literal left open further down the file",
+            source: "let first = \"Clean.\"\nlet second = \"Also clean.\"\nlet third = \"One image\nlet fourth = 4\n",
+            line: 3
         )
     ]
 
@@ -223,6 +243,10 @@ struct CopyLiteralScannerTests {
         BlindSpot(
             name: "a literal written with unicode escapes",
             template: #"let label = "OneESCAPEDtwo""#
+        ),
+        BlindSpot(
+            name: "a literal beside a bare regex ending in an escaped slash",
+            template: #"let pattern = /a\/\//; let label = "OneFAULTtwo""#
         )
     ]
 
@@ -291,7 +315,14 @@ struct CopyLiteralScannerTests {
                 let source = spot.template
                     .replacingOccurrences(of: "ESCAPED", with: Self.escaped(fault.text))
                     .replacingOccurrences(of: "FAULT", with: fault.text)
-                #expect(!Self.offences(in: source).isEmpty, "\(fault.name) in \(spot.name) went unreported")
+                let reported = Self.offences(in: source)
+                #expect(reported.count == 1, "\(fault.name) in \(spot.name) reported \(reported)")
+                #expect(
+                    reported.first?.contains(fault.name) == true,
+                    "\(fault.name) in \(spot.name) reported \(reported)"
+                )
+                let line = source.contains("\n") ? "Fixture.swift:2" : "Fixture.swift:1"
+                #expect(reported.first?.contains(line) == true, "\(fault.name) in \(spot.name) reported \(reported)")
             }
         }
     }
@@ -309,6 +340,12 @@ struct CopyLiteralScannerTests {
         #expect(offences.first?.contains("Fixture.swift:2") == true, "\(offences)")
         #expect(offences.first?.contains("an em dash") == true, "\(offences)")
         #expect(offences.first?.contains("One") == true, "\(offences)")
+    }
+
+    @Test func windowsLineEndingsReadLikePlainOnes() {
+        let offences = Self.offences(in: "// a note\r\nlet label = \"One\u{2014}two\"\r\n")
+        #expect(offences.count == 1, "\(offences)")
+        #expect(offences.first?.contains("Fixture.swift:2") == true, "\(offences)")
     }
 
     @Test func theShapesTheAppAlreadyWritesStayQuiet() {

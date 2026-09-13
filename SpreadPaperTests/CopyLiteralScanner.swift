@@ -39,8 +39,9 @@ struct CopyLiteralScanner {
     }
 
     /// Keeps the source as characters, with each one's line.
+    /// Windows line endings become plain ones.
     private init(source: String, file: String) {
-        let characters = Array(source)
+        let characters = Array(source.replacingOccurrences(of: "\r\n", with: "\n"))
         var numbers: [Int] = []
         numbers.reserveCapacity(characters.count)
         var line = 1
@@ -71,6 +72,13 @@ struct CopyLiteralScanner {
             let character = chars[index]
             if character == " " || character == "\t" || character == "\n" || character == "\r" {
                 index += 1
+                continue
+            }
+            if character == "\\" {
+                flush()
+                joining = false
+                afterLiteral = false
+                index += 2
                 continue
             }
             if character == "/", peek(at: index + 1) == "/" {
@@ -214,6 +222,7 @@ struct CopyLiteralScanner {
                 let resolved = try escape(at: escaped)
                 text += resolved.text
                 index = resolved.end
+                if chars[escaped] == "\n" { atLineStart = literal.indent > 0 }
                 continue
             }
             let character = chars[index]
@@ -283,6 +292,10 @@ struct CopyLiteralScanner {
         var depth = 0
         while index < chars.count {
             let character = chars[index]
+            if character == "\\" {
+                index += 2
+                continue
+            }
             if character == "/", peek(at: index + 1) == "/" {
                 index = endOfLine(from: index)
                 continue
