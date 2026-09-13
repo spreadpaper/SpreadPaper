@@ -263,14 +263,14 @@ private struct HeroView: View {
     /// Time of day the Dynamic schedule has reached, in the user's own clock format.
     /// The other kinds keep no schedule, so it fades out for them.
     private func readout(clock: HeroClock) -> some View {
-        let isScheduled = selectedType == .dynamic
-        return Text(TimeVariant.clockString(hour: HeroDayCycle.hour(at: clock.day), minute: 0))
+        // A time that ticks through a loop is chrome on the animation, and only noise read aloud.
+        Text(TimeVariant.clockString(hour: HeroDayCycle.hour(at: clock.day), minute: 0))
             .font(.system(size: 11, weight: .medium).monospacedDigit())
             .foregroundStyle(Color.cdTextTertiary)
             .padding(.leading, 20)
             .padding(.bottom, 12)
-            .opacity(isScheduled ? 1 : 0)
-            .accessibilityHidden(!isScheduled)
+            .opacity(selectedType == .dynamic ? 1 : 0)
+            .accessibilityHidden(true)
             .animation(.easeInOut(duration: 0.4), value: selectedType)
     }
 }

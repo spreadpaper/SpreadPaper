@@ -163,7 +163,7 @@ enum HeroDayCycle {
         HeroDayPhoto(
             hour: 18,
             resource: .heroDay3,
-            photographer: "Michal Parzuchowski",
+            photographer: "Michał Parzuchowski",
             profile: URL(string: "https://unsplash.com/@mparzuchowski")!,
             page: URL(
                 string: "https://unsplash.com/photos/aerial-photo-of-brown-mountain-under-gray-sky-HbhJyWnE9Oo"
@@ -184,8 +184,12 @@ enum HeroDayCycle {
     /// Seconds one photograph takes to dissolve into the next.
     static let fade: TimeInterval = 1.0
 
-    /// The point in the loop a stopped hero rests on, midday, one photograph whole.
-    static let still: TimeInterval = period / 2
+    /// The point in the loop a stopped hero rests on, one photograph whole.
+    /// It rests on the photograph nearest midday.
+    static let still: TimeInterval = {
+        let midday = photographs.min { abs($0.hour - 12) < abs($1.hour - 12) }
+        return period * Double(midday?.hour ?? 0) / 24
+    }()
 
     /// Seconds since the reference date, which the loop is read off.
     /// Stopped at the still under Reduce Motion.
@@ -236,7 +240,7 @@ enum HeroDayCycle {
     ) -> (leaving: Int, arriving: Int, progress: Double) {
         let last = photographs.count - 1
         let position = dayFraction(at: seconds) * period
-        // The hours before the first photograph's still belong to the day before it.
+        // The hours before the first photograph's own hour belong to the day before it.
         let elapsed = position < start(of: 0) ? position + period : position
         let leaving = photographs.indices.last { start(of: $0) <= elapsed } ?? last
         let arriving = (leaving + 1) % photographs.count

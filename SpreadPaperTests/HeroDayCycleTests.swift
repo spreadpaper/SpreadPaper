@@ -41,6 +41,7 @@ struct HeroDayCycleTests {
     }
 
     /// Seconds into the loop the photograph at `index` is whole on screen.
+    /// It mirrors the mapping the app keeps private.
     private static func start(of index: Int) -> TimeInterval {
         HeroDayCycle.period * Double(HeroDayCycle.photographs[index].hour) / 24
     }
@@ -110,7 +111,11 @@ struct HeroDayCycleTests {
         #expect(hours == hours.sorted(), "the day runs out of order")
         #expect(Set(hours).count == hours.count, "two photographs claim the same hour")
         #expect(hours.allSatisfy { (0...23).contains($0) })
-        #expect(HeroDayCycle.fade < HeroDayCycle.period / Double(hours.count))
+        for index in hours.indices {
+            let next = (index + 1) % hours.count
+            let span = Double((hours[next] - hours[index] + 24) % 24) / 24 * HeroDayCycle.period
+            #expect(span > HeroDayCycle.fade, "photograph \(index) never holds on its own")
+        }
     }
 
     @Test func everyPhotographCarriesItsOwnPhotographer() {

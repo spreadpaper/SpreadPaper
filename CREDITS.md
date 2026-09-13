@@ -34,7 +34,7 @@ The second (`SpreadPaper/Assets.xcassets/HeroDay2.imageset`, shown at 12:00) is 
 
 The third (`SpreadPaper/Assets.xcassets/HeroDay3.imageset`, shown at 18:00) is an aerial photograph of a brown mountain range under a grey sky.
 
-- Photographer: [Michal Parzuchowski](https://unsplash.com/@mparzuchowski)
+- Photographer: [Michał Parzuchowski](https://unsplash.com/@mparzuchowski)
 - Source: [Unsplash](https://unsplash.com/photos/aerial-photo-of-brown-mountain-under-gray-sky-HbhJyWnE9Oo)
 - Licence: [Unsplash Licence](https://unsplash.com/license) — free to use, no permission needed, attribution appreciated
 - Modifications: cropped from 4672 × 3104 to a 4672 × 1088 panoramic band placed so its ridge line matches the other three, downscaled to 2400 × 559, metadata stripped and re-encoded as JPEG for the app bundle
