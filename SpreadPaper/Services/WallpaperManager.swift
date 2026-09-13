@@ -185,39 +185,15 @@ class WallpaperManager {
         return dir
     }
 
-    /// Removes wallpaper files named by screen name, which no current version writes. Called only after
-    /// every connected display has a replacement set, so the active wallpaper is never deleted.
-    private func removeLegacyFiles(in directory: URL, matching isLegacy: (String) -> Bool) {
-        guard let files = try? FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil) else { return }
-        for file in files where isLegacy(file.lastPathComponent) {
-            do {
-                try FileManager.default.removeItem(at: file)
-                logger.info("Removed legacy wallpaper file \(file.lastPathComponent, privacy: .public)")
-            } catch {
-                logger.error("Removing legacy file \(file.lastPathComponent, privacy: .public) failed: \(error, privacy: .public)")
-            }
-        }
-    }
-
-    /// Deletes earlier static renders for one display so reapplying does not bloat the disk.
-    private func cleanupOldWallpapers(for displayID: CGDirectDisplayID, in directory: URL, except currentFilename: String) {
-        let prefix = WallpaperFilenames.staticPrefix(displayID: displayID)
-        do {
-            let files = try FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil)
-            for file in files {
-                let filename = file.lastPathComponent
-                if filename.hasPrefix(prefix) && filename.hasSuffix(".png") && filename != currentFilename {
-                    try? FileManager.default.removeItem(at: file)
-                }
-            }
-        } catch {
-            // Best-effort; the next apply retries.
-        }
-    }
-
-    /// Prunes a preset directory after a dynamic apply, from a single directory listing.
-    /// Removal is best-effort; leftovers go on the next apply.
-    private func cleanupDynamicDirectory(_ directory: URL, results: RenderResults, succeeded: Set<CGDirectDisplayID>) {
+    /// Prunes a render directory after an apply, from a single directory listing.
+    /// `removable` names what the directory may lose, per file kind.
+    /// Removal is best-effort; leftovers go next apply.
+    private func cleanupRenderDirectory(
+        _ directory: URL,
+        results: RenderResults,
+        succeeded: Set<CGDirectDisplayID>,
+        removable: (_ filenames: [String], _ displayIDs: [CGDirectDisplayID], _ keeping: [CGDirectDisplayID: String], _ sweepLegacy: Bool) -> [String]
+    ) {
         guard let filenames = try? FileManager.default.contentsOfDirectory(atPath: directory.path) else { return }
         var keeping: [CGDirectDisplayID: String] = [:]
         for displayID in succeeded {
@@ -225,13 +201,8 @@ class WallpaperManager {
                 keeping[displayID] = url.lastPathComponent
             }
         }
-        let removable = WallpaperFilenames.removableDynamicFiles(
-            in: filenames,
-            displayIDs: connectedScreens.map(\.displayID),
-            keeping: keeping,
-            sweepLegacy: allDisplaysSucceeded(succeeded)
-        )
-        for filename in removable {
+        let doomed = removable(filenames, connectedScreens.map(\.displayID), keeping, allDisplaysSucceeded(succeeded))
+        for filename in doomed {
             do {
                 try FileManager.default.removeItem(at: directory.appending(path: filename))
             } catch {
@@ -496,7 +467,7 @@ class WallpaperManager {
     }
 
     /// Renders one static PNG per display off-main and sets each as that display's desktop image.
-    /// Earlier renders are removed only for displays that now show the new file.
+    /// Each display keeps its newest renders, for the desktops pointing at them.
     func setWallpaper(originalImage: NSImage, imageOffset: CGSize, scale: CGFloat, previewScale: CGFloat, isFlipped: Bool) async {
         guard beginApply() else { return }
         defer { isApplying = false }
@@ -536,15 +507,12 @@ class WallpaperManager {
             failureCopy: { "The wallpaper couldn't be set on \($0)." }
         )
 
-        // Only displays whose new file is actually showing may lose their old one.
-        for displayID in succeeded {
-            if case .success(let url)? = results[displayID] {
-                cleanupOldWallpapers(for: displayID, in: wallpapersDir, except: url.lastPathComponent)
-            }
-        }
-        if allDisplaysSucceeded(succeeded) {
-            removeLegacyFiles(in: wallpapersDir, matching: WallpaperFilenames.isLegacyStaticName)
-        }
+        cleanupRenderDirectory(
+            wallpapersDir,
+            results: results,
+            succeeded: succeeded,
+            removable: WallpaperFilenames.removableStaticFiles(in:displayIDs:keeping:sweepLegacy:)
+        )
     }
 
     /// Renders every variant per display into a time-based HEIC and sets it as the desktop image.
@@ -602,7 +570,12 @@ class WallpaperManager {
         }
 
         let succeeded = applyRendered(results, options: [:], failureCopy: { "The dynamic wallpaper couldn't be set on \($0)." })
-        cleanupDynamicDirectory(presetDir, results: results, succeeded: succeeded)
+        cleanupRenderDirectory(
+            presetDir,
+            results: results,
+            succeeded: succeeded,
+            removable: WallpaperFilenames.removableDynamicFiles(in:displayIDs:keeping:sweepLegacy:)
+        )
     }
 
     /// Renders the light and dark images per display into an appearance HEIC and sets it as the desktop image.
@@ -655,7 +628,12 @@ class WallpaperManager {
         }
 
         let succeeded = applyRendered(results, options: [:], failureCopy: { "The wallpaper couldn't be set on \($0)." })
-        cleanupDynamicDirectory(presetDir, results: results, succeeded: succeeded)
+        cleanupRenderDirectory(
+            presetDir,
+            results: results,
+            succeeded: succeeded,
+            removable: WallpaperFilenames.removableDynamicFiles(in:displayIDs:keeping:sweepLegacy:)
+        )
     }
 }
 

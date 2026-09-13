@@ -49,6 +49,13 @@ struct WallpaperFilenamesTests {
         #expect(!WallpaperFilenames.isLegacyDynamicName("notes.txt"))
     }
 
+    @Test func staticTimestampReadsOnlyCurrentNames() {
+        #expect(WallpaperFilenames.staticTimestamp("spreadpaper_wall_1_1700000000000.png") == 1700000000000)
+        #expect(WallpaperFilenames.staticTimestamp("spreadpaper_wall_1_pending.png") == nil)
+        #expect(WallpaperFilenames.staticTimestamp("unrelated.png") == nil)
+        #expect(WallpaperFilenames.staticTimestamp("1_100.heic") == nil)
+    }
+
     @Test func dynamicTimestampReadsOnlyCurrentNames() {
         #expect(WallpaperFilenames.dynamicTimestamp("1_1700000000000.heic") == 1700000000000)
         #expect(WallpaperFilenames.dynamicTimestamp("1.heic") == nil)
@@ -63,30 +70,57 @@ struct WallpaperFilenamesTests {
         #expect(WallpaperFilenames.dynamicTempTarget(".notes.txt.tmp") == nil)
     }
 
-    @Test func aSetDisplayKeepsOnlyItsNewRender() {
+    @Test func aSetDisplayKeepsTheRendersOtherDesktopsPointAt() {
         let current = WallpaperFilenames.dynamicName(displayID: 1, timestamp: 300)
         let listing = [current, "1_100.heic", "1_200.heic"]
         let removable = WallpaperFilenames.removableDynamicFiles(
             in: listing, displayIDs: [1], keeping: [1: current], sweepLegacy: true
         )
-        #expect(removable.sorted() == ["1_100.heic", "1_200.heic"])
+        #expect(removable.isEmpty)
+    }
+
+    @Test func aSetDisplayLosesOnlyWhatFallsPastTheLimit() {
+        let renders = (1 ... 10).map { WallpaperFilenames.dynamicName(displayID: 1, timestamp: $0) }
+        let current = renders[9]
+        let removable = WallpaperFilenames.removableDynamicFiles(
+            in: renders, displayIDs: [1], keeping: [1: current], sweepLegacy: false
+        )
+        #expect(removable.sorted() == ["1_1.heic", "1_2.heic"])
+        #expect(!removable.contains(current))
     }
 
     @Test func otherDisplaysAndUnrelatedFilesAreSpared() {
-        let current = WallpaperFilenames.dynamicName(displayID: 1, timestamp: 300)
-        let listing = [current, "1_100.heic", "12_100.heic", "2_100.heic", "1_100.txt"]
+        let renders = (1 ... 10).map { WallpaperFilenames.dynamicName(displayID: 1, timestamp: $0) }
+        let current = renders[9]
+        let listing = renders + ["12_100.heic", "2_100.heic", "1_100.txt"]
         let removable = WallpaperFilenames.removableDynamicFiles(
             in: listing, displayIDs: [1, 2], keeping: [1: current, 2: "2_100.heic"], sweepLegacy: false
         )
-        #expect(removable == ["1_100.heic"])
+        #expect(removable.sorted() == ["1_1.heic", "1_2.heic"])
     }
 
-    @Test func aFailedDisplayKeepsItsOldestAndNewestRenders() {
-        let listing = ["1_100.heic", "1_200.heic", "1_300.heic", "1_400.heic"]
+    @Test func aFailedDisplayKeepsItsOldestRenderToo() {
+        let renders = (1 ... 10).map { WallpaperFilenames.dynamicName(displayID: 1, timestamp: $0) }
         let removable = WallpaperFilenames.removableDynamicFiles(
-            in: listing, displayIDs: [1], keeping: [:], sweepLegacy: false
+            in: renders, displayIDs: [1], keeping: [:], sweepLegacy: false
         )
-        #expect(removable.sorted() == ["1_200.heic", "1_300.heic"])
+        #expect(removable == ["1_2.heic"])
+    }
+
+    @Test func repeatedDynamicAppliesStayBounded() {
+        var listing: [String] = []
+        for timestamp in 1 ... 50 {
+            let current = WallpaperFilenames.dynamicName(displayID: 1, timestamp: timestamp)
+            listing.append(current)
+            let removable = WallpaperFilenames.removableDynamicFiles(
+                in: listing, displayIDs: [1], keeping: [1: current], sweepLegacy: true
+            )
+            #expect(!removable.contains(current))
+            listing.removeAll { removable.contains($0) }
+            #expect(listing.count <= WallpaperFilenames.retainedRendersPerDisplay)
+        }
+        let newest = (43 ... 50).map { WallpaperFilenames.dynamicName(displayID: 1, timestamp: $0) }
+        #expect(listing.sorted() == newest.sorted())
     }
 
     @Test func legacyNamesGoOnlyWhenEveryDisplayWasSet() {
@@ -100,6 +134,58 @@ struct WallpaperFilenamesTests {
             in: listing, displayIDs: [1], keeping: [1: current], sweepLegacy: true
         )
         #expect(swept.sorted() == ["1.heic", "LG ULTRAWIDE.heic"])
+    }
+
+    @Test func aSetDisplayKeepsTheStaticRendersOtherDesktopsPointAt() {
+        let current = WallpaperFilenames.staticName(displayID: 1, timestamp: 300)
+        let listing = [current, WallpaperFilenames.staticName(displayID: 1, timestamp: 100)]
+        let removable = WallpaperFilenames.removableStaticFiles(
+            in: listing, displayIDs: [1], keeping: [1: current], sweepLegacy: true
+        )
+        #expect(removable.isEmpty)
+    }
+
+    @Test func staticRendersPastTheLimitGoAndOtherFilesAreSpared() {
+        let renders = (1 ... 10).map { WallpaperFilenames.staticName(displayID: 1, timestamp: $0) }
+        let current = renders[9]
+        let other = WallpaperFilenames.staticName(displayID: 2, timestamp: 1)
+        let listing = renders + [other, "spreadpaper_wall_12_1.png", "notes.txt"]
+        let removable = WallpaperFilenames.removableStaticFiles(
+            in: listing, displayIDs: [1, 2], keeping: [1: current, 2: other], sweepLegacy: false
+        )
+        #expect(removable.sorted() == [
+            WallpaperFilenames.staticName(displayID: 1, timestamp: 1),
+            WallpaperFilenames.staticName(displayID: 1, timestamp: 2)
+        ].sorted())
+    }
+
+    @Test func legacyStaticNamesGoOnlyWhenEveryDisplayWasSet() {
+        let current = WallpaperFilenames.staticName(displayID: 1, timestamp: 1700000000000)
+        let listing = [current, "spreadpaper_wall_LG ULTRAWIDE_1700000000000.png"]
+        let spared = WallpaperFilenames.removableStaticFiles(
+            in: listing, displayIDs: [1, 2], keeping: [1: current], sweepLegacy: false
+        )
+        #expect(spared.isEmpty)
+        let swept = WallpaperFilenames.removableStaticFiles(
+            in: listing, displayIDs: [1], keeping: [1: current], sweepLegacy: true
+        )
+        #expect(swept == ["spreadpaper_wall_LG ULTRAWIDE_1700000000000.png"])
+    }
+
+    @Test func repeatedStaticAppliesStayBounded() {
+        var listing: [String] = []
+        for timestamp in 1 ... 50 {
+            let current = WallpaperFilenames.staticName(displayID: 1, timestamp: timestamp)
+            listing.append(current)
+            let removable = WallpaperFilenames.removableStaticFiles(
+                in: listing, displayIDs: [1], keeping: [1: current], sweepLegacy: true
+            )
+            #expect(!removable.contains(current))
+            listing.removeAll { removable.contains($0) }
+            #expect(listing.count <= WallpaperFilenames.retainedRendersPerDisplay)
+        }
+        let newest = (43 ... 50).map { WallpaperFilenames.staticName(displayID: 1, timestamp: $0) }
+        #expect(listing.sorted() == newest.sorted())
     }
 
     @Test func abandonedTempSiblingsAlwaysGo() {

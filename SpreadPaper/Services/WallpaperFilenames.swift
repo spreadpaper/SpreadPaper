@@ -33,17 +33,73 @@ enum WallpaperFilenames {
         return String(body[body.startIndex ..< suffix.upperBound])
     }
 
-    /// Millisecond timestamp a current dynamic name ends with, for ordering a display's renders.
-    /// Nil for every other shape.
-    static func dynamicTimestamp(_ filename: String) -> Int? {
-        guard filename.hasSuffix(".heic") else { return nil }
-        let stem = filename.dropLast(".heic".count)
+    /// Millisecond timestamp a name ends with once `suffix` is dropped, for ordering renders.
+    /// Nil unless digits follow the last underscore.
+    private static func trailingTimestamp(_ filename: String, suffix: String) -> Int? {
+        guard filename.hasSuffix(suffix) else { return nil }
+        let stem = filename.dropLast(suffix.count)
         guard let separator = stem.lastIndex(of: "_") else { return nil }
         return Int(stem[stem.index(after: separator)...])
     }
 
-    /// Names a dynamic preset directory can lose after an apply; a display that was set keeps its new render.
-    /// One whose set failed keeps its oldest and newest; abandoned temp siblings always go.
+    /// Millisecond timestamp a current static name ends with, for ordering a display's renders.
+    /// Nil unless digits follow the last underscore.
+    static func staticTimestamp(_ filename: String) -> Int? {
+        trailingTimestamp(filename, suffix: ".png")
+    }
+
+    /// Millisecond timestamp a current dynamic name ends with, for ordering a display's renders.
+    /// Nil for every other shape.
+    static func dynamicTimestamp(_ filename: String) -> Int? {
+        trailingTimestamp(filename, suffix: ".heic")
+    }
+
+    /// Renders one display keeps. macOS holds a wallpaper path per desktop, so desktops
+    /// other than the applied one point at earlier files.
+    static let retainedRendersPerDisplay = 8
+
+    /// Names one display keeps: its newest renders up to the retention limit, and `current`.
+    /// A display with no current render also keeps its oldest.
+    private static func keptRenders(
+        _ renders: [String],
+        current: String?,
+        timestamp: (String) -> Int?
+    ) -> Set<String> {
+        let newestFirst = renders.sorted { (timestamp($0) ?? 0) > (timestamp($1) ?? 0) }
+        var kept = Set(newestFirst.prefix(retainedRendersPerDisplay))
+        if let current {
+            kept.insert(current)
+        } else if let oldest = newestFirst.last {
+            kept.insert(oldest)
+        }
+        return kept
+    }
+
+    /// Names the static wallpaper directory can lose after an apply, from its own listing.
+    /// Each display keeps its newest renders, capped at the retention limit.
+    /// Legacy names go once every display is set.
+    static func removableStaticFiles(
+        in filenames: [String],
+        displayIDs: [CGDirectDisplayID],
+        keeping: [CGDirectDisplayID: String],
+        sweepLegacy: Bool
+    ) -> [String] {
+        var kept: Set<String> = []
+        var owned: Set<String> = []
+        for displayID in displayIDs {
+            let prefix = staticPrefix(displayID: displayID)
+            let renders = filenames.filter { $0.hasPrefix(prefix) && $0.hasSuffix(".png") }
+            owned.formUnion(renders)
+            kept.formUnion(keptRenders(renders, current: keeping[displayID], timestamp: staticTimestamp))
+        }
+        return filenames.filter { name in
+            guard name.hasSuffix(".png"), !kept.contains(name) else { return false }
+            return owned.contains(name) || (sweepLegacy && isLegacyStaticName(name))
+        }
+    }
+
+    /// Names a dynamic preset directory can lose after an apply, from its own listing.
+    /// Each display keeps its newest renders; abandoned temp siblings go.
     /// Legacy names go once every display is set.
     static func removableDynamicFiles(
         in filenames: [String],
@@ -57,14 +113,7 @@ enum WallpaperFilenames {
             let prefix = dynamicPrefix(displayID: displayID)
             let renders = filenames.filter { $0.hasPrefix(prefix) && $0.hasSuffix(".heic") }
             owned.formUnion(renders)
-            if let current = keeping[displayID] {
-                kept.insert(current)
-                continue
-            }
-            // A successful apply leaves one render behind, so the oldest is what this display still shows.
-            let ordered = renders.sorted { (dynamicTimestamp($0) ?? 0) < (dynamicTimestamp($1) ?? 0) }
-            if let oldest = ordered.first { kept.insert(oldest) }
-            if let newest = ordered.last { kept.insert(newest) }
+            kept.formUnion(keptRenders(renders, current: keeping[displayID], timestamp: dynamicTimestamp))
         }
         return filenames.filter { name in
             // The HEIC writer only sweeps temps of the name it is writing, so earlier names' temps land here.
