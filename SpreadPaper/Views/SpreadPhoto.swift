@@ -82,13 +82,14 @@ enum HeroCrossfade {
     /// The point in the loop a stopped hero rests on, one photograph whole.
     static let still: TimeInterval = 0
 
-    /// Seconds into the loop the hero stands at now.
+    /// Seconds since the reference date, which the loop is read off.
     /// Stopped at the still under Reduce Motion.
     static func elapsed(at date: Date, reduceMotion: Bool) -> TimeInterval {
         reduceMotion ? still : date.timeIntervalSinceReferenceDate
     }
 
-    /// How visible the night photograph is `seconds` into the loop, eased at both ends.
+    /// How visible the night photograph is at `seconds`, eased at both ends.
+    /// Any second on the clock maps into the loop.
     static func nightOpacity(at seconds: TimeInterval) -> Double {
         let offset = seconds.truncatingRemainder(dividingBy: period)
         let elapsed = offset < 0 ? offset + period : offset
@@ -100,8 +101,8 @@ enum HeroCrossfade {
         }
     }
 
-    /// How visible `photo`'s credit is `seconds` into the loop.
-    /// It hands over as the dissolve passes its midpoint.
+    /// How visible `photo`'s credit is at `seconds` on the clock.
+    /// It hands over as the dissolve passes halfway.
     static func creditOpacity(of photo: HeroPhoto, at seconds: TimeInterval) -> Double {
         let night = nightOpacity(at: seconds)
         let share = photo == .night ? night : 1 - night

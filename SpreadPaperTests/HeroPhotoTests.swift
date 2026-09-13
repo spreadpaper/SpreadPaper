@@ -127,8 +127,20 @@ struct HeroPhotoTests {
 
     @Test func reduceMotionStopsTheClockTheHeroReads() {
         let now = Date()
-        #expect(HeroCrossfade.elapsed(at: now, reduceMotion: true) == HeroCrossfade.still)
+        let stopped = HeroCrossfade.elapsed(at: now, reduceMotion: true)
+        let later = HeroCrossfade.elapsed(at: now.addingTimeInterval(3), reduceMotion: true)
+        #expect(stopped == later, "a stopped hero still moves with the clock")
         let running = HeroCrossfade.elapsed(at: now, reduceMotion: false)
-        #expect(running == now.timeIntervalSinceReferenceDate)
+        let runningLater = HeroCrossfade.elapsed(at: now.addingTimeInterval(3), reduceMotion: false)
+        #expect(runningLater - running == 3, "a running hero does not follow the clock")
+    }
+
+    @Test func theLoopReadsTheSameBeforeTheReferenceDate() {
+        for step in 0...20 {
+            let elapsed = HeroCrossfade.period * Double(step) / 20
+            let before = HeroCrossfade.nightOpacity(at: elapsed - HeroCrossfade.period * 3)
+            #expect(abs(HeroCrossfade.nightOpacity(at: elapsed) - before) < 0.0001)
+        }
+        #expect(HeroCrossfade.nightOpacity(at: -HeroCrossfade.fade / 2) > 0)
     }
 }

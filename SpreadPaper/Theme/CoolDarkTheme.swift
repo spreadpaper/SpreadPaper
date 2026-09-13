@@ -98,16 +98,16 @@ extension Color {
 /// Artwork, not chrome, so it sits beside the tokens.
 enum SceneArt {
     /// Night sky, darkest of the day-cycle colours.
-    static let nightSky = [Color(hex: 0x2b2442), Color(hex: 0x14102a)]
+    static let nightSky = Color(hex: 0x2b2442)
 
     /// A full day of sky colour, midnight through midnight, read left to right.
     static let dayCycleStops: [Gradient.Stop] = [
-        .init(color: nightSky[0], location: 0.0),
+        .init(color: nightSky, location: 0.0),
         .init(color: Color(hex: 0x503470), location: 0.2),
         .init(color: Color(hex: 0x9a6944), location: 0.42),
         .init(color: Color(hex: 0xe2b965), location: 0.55),
         .init(color: Color(hex: 0x4e6a9e), location: 0.8),
-        .init(color: nightSky[0], location: 1.0)
+        .init(color: nightSky, location: 1.0)
     ]
 
     /// Glow of the dot that travels the day cycle, centre outwards.
