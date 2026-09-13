@@ -196,22 +196,23 @@ private struct HeroView: View {
     let monitorScale: CGFloat
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    /// Nothing in the hero moves unless Light & Dark is up and motion is allowed.
+    /// Nothing in the hero moves unless a kind that loops is up and motion is allowed.
     private var isStill: Bool {
-        reduceMotion || selectedType != .appearance
+        reduceMotion || (selectedType != .appearance && selectedType != .dynamic)
     }
 
     var body: some View {
-        // One clock for every panel and the credit, so the whole spread turns on the same instant.
+        // One clock for every panel, the credit and the readout, so the spread turns on one instant.
         TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: isStill)) { context in
-            let elapsed = HeroCrossfade.elapsed(at: context.date, reduceMotion: reduceMotion)
-            scene(elapsed: elapsed)
-                .overlay(alignment: .bottom) { credit(elapsed: elapsed) }
+            let clock = HeroClock(date: context.date, reduceMotion: reduceMotion)
+            scene(clock: clock)
+                .overlay(alignment: .bottom) { credit(clock: clock) }
+                .overlay(alignment: .bottomLeading) { readout(clock: clock) }
         }
     }
 
     /// Tinted glow behind the three-monitor illustration for the selected kind.
-    private func scene(elapsed: TimeInterval) -> some View {
+    private func scene(clock: HeroClock) -> some View {
         ZStack {
             Color.cdCanvasBg
             RadialGradient(
@@ -230,7 +231,7 @@ private struct HeroView: View {
                     width: geo.size.width - inset.sides * 2,
                     height: geo.size.height - inset.top - inset.bottom
                 )
-                MonitorGroup(selectedType: selectedType, elapsed: elapsed)
+                MonitorGroup(selectedType: selectedType, clock: clock)
                     .frame(width: groupRect.width, height: groupRect.height)
                     .position(x: groupRect.midX, y: groupRect.midY)
                     .scaleEffect(monitorScale)
@@ -238,35 +239,69 @@ private struct HeroView: View {
         }
     }
 
-    /// Attribution for the kind on screen, hidden outright for the kind that has none.
-    private func credit(elapsed: TimeInterval) -> some View {
+    /// Attribution for the kind on screen, one photographer at a time.
+    private func credit(clock: HeroClock) -> some View {
         ZStack {
             // A faded-out credit still hit-tests and still reads aloud, over the one on show.
             PhotoCredit(photo: .day)
                 .opacity(selectedType == .standard ? 1 : 0)
                 .allowsHitTesting(selectedType == .standard)
                 .accessibilityHidden(selectedType != .standard)
-            ThemedCredit(elapsed: elapsed)
+            ThemedCredit(elapsed: clock.themed)
                 .opacity(selectedType == .appearance ? 1 : 0)
                 .allowsHitTesting(selectedType == .appearance)
                 .accessibilityHidden(selectedType != .appearance)
+            DayCredit(elapsed: clock.day)
+                .opacity(selectedType == .dynamic ? 1 : 0)
+                .allowsHitTesting(selectedType == .dynamic)
+                .accessibilityHidden(selectedType != .dynamic)
         }
         .padding(.bottom, 12)
         .animation(.easeInOut(duration: 0.4), value: selectedType)
+    }
+
+    /// Time of day the Dynamic schedule has reached, in the user's own clock format.
+    /// The other kinds keep no schedule, so it fades out for them.
+    private func readout(clock: HeroClock) -> some View {
+        let isScheduled = selectedType == .dynamic
+        return Text(TimeVariant.clockString(hour: HeroDayCycle.hour(at: clock.day), minute: 0))
+            .font(.system(size: 11, weight: .medium).monospacedDigit())
+            .foregroundStyle(Color.cdTextTertiary)
+            .padding(.leading, 20)
+            .padding(.bottom, 12)
+            .opacity(isScheduled ? 1 : 0)
+            .accessibilityHidden(!isScheduled)
+            .animation(.easeInOut(duration: 0.4), value: selectedType)
     }
 }
 
 /// Attribution for one hero photograph, linking the photographer and Unsplash.
 private struct PhotoCredit: View {
-    let photo: HeroPhoto
+    let photographer: String
+    let profile: URL
+    let page: URL
+
+    /// Credits one of the Light & Dark pair.
+    init(photo: HeroPhoto) {
+        photographer = photo.photographer
+        profile = photo.profile
+        page = photo.page
+    }
+
+    /// Credits one photograph out of the day.
+    init(photo: HeroDayPhoto) {
+        photographer = photo.photographer
+        profile = photo.profile
+        page = photo.page
+    }
 
     var body: some View {
         HStack(spacing: 0) {
             Text("Photo by ")
-            Link(photo.photographer, destination: photo.profile)
+            Link(photographer, destination: profile)
                 .underline()
             Text(" on ")
-            Link("Unsplash", destination: photo.page)
+            Link("Unsplash", destination: page)
                 .underline()
         }
         .font(.system(size: 10))
@@ -284,6 +319,24 @@ private struct ThemedCredit: View {
         ZStack {
             ForEach(HeroPhoto.allCases, id: \.self) { photo in
                 let opacity = HeroCrossfade.creditOpacity(of: photo, at: elapsed)
+                PhotoCredit(photo: photo)
+                    .opacity(opacity)
+                    .allowsHitTesting(opacity > 0)
+                    .accessibilityHidden(opacity == 0)
+            }
+        }
+    }
+}
+
+/// Credit for whichever photograph of the day the Dynamic hero is showing.
+/// One name hands over to the next as the dissolve passes halfway.
+private struct DayCredit: View {
+    let elapsed: TimeInterval
+
+    var body: some View {
+        ZStack {
+            ForEach(Array(HeroDayCycle.photographs.enumerated()), id: \.element.id) { index, photo in
+                let opacity = HeroDayCycle.creditOpacity(of: index, at: elapsed)
                 PhotoCredit(photo: photo)
                     .opacity(opacity)
                     .allowsHitTesting(opacity > 0)
@@ -342,7 +395,7 @@ struct HeroSpread: Equatable {
 /// Three 16:10 monitors, a full-height main one flanked by two smaller, centred in the hero.
 private struct MonitorGroup: View {
     let selectedType: WallpaperType
-    let elapsed: TimeInterval
+    let clock: HeroClock
 
     var body: some View {
         GeometryReader { geo in
@@ -352,7 +405,7 @@ private struct MonitorGroup: View {
                 ForEach(MonitorPosition.allCases, id: \.self) { position in
                     let slice = layout.slice(position)
                     Monitor(width: slice.frame.width, height: slice.frame.height) {
-                        SceneStack(selectedType: selectedType, slice: slice, elapsed: elapsed)
+                        SceneStack(selectedType: selectedType, slice: slice, clock: clock)
                     }
                 }
             }
@@ -399,15 +452,15 @@ enum MonitorPosition: CaseIterable {
 private struct SceneStack: View {
     let selectedType: WallpaperType
     let slice: PanelSlice
-    let elapsed: TimeInterval
+    let clock: HeroClock
 
     var body: some View {
         ZStack {
             SpreadPhoto(slice: slice)
                 .opacity(selectedType == .standard ? 1 : 0)
-            ThemedScene(slice: slice, elapsed: elapsed)
+            ThemedScene(slice: slice, elapsed: clock.themed)
                 .opacity(selectedType == .appearance ? 1 : 0)
-            DynamicScene(slice: slice)
+            DayScene(slice: slice, elapsed: clock.day)
                 .opacity(selectedType == .dynamic ? 1 : 0)
         }
         .animation(.easeInOut(duration: 0.4), value: selectedType)
@@ -429,76 +482,19 @@ private struct ThemedScene: View {
     }
 }
 
-/// One day-cycle ribbon spread across the monitors, with a travelling sun dot and a filling timeline.
-/// Ribbon, dot and timeline run on behind the gaps, so one loop crosses all three.
-private struct DynamicScene: View {
+/// The day's photographs dissolving into one another in schedule order.
+/// All slice alike, so this panel matches its neighbours.
+private struct DayScene: View {
     let slice: PanelSlice
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
-    private let cycle: TimeInterval = 8.0
+    let elapsed: TimeInterval
 
     var body: some View {
-        SpreadContent(slice: slice) {
-            GeometryReader { geo in
-                let w = geo.size.width
-                let h = geo.size.height
-
-                ZStack {
-                    LinearGradient(
-                        stops: SceneArt.dayCycleStops,
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
-
-                    TimelineView(.animation(minimumInterval: 1.0 / 60.0, paused: reduceMotion)) { context in
-                        let phase = phase(at: context.date)
-                        ZStack {
-                            let dotSize = h * 0.18
-                            let dotX = w * (0.06 + 0.88 * phase)
-                            Circle()
-                                .fill(
-                                    RadialGradient(
-                                        colors: SceneArt.dayCycleMarker,
-                                        center: .center,
-                                        startRadius: 0,
-                                        endRadius: dotSize / 2
-                                    )
-                                )
-                                .frame(width: dotSize, height: dotSize)
-                                .blur(radius: 1)
-                                .position(x: dotX, y: h * 0.24 + dotSize / 2)
-
-                            let trackInset: CGFloat = w * 0.06
-                            let trackWidth = w - trackInset * 2
-                            ZStack(alignment: .leading) {
-                                RoundedRectangle(cornerRadius: 1)
-                                    .fill(SceneArt.timelineTrack)
-                                    .frame(width: trackWidth, height: 2)
-
-                                RoundedRectangle(cornerRadius: 3)
-                                    .fill(
-                                        LinearGradient(
-                                            colors: SceneArt.timelineFill,
-                                            startPoint: .leading,
-                                            endPoint: .trailing
-                                        )
-                                    )
-                                    .frame(width: max(2, trackWidth * (0.05 + 0.95 * phase)), height: 6)
-                                    .offset(y: -2)
-                            }
-                            .position(x: w / 2, y: h * (1 - 0.14))
-                        }
-                    }
-                }
+        ZStack {
+            ForEach(Array(HeroDayCycle.photographs.enumerated()), id: \.element.id) { index, photo in
+                SpreadPhoto(slice: slice, photo: photo)
+                    .opacity(HeroDayCycle.opacity(of: index, at: elapsed))
             }
         }
-    }
-
-    /// Position in the loop from 0 to 1; fixed at midway under Reduce Motion.
-    private func phase(at date: Date) -> CGFloat {
-        if reduceMotion { return 0.5 }
-        let t = date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: cycle)
-        return CGFloat(t / cycle)
     }
 }
 

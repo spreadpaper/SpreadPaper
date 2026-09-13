@@ -92,34 +92,6 @@ extension Color {
     }
 }
 
-// MARK: - Scene Art
-
-/// Palette for the creation modal's illustrated preview scenes.
-/// Artwork, not chrome, so it sits beside the tokens.
-enum SceneArt {
-    /// Night sky, darkest of the day-cycle colours.
-    static let nightSky = Color(hex: 0x2b2442)
-
-    /// A full day of sky colour, midnight through midnight, read left to right.
-    static let dayCycleStops: [Gradient.Stop] = [
-        .init(color: nightSky, location: 0.0),
-        .init(color: Color(hex: 0x503470), location: 0.2),
-        .init(color: Color(hex: 0x9a6944), location: 0.42),
-        .init(color: Color(hex: 0xe2b965), location: 0.55),
-        .init(color: Color(hex: 0x4e6a9e), location: 0.8),
-        .init(color: nightSky, location: 1.0)
-    ]
-
-    /// Glow of the dot that travels the day cycle, centre outwards.
-    static let dayCycleMarker = [Color.white.opacity(0.95), Color.white.opacity(0.3), Color.clear]
-
-    /// Unfilled part of the day-cycle timeline.
-    static let timelineTrack = Color.white.opacity(0.22)
-
-    /// Filled part of the timeline, dim at its start and bright at the playhead.
-    static let timelineFill = [Color.white.opacity(0.1), Color.white.opacity(0.9)]
-}
-
 // MARK: - Button Styles
 
 /// Shared chrome for primary, success and secondary buttons. `size` picks the

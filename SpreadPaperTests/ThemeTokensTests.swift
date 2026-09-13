@@ -33,15 +33,6 @@ struct ThemeTokensTests {
         #expect(Set(tokens).count == tokens.count, "two tokens carry the same colour")
     }
 
-    @Test func sceneArtExposesTheIllustrationPalette() {
-        let art: [Color] = [SceneArt.nightSky, SceneArt.timelineTrack]
-        #expect(Set(art).count == art.count, "two scene colours are identical")
-        #expect(SceneArt.dayCycleStops.first?.color == SceneArt.nightSky)
-        #expect(SceneArt.timelineFill.count == 2)
-        #expect(SceneArt.dayCycleMarker.count == 3)
-        #expect(SceneArt.dayCycleStops.count == 6)
-    }
-
     @Test func wallpaperKindsTintFromTokens() {
         #expect(WallpaperType.standard.tint == Color.cdTextTertiary)
         #expect(WallpaperType.appearance.tint == Color.cdAppearanceTint)
