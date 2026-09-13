@@ -610,17 +610,21 @@ private struct Footer: View {
     let onContinue: () -> Void
 
     private var hintText: String {
-        guard displayCount > 0 else { return "No displays connected" }
-        return "\(displayCount) display\(displayCount == 1 ? "" : "s") connected"
+        DisplayInfo.countLabel(displayCount)
+    }
+
+    /// Green only while there is a display to spread a wallpaper over.
+    private var dotColor: Color {
+        displayCount > 0 ? .cdSuccess : .cdTextTertiary
     }
 
     var body: some View {
         HStack(spacing: 12) {
             HStack(spacing: 6) {
                 Circle()
-                    .fill(Color.cdSuccess)
+                    .fill(dotColor)
                     .frame(width: 6, height: 6)
-                    .shadow(color: Color.cdSuccess.opacity(0.6), radius: 4)
+                    .shadow(color: dotColor.opacity(displayCount > 0 ? 0.6 : 0), radius: 4)
                 Text(hintText)
                     .font(.system(size: 12))
                     .foregroundStyle(Color.cdTextTertiary)
