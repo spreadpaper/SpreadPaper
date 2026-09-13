@@ -18,6 +18,13 @@ struct DisplayInfo: Identifiable {
         frame.insetBy(dx: -bezel.horizontal, dy: -bezel.vertical)
     }
 
+    /// How the creation modal and the wizard both name the number of displays.
+    /// One wording, so the two screens never disagree.
+    static func countLabel(_ count: Int) -> String {
+        guard count > 0 else { return "No displays connected" }
+        return "\(count) display\(count == 1 ? "" : "s") connected"
+    }
+
     /// - Parameter frame: Layout frame to use instead of `screen.frame`, e.g. after bezel spacing.
     init(screen: NSScreen, frame: CGRect? = nil, bezel: Bezel = .zero) {
         self.screen = screen

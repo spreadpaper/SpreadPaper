@@ -3,8 +3,8 @@ import Foundation
 import Testing
 @testable import SpreadPaper
 
-/// Issue #123: the copy the user reads stays plain and wraps cleanly.
-/// Strings carry no typographic dashes and no padded spacing.
+/// The copy the user reads stays plain and wraps cleanly.
+/// No typographic dashes, no padded spacing.
 struct UserFacingCopyTests {
     /// Narrowest place a kind description renders: the editor inspector, 340pt inset by 28pt a side.
     /// The creation modal gives it 536pt at 14pt.
@@ -81,7 +81,13 @@ struct UserFacingCopyTests {
         }
     }
 
-    @Test func theKindDescriptionsAreCloseInLength() {
+    @Test func theDisplayCountReadsTheSameOnEveryScreen() {
+        #expect(DisplayInfo.countLabel(0) == "No displays connected")
+        #expect(DisplayInfo.countLabel(1) == "1 display connected")
+        #expect(DisplayInfo.countLabel(3) == "3 displays connected")
+    }
+
+    @Test func theKindDescriptionsAreCloseInWidth() {
         let widths = WallpaperType.allCases.map { Self.width($0.subtitle) }
         guard let shortest = widths.min(), let longest = widths.max() else { return }
         #expect(longest - shortest <= 60, "kind descriptions run \(widths.map { Int($0) })pt, too uneven to read as a set")

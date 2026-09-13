@@ -75,7 +75,7 @@ struct WizardView: View {
                 .multilineTextAlignment(.center)
                 .lineSpacing(3)
 
-            Text("\(displayCount) display\(displayCount == 1 ? "" : "s") connected")
+            Text(DisplayInfo.countLabel(displayCount))
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundStyle(Color.cdAccent)
                 .padding(.horizontal, 14)
@@ -91,7 +91,7 @@ struct WizardView: View {
                 .font(.system(size: 22, weight: .bold))
                 .foregroundStyle(Color.cdTextPrimary)
 
-            Text("Drop images or click to browse.\nTwo or more make a dynamic wallpaper.")
+            Text("Two or more make a dynamic wallpaper.")
                 .font(.system(size: 14))
                 .foregroundStyle(Color.cdTextSecondary)
                 .multilineTextAlignment(.center)
