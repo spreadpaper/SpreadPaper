@@ -3,6 +3,17 @@ import Testing
 
 /// Issue #55: identical monitors share a localizedName, so files must be keyed on the display ID.
 struct WallpaperFilenamesTests {
+    /// Two renders more than one display keeps, so pruning has exactly two to take.
+    let overTheLimit = WallpaperFilenames.retainedRendersPerDisplay + 2
+
+    /// Applies to run when a test checks that the directory stops growing.
+    let applyCount = 50
+
+    /// Timestamps left after `applyCount` applies, newest first written last.
+    var survivingTimestamps: ClosedRange<Int> {
+        (applyCount - WallpaperFilenames.retainedRendersPerDisplay + 1) ... applyCount
+    }
+
     @Test func differentDisplaysGetDifferentStaticNames() {
         let a = WallpaperFilenames.staticName(displayID: 1, timestamp: 100)
         let b = WallpaperFilenames.staticName(displayID: 2, timestamp: 100)
@@ -79,9 +90,18 @@ struct WallpaperFilenamesTests {
         #expect(removable.isEmpty)
     }
 
+    @Test func theLimitCoversEveryDesktopMacOSAllows() {
+        #expect(WallpaperFilenames.retainedRendersPerDisplay == 16)
+        let renders = (1 ... 16).map { WallpaperFilenames.dynamicName(displayID: 1, timestamp: $0) }
+        let removable = WallpaperFilenames.removableDynamicFiles(
+            in: renders, displayIDs: [1], keeping: [1: renders[15]], sweepLegacy: true
+        )
+        #expect(removable.isEmpty)
+    }
+
     @Test func aSetDisplayLosesOnlyWhatFallsPastTheLimit() {
-        let renders = (1 ... 10).map { WallpaperFilenames.dynamicName(displayID: 1, timestamp: $0) }
-        let current = renders[9]
+        let renders = (1 ... overTheLimit).map { WallpaperFilenames.dynamicName(displayID: 1, timestamp: $0) }
+        let current = renders[overTheLimit - 1]
         let removable = WallpaperFilenames.removableDynamicFiles(
             in: renders, displayIDs: [1], keeping: [1: current], sweepLegacy: false
         )
@@ -90,17 +110,19 @@ struct WallpaperFilenamesTests {
     }
 
     @Test func otherDisplaysAndUnrelatedFilesAreSpared() {
-        let renders = (1 ... 10).map { WallpaperFilenames.dynamicName(displayID: 1, timestamp: $0) }
-        let current = renders[9]
+        let renders = (1 ... overTheLimit).map { WallpaperFilenames.dynamicName(displayID: 1, timestamp: $0) }
         let listing = renders + ["12_100.heic", "2_100.heic", "1_100.txt"]
         let removable = WallpaperFilenames.removableDynamicFiles(
-            in: listing, displayIDs: [1, 2], keeping: [1: current, 2: "2_100.heic"], sweepLegacy: false
+            in: listing,
+            displayIDs: [1, 2],
+            keeping: [1: renders[overTheLimit - 1], 2: "2_100.heic"],
+            sweepLegacy: false
         )
         #expect(removable.sorted() == ["1_1.heic", "1_2.heic"])
     }
 
     @Test func aFailedDisplayKeepsItsOldestRenderToo() {
-        let renders = (1 ... 10).map { WallpaperFilenames.dynamicName(displayID: 1, timestamp: $0) }
+        let renders = (1 ... overTheLimit).map { WallpaperFilenames.dynamicName(displayID: 1, timestamp: $0) }
         let removable = WallpaperFilenames.removableDynamicFiles(
             in: renders, displayIDs: [1], keeping: [:], sweepLegacy: false
         )
@@ -109,7 +131,7 @@ struct WallpaperFilenamesTests {
 
     @Test func repeatedDynamicAppliesStayBounded() {
         var listing: [String] = []
-        for timestamp in 1 ... 50 {
+        for timestamp in 1 ... applyCount {
             let current = WallpaperFilenames.dynamicName(displayID: 1, timestamp: timestamp)
             listing.append(current)
             let removable = WallpaperFilenames.removableDynamicFiles(
@@ -119,7 +141,7 @@ struct WallpaperFilenamesTests {
             listing.removeAll { removable.contains($0) }
             #expect(listing.count <= WallpaperFilenames.retainedRendersPerDisplay)
         }
-        let newest = (43 ... 50).map { WallpaperFilenames.dynamicName(displayID: 1, timestamp: $0) }
+        let newest = survivingTimestamps.map { WallpaperFilenames.dynamicName(displayID: 1, timestamp: $0) }
         #expect(listing.sorted() == newest.sorted())
     }
 
@@ -146,8 +168,8 @@ struct WallpaperFilenamesTests {
     }
 
     @Test func staticRendersPastTheLimitGoAndOtherFilesAreSpared() {
-        let renders = (1 ... 10).map { WallpaperFilenames.staticName(displayID: 1, timestamp: $0) }
-        let current = renders[9]
+        let renders = (1 ... overTheLimit).map { WallpaperFilenames.staticName(displayID: 1, timestamp: $0) }
+        let current = renders[overTheLimit - 1]
         let other = WallpaperFilenames.staticName(displayID: 2, timestamp: 1)
         let listing = renders + [other, "spreadpaper_wall_12_1.png", "notes.txt"]
         let removable = WallpaperFilenames.removableStaticFiles(
@@ -174,7 +196,7 @@ struct WallpaperFilenamesTests {
 
     @Test func repeatedStaticAppliesStayBounded() {
         var listing: [String] = []
-        for timestamp in 1 ... 50 {
+        for timestamp in 1 ... applyCount {
             let current = WallpaperFilenames.staticName(displayID: 1, timestamp: timestamp)
             listing.append(current)
             let removable = WallpaperFilenames.removableStaticFiles(
@@ -184,7 +206,7 @@ struct WallpaperFilenamesTests {
             listing.removeAll { removable.contains($0) }
             #expect(listing.count <= WallpaperFilenames.retainedRendersPerDisplay)
         }
-        let newest = (43 ... 50).map { WallpaperFilenames.staticName(displayID: 1, timestamp: $0) }
+        let newest = survivingTimestamps.map { WallpaperFilenames.staticName(displayID: 1, timestamp: $0) }
         #expect(listing.sorted() == newest.sorted())
     }
 

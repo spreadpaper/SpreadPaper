@@ -54,9 +54,9 @@ enum WallpaperFilenames {
         trailingTimestamp(filename, suffix: ".heic")
     }
 
-    /// Renders one display keeps. macOS holds a wallpaper path per desktop, so desktops
-    /// other than the applied one point at earlier files.
-    static let retainedRendersPerDisplay = 8
+    /// Renders one display keeps, at the ceiling of 16 desktops macOS allows per display.
+    /// Each desktop holds its own wallpaper path, and points at an earlier file.
+    static let retainedRendersPerDisplay = 16
 
     /// Names one display keeps: its newest renders up to the retention limit, and `current`.
     /// A display with no current render also keeps its oldest.
