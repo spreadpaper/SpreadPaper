@@ -19,8 +19,8 @@ struct GalleryView: View {
     @State private var thumbnailCache: [UUID: NSImage] = [:]
     @State private var loadPhase: GalleryPhase = .loading
     @State private var loadRun: UUID = UUID()
-    @State private var loadWatchdog: Task<Void, Never>? = nil
     @State private var loadDelivery: Task<Void, Never>? = nil
+    @State private var hasDismissedFailure: Bool = false
     @State private var selectedPresetId: UUID? = nil
     @State private var applyingPresetId: UUID? = nil
     @State private var presetPendingDelete: SavedPreset? = nil
@@ -67,7 +67,7 @@ struct GalleryView: View {
                         onSuppress: { manager.suppressLegacyImportBanner() }
                     )
                 }
-                if loadPhase == .failed {
+                if loadPhase == .failed && !hasDismissedFailure {
                     thumbnailFailureBanner
                 }
                 mainContent
@@ -136,12 +136,12 @@ struct GalleryView: View {
 
     // MARK: - Thumbnail failure banner
 
-    /// Says the previews are missing and offers another attempt at them.
+    /// Says the previews stopped arriving, and offers another attempt at them.
     private var thumbnailFailureBanner: some View {
         HStack(spacing: 10) {
             Ph.image.regular
                 .cdIcon(Color.cdTextSecondary, size: 14)
-            Text("Previews couldn't be loaded. Your wallpapers are all still here.")
+            Text("Previews stopped loading. Your wallpapers are all still here.")
                 .font(.system(size: 12))
                 .foregroundStyle(Color.cdTextPrimary)
                 .lineLimit(2)
@@ -163,6 +163,15 @@ struct GalleryView: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            Button {
+                hasDismissedFailure = true
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(Color.cdTextSecondary)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Dismiss")
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
@@ -553,11 +562,12 @@ struct GalleryView: View {
 
     /// Rebuilds every card thumbnail off-main from a main-actor snapshot of the presets.
     /// Picks the variant that matches the current appearance or time of day.
-    /// Gives up after the timeout and offers another attempt.
+    /// Cards fill in one by one, and a stalled run is given up on.
     private func reloadThumbnails() {
         let run = UUID()
         loadRun = run
         loadPhase = .loading
+        hasDismissedFailure = false
         thumbnailCache.removeAll()
 
         // Snapshot all main-actor data on main, then hand the rest off.
@@ -594,53 +604,57 @@ struct GalleryView: View {
 
         let requested = jobs.count
 
-        loadWatchdog?.cancel()
         loadDelivery?.cancel()
-
-        loadWatchdog = Task {
-            try? await Task.sleep(for: GalleryLoading.timeout)
-            guard !Task.isCancelled else { return }
-            finish(run: run, outcome: .timedOut(requested: requested), results: [], scale: scale)
-        }
-
         loadDelivery = Task {
+            let (events, continuation) = AsyncStream<ThumbnailEvent>.makeStream()
             let render = Task.detached(priority: .userInitiated) {
-                renderThumbnails(jobs: jobs, maxPixelSize: maxPixelSize)
+                renderThumbnails(jobs: jobs, maxPixelSize: maxPixelSize) { event in
+                    continuation.yield(event)
+                }
+                continuation.finish()
             }
-            let results = await render.value
-            let outcome: ThumbnailRunOutcome = Task.isCancelled
-                ? .cancelled
-                : .delivered(rendered: results.count, requested: requested)
-            finish(run: run, outcome: outcome, results: results, scale: scale)
+            continuation.onTermination = { _ in render.cancel() }
+
+            let outcome = await ThumbnailRun.consume(
+                events,
+                stopping: continuation,
+                requested: requested,
+                onResult: { result in apply(result, run: run, scale: scale) }
+            )
+            finish(run: run, outcome: outcome)
         }
     }
 
-    /// Takes a run's thumbnails and leaves the loading state, unless a newer
-    /// run has replaced it. A short delivery reaches the log, not the user.
+    /// Puts one finished thumbnail on its card, unless a newer run replaced this one.
     ///
     /// - Parameters:
-    ///   - run: Identifier of the run these results belong to.
-    ///   - outcome: How that run finished.
-    ///   - results: The thumbnails it managed to render.
-    ///   - scale: Backing scale the thumbnails were rendered for.
-    private func finish(
-        run: UUID,
-        outcome: ThumbnailRunOutcome,
-        results: [ThumbnailResult],
-        scale: CGFloat
-    ) {
+    ///   - result: The thumbnail and the preset it belongs to.
+    ///   - run: Identifier of the run that rendered it.
+    ///   - scale: Backing scale it was rendered for.
+    private func apply(_ result: ThumbnailResult, run: UUID, scale: CGFloat) {
         guard loadRun == run else { return }
-        loadWatchdog?.cancel()
-        for result in results {
-            let size = NSSize(
-                width: CGFloat(result.image.width) / scale,
-                height: CGFloat(result.image.height) / scale
-            )
-            thumbnailCache[result.presetId] = NSImage(cgImage: result.image, size: size)
-        }
+        let size = NSSize(
+            width: CGFloat(result.image.width) / scale,
+            height: CGFloat(result.image.height) / scale
+        )
+        thumbnailCache[result.presetId] = NSImage(cgImage: result.image, size: size)
+    }
+
+    /// Leaves the loading state, unless a newer run has replaced this one.
+    /// Whatever went short reaches the log, not the user.
+    ///
+    /// - Parameters:
+    ///   - run: Identifier of the run that ended.
+    ///   - outcome: How it ended.
+    private func finish(run: UUID, outcome: ThumbnailRunOutcome) {
+        guard loadRun == run else { return }
         loadPhase = GalleryLoading.phase(after: outcome)
-        if let note = GalleryLoading.logNote(for: outcome) {
-            logger.error("\(note, privacy: .public)")
+        guard let note = GalleryLoading.logNote(for: outcome) else { return }
+        switch note.level {
+        case .info:
+            logger.info("\(note.message, privacy: .public)")
+        case .error:
+            logger.error("\(note.message, privacy: .public)")
         }
     }
 
@@ -803,38 +817,6 @@ private struct FilterRow: View {
             .font(.system(size: 11, weight: .semibold))
             .foregroundStyle(isSelected ? Color.cdTextPrimary : Color.cdTextSecondary)
     }
-}
-
-// MARK: - Background thumbnail rendering
-
-/// Everything the detached renderer needs for one preset, snapshotted on the main actor.
-private struct ThumbnailJob: Sendable {
-    let presetId: UUID
-    let imageURL: URL
-    let shouldFlip: Bool
-}
-
-/// One finished thumbnail, keyed by the preset it belongs to.
-private struct ThumbnailResult: Sendable {
-    let presetId: UUID
-    let image: CGImage
-}
-
-/// Longest side of a gallery thumbnail, in points.
-nonisolated private let thumbnailMaxPointSize = 480
-
-/// Downsamples every job's image off the main actor. Jobs whose file
-/// cannot be read are skipped, so the caller keeps its placeholder.
-nonisolated private func renderThumbnails(jobs: [ThumbnailJob], maxPixelSize: Int) -> [ThumbnailResult] {
-    var out: [ThumbnailResult] = []
-    out.reserveCapacity(jobs.count)
-    for job in jobs {
-        guard let image = ThumbnailRenderer.thumbnail(
-            for: job.imageURL, maxPixelSize: maxPixelSize, flipped: job.shouldFlip
-        ) else { continue }
-        out.append(ThumbnailResult(presetId: job.presetId, image: image))
-    }
-    return out
 }
 
 // MARK: - Skeleton shimmer
