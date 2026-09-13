@@ -20,6 +20,7 @@ struct GalleryView: View {
     @State private var loadPhase: GalleryPhase = .loading
     @State private var loadRun: UUID = UUID()
     @State private var loadDelivery: Task<Void, Never>? = nil
+    @State private var reportedPresets: Set<UUID> = []
     @State private var hasDismissedFailure: Bool = false
     @State private var selectedPresetId: UUID? = nil
     @State private var applyingPresetId: UUID? = nil
@@ -367,6 +368,11 @@ struct GalleryView: View {
                     GalleryCardView(
                         preset: preset,
                         thumbnail: thumbnailCache[preset.id],
+                        isThumbnailPending: GalleryLoading.isPending(
+                            presetId: preset.id,
+                            reported: reportedPresets,
+                            phase: loadPhase
+                        ),
                         isActive: manager.activePresetId == preset.id,
                         isSelected: selectedPresetId == preset.id,
                         isApplying: applyingPresetId == preset.id,
@@ -569,6 +575,7 @@ struct GalleryView: View {
         loadPhase = .loading
         hasDismissedFailure = false
         thumbnailCache.removeAll()
+        reportedPresets.removeAll()
 
         // Snapshot all main-actor data on main, then hand the rest off.
         let isDark = colorScheme == .dark
@@ -619,20 +626,23 @@ struct GalleryView: View {
                 events,
                 stopping: continuation,
                 requested: requested,
-                onResult: { result in apply(result, run: run, scale: scale) }
+                onEvent: { event in report(event, run: run, scale: scale) }
             )
             finish(run: run, outcome: outcome)
         }
     }
 
-    /// Puts one finished thumbnail on its card, unless a newer run replaced this one.
+    /// Settles one card, unless a newer run replaced this one. A card whose
+    /// image could not be read is settled too, and stops waiting.
     ///
     /// - Parameters:
-    ///   - result: The thumbnail and the preset it belongs to.
-    ///   - run: Identifier of the run that rendered it.
+    ///   - event: What came of that card's job.
+    ///   - run: Identifier of the run that reported it.
     ///   - scale: Backing scale it was rendered for.
-    private func apply(_ result: ThumbnailResult, run: UUID, scale: CGFloat) {
+    private func report(_ event: ThumbnailEvent, run: UUID, scale: CGFloat) {
         guard loadRun == run else { return }
+        reportedPresets.insert(event.presetId)
+        guard case .rendered(let result) = event else { return }
         let size = NSSize(
             width: CGFloat(result.image.width) / scale,
             height: CGFloat(result.image.height) / scale
@@ -822,7 +832,7 @@ private struct FilterRow: View {
 // MARK: - Skeleton shimmer
 
 /// Shimmering placeholder shown while thumbnails render.
-private struct SkeletonBlock: View {
+struct SkeletonBlock: View {
     @State private var phase: CGFloat = -1
 
     var body: some View {

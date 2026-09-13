@@ -7,6 +7,8 @@ import PhosphorSwift
 struct GalleryCardView: View {
     let preset: SavedPreset
     let thumbnail: NSImage?
+    /// True while this card's own thumbnail is still being rendered.
+    var isThumbnailPending: Bool = false
     let isActive: Bool
     let isSelected: Bool
     let isApplying: Bool
@@ -95,6 +97,8 @@ struct GalleryCardView: View {
                 Image(nsImage: thumbnail)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
+            } else if isThumbnailPending {
+                SkeletonBlock()
             } else {
                 Color.cdBgElevated
                     .overlay {

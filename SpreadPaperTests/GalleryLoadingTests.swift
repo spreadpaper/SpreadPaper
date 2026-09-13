@@ -9,6 +9,27 @@ private final class Delivery {
     var count = 0
 }
 
+/// Holds the watchdog's wait open until the test lets it through.
+@MainActor
+private final class Gate {
+    private var isOpen = false
+    private var waiting: [CheckedContinuation<Void, Never>] = []
+
+    /// Waits here until the gate opens, or returns at once once it has.
+    func wait() async {
+        guard !isOpen else { return }
+        await withCheckedContinuation { waiting.append($0) }
+    }
+
+    /// Opens the gate and lets everything waiting on it through.
+    func open() {
+        isOpen = true
+        let resuming = waiting
+        waiting.removeAll()
+        for continuation in resuming { continuation.resume() }
+    }
+}
+
 /// A run that stops moving is given up on, and one that keeps moving is not.
 @MainActor
 struct GalleryLoadingTests {
@@ -57,7 +78,7 @@ struct GalleryLoadingTests {
 
         let outcome = await within(.seconds(5)) {
             await ThumbnailRun.consume(
-                events, stopping: continuation, requested: 4, idle: .milliseconds(40), onResult: { _ in }
+                events, stopping: continuation, requested: 4, idle: .milliseconds(40), onEvent: { _ in }
             )
         }
 
@@ -74,7 +95,7 @@ struct GalleryLoadingTests {
         let outcome = await within(.seconds(5)) {
             await ThumbnailRun.consume(
                 events, stopping: continuation, requested: 5, idle: .milliseconds(40),
-                onResult: { _ in applied.count += 1 }
+                onEvent: { _ in applied.count += 1 }
             )
         }
 
@@ -90,7 +111,7 @@ struct GalleryLoadingTests {
         let outcome = await within(.seconds(5)) {
             await ThumbnailRun.consume(
                 events, stopping: continuation, requested: 2, idle: .milliseconds(40),
-                onResult: { _ in seenBeforeTheRunEnded.count += 1 }
+                onEvent: { _ in seenBeforeTheRunEnded.count += 1 }
             )
         }
 
@@ -107,7 +128,7 @@ struct GalleryLoadingTests {
         let feeder = Task {
             for _ in 0..<arrivals {
                 try? await Task.sleep(for: .milliseconds(30))
-                continuation.yield(.skipped)
+                continuation.yield(.skipped(presetId: UUID()))
             }
             continuation.finish()
         }
@@ -115,7 +136,7 @@ struct GalleryLoadingTests {
 
         let outcome = await within(.seconds(10)) {
             await ThumbnailRun.consume(
-                events, stopping: continuation, requested: arrivals, idle: .milliseconds(150), onResult: { _ in }
+                events, stopping: continuation, requested: arrivals, idle: .milliseconds(150), onEvent: { _ in }
             )
         }
 
@@ -134,7 +155,7 @@ struct GalleryLoadingTests {
 
         let outcome = await within(.seconds(5)) {
             await ThumbnailRun.consume(
-                events, stopping: continuation, requested: 3, idle: .milliseconds(40), onResult: { _ in }
+                events, stopping: continuation, requested: 3, idle: .milliseconds(40), onEvent: { _ in }
             )
         }
 
@@ -147,7 +168,7 @@ struct GalleryLoadingTests {
 
         let outcome = await within(.seconds(5)) {
             await ThumbnailRun.consume(
-                events, stopping: continuation, requested: 0, idle: .milliseconds(40), onResult: { _ in }
+                events, stopping: continuation, requested: 0, idle: .milliseconds(40), onEvent: { _ in }
             )
         }
 
@@ -155,16 +176,40 @@ struct GalleryLoadingTests {
         #expect(GalleryLoading.phase(after: .delivered(rendered: 0, skipped: 0, requested: 0)) == .loaded)
     }
 
+    @Test func aRunThatReportedEveryJobIsNeverCalledStalled() async {
+        let (events, continuation) = AsyncStream<ThumbnailEvent>.makeStream()
+        let jobs = 4
+        let gate = Gate()
+        for _ in 0..<jobs { continuation.yield(.skipped(presetId: UUID())) }
+
+        let seen = Delivery()
+        let outcome = await within(.seconds(5)) {
+            await ThumbnailRun.consume(
+                events, stopping: continuation, requested: jobs, idle: .milliseconds(1),
+                sleep: { _ in await gate.wait() },
+                onEvent: { _ in
+                    seen.count += 1
+                    if seen.count == jobs { gate.open() }
+                }
+            )
+        }
+
+        #expect(
+            outcome == .delivered(rendered: 0, skipped: jobs, requested: jobs),
+            "the watchdog firing last, on a run that reported every job, is not a stall"
+        )
+    }
+
     // MARK: - Unreadable images are not a failure
 
     @Test func aLibraryWhoseImagesAreAllGoneKeepsItsCards() async {
         let (events, continuation) = AsyncStream<ThumbnailEvent>.makeStream()
-        for _ in 0..<6 { continuation.yield(.skipped) }
+        for _ in 0..<6 { continuation.yield(.skipped(presetId: UUID())) }
         continuation.finish()
 
         let outcome = await within(.seconds(5)) {
             await ThumbnailRun.consume(
-                events, stopping: continuation, requested: 6, idle: .milliseconds(40), onResult: { _ in }
+                events, stopping: continuation, requested: 6, idle: .milliseconds(40), onEvent: { _ in }
             )
         }
 
@@ -173,6 +218,38 @@ struct GalleryLoadingTests {
             GalleryLoading.phase(after: .delivered(rendered: 0, skipped: 6, requested: 6)) == .loaded,
             "images the app cannot read are not a stuck gallery, so no retry is offered"
         )
+    }
+
+    // MARK: - A card that has not had its turn yet
+
+    @Test func aCardWaitingOnItsOwnJobIsNotCalledPreviewless() {
+        let waiting = UUID()
+        let done = UUID()
+
+        #expect(
+            GalleryLoading.isPending(presetId: waiting, reported: [done], phase: .loading),
+            "a card whose job has not reported yet is still waiting, not previewless"
+        )
+        #expect(!GalleryLoading.isPending(presetId: done, reported: [done], phase: .loading))
+    }
+
+    @Test func aRunThatEndedLeavesNoCardWaiting() {
+        let unreported = UUID()
+
+        #expect(!GalleryLoading.isPending(presetId: unreported, reported: [], phase: .loaded))
+        #expect(!GalleryLoading.isPending(presetId: unreported, reported: [], phase: .failed))
+    }
+
+    @Test func anUnreadableImageSettlesItsOwnCard() throws {
+        let job = ThumbnailJob(
+            presetId: UUID(), imageURL: URL(filePath: "/dev/null"), shouldFlip: false
+        )
+
+        var reported: Set<UUID> = []
+        renderThumbnails(jobs: [job], maxPixelSize: 64) { reported.insert($0.presetId) }
+
+        #expect(reported == [job.presetId], "a skipped job names the card it settles")
+        #expect(!GalleryLoading.isPending(presetId: job.presetId, reported: reported, phase: .loading))
     }
 
     // MARK: - Phases

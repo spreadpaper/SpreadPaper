@@ -26,7 +26,17 @@ struct ThumbnailResult: Sendable {
 /// What came of one job, reported the moment the renderer is done with it.
 enum ThumbnailEvent: Sendable {
     case rendered(ThumbnailResult)
-    case skipped
+    case skipped(presetId: UUID)
+
+    /// The preset this event settles, whether or not it produced an image.
+    var presetId: UUID {
+        switch self {
+        case .rendered(let result):
+            return result.presetId
+        case .skipped(let presetId):
+            return presetId
+        }
+    }
 }
 
 /// How a thumbnail run ended, and how much of it arrived. A run goes
@@ -69,7 +79,7 @@ nonisolated func renderThumbnails(
         guard let image = ThumbnailRenderer.thumbnail(
             for: job.imageURL, maxPixelSize: maxPixelSize, flipped: job.shouldFlip
         ) else {
-            emit(.skipped)
+            emit(.skipped(presetId: job.presetId))
             continue
         }
         emit(.rendered(ThumbnailResult(presetId: job.presetId, image: image)))
@@ -81,7 +91,22 @@ nonisolated func renderThumbnails(
 enum GalleryLoading {
     /// How long the gallery waits for the next thumbnail before giving up.
     /// One image downsamples in well under a second, even cold.
+    ///
+    /// The watchdog samples at this interval rather than timing each gap,
+    /// so a stall is noticed between one and two of these.
     nonisolated static let idleTimeout: Duration = .seconds(10)
+
+    /// Whether a card is still waiting on its own job. A run that has
+    /// ended leaves nothing to wait for, however it ended.
+    ///
+    /// - Parameters:
+    ///   - presetId: The card's preset.
+    ///   - reported: Presets the run has settled, rendered or skipped.
+    ///   - phase: Where the gallery is in its run.
+    /// - Returns: True while that card's own job is still outstanding.
+    static func isPending(presetId: UUID, reported: Set<UUID>, phase: GalleryPhase) -> Bool {
+        phase == .loading && !reported.contains(presetId)
+    }
 
     /// Phase the outcome leaves the gallery in. Only a run that stopped
     /// moving is a failure; unreadable images are not.
@@ -141,7 +166,7 @@ enum ThumbnailRun {
     ///   - requested: How many jobs the run was given.
     ///   - idle: Longest gap between events the run may have.
     ///   - sleep: How that gap is waited out; the tests hand in their own.
-    ///   - onResult: Takes one finished thumbnail.
+    ///   - onEvent: Takes what came of one job, as it comes.
     /// - Returns: How the run ended.
     @MainActor
     static func consume(
@@ -152,7 +177,7 @@ enum ThumbnailRun {
         sleep: @escaping @Sendable (Duration) async -> Void = { duration in
             _ = try? await Task.sleep(for: duration)
         },
-        onResult: @MainActor (ThumbnailResult) -> Void
+        onEvent: @MainActor (ThumbnailEvent) -> Void
     ) async -> ThumbnailRunOutcome {
         let progress = RunProgress()
 
@@ -169,12 +194,12 @@ enum ThumbnailRun {
 
         for await event in events {
             switch event {
-            case .rendered(let result):
+            case .rendered:
                 progress.rendered += 1
-                onResult(result)
             case .skipped:
                 progress.skipped += 1
             }
+            onEvent(event)
             progress.events += 1
         }
         watchdog.cancel()

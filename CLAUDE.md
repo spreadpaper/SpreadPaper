@@ -48,6 +48,7 @@ Source files organized under `SpreadPaper/`. One external package: PhosphorSwift
 - **Views/WizardView.swift** — 2-step first-run wizard: display count, then an image picker that also accepts drops. One image opens a static editor, several open a dynamic one
 - **Views/GalleryView.swift** — Home screen: sidebar filters, search, preset grid, error banner, New Wallpaper button, rename alert and delete confirmation
 - **Views/GalleryCardView.swift** — Preset card with thumbnail, type badge and a Rename / Duplicate / Show in Finder / Delete menu
+- **Views/GalleryLoading.swift** — No view of its own: the gallery's thumbnail run. `renderThumbnails` reports one event per job as it goes, `ThumbnailRun.consume` applies each one and gives up on a run that stops moving, and `GalleryLoading` holds the idle wait, the phase rules, the per-card pending rule and the log lines. Pure and unit-tested
 - **Views/CreationModal.swift** — Overlay modal picking the wallpaper type (Static / Light & Dark / Dynamic) before a new preset, with an animated monitor hero, a photo credit, a time readout for the Dynamic schedule and arrow-key navigation
 - **Views/EditorView.swift** — Full editor: header, canvas with a floating zoom/fit/flip HUD, and an inspector with type, images, zoom and orientation sections, plus a displays section for bezels that appears only with two or more displays
 - **Views/EditorCanvasView.swift** — Monitor canvas rendering with image overlay, drag, zoom, snap and image drops
