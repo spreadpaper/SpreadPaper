@@ -101,6 +101,7 @@ struct GalleryCardView: View {
                         Ph.image.regular
                             .cdIcon(Color.cdTextTertiary, size: 28)
                     }
+                    .accessibilityLabel("No preview")
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

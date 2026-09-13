@@ -2,7 +2,11 @@
 
 import SwiftUI
 import AppKit
+import os
 import PhosphorSwift
+
+/// Thumbnail trouble goes here; the gallery banner carries only plain copy for the user.
+private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "SpreadPaper", category: "gallery")
 
 /// Home screen: filter sidebar, search toolbar and the preset grid with apply, edit and manage actions.
 struct GalleryView: View {
@@ -13,7 +17,10 @@ struct GalleryView: View {
     @State private var filterIndex: Int = 0
     @State private var searchQuery: String = ""
     @State private var thumbnailCache: [UUID: NSImage] = [:]
-    @State private var isLoadingThumbnails: Bool = true
+    @State private var loadPhase: GalleryPhase = .loading
+    @State private var loadRun: UUID = UUID()
+    @State private var loadWatchdog: Task<Void, Never>? = nil
+    @State private var loadDelivery: Task<Void, Never>? = nil
     @State private var selectedPresetId: UUID? = nil
     @State private var applyingPresetId: UUID? = nil
     @State private var presetPendingDelete: SavedPreset? = nil
@@ -59,6 +66,9 @@ struct GalleryView: View {
                         onDismiss: { manager.hasDismissedLegacyImport = true },
                         onSuppress: { manager.suppressLegacyImportBanner() }
                     )
+                }
+                if loadPhase == .failed {
+                    thumbnailFailureBanner
                 }
                 mainContent
             }
@@ -119,6 +129,44 @@ struct GalleryView: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
         .background(Color.cdDanger.opacity(0.12))
+        .overlay(alignment: .bottom) {
+            Rectangle().fill(Color.cdBorder).frame(height: 1)
+        }
+    }
+
+    // MARK: - Thumbnail failure banner
+
+    /// Says the previews are missing and offers another attempt at them.
+    private var thumbnailFailureBanner: some View {
+        HStack(spacing: 10) {
+            Ph.image.regular
+                .cdIcon(Color.cdTextSecondary, size: 14)
+            Text("Previews couldn't be loaded. Your wallpapers are all still here.")
+                .font(.system(size: 12))
+                .foregroundStyle(Color.cdTextPrimary)
+                .lineLimit(2)
+            Spacer(minLength: 0)
+            Button(action: { reloadThumbnails() }) {
+                Text("Try again")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(Color.cdTextPrimary)
+                    .padding(.horizontal, 12)
+                    .frame(height: 24)
+                    .background(
+                        RoundedRectangle(cornerRadius: 6)
+                            .fill(Color.cdBgElevated)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 6)
+                            .stroke(Color.cdBorder, lineWidth: 1)
+                    )
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .background(Color.cdBgSecondary)
         .overlay(alignment: .bottom) {
             Rectangle().fill(Color.cdBorder).frame(height: 1)
         }
@@ -285,7 +333,7 @@ struct GalleryView: View {
     private var mainContent: some View {
         let presets = filteredPresets
         Group {
-            if isLoadingThumbnails && manager.presets.isEmpty == false && thumbnailCache.isEmpty {
+            if loadPhase == .loading && manager.presets.isEmpty == false && thumbnailCache.isEmpty {
                 loadingSkeleton
             } else if manager.presets.isEmpty {
                 emptyLibrary
@@ -505,8 +553,11 @@ struct GalleryView: View {
 
     /// Rebuilds every card thumbnail off-main from a main-actor snapshot of the presets.
     /// Picks the variant that matches the current appearance or time of day.
+    /// Gives up after the timeout and offers another attempt.
     private func reloadThumbnails() {
-        isLoadingThumbnails = true
+        let run = UUID()
+        loadRun = run
+        loadPhase = .loading
         thumbnailCache.removeAll()
 
         // Snapshot all main-actor data on main, then hand the rest off.
@@ -541,15 +592,55 @@ struct GalleryView: View {
         let scale = NSScreen.main?.backingScaleFactor ?? 2
         let maxPixelSize = Int((CGFloat(thumbnailMaxPointSize) * scale).rounded())
 
-        Task.detached(priority: .userInitiated) {
-            let results = renderThumbnails(jobs: jobs, maxPixelSize: maxPixelSize)
-            await MainActor.run {
-                for r in results {
-                    let size = NSSize(width: CGFloat(r.image.width) / scale, height: CGFloat(r.image.height) / scale)
-                    thumbnailCache[r.presetId] = NSImage(cgImage: r.image, size: size)
-                }
-                isLoadingThumbnails = false
+        let requested = jobs.count
+
+        loadWatchdog?.cancel()
+        loadDelivery?.cancel()
+
+        loadWatchdog = Task {
+            try? await Task.sleep(for: GalleryLoading.timeout)
+            guard !Task.isCancelled else { return }
+            finish(run: run, outcome: .timedOut(requested: requested), results: [], scale: scale)
+        }
+
+        loadDelivery = Task {
+            let render = Task.detached(priority: .userInitiated) {
+                renderThumbnails(jobs: jobs, maxPixelSize: maxPixelSize)
             }
+            let results = await render.value
+            let outcome: ThumbnailRunOutcome = Task.isCancelled
+                ? .cancelled
+                : .delivered(rendered: results.count, requested: requested)
+            finish(run: run, outcome: outcome, results: results, scale: scale)
+        }
+    }
+
+    /// Takes a run's thumbnails and leaves the loading state, unless a newer
+    /// run has replaced it. A short delivery reaches the log, not the user.
+    ///
+    /// - Parameters:
+    ///   - run: Identifier of the run these results belong to.
+    ///   - outcome: How that run finished.
+    ///   - results: The thumbnails it managed to render.
+    ///   - scale: Backing scale the thumbnails were rendered for.
+    private func finish(
+        run: UUID,
+        outcome: ThumbnailRunOutcome,
+        results: [ThumbnailResult],
+        scale: CGFloat
+    ) {
+        guard loadRun == run else { return }
+        loadWatchdog?.cancel()
+        for result in results {
+            let size = NSSize(
+                width: CGFloat(result.image.width) / scale,
+                height: CGFloat(result.image.height) / scale
+            )
+            thumbnailCache[result.presetId] = NSImage(cgImage: result.image, size: size)
+        }
+        loadPhase = GalleryLoading.phase(after: outcome)
+        if let note = GalleryLoading.logNote(for: outcome) {
+            logger.error("\(note, privacy: .public)")
         }
     }
 
