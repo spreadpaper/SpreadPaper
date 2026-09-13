@@ -96,6 +96,32 @@ enum GalleryLoading {
     /// so a stall is noticed between one and two of these.
     nonisolated static let idleTimeout: Duration = .seconds(10)
 
+    /// How many render passes may be in flight at once. A pass parked
+    /// inside a file read cannot be cut short, so a second one only
+    /// adds to what is already waiting there.
+    nonisolated static let concurrentPassLimit = 1
+
+    /// Whether a fresh pass may start. A pass that has not returned is
+    /// still holding its read, which a new pass cannot reach.
+    ///
+    /// - Parameter outstandingPasses: Passes started that have not returned.
+    /// - Returns: True while a fresh pass would not stack on a parked one.
+    static func canStartPass(outstandingPasses: Int) -> Bool {
+        outstandingPasses < concurrentPassLimit
+    }
+
+    /// What the failure banner reads. A pass still inside a file read
+    /// has no retry to offer, so the line says what holds it up.
+    ///
+    /// - Parameter outstandingPasses: Passes started that have not returned.
+    /// - Returns: The line the banner shows.
+    static func failureMessage(outstandingPasses: Int) -> String {
+        guard canStartPass(outstandingPasses: outstandingPasses) else {
+            return "Previews stopped loading. One image is still being read, so trying again has to wait."
+        }
+        return "Previews stopped loading. Your wallpapers are all still here."
+    }
+
     /// Whether a card is still waiting on its own job. A run that has
     /// ended leaves nothing to wait for, however it ended.
     ///
@@ -141,6 +167,51 @@ enum GalleryLoading {
                 message: "Thumbnail run stalled at \(delivered) of \(requested) images"
             )
         }
+    }
+}
+
+/// Keeps the gallery to `GalleryLoading.concurrentPassLimit` render passes.
+/// A request that arrives while a pass is out is held rather than run, and
+/// goes once that pass returns.
+@Observable
+@MainActor
+final class ThumbnailPassGate {
+    /// Passes started that have not returned. A pass sitting inside a slow
+    /// read counts until the read comes back, however long that takes.
+    private(set) var outstanding = 0
+
+    /// Whether a request came in while a pass was already out.
+    private(set) var isHolding = false
+
+    /// Whether a pass may start now, which is also whether the banner
+    /// has a retry worth offering.
+    var canStart: Bool {
+        GalleryLoading.canStartPass(outstandingPasses: outstanding)
+    }
+
+    /// Takes a request to run a pass, counting it when it may go and
+    /// holding it when a pass is already out.
+    ///
+    /// - Returns: True when the caller should start a pass now.
+    func request() -> Bool {
+        guard canStart else {
+            isHolding = true
+            return false
+        }
+        isHolding = false
+        outstanding += 1
+        return true
+    }
+
+    /// Records that a pass returned, releasing whatever was held while
+    /// it was out. The caller runs the released request itself.
+    ///
+    /// - Returns: True when a held request should run now.
+    func passReturned() -> Bool {
+        outstanding = max(0, outstanding - 1)
+        guard isHolding else { return false }
+        isHolding = false
+        return true
     }
 }
 

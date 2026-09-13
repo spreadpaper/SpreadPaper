@@ -329,4 +329,64 @@ struct GalleryLoadingTests {
         #expect(GalleryLoading.idleTimeout >= .seconds(5))
         #expect(GalleryLoading.idleTimeout <= .seconds(15))
     }
+
+    // MARK: - Retrying while a pass has not returned
+
+    @Test func pressingTryAgainTenTimesLeavesOnePass() {
+        let gate = ThumbnailPassGate()
+        #expect(gate.request(), "the first pass has nothing in its way")
+
+        for press in 1...10 {
+            #expect(!gate.request(), "press \(press) arrived while a pass was still out")
+        }
+
+        #expect(gate.outstanding == 1, "ten presses left \(gate.outstanding) passes running")
+    }
+
+    @Test func theRetryIsNotOfferedWhileAPassIsStillParked() {
+        let gate = ThumbnailPassGate()
+        #expect(gate.canStart, "an idle gallery has a retry to offer")
+
+        _ = gate.request()
+        #expect(!gate.canStart, "a pass is parked inside its read, so a retry cannot reach it")
+
+        _ = gate.passReturned()
+        #expect(gate.canStart, "the read came back, so another pass may go")
+    }
+
+    @Test func aRequestHeldWhileAPassWasOutRunsWhenItReturns() {
+        let gate = ThumbnailPassGate()
+        _ = gate.request()
+        _ = gate.request()
+
+        #expect(gate.isHolding, "the second request is held rather than dropped")
+        #expect(gate.passReturned(), "the held request goes once the pass is back")
+        #expect(!gate.isHolding, "releasing it leaves nothing else waiting")
+        #expect(gate.request(), "and it starts a pass of its own")
+    }
+
+    @Test func aPassReturningWithNothingHeldStartsNothing() {
+        let gate = ThumbnailPassGate()
+        _ = gate.request()
+
+        #expect(!gate.passReturned(), "nobody asked for another pass while that one ran")
+        #expect(gate.outstanding == 0)
+    }
+
+    @Test func theGalleryNeverCountsFewerPassesThanNone() {
+        let gate = ThumbnailPassGate()
+        _ = gate.passReturned()
+        _ = gate.passReturned()
+
+        #expect(gate.outstanding == 0, "a stray return must not leave the count below zero")
+        #expect(gate.canStart)
+    }
+
+    @Test func theBannerSaysWhyTheRetryIsWithheld() {
+        let offered = GalleryLoading.failureMessage(outstandingPasses: 0)
+        let withheld = GalleryLoading.failureMessage(outstandingPasses: 1)
+
+        #expect(offered != withheld, "a withheld retry needs a reason the user can read")
+        #expect(withheld.contains("still being read"), "the line has to name what is holding it up")
+    }
 }
