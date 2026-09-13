@@ -35,7 +35,7 @@ Source files organized under `SpreadPaper/`. One external package: PhosphorSwift
 ### Theme (Cool Dark design system)
 
 - **Theme/CoolDarkTheme.swift** — Color tokens (`Color.cd*` extensions), `CoolDarkButtonStyle`, `SectionHeader`
-- **Theme/CoolDarkComponents.swift** — Reusable styled components: `CoolDarkTextField`, `ToastView`, and `Image.cdIcon(_:size:)`, which tints every Phosphor glyph by template rendering
+- **Theme/CoolDarkComponents.swift** — Reusable styled components: `CoolDarkTextField`, `ToastView`, the `.toast(_:)` modifier that floats and clears one, and `Image.cdIcon(_:size:)`, which tints every Phosphor glyph by template rendering
 
 ### Navigation
 
@@ -53,7 +53,8 @@ Source files organized under `SpreadPaper/`. One external package: PhosphorSwift
 - **Views/ScheduleView.swift** — `ScheduleDetailModal`, opened from an editor schedule row: name, active period, one range bar
 - **Views/RangeBarView.swift** — SwiftUI time bar with one draggable, snapping handle, plus `RangeBarMath` (pure, unit-tested). Used once, inside `ScheduleDetailModal`
 - **Views/SaveDialog.swift** — Overlay that names a preset before Save or Save & Apply
-- **Views/SettingsView.swift** — Native Settings window with General (default display gap) and Updates tabs
+- **Views/SettingsView.swift** — Native Settings window with General (default display gap, plus the import row while an earlier version's wallpapers are waiting and the remove row once they are in) and Updates tabs
+- **Views/LegacyImport.swift** — Gallery banner offering to bring in wallpapers an earlier version saved, plus the folder picker both it and Settings run
 
 ### Services
 
@@ -62,6 +63,7 @@ Source files organized under `SpreadPaper/`. One external package: PhosphorSwift
 - **Services/DynamicWallpaperGenerator.swift** — HEIC dynamic desktop file generation with Apple XMP metadata, time-based and appearance-based (based on wallpapper's reverse engineering)
 - **Services/ThumbnailRenderer.swift** — ImageIO downsampling for gallery thumbnails, safe off the main actor
 - **Services/PresetStore.swift** — Reads and writes the presets JSON, backs up a corrupt file, flags legacy files needing a migration rewrite
+- **Services/LegacyDataMigration.swift** — Detects a library left by an unsandboxed build, copies a user-chosen folder into the app's own, and moves it to the Trash on request
 - **Services/DisplayLayout.swift** — `Bezel` struct and the frame spacing that pushes displays apart by the bezels between them
 - **Services/WallpaperFilenames.swift** — Names of the rendered per-display files, and the tests for pre-1.7.1 legacy names
 - **Services/FilenameUtils.swift** — Stored image filenames (`UUID_original.ext`) and the display name read back out
@@ -92,7 +94,9 @@ Source files organized under `SpreadPaper/`. One external package: PhosphorSwift
 
 ### App Sandbox
 
-Entitlements: sandbox enabled, user-selected read-only file access, network client (for update checking). App is not code-signed with a paid Apple Developer ID.
+Entitlements: sandbox enabled, user-selected read-write file access, network client (for update checking). App is not code-signed with a paid Apple Developer ID.
+
+A sandboxed build cannot list `~/Library/Application Support/SpreadPaper`, where unsandboxed builds kept their data: `fileExists` succeeds on it, `contentsOfDirectory` fails with `NSCocoaErrorDomain` 257. The user therefore picks that folder in an `NSOpenPanel`, which is what grants access, and `LegacyDataMigration` copies it in. Read-write is what lets the same picked folder be moved to the Trash afterwards.
 
 ## Release Process
 

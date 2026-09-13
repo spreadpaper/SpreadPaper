@@ -19,6 +19,8 @@ struct GalleryView: View {
     @State private var presetPendingDelete: SavedPreset? = nil
     @State private var presetPendingRename: SavedPreset? = nil
     @State private var renameDraft: String = ""
+    @State private var toastMessage: String? = nil
+    @State private var isImportingLegacy: Bool = false
     @FocusState private var searchFocused: Bool
     @Environment(\.openSettings) private var openSettings
 
@@ -50,10 +52,19 @@ struct GalleryView: View {
                 if let error = manager.lastError {
                     errorBanner(error)
                 }
+                if manager.needsLegacyImport && !manager.hasDismissedLegacyImport {
+                    LegacyImportBanner(
+                        isImporting: isImportingLegacy,
+                        onImport: { runLegacyImport() },
+                        onDismiss: { manager.hasDismissedLegacyImport = true },
+                        onSuppress: { manager.suppressLegacyImportBanner() }
+                    )
+                }
                 mainContent
             }
             .background(Color.cdBgPrimary)
         }
+        .toast($toastMessage)
         .task { reloadThumbnails() }
         .onChange(of: colorScheme) { _, _ in reloadThumbnails() }
         .onChange(of: manager.presets.map(\.id)) { _, _ in reloadThumbnails() }
@@ -636,6 +647,19 @@ struct GalleryView: View {
             manager.persistPresetsPublic()
         }
         presetPendingRename = nil
+    }
+
+    /// Asks for the folder holding an earlier version's wallpapers, then confirms what arrived.
+    private func runLegacyImport() {
+        guard let url = LegacyImportFlow.chooseFolderToImport(manager: manager) else { return }
+        isImportingLegacy = true
+        Task {
+            let count = await manager.importLegacyLibrary(from: url)
+            isImportingLegacy = false
+            if let count {
+                toastMessage = LegacyImportFlow.importedMessage(count: count)
+            }
+        }
     }
 
     /// Selects the preset's stored image in Finder.

@@ -19,9 +19,12 @@ struct SettingsView: View {
 
 // MARK: - General
 
-/// Display settings that apply to every connected screen.
+/// Display settings, and the offer to bring in an earlier version's wallpapers.
 private struct GeneralSettingsTab: View {
     @State private var settings = AppSettings.shared
+    @State private var toastMessage: String? = nil
+    @State private var folderPendingRemoval: URL? = nil
+    @State private var isImporting: Bool = false
     let manager: WallpaperManager
 
     var body: some View {
@@ -45,10 +48,73 @@ private struct GeneralSettingsTab: View {
             } footer: {
                 Text("Gap between adjacent displays in screen points. Per-display widths are set in the editor.")
             }
+
+            if showsLegacySection {
+                Section {
+                    if manager.canOfferLegacyImport {
+                        LabeledContent("Import wallpapers from an earlier version") {
+                            if isImporting {
+                                ProgressView().controlSize(.small)
+                            } else {
+                                Button("Import…") { runImport() }
+                            }
+                        }
+                    }
+                    if manager.canRemoveLegacyLibrary {
+                        LabeledContent("Remove wallpapers from the earlier version") {
+                            Button("Remove…", role: .destructive) {
+                                folderPendingRemoval = LegacyImportFlow.chooseFolderToRemove(manager: manager)
+                            }
+                        }
+                    }
+                }
+            }
         }
         .formStyle(.grouped)
-        .frame(height: 170)
+        .frame(height: showsLegacySection ? 260 : 170)
+        .toast($toastMessage, topPadding: 16)
         .onChange(of: settings.bezelGap) { _, _ in manager.refreshScreens() }
+        .confirmationDialog(
+            "Remove the wallpapers saved by earlier versions?",
+            isPresented: Binding(
+                get: { folderPendingRemoval != nil },
+                set: { if !$0 { folderPendingRemoval = nil } }
+            ),
+            presenting: folderPendingRemoval
+        ) { folder in
+            Button("Move to Trash", role: .destructive) { removeLibrary(at: folder) }
+            Button("Cancel", role: .cancel) { folderPendingRemoval = nil }
+        } message: { _ in
+            Text("They'll be moved to the Trash. Wallpapers you've already imported stay in SpreadPaper.")
+        }
+    }
+
+    /// True while there is either something to bring in or something to clear away.
+    private var showsLegacySection: Bool {
+        manager.canOfferLegacyImport || manager.canRemoveLegacyLibrary
+    }
+
+    /// Brings in an earlier version's wallpapers and confirms what arrived.
+    private func runImport() {
+        guard let url = LegacyImportFlow.chooseFolderToImport(manager: manager) else { return }
+        isImporting = true
+        Task {
+            let count = await manager.importLegacyLibrary(from: url)
+            isImporting = false
+            if let count {
+                toastMessage = LegacyImportFlow.importedMessage(count: count)
+            }
+        }
+    }
+
+    /// Sends the chosen folder to the Trash and confirms that it went.
+    private func removeLibrary(at folder: URL) {
+        Task {
+            if await manager.removeLegacyLibrary(at: folder) {
+                toastMessage = "Moved to the Trash."
+            }
+            folderPendingRemoval = nil
+        }
     }
 
     /// Binding that keeps typed values inside the stepper range.

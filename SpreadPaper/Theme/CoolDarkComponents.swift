@@ -62,3 +62,36 @@ struct ToastView: View {
             .shadow(color: .cdShadow, radius: 8, y: 4)
     }
 }
+
+/// Floats a toast over a view and clears it again on its own.
+private struct ToastOverlay: ViewModifier {
+    @Binding var message: String?
+    let topPadding: CGFloat
+
+    func body(content: Content) -> some View {
+        content
+            .overlay(alignment: .top) {
+                if let message {
+                    ToastView(message: message)
+                        .padding(.top, topPadding)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                }
+            }
+            .animation(.easeInOut(duration: 0.2), value: message)
+            .onChange(of: message) { _, shown in
+                guard let shown else { return }
+                Task { @MainActor in
+                    try? await Task.sleep(for: .seconds(2))
+                    if message == shown { message = nil }
+                }
+            }
+    }
+}
+
+extension View {
+    /// Shows `message` as a toast for two seconds, then clears the binding.
+    /// A newer message replaces the one on screen.
+    func toast(_ message: Binding<String?>, topPadding: CGFloat = 70) -> some View {
+        modifier(ToastOverlay(message: message, topPadding: topPadding))
+    }
+}

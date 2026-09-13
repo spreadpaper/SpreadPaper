@@ -340,7 +340,7 @@
 				CURRENT_PROJECT_VERSION = 113;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
-				ENABLE_USER_SELECTED_FILES = readonly;
+				ENABLE_USER_SELECTED_FILES = readwrite;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = SpreadPaper;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
@@ -376,7 +376,7 @@
 				CURRENT_PROJECT_VERSION = 113;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
-				ENABLE_USER_SELECTED_FILES = readonly;
+				ENABLE_USER_SELECTED_FILES = readwrite;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = SpreadPaper;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";

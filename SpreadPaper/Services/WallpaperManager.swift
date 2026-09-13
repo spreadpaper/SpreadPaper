@@ -16,6 +16,16 @@ class WallpaperManager {
     var presets: [SavedPreset] = []
     var lastError: String?
     var activePresetId: UUID?
+    /// True while the gallery should offer to bring in an earlier version's library.
+    private(set) var needsLegacyImport = false
+    /// True while Settings should keep the same offer within reach.
+    private(set) var canOfferLegacyImport = false
+    /// True once those wallpapers are here and the earlier copy can go.
+    private(set) var canRemoveLegacyLibrary = false
+    /// Set by "Not now"; the offer returns next launch.
+    var hasDismissedLegacyImport = false
+    /// Folder an earlier version wrote to, and where the picker opens.
+    let legacyLibraryURL = LegacyDataMigration.defaultLegacyRoot()
     /// True while an apply is in flight. Applies are serialized: a second call returns immediately,
     /// because overlapping renders would delete each other's freshly written files.
     private(set) var isApplying = false
@@ -25,18 +35,95 @@ class WallpaperManager {
 
     /// Loads screens, presets and the active preset id; `store` defaults to the app support directory.
     init(store: PresetStore? = nil) {
-        let resolved = store ?? PresetStore(directory: Self.defaultDataDirectory())
-        self.store = resolved
-        // Only the app's own directory can hold data from an unsandboxed install; an injected store
-        // is a caller's choice of directory and is left alone.
-        if store == nil {
-            LegacyDataMigration.runIfNeeded(destination: resolved.directory)
-        }
+        self.store = store ?? PresetStore(directory: Self.defaultDataDirectory())
         refreshScreens()
         loadPresets()
+        // Only the app's own folder can inherit a library; an injected store is a caller's choice.
+        if store == nil { refreshLegacyImportState() }
         if let raw = UserDefaults.standard.string(forKey: activePresetKey) {
             activePresetId = UUID(uuidString: raw)
         }
+    }
+
+    // --- EARLIER VERSIONS ---
+    /// Brings in the library the user picked, then reloads the gallery from it.
+    /// Returns how many wallpapers arrived, or nil when none did.
+    /// The copy itself runs off the main actor.
+    @discardableResult
+    func importLegacyLibrary(from url: URL) async -> Int? {
+        guard legacyLibraryLooksRight(at: url) else { return nil }
+
+        let destination = store.directory
+        let outcome = await Task.detached(priority: .userInitiated) {
+            LegacyDataMigration.importLibrary(from: url, destination: destination, defaults: .standard)
+        }.value
+
+        switch outcome {
+        case .noWallpapersFound:
+            lastError = "That folder doesn't have SpreadPaper wallpapers in it."
+            return nil
+        case .unreadable:
+            lastError = "That folder couldn't be read."
+            return nil
+        case .imported(let count):
+            lastError = nil
+            loadPresets()
+            refreshLegacyImportState()
+            return count
+        }
+    }
+
+    /// True when `url` holds a library an earlier version wrote.
+    /// The folder in use now is refused, not an earlier one.
+    func legacyLibraryLooksRight(at url: URL) -> Bool {
+        guard !LegacyDataMigration.isSameFolder(url, store.directory) else {
+            lastError = "Those are the wallpapers SpreadPaper uses now."
+            return false
+        }
+        guard LegacyDataMigration.holdsLibrary(at: url) else {
+            lastError = "That folder doesn't have SpreadPaper wallpapers in it."
+            return false
+        }
+        lastError = nil
+        return true
+    }
+
+    /// Moves the library the user picked to the Trash and closes the offer.
+    /// Reports whether it went.
+    @discardableResult
+    func removeLegacyLibrary(at url: URL) async -> Bool {
+        guard await LegacyDataMigration.removeLibrary(
+            at: url, inUse: store.directory, defaults: .standard
+        ) else {
+            lastError = "Those wallpapers couldn't be moved to the Trash."
+            return false
+        }
+        lastError = nil
+        refreshLegacyImportState()
+        return true
+    }
+
+    /// Stops the banner for good; Settings keeps the offer within reach.
+    func suppressLegacyImportBanner() {
+        UserDefaults.standard.set(true, forKey: LegacyDataMigration.bannerSuppressedKey)
+        refreshLegacyImportState()
+    }
+
+    /// Re-reads whether an earlier version's library is waiting to be brought in.
+    /// Reads only: a library restored later still gets its chance.
+    private func refreshLegacyImportState() {
+        let fm = FileManager.default
+        let legacyExists = fm.fileExists(atPath: legacyLibraryURL.path)
+        let completed = UserDefaults.standard.bool(forKey: LegacyDataMigration.completedKey)
+        let suppressed = UserDefaults.standard.bool(forKey: LegacyDataMigration.bannerSuppressedKey)
+        needsLegacyImport = LegacyDataMigration.needsImport(
+            completed: completed,
+            suppressed: suppressed,
+            legacyExists: legacyExists,
+            destinationHasPresets: fm.fileExists(atPath: store.fileURL.path)
+        )
+        canOfferLegacyImport = LegacyDataMigration.canOffer(completed: completed, legacyExists: legacyExists)
+        canRemoveLegacyLibrary = LegacyDataMigration.canRemove(completed: completed, legacyExists: legacyExists)
     }
 
     /// Records which preset is on the desktop and keeps that choice across launches.
