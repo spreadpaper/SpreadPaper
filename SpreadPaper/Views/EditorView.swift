@@ -22,6 +22,7 @@ struct EditorView: View {
     @State private var currentPreviewScale: CGFloat = 1.0
     @State private var presetName = ""
     @State private var editingScheduleIndex: Int? = nil
+    @State private var hoveringAddSlot = false
     @State private var toastMessage: String? = nil
     @State private var settings = AppSettings.shared
 
@@ -470,7 +471,7 @@ struct EditorView: View {
         return ImageRow(
             thumb: hasImage ? loadedImages[index] : nil,
             title: defaultScheduleName(for: index),
-            subtitle: "\(v.timeString) · tap to edit",
+            subtitle: v.timeString,
             isSelected: selectedVariantIndex == index,
             isEmpty: !hasImage,
             onTap: {
@@ -485,24 +486,30 @@ struct EditorView: View {
         Button(action: addImages) {
             HStack(spacing: 8) {
                 Ph.plus.regular
-                    .cdIcon(Color.cdTextTertiary, size: 12)
+                    .cdIcon(hoveringAddSlot ? Color.cdTextSecondary : Color.cdTextTertiary, size: 12)
                 Text("Add time slot")
                     .font(.system(size: 12.5, weight: .medium))
-                    .foregroundStyle(Color.cdTextTertiary)
+                    .foregroundStyle(hoveringAddSlot ? Color.cdTextSecondary : Color.cdTextTertiary)
                 Spacer()
             }
             .padding(.horizontal, 10)
             .frame(height: 40)
             .background(
                 RoundedRectangle(cornerRadius: 9)
+                    .fill(hoveringAddSlot ? Color.cdHoverFill : Color.clear)
+            )
+            .background(
+                RoundedRectangle(cornerRadius: 9)
                     .strokeBorder(
-                        Color.cdBorder,
+                        hoveringAddSlot ? Color.cdBorderStrong : Color.cdBorder,
                         style: StrokeStyle(lineWidth: 1, dash: [4, 3])
                     )
             )
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(InspectorRowButtonStyle())
+        .onHover { hoveringAddSlot = $0 }
+        .animation(.easeInOut(duration: 0.12), value: hoveringAddSlot)
     }
 
     /// Pixel size as "width×height".
@@ -1285,14 +1292,6 @@ struct ImageRow: View {
                         .lineLimit(1)
                 }
                 Spacer(minLength: 0)
-
-                if isSelected && !isEmpty {
-                    Circle()
-                        .fill(Color.cdAccent)
-                        .frame(width: 6, height: 6)
-                        .shadow(color: Color.cdAccent.opacity(0.5), radius: 3)
-                        .padding(.trailing, 2)
-                }
             }
             .padding(8)
             .frame(minHeight: 52)
@@ -1303,7 +1302,7 @@ struct ImageRow: View {
             )
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(InspectorRowButtonStyle())
         .onHover { hovering = $0 }
         .animation(.easeInOut(duration: 0.12), value: hovering)
         .animation(.easeInOut(duration: 0.12), value: isSelected)
@@ -1336,18 +1335,34 @@ struct ImageRow: View {
         }
     }
 
+    /// Resting, hovered and selected fills. Selection tints with the accent,
+    /// hover only washes, so the two never read alike.
     @ViewBuilder
     private var background: some View {
         RoundedRectangle(cornerRadius: 9)
-            .fill(
-                isSelected
-                    ? Color.cdBgElevated
-                    : hovering ? Color.cdBgHover : Color.clear
-            )
+            .fill(fillColor)
+    }
+
+    /// Fill for the row's current state.
+    private var fillColor: Color {
+        if isSelected {
+            return Color.cdAccent.opacity(hovering ? 0.30 : 0.22)
+        }
+        return hovering ? Color.cdHoverFill : Color.clear
     }
 
     private var borderColor: Color {
-        isSelected ? Color.cdBorderStrong : Color.clear
+        isSelected ? Color.cdAccent : hovering ? Color.cdBorder : Color.clear
+    }
+}
+
+/// Inspector row chrome: dips while the row is held down.
+/// Hover and selection are drawn by the row itself.
+private struct InspectorRowButtonStyle: ButtonStyle {
+    /// Dims the row while it is pressed.
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .opacity(configuration.isPressed ? 0.75 : 1)
     }
 }
 

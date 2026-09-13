@@ -92,6 +92,36 @@ extension Color {
     }
 }
 
+// MARK: - Dialog Metrics
+
+/// Measurements every overlay dialog and the controls inside one share.
+/// Naming them keeps two dialogs on one grid.
+enum CoolDarkMetrics {
+    /// Gutter between a dialog's edge and its content.
+    static let dialogPadding: CGFloat = 22
+
+    /// Corner radius of a dialog card.
+    static let dialogCornerRadius: CGFloat = 12
+
+    /// Corner radius of a field or a button inside one.
+    static let controlCornerRadius: CGFloat = 7
+
+    /// Height of a text field or an inline control.
+    static let fieldHeight: CGFloat = 36
+
+    /// Type size of the text a field holds.
+    static let fieldFontSize: CGFloat = 13.5
+
+    /// Gap between a label and the control it names.
+    static let labelGap: CGFloat = 6
+
+    /// Gap between one labelled group and the next.
+    static let sectionGap: CGFloat = 20
+
+    /// Height of a compact button and of the quiet actions beside one.
+    static let compactControlHeight: CGFloat = 30
+}
+
 // MARK: - Button Styles
 
 /// Shared chrome for primary, success and secondary buttons. `size` picks the
@@ -128,7 +158,7 @@ struct CoolDarkButtonStyle: ButtonStyle {
         var minHeight: CGFloat? {
             switch self {
             case .regular: nil
-            case .compact: 30
+            case .compact: CoolDarkMetrics.compactControlHeight
             }
         }
     }
@@ -156,11 +186,11 @@ struct CoolDarkButtonStyle: ButtonStyle {
             .padding(.vertical, size.verticalPadding)
             .frame(minHeight: size.minHeight)
             .background(
-                RoundedRectangle(cornerRadius: 7)
+                RoundedRectangle(cornerRadius: CoolDarkMetrics.controlCornerRadius)
                     .fill(fill)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: 7)
+                RoundedRectangle(cornerRadius: CoolDarkMetrics.controlCornerRadius)
                     .stroke(isFilled ? Color.clear : Color.cdBorder, lineWidth: 1)
             )
             .shadow(color: isFilled && isEnabled ? fill.opacity(0.3) : .clear, radius: 8)

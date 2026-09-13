@@ -26,16 +26,20 @@ struct CoolDarkTextField: View {
         TextField(placeholder, text: $text)
             .textFieldStyle(.plain)
             .focused($isFocused)
-            .font(.system(size: 14))
+            .font(.system(size: CoolDarkMetrics.fieldFontSize))
             .foregroundStyle(Color.cdTextPrimary)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 10)
+            .padding(.horizontal, 11)
+            .frame(height: CoolDarkMetrics.fieldHeight)
             .background(Color.cdBgPrimary)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .clipShape(RoundedRectangle(cornerRadius: CoolDarkMetrics.controlCornerRadius))
             .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(isFocused ? Color.cdAccent : Color.cdBorder.opacity(0.6),
-                            lineWidth: isFocused ? 1.5 : 1)
+                RoundedRectangle(cornerRadius: CoolDarkMetrics.controlCornerRadius)
+                    .stroke(isFocused ? Color.cdAccent : Color.cdBorder, lineWidth: 1)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: CoolDarkMetrics.controlCornerRadius)
+                    .stroke(Color.cdAccent.opacity(isFocused ? 0.35 : 0), lineWidth: 3)
+                    .blur(radius: isFocused ? 0.5 : 0)
             )
             .animation(.easeInOut(duration: 0.12), value: isFocused)
     }

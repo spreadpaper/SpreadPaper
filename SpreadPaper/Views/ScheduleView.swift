@@ -109,9 +109,9 @@ struct ScheduleDetailModal: View {
             }
             .frame(width: 420)
             .background(Color.cdBgSecondary)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .clipShape(RoundedRectangle(cornerRadius: CoolDarkMetrics.dialogCornerRadius))
             .overlay(
-                RoundedRectangle(cornerRadius: 12)
+                RoundedRectangle(cornerRadius: CoolDarkMetrics.dialogCornerRadius)
                     .stroke(Color.cdBorder, lineWidth: 1)
             )
             .shadow(color: .cdShadow, radius: 20)
@@ -131,71 +131,85 @@ struct ScheduleDetailModal: View {
     // MARK: - Sections
 
     private var header: some View {
-        HStack {
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
             Text("Edit schedule entry")
-                .font(.system(size: 14, weight: .bold))
+                .font(.system(size: 15, weight: .semibold))
                 .foregroundStyle(Color.cdTextPrimary)
-            Spacer()
+            Spacer(minLength: 0)
+            Text(ScheduleEntryText.position(index: position, count: count))
+                .font(.system(size: 12))
+                .foregroundStyle(Color.cdTextTertiary)
+                .lineLimit(1)
         }
-        .padding(20)
+        .padding(CoolDarkMetrics.dialogPadding)
     }
 
     private var fields: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            imageSummary
+        VStack(alignment: .leading, spacing: CoolDarkMetrics.sectionGap) {
+            VStack(alignment: .leading, spacing: CoolDarkMetrics.labelGap) {
+                SectionHeader(title: "Image")
+                imageSummary
+            }
 
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: CoolDarkMetrics.labelGap) {
+                SectionHeader(title: "Starts at")
+                HStack(alignment: .center, spacing: 14) {
+                    startTimeField
+                    Text(handover)
+                        .font(.system(size: 12.5))
+                        .foregroundStyle(Color.cdTextTertiary)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Spacer(minLength: 0)
+                }
+            }
+
+            VStack(alignment: .leading, spacing: CoolDarkMetrics.labelGap) {
                 SectionHeader(title: "Name")
                 CoolDarkTextField(placeholder: defaultName, text: $variant.name)
             }
-
-            VStack(alignment: .leading, spacing: 8) {
-                SectionHeader(title: "Starts at")
-                DatePicker("", selection: startTime, displayedComponents: .hourAndMinute)
-                    .datePickerStyle(.stepperField)
-                    .labelsHidden()
-                    .environment(\.calendar, ScheduleClock.calendar)
-                    .environment(\.timeZone, ScheduleClock.calendar.timeZone)
-                    .accessibilityLabel("Starts at")
-                Text(handover)
-                    .font(.system(size: 12))
-                    .foregroundStyle(Color.cdTextSecondary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
         }
-        .padding(20)
+        .padding(CoolDarkMetrics.dialogPadding)
     }
 
     private var footer: some View {
-        HStack {
+        HStack(spacing: 8) {
             Button("Remove") { confirmingRemove = true }
                 .buttonStyle(.plain)
                 .font(.system(size: 13, weight: .medium))
                 .foregroundStyle(Color.cdDanger)
+                .frame(height: CoolDarkMetrics.compactControlHeight)
+                .contentShape(Rectangle())
 
-            Spacer()
+            Spacer(minLength: 0)
 
             Button("Done", action: onDone)
                 .buttonStyle(CoolDarkButtonStyle(isPrimary: true, size: .compact))
         }
-        .padding(.horizontal, 20)
+        .padding(.horizontal, CoolDarkMetrics.dialogPadding)
         .padding(.vertical, 14)
     }
 
-    /// Thumbnail, name and place in the schedule for the image being timed.
+    /// Clock the entry starts on, stepped a minute at a time.
+    /// GMT anchors it, so no offset moves a time.
+    private var startTimeField: some View {
+        DatePicker("", selection: startTime, displayedComponents: .hourAndMinute)
+            .datePickerStyle(.stepperField)
+            .labelsHidden()
+            .environment(\.calendar, ScheduleClock.calendar)
+            .environment(\.timeZone, ScheduleClock.calendar.timeZone)
+            .accessibilityLabel("Starts at")
+            .fixedSize()
+    }
+
+    /// Thumbnail and file name for the image being timed.
     private var imageSummary: some View {
         HStack(spacing: 12) {
             thumbnailView
-            VStack(alignment: .leading, spacing: 3) {
-                Text(entryName)
-                    .font(.system(size: 13.5, weight: .medium))
-                    .foregroundStyle(Color.cdTextPrimary)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
-                Text(ScheduleEntryText.position(index: position, count: count))
-                    .font(.system(size: 12))
-                    .foregroundStyle(Color.cdTextTertiary)
-            }
+            Text(entryName)
+                .font(.system(size: CoolDarkMetrics.fieldFontSize, weight: .medium))
+                .foregroundStyle(Color.cdTextPrimary)
+                .lineLimit(2)
+                .truncationMode(.middle)
             Spacer(minLength: 0)
         }
     }
@@ -203,7 +217,7 @@ struct ScheduleDetailModal: View {
     /// The rendered thumbnail, or a framed glyph while it loads or when the file is gone.
     private var thumbnailView: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 6)
+            RoundedRectangle(cornerRadius: CoolDarkMetrics.controlCornerRadius)
                 .fill(Color.cdBgPrimary)
             if let thumbnail {
                 Image(decorative: thumbnail, scale: 1)
@@ -215,9 +229,9 @@ struct ScheduleDetailModal: View {
             }
         }
         .frame(width: Self.thumbnailSize.width, height: Self.thumbnailSize.height)
-        .clipShape(RoundedRectangle(cornerRadius: 6))
+        .clipShape(RoundedRectangle(cornerRadius: CoolDarkMetrics.controlCornerRadius))
         .overlay(
-            RoundedRectangle(cornerRadius: 6)
+            RoundedRectangle(cornerRadius: CoolDarkMetrics.controlCornerRadius)
                 .stroke(Color.cdBorder, lineWidth: 1)
         )
     }

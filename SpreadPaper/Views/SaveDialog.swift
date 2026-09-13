@@ -51,7 +51,7 @@ struct SaveDialog: View {
 
     private var card: some View {
         VStack(alignment: .leading, spacing: 14) {
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: CoolDarkMetrics.labelGap) {
                 Text("Save wallpaper")
                     .font(.system(size: 15, weight: .semibold))
                     .foregroundStyle(Color.cdTextPrimary)
@@ -61,7 +61,7 @@ struct SaveDialog: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
 
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: CoolDarkMetrics.labelGap) {
                 Text("Name")
                     .font(.system(size: 12, weight: .medium))
                     .foregroundStyle(Color.cdTextSecondary)
@@ -69,18 +69,18 @@ struct SaveDialog: View {
                 TextField("", text: $name)
                     .textFieldStyle(.plain)
                     .focused($nameFocused)
-                    .font(.system(size: 13.5))
+                    .font(.system(size: CoolDarkMetrics.fieldFontSize))
                     .foregroundStyle(Color.cdTextPrimary)
                     .padding(.horizontal, 11)
-                    .frame(height: 36)
+                    .frame(height: CoolDarkMetrics.fieldHeight)
                     .background(Color.cdBgPrimary)
-                    .clipShape(RoundedRectangle(cornerRadius: 7))
+                    .clipShape(RoundedRectangle(cornerRadius: CoolDarkMetrics.controlCornerRadius))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 7)
+                        RoundedRectangle(cornerRadius: CoolDarkMetrics.controlCornerRadius)
                             .stroke(nameFocused ? Color.cdAccent : Color.cdBorder, lineWidth: 1)
                     )
                     .overlay(
-                        RoundedRectangle(cornerRadius: 7)
+                        RoundedRectangle(cornerRadius: CoolDarkMetrics.controlCornerRadius)
                             .stroke(Color.cdAccent.opacity(nameFocused ? 0.35 : 0), lineWidth: 3)
                             .blur(radius: nameFocused ? 0.5 : 0)
                     )
@@ -101,12 +101,12 @@ struct SaveDialog: View {
                     .disabled(!canSave)
             }
         }
-        .padding(22)
+        .padding(CoolDarkMetrics.dialogPadding)
         .frame(width: 380)
         .background(Color.cdBgSecondary)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .clipShape(RoundedRectangle(cornerRadius: CoolDarkMetrics.dialogCornerRadius))
         .overlay(
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: CoolDarkMetrics.dialogCornerRadius)
                 .stroke(Color.cdBorder, lineWidth: 1)
         )
         .shadow(color: .cdShadowStrong, radius: 80, y: 30)
