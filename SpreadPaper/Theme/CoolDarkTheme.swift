@@ -112,6 +112,24 @@ enum CoolDarkMetrics {
     /// Type size of the text a field holds.
     static let fieldFontSize: CGFloat = 13.5
 
+    /// Inset between a field's edge and the text inside it.
+    static let fieldTextInset: CGFloat = 11
+
+    /// Type size of the digits a time field leads with.
+    static let timeFontSize: CGFloat = 20
+
+    /// Width of the stepper pair on a field's trailing edge.
+    static let stepperWidth: CGFloat = 26
+
+    /// Height of one half of that pair.
+    static let stepperButtonHeight: CGFloat = 13
+
+    /// Size of the caret drawn in one half.
+    static let stepperIconSize: CGFloat = 9
+
+    /// Corner radius of the stepper pair.
+    static let stepperCornerRadius: CGFloat = 5
+
     /// Gap between a label and the control it names.
     static let labelGap: CGFloat = 6
 

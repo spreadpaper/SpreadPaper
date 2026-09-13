@@ -28,7 +28,7 @@ struct CoolDarkTextField: View {
             .focused($isFocused)
             .font(.system(size: CoolDarkMetrics.fieldFontSize))
             .foregroundStyle(Color.cdTextPrimary)
-            .padding(.horizontal, 11)
+            .padding(.horizontal, CoolDarkMetrics.fieldTextInset)
             .frame(height: CoolDarkMetrics.fieldHeight)
             .background(Color.cdBgPrimary)
             .clipShape(RoundedRectangle(cornerRadius: CoolDarkMetrics.controlCornerRadius))

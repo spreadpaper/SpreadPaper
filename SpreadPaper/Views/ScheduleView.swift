@@ -40,37 +40,6 @@ nonisolated enum ScheduleEntryText {
     }
 }
 
-// MARK: - Schedule Clock
-
-/// Wall-clock conversion between a stored hour and minute and the date a picker binds to.
-/// One UTC day carries every time, so no daylight saving shift can move one.
-nonisolated enum ScheduleClock {
-    /// Calendar the picker reads and the conversion writes.
-    static let calendar: Calendar = {
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = .gmt
-        return calendar
-    }()
-
-    /// Date on the reference day carrying the given wall-clock time.
-    /// Values outside a day clamp into one.
-    static func date(hour: Int, minute: Int) -> Date {
-        var components = DateComponents()
-        components.year = 2001
-        components.month = 1
-        components.day = 1
-        components.hour = min(max(hour, 0), 23)
-        components.minute = min(max(minute, 0), 59)
-        return calendar.date(from: components) ?? Date(timeIntervalSinceReferenceDate: 0)
-    }
-
-    /// Hour and minute read back off a date.
-    static func time(from date: Date) -> (hour: Int, minute: Int) {
-        let parts = calendar.dateComponents([.hour, .minute], from: date)
-        return (parts.hour ?? 0, parts.minute ?? 0)
-    }
-}
-
 // MARK: - Centered Detail Modal
 
 /// Centered sheet naming one schedule entry and setting the time it starts.
@@ -189,15 +158,9 @@ struct ScheduleDetailModal: View {
         .padding(.vertical, 14)
     }
 
-    /// Clock the entry starts on, stepped a minute at a time.
-    /// GMT anchors it, so no offset moves a time.
+    /// Clock the entry starts on, on the same grid as the name field below it.
     private var startTimeField: some View {
-        DatePicker("", selection: startTime, displayedComponents: .hourAndMinute)
-            .datePickerStyle(.stepperField)
-            .labelsHidden()
-            .environment(\.calendar, ScheduleClock.calendar)
-            .environment(\.timeZone, ScheduleClock.calendar.timeZone)
-            .accessibilityLabel("Starts at")
+        CoolDarkTimeField(minutes: startMinutes, label: "Starts at")
             .fixedSize()
     }
 
@@ -238,14 +201,14 @@ struct ScheduleDetailModal: View {
 
     // MARK: - Values
 
-    /// Start time as a date, written back as the stored hour and minute.
-    private var startTime: Binding<Date> {
+    /// Start time as minutes since midnight, written back as an hour and a minute.
+    private var startMinutes: Binding<Int> {
         Binding(
-            get: { ScheduleClock.date(hour: variant.hour, minute: variant.minute) },
+            get: { variant.hour * 60 + variant.minute },
             set: { newValue in
-                let time = ScheduleClock.time(from: newValue)
-                variant.hour = time.hour
-                variant.minute = time.minute
+                let minute = TimeFieldMath.wrapped(newValue)
+                variant.hour = minute / 60
+                variant.minute = minute % 60
             }
         )
     }
