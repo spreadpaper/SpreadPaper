@@ -220,6 +220,76 @@ private struct HeroView: View {
                     .scaleEffect(monitorScale)
             }
         }
+        .overlay(alignment: .bottom) {
+            PhotoCredit()
+                .padding(.bottom, 12)
+        }
+    }
+}
+
+/// Attribution for the hero photograph, linking the photographer and Unsplash.
+private struct PhotoCredit: View {
+    var body: some View {
+        HStack(spacing: 0) {
+            Text("Photo by ")
+            Link("Ganapathy Kumar", destination: URL(string: "https://unsplash.com/@gkumar2175")!)
+                .underline()
+            Text(" on ")
+            Link(
+                "Unsplash",
+                destination: URL(string: "https://unsplash.com/photos/tropical-beach-at-sunset-in-maui-7782WXBriyM")!
+            )
+            .underline()
+        }
+        .font(.system(size: 10))
+        .foregroundStyle(Color.cdTextTertiary)
+        .tint(Color.cdTextTertiary)
+    }
+}
+
+/// Where the three hero panels sit inside the one scene they share.
+/// Side panels are shorter than the main one and centred on it.
+struct HeroSpread: Equatable {
+    /// Space between two panels, which the scene runs on behind.
+    static let gap: CGFloat = 6
+
+    /// Panel width over panel height.
+    static let aspectRatio: CGFloat = 16.0 / 10.0
+
+    /// Side panel height over the main one's.
+    static let sideRatio: CGFloat = 0.82
+
+    /// Size of the scene the three panels are cut from.
+    let spread: CGSize
+
+    /// The left panel's rectangle inside the scene.
+    let left: CGRect
+
+    /// The main panel's rectangle inside the scene.
+    let main: CGRect
+
+    /// The right panel's rectangle inside the scene.
+    let right: CGRect
+
+    /// Lays the three panels out for a hero of the given height.
+    init(height: CGFloat) {
+        let mainWidth = height * Self.aspectRatio
+        let sideHeight = height * Self.sideRatio
+        let sideWidth = sideHeight * Self.aspectRatio
+        let sideTop = (height - sideHeight) / 2
+        spread = CGSize(width: sideWidth * 2 + mainWidth + Self.gap * 2, height: height)
+        left = CGRect(x: 0, y: sideTop, width: sideWidth, height: sideHeight)
+        main = CGRect(x: left.maxX + Self.gap, y: 0, width: mainWidth, height: height)
+        right = CGRect(x: main.maxX + Self.gap, y: sideTop, width: sideWidth, height: sideHeight)
+    }
+
+    /// The part of the scene one panel shows.
+    func slice(_ position: MonitorPosition) -> PanelSlice {
+        switch position {
+        case .leftSide: PanelSlice(spread: spread, frame: left)
+        case .main: PanelSlice(spread: spread, frame: main)
+        case .rightSide: PanelSlice(spread: spread, frame: right)
+        }
     }
 }
 
@@ -229,38 +299,22 @@ private struct MonitorGroup: View {
 
     var body: some View {
         GeometryReader { geo in
-            // Layout: side(0.85), main(1.0), side(0.85) — main is full height with 16:10 aspect.
-            let h = geo.size.height
-            let mainH = h
-            let mainW = mainH * (16.0 / 10.0)
-            let sideH = h * 0.82
-            let sideW = sideH * (16.0 / 10.0)
-            let gap: CGFloat = 6
-            let totalW = sideW + gap + mainW + gap + sideW
-            let startX = (geo.size.width - totalW) / 2
+            let layout = HeroSpread(height: geo.size.height)
 
-            HStack(spacing: gap) {
-                Monitor(width: sideW, height: sideH) {
-                    SceneStack(
-                        selectedType: selectedType,
-                        position: .leftSide
-                    )
-                }
-                Monitor(width: mainW, height: mainH) {
-                    SceneStack(
-                        selectedType: selectedType,
-                        position: .main
-                    )
-                }
-                Monitor(width: sideW, height: sideH) {
-                    SceneStack(
-                        selectedType: selectedType,
-                        position: .rightSide
-                    )
+            HStack(spacing: HeroSpread.gap) {
+                ForEach(MonitorPosition.allCases, id: \.self) { position in
+                    let slice = layout.slice(position)
+                    Monitor(width: slice.frame.width, height: slice.frame.height) {
+                        SceneStack(
+                            selectedType: selectedType,
+                            position: position,
+                            slice: slice
+                        )
+                    }
                 }
             }
-            .frame(width: totalW, height: h, alignment: .center)
-            .offset(x: startX)
+            .frame(width: layout.spread.width, height: layout.spread.height, alignment: .center)
+            .offset(x: (geo.size.width - layout.spread.width) / 2)
         }
     }
 }
@@ -294,7 +348,7 @@ private struct Monitor<Content: View>: View {
 // MARK: - Scenes
 
 /// Which of the three illustration monitors a scene is drawn on.
-private enum MonitorPosition {
+enum MonitorPosition: CaseIterable {
     case leftSide, main, rightSide
 }
 
@@ -302,113 +356,18 @@ private enum MonitorPosition {
 private struct SceneStack: View {
     let selectedType: WallpaperType
     let position: MonitorPosition
+    let slice: PanelSlice
 
     var body: some View {
         ZStack {
-            StaticScene(position: position)
+            SpreadPhoto(slice: slice)
                 .opacity(selectedType == .standard ? 1 : 0)
             ThemedScene(position: position)
                 .opacity(selectedType == .appearance ? 1 : 0)
-            DynamicScene(position: position)
+            DynamicScene(slice: slice)
                 .opacity(selectedType == .dynamic ? 1 : 0)
         }
         .animation(.easeInOut(duration: 0.4), value: selectedType)
-    }
-}
-
-/// One sunset image spread across the three monitors, shifted per position so it reads as continuous.
-private struct StaticScene: View {
-    let position: MonitorPosition
-
-    var body: some View {
-        GeometryReader { geo in
-            let w = geo.size.width
-            let h = geo.size.height
-            let extraScale: CGFloat = 1.7
-            let contentW = w * extraScale
-            let xOffset: CGFloat = {
-                switch position {
-                case .leftSide:  return  0.35 * w
-                case .main:      return  0
-                case .rightSide: return -0.35 * w
-                }
-            }()
-
-            ZStack {
-                // Background gradients
-                ZStack {
-                    LinearGradient(
-                        colors: SceneArt.sunsetSky,
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                    RadialGradient(
-                        colors: [SceneArt.sunsetHaze.opacity(0.85), .clear],
-                        center: UnitPoint(x: 0.85, y: 0.9),
-                        startRadius: 0,
-                        endRadius: contentW * 0.55
-                    )
-                    RadialGradient(
-                        colors: [SceneArt.sunsetGlow.opacity(0.95), .clear],
-                        center: UnitPoint(x: 0.20, y: 0.20),
-                        startRadius: 0,
-                        endRadius: contentW * 0.5
-                    )
-
-                    // Sun (only visible when un-clipped portion includes 0.18 x of contentW)
-                    Circle()
-                        .fill(
-                            RadialGradient(
-                                colors: [SceneArt.sunCore, SceneArt.sunRim],
-                                center: .center,
-                                startRadius: 0,
-                                endRadius: contentW * 0.075
-                            )
-                        )
-                        .frame(width: contentW * 0.14, height: contentW * 0.14)
-                        .shadow(color: SceneArt.sunRim.opacity(0.7), radius: 30)
-                        .position(x: contentW * 0.18, y: h * 0.22 + (contentW * 0.07))
-                }
-
-                // Hills silhouette
-                HillsShape()
-                    .fill(
-                        LinearGradient(
-                            colors: [.clear, SceneArt.sunsetHills],
-                            startPoint: .top,
-                            endPoint: .init(x: 0.5, y: 0.85)
-                        )
-                    )
-                    .frame(height: h * 0.4)
-                    .frame(maxHeight: .infinity, alignment: .bottom)
-            }
-            .frame(width: contentW, height: h)
-            .offset(x: xOffset - (contentW - w) / 2)
-        }
-    }
-}
-
-/// Jagged hill silhouette drawn from percentage coordinates.
-private struct HillsShape: Shape {
-    /// Scales the percentage vertices to `rect`.
-    func path(in rect: CGRect) -> Path {
-        var p = Path()
-        let w = rect.width
-        let h = rect.height
-        /// Point from percentage coordinates.
-        func pt(_ xPct: CGFloat, _ yPct: CGFloat) -> CGPoint {
-            CGPoint(x: w * xPct / 100, y: h * yPct / 100)
-        }
-        p.move(to: pt(0, 100))
-        p.addLine(to: pt(0, 55))
-        p.addLine(to: pt(18, 30))
-        p.addLine(to: pt(35, 50))
-        p.addLine(to: pt(55, 25))
-        p.addLine(to: pt(75, 48))
-        p.addLine(to: pt(100, 30))
-        p.addLine(to: pt(100, 100))
-        p.closeSubpath()
-        return p
     }
 }
 
@@ -521,32 +480,33 @@ private struct StarsView: View {
     }
 }
 
-/// Day-cycle colour ribbon with a travelling sun dot and a filling timeline, looping every eight seconds.
+/// One day-cycle ribbon spread across the monitors, with a travelling sun dot and a filling timeline.
+/// Ribbon, dot and timeline run on behind the gaps, so one loop crosses all three.
 private struct DynamicScene: View {
-    let position: MonitorPosition
+    let slice: PanelSlice
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private let cycle: TimeInterval = 8.0
 
     var body: some View {
-        GeometryReader { geo in
-            let w = geo.size.width
-            let h = geo.size.height
+        SpreadContent(slice: slice) {
+            GeometryReader { geo in
+                let w = geo.size.width
+                let h = geo.size.height
 
-            ZStack {
-                LinearGradient(
-                    stops: SceneArt.dayCycleStops,
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
+                ZStack {
+                    LinearGradient(
+                        stops: SceneArt.dayCycleStops,
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
 
-                TimelineView(.animation(minimumInterval: 1.0 / 60.0, paused: reduceMotion)) { context in
-                    let phase = phase(at: context.date)
-                    ZStack {
-                        // Traveling dot (main monitor only)
-                        if position == .main {
-                            let dotSize = w * 0.12
-                            let dotX = w * (0.10 + 0.80 * phase)
+                    TimelineView(.animation(minimumInterval: 1.0 / 60.0, paused: reduceMotion)) { context in
+                        let phase = phase(at: context.date)
+                        ZStack {
+                            // Traveling dot
+                            let dotSize = h * 0.18
+                            let dotX = w * (0.06 + 0.88 * phase)
                             Circle()
                                 .fill(
                                     RadialGradient(
@@ -559,28 +519,28 @@ private struct DynamicScene: View {
                                 .frame(width: dotSize, height: dotSize)
                                 .blur(radius: 1)
                                 .position(x: dotX, y: h * 0.24 + dotSize / 2)
-                        }
 
-                        // Timeline track + fill (all monitors)
-                        let trackInset: CGFloat = w * 0.12
-                        let trackWidth = w - trackInset * 2
-                        ZStack(alignment: .leading) {
-                            RoundedRectangle(cornerRadius: 1)
-                                .fill(SceneArt.timelineTrack)
-                                .frame(width: trackWidth, height: 2)
+                            // Timeline track + fill
+                            let trackInset: CGFloat = w * 0.06
+                            let trackWidth = w - trackInset * 2
+                            ZStack(alignment: .leading) {
+                                RoundedRectangle(cornerRadius: 1)
+                                    .fill(SceneArt.timelineTrack)
+                                    .frame(width: trackWidth, height: 2)
 
-                            RoundedRectangle(cornerRadius: 3)
-                                .fill(
-                                    LinearGradient(
-                                        colors: SceneArt.timelineFill,
-                                        startPoint: .leading,
-                                        endPoint: .trailing
+                                RoundedRectangle(cornerRadius: 3)
+                                    .fill(
+                                        LinearGradient(
+                                            colors: SceneArt.timelineFill,
+                                            startPoint: .leading,
+                                            endPoint: .trailing
+                                        )
                                     )
-                                )
-                                .frame(width: max(2, trackWidth * (0.05 + 0.95 * phase)), height: 6)
-                                .offset(y: -2)
+                                    .frame(width: max(2, trackWidth * (0.05 + 0.95 * phase)), height: 6)
+                                    .offset(y: -2)
+                            }
+                            .position(x: w / 2, y: h * (1 - 0.14))
                         }
-                        .position(x: w / 2, y: h * (1 - 0.14))
                     }
                 }
             }

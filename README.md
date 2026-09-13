@@ -150,3 +150,5 @@ Contributions are welcome! Feel free to:
 ## License
 
 SpreadPaper is free and open source software licensed under the [MIT License](LICENSE).
+
+Bundled third-party material — the hero photograph, the icon set and the dynamic desktop format — is listed in [CREDITS.md](CREDITS.md).

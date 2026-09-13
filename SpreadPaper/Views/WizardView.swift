@@ -63,21 +63,7 @@ struct WizardView: View {
 
     private var welcomeStep: some View {
         VStack(spacing: 16) {
-            // Monitor illustration
-            HStack(spacing: 3) {
-                RoundedRectangle(cornerRadius: 6)
-                    .fill(Color.cdAccent)
-                    .frame(width: 80, height: 52)
-                    .shadow(color: Color.cdAccentGlow, radius: 8)
-
-                RoundedRectangle(cornerRadius: 6)
-                    .fill(
-                        LinearGradient(colors: [Color.cdAccent, Color.cdAccentSecondary],
-                                       startPoint: .topLeading, endPoint: .bottomTrailing)
-                    )
-                    .frame(width: 80, height: 52)
-                    .shadow(color: Color.cdAccentSecondary.opacity(0.2), radius: 8)
-            }
+            MonitorPairIllustration()
 
             Text("Welcome to SpreadPaper")
                 .font(.system(size: 28, weight: .bold))
@@ -175,5 +161,40 @@ struct WizardView: View {
         settings.hasCompletedWizard = true
         let type: WallpaperType = urls.count == 1 ? .standard : .dynamic
         navigation.navigateToNewEditor(type: type, imageURLs: urls)
+    }
+}
+
+/// Two monitors side by side showing one photograph spread across both.
+/// The scene runs on behind the gap, as the app spreads a wallpaper.
+private struct MonitorPairIllustration: View {
+    private let panel = CGSize(width: 80, height: 52)
+    private let gap: CGFloat = 3
+
+    private var spread: CGSize {
+        CGSize(width: panel.width * 2 + gap, height: panel.height)
+    }
+
+    var body: some View {
+        HStack(spacing: gap) {
+            ForEach(0..<2, id: \.self) { index in
+                SpreadPhoto(
+                    slice: PanelSlice(
+                        spread: spread,
+                        frame: CGRect(
+                            x: (panel.width + gap) * CGFloat(index),
+                            y: 0,
+                            width: panel.width,
+                            height: panel.height
+                        )
+                    )
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 6)
+                        .stroke(Color.cdHighlightStroke, lineWidth: 1)
+                )
+                .shadow(color: .cdShadowStrong, radius: 10, y: 4)
+            }
+        }
     }
 }

@@ -35,14 +35,12 @@ struct ThemeTokensTests {
 
     @Test func sceneArtExposesTheIllustrationPalette() {
         let art: [Color] = [
-            SceneArt.sunsetHaze, SceneArt.sunsetGlow, SceneArt.sunsetHills,
             SceneArt.sunCore, SceneArt.sunRim,
             SceneArt.dayHaze, SceneArt.nightHaze,
             SceneArt.moonCore, SceneArt.moonRim,
             SceneArt.starlight, SceneArt.timelineTrack
         ]
         #expect(Set(art).count == art.count, "two scene colours are identical")
-        #expect(SceneArt.sunsetSky.count == 2)
         #expect(SceneArt.daySky.count == 2)
         #expect(SceneArt.nightSky.count == 2)
         #expect(SceneArt.timelineFill.count == 2)

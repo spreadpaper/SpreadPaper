@@ -103,18 +103,6 @@ extension Color {
 /// Palette for the creation modal's illustrated preview scenes.
 /// Artwork, not chrome, so it sits beside the tokens.
 enum SceneArt {
-    /// Sunset sky, from the top-leading to the bottom-trailing corner.
-    static let sunsetSky = [Color(hex: 0x3a3050), Color(hex: 0x1d2036)]
-
-    /// Purple bloom in the far corner of the sunset sky.
-    static let sunsetHaze = Color(hex: 0x8a4fa3)
-
-    /// Warm bloom around the sunset sun.
-    static let sunsetGlow = Color(hex: 0xd79a55)
-
-    /// Hill silhouette along the bottom of the sunset scene.
-    static let sunsetHills = Color(hex: 0x1d1a2b)
-
     /// Centre of the sun disc.
     static let sunCore = Color(hex: 0xf4e4a0)
 

@@ -50,6 +50,7 @@ Source files organized under `SpreadPaper/`. One external package: PhosphorSwift
 - **Views/EditorView.swift** — Full editor: header, canvas with a floating zoom/fit/flip HUD, and an inspector with type, images, zoom and orientation sections, plus a displays section for bezels that appears only with two or more displays
 - **Views/EditorCanvasView.swift** — Monitor canvas rendering with image overlay, drag, zoom, snap and image drops
 - **Views/MonitorPreviewView.swift** — Individual monitor outline for the canvas
+- **Views/SpreadPhoto.swift** — `PanelSlice`, `SpreadContent` and `SpreadPhoto`: one scene laid out across several illustration panels, each panel clipped to its own part of it. Used by the creation modal hero and the wizard
 - **Views/ScheduleView.swift** — `ScheduleDetailModal`, opened from an editor schedule row: name, active period, one range bar
 - **Views/RangeBarView.swift** — SwiftUI time bar with one draggable, snapping handle, plus `RangeBarMath` (pure, unit-tested). Used once, inside `ScheduleDetailModal`
 - **Views/SaveDialog.swift** — Overlay that names a preset before Save or Save & Apply
