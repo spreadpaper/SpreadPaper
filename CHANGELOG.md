@@ -1,5 +1,41 @@
 # Changelog
 
+## [1.9.0](https://github.com/spreadpaper/SpreadPaper/compare/v1.8.0...v1.9.0) (2026-09-13)
+
+
+### Features
+
+* crossfade day and night photos in the Light & Dark hero ([#121](https://github.com/spreadpaper/SpreadPaper/issues/121)) ([f785c1f](https://github.com/spreadpaper/SpreadPaper/commit/f785c1fe4e291e37661580815b4066193dd3876d))
+* cycle the Dynamic hero through a day of photographs ([#124](https://github.com/spreadpaper/SpreadPaper/issues/124)) ([33d0367](https://github.com/spreadpaper/SpreadPaper/commit/33d036719289bde098f3c1084eaf10a6b88afe29))
+* import wallpapers saved by earlier versions ([#113](https://github.com/spreadpaper/SpreadPaper/issues/113)) ([0894dd8](https://github.com/spreadpaper/SpreadPaper/commit/0894dd8120effc50e8eb6e16ad969dfcb5fee7d8))
+* new app icon ([#99](https://github.com/spreadpaper/SpreadPaper/issues/99)) ([a4ba884](https://github.com/spreadpaper/SpreadPaper/commit/a4ba884c2f9c778dec72e56eb349fcac2c6d665f))
+* rebuild Settings as a native macOS settings window ([#71](https://github.com/spreadpaper/SpreadPaper/issues/71)) ([c6f1e2a](https://github.com/spreadpaper/SpreadPaper/commit/c6f1e2ab471e6a3ef17f71ad8b9653167d81aabd))
+
+
+### Bug Fixes
+
+* close the blind spots in the user-facing copy guard ([#127](https://github.com/spreadpaper/SpreadPaper/issues/127)) ([a4225bb](https://github.com/spreadpaper/SpreadPaper/commit/a4225bb76976217a565e7867df114ce1a47c60ae))
+* fill the gallery in as thumbnails arrive ([#135](https://github.com/spreadpaper/SpreadPaper/issues/135)) ([a59a3db](https://github.com/spreadpaper/SpreadPaper/commit/a59a3db8c5240221680d7afb581d14b488b35a4c))
+* focus and select the save dialog name without AppKit responder tricks ([#92](https://github.com/spreadpaper/SpreadPaper/issues/92)) ([fc4a33b](https://github.com/spreadpaper/SpreadPaper/commit/fc4a33bc32fea6f19559175d0a57063ac594f3e9))
+* harden the update checker against HTTP errors, odd tags and prereleases ([#96](https://github.com/spreadpaper/SpreadPaper/issues/96)) ([0db734d](https://github.com/spreadpaper/SpreadPaper/commit/0db734d9a101a075372d5455cf3838697973bbaa))
+* keep the renders other desktops still point at ([#136](https://github.com/spreadpaper/SpreadPaper/issues/136)) ([6ee6e4b](https://github.com/spreadpaper/SpreadPaper/commit/6ee6e4b639785b0166248308af964735df75e4f8))
+* make drag and drop work in the wizard and editor ([#77](https://github.com/spreadpaper/SpreadPaper/issues/77)) ([b757c00](https://github.com/spreadpaper/SpreadPaper/commit/b757c006257a0164044682504f278266a38fe790))
+* pick a schedule start time from short hour and minute menus ([#130](https://github.com/spreadpaper/SpreadPaper/issues/130)) ([a1944c3](https://github.com/spreadpaper/SpreadPaper/commit/a1944c3b30701112eabb889ac1a0f37b3c9e55b9))
+* request read-only access to user-selected files ([#104](https://github.com/spreadpaper/SpreadPaper/issues/104)) ([ddaeb91](https://github.com/spreadpaper/SpreadPaper/commit/ddaeb9149a255884f5235d963f659a4d4632046e)), closes [#98](https://github.com/spreadpaper/SpreadPaper/issues/98)
+* restore hover on the editor header and canvas HUD buttons ([#133](https://github.com/spreadpaper/SpreadPaper/issues/133)) ([b85273c](https://github.com/spreadpaper/SpreadPaper/commit/b85273cfa82e5f71f57c776f0225875119fe81f1))
+* restore the New Wallpaper heading ([#128](https://github.com/spreadpaper/SpreadPaper/issues/128)) ([75d03e9](https://github.com/spreadpaper/SpreadPaper/commit/75d03e9e5cb903b496a41e59334f7dbdf740dddd))
+* show one image spread across the hero monitors ([#119](https://github.com/spreadpaper/SpreadPaper/issues/119)) ([1d80dfd](https://github.com/spreadpaper/SpreadPaper/commit/1d80dfdbb5eb097e19c5913cab31693fa502c1e7))
+* stop the skeleton shimmer leaking into the search field ([#68](https://github.com/spreadpaper/SpreadPaper/issues/68)) ([9424209](https://github.com/spreadpaper/SpreadPaper/commit/942420960c1447640bf8005a955f2e76ff0d92cd))
+* tighten the onboarding copy and its wrapping ([#125](https://github.com/spreadpaper/SpreadPaper/issues/125)) ([56e7dd9](https://github.com/spreadpaper/SpreadPaper/commit/56e7dd9ec52866b7653a8519d65fa14065342f13))
+* tint Phosphor glyphs by template rendering so icons draw ([#117](https://github.com/spreadpaper/SpreadPaper/issues/117)) ([0a6e92b](https://github.com/spreadpaper/SpreadPaper/commit/0a6e92bf52ba425417a5045a694be7a3b56f74e9))
+* write dynamic HEIC files straight to disk and report count mismatches ([#91](https://github.com/spreadpaper/SpreadPaper/issues/91)) ([6c230c2](https://github.com/spreadpaper/SpreadPaper/commit/6c230c221e3b8d0402aaf98277277e378f6fb911))
+* write dynamic wallpapers to a new file per apply so macOS reloads them ([#105](https://github.com/spreadpaper/SpreadPaper/issues/105)) ([864c0db](https://github.com/spreadpaper/SpreadPaper/commit/864c0db59712e904139703af87d71450d8fe0d47))
+
+
+### Performance Improvements
+
+* build gallery thumbnails with ImageIO downsampling ([#79](https://github.com/spreadpaper/SpreadPaper/issues/79)) ([1c48c7f](https://github.com/spreadpaper/SpreadPaper/commit/1c48c7fb7d54a61009f10753aa63a7e6707f5c5f))
+
 ## [1.8.0](https://github.com/spreadpaper/SpreadPaper/compare/v1.7.0...v1.8.0) (2026-09-12)
 
 

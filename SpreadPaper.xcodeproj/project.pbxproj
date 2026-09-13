@@ -350,7 +350,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 1.8.0; /* x-release-please-version */
+				MARKETING_VERSION = 1.9.0; /* x-release-please-version */
 				PRODUCT_BUNDLE_IDENTIFIER = com.cattlea.SpreadPaper;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -386,7 +386,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 1.8.0; /* x-release-please-version */
+				MARKETING_VERSION = 1.9.0; /* x-release-please-version */
 				PRODUCT_BUNDLE_IDENTIFIER = com.cattlea.SpreadPaper;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
