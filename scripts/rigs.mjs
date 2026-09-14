@@ -49,7 +49,8 @@ export const RIGS = {
     image: { x: 0, y: 0, w: 911, h: 200 },
     screens: [lid(0, 83), m27(195), m27(556)],
     stands: [{ cx: 372.5, top: 200 }, { cx: 733.5, top: 200 }],
-    laptop: { chin: { x: 0, y: 190, w: 181, h: 16, rx: 3 }, base: { x: -4, y: 206, w: 193, h: 30, rx: 4 } },
+    bezel: 9,
+    laptop: { chin: { x: 0, w: 181, to: 206, rx: 3 }, base: { x: -4, y: 206, w: 193, h: 30, rx: 4 } },
     glow: true,
   },
   dual: {
@@ -68,7 +69,8 @@ export const RIGS = {
     image: { x: 0, y: 0, w: 550, h: 218 },
     screens: [m27(0), lid(361, 101)],
     stands: [{ cx: 177.5, top: 200 }],
-    laptop: { chin: { x: 361, y: 210, w: 181, h: 20, rx: 3 }, base: { x: 357, y: 230, w: 189, h: 6, rx: 3 } },
+    bezel: 9,
+    laptop: { chin: { x: 361, w: 181, to: 230, rx: 3 }, base: { x: 357, y: 230, w: 189, h: 6, rx: 3 } },
     glow: true,
   },
   'portrait-trio': {
@@ -156,6 +158,20 @@ export const RIGS = {
   },
 }
 
+/**
+ * Where a laptop's chin sits: flush with the bottom of the lit screen, so it
+ * covers the lid's rounded corners and none of the photograph. Derived
+ * rather than written down, because a one unit error is invisible.
+ *
+ * @param {object} r - The rig, which must carry a laptop and a bezel.
+ * @returns {{x: number, y: number, w: number, h: number, rx: number}} The chin rect.
+ */
+function chinOf(r) {
+  const lid = r.screens.find((s) => s.h === SCREEN.laptop14.h)
+  const y = lid.y + lid.h - r.bezel
+  return { x: r.laptop.chin.x, y, w: r.laptop.chin.w, h: r.laptop.chin.to - y, rx: r.laptop.chin.rx }
+}
+
 const rect = (s, cls) =>
   `<rect${cls ? ` class="${cls}"` : ''} x="${s.x}" y="${s.y}" width="${s.w}" height="${s.h}"${s.rx ? ` rx="${s.rx}"` : ''}/>`
 
@@ -206,7 +222,7 @@ export function markup(name, { id, photos, label, classes = '', indent = '', day
     )
   }
   if (furniture.length) lines.push(`${p(1)}<g class="rig-stand">`, ...furniture, `${p(1)}</g>`)
-  if (r.laptop) lines.push(p(1) + rect(r.laptop.chin, 'rig-chin'))
+  if (r.laptop) lines.push(p(1) + rect(chinOf(r), 'rig-chin'))
   if (r.bleed) {
     lines.push(
       `${p(1)}<image class="rig-bleed" href="${photos[0]}" x="${r.image.x}" y="${r.image.y}" width="${r.image.w}" height="${r.image.h}" preserveAspectRatio="${align} slice"/>`,
@@ -249,7 +265,12 @@ export function check() {
     for (const st of r.stands) {
       if (st.top + STAND_DROP > vh) problems.push(`${name}: a stand runs past the bottom of the viewBox`)
     }
-    if (r.laptop && r.laptop.base.y + r.laptop.base.h > vh) problems.push(`${name}: the laptop base runs past the viewBox`)
+    if (r.laptop) {
+      if (r.laptop.base.y + r.laptop.base.h > vh) problems.push(`${name}: the laptop base runs past the viewBox`)
+      const lid = r.screens.find((s) => s.h === SCREEN.laptop14.h)
+      if (chinOf(r).y < lid.y + lid.h - r.bezel) problems.push(`${name}: the chin covers part of the lit screen`)
+      if (chinOf(r).h <= 0) problems.push(`${name}: the chin has no height`)
+    }
     if (r.hud) {
       const wide = r.screens[0]
       const { bar } = r.hud

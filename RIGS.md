@@ -110,7 +110,7 @@ A 14-inch laptop open at the left with two 27-inch monitors beside it. The every
     <rect x="719.5" y="200" width="28" height="28"/><rect x="678.5" y="228" width="110" height="8" rx="4"/>
     <rect x="-4" y="206" width="193" height="30" rx="4"/>
   </g>
-  <rect class="rig-chin" x="0" y="190" width="181" height="16" rx="3"/>
+  <rect class="rig-chin" x="0" y="191" width="181" height="15" rx="3"/>
   <g clip-path="url(#rig-example-desk)">
     <image class="rig-photo" href="/photos/hero-beach.jpg" x="0" y="0" width="911" height="200" preserveAspectRatio="xMidYMid slice"/>
     <rect class="rig-frame" x="0" y="83" width="181" height="117" rx="8"/>
@@ -166,7 +166,7 @@ A 27-inch monitor with a 14-inch laptop beside it, the laptop screen smaller and
     <rect x="163.5" y="200" width="28" height="28"/><rect x="122.5" y="228" width="110" height="8" rx="4"/>
     <rect x="357" y="230" width="189" height="6" rx="3"/>
   </g>
-  <rect class="rig-chin" x="361" y="210" width="181" height="20" rx="3"/>
+  <rect class="rig-chin" x="361" y="209" width="181" height="21" rx="3"/>
   <g clip-path="url(#rig-example-laptop)">
     <image class="rig-photo" href="/photos/hero-beach.jpg" x="0" y="0" width="550" height="218" preserveAspectRatio="xMidYMid slice"/>
     <image class="rig-photo rig-photo-fade" href="/photos/1200/hero-beach-night.jpg" x="0" y="0" width="550" height="218" preserveAspectRatio="xMidYMid slice"/>
