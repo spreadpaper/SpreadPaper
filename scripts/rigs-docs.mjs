@@ -4,7 +4,7 @@
 import { writeFileSync, readFileSync } from 'node:fs'
 import { resolve, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { markup, RIGS, check } from './rigs.mjs'
+import { markup, RIGS, PHOTOS, check } from './rigs.mjs'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(HERE, '..')
@@ -36,10 +36,13 @@ if (problems.length) throw new Error(problems.join('\n'))
 const header =
   '| Rig | What it draws | viewBox | Ratio | Where it belongs |\n| --- | --- | --- | --- | --- |\n'
 
-const text = expand(readFileSync(resolve(HERE, 'rigs-prose.md'), 'utf8')).replace(
-  '@table',
-  header + Object.keys(RIGS).map(row).join('\n')
-)
+const photos =
+  '| Photograph | URL |\n| --- | --- |\n' +
+  Object.values(PHOTOS).map((p) => `| ${p.caption} | \`${p.url}\` |`).join('\n')
+
+const text = expand(readFileSync(resolve(HERE, 'rigs-prose.md'), 'utf8'))
+  .replace('@table', header + Object.keys(RIGS).map(row).join('\n'))
+  .replace('@photos', photos)
 
 writeFileSync(resolve(ROOT, 'RIGS.md'), text)
 console.log('RIGS.md', text.split('\n').length, 'lines')

@@ -15,6 +15,19 @@ export const SCREEN = {
   laptop14: { w: 181, h: 117 },
 }
 
+// One URL per photograph for the whole page, whatever rig shows it. A browser
+// caches per URL, so a second size is a second download of a picture the page
+// already has rather than a cheaper substitute for it. The beach is the one
+// 2400px original, because the hero draws it at full shell width.
+export const PHOTOS = {
+  'hero-beach': { url: '/photos/hero-beach.jpg', caption: 'Beach at sunset' },
+  'hero-beach-night': { url: '/photos/1200/hero-beach-night.jpg', caption: 'Beach at night' },
+  'hero-day-1': { url: '/photos/1200/hero-day-1.jpg', caption: 'Sunrise on the ridge' },
+  'hero-day-2': { url: '/photos/1200/hero-day-2.jpg', caption: 'Midday over the peak' },
+  'hero-day-3': { url: '/photos/1200/hero-day-3.jpg', caption: 'Evening light' },
+  'hero-day-4': { url: '/photos/1200/hero-day-4.jpg', caption: 'The Milky Way' },
+}
+
 // What the app's editor HUD actually shows, read off EditorView.swift rather
 // than from memory of what an editor HUD usually looks like.
 const HUD_GLYPHS = ['minus', 'plus', 'arrows-out-simple', 'arrows-left-right']

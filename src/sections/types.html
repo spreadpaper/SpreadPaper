@@ -9,16 +9,18 @@
         #types[data-tabs-ready] .types-kind { display: none; }
 
         /* The three panels stack in one grid cell, so the container always reserves the
-           tallest of them and choosing a tab never moves the page under the reader. The
-           script hides a panel with the `hidden` attribute, which would drop it out of the
-           grid and let the container collapse, so a hidden panel keeps its box and goes
-           only as far as `visibility`. That also takes it out of the tab order and the
-           accessibility tree, which is the part `hidden` was there for.
+           tallest of them and choosing a tab never moves the page under the reader.
+           Reserving the tallest rather than naming a height is what holds at every width:
+           the rigs have fixed but different aspects, and the captions and readouts rewrap,
+           so which panel is tallest is not a constant worth guessing at.
 
-           Reserving the tallest rather than naming a height is what makes this hold at
-           every width: the three rigs have fixed but different aspects, and their captions
-           and readouts differ too, so which panel is tallest is not a constant worth
-           guessing at. */
+           A closed panel therefore has to keep its box, which rules out the `hidden`
+           attribute. Tailwind's preflight sets `[hidden] { display: none !important }`
+           inside `@layer base`, and importance is settled before both layer order and
+           specificity, so no unlayered rule here can outrank it and the panel would leave
+           the grid. The tab script marks a closed panel `inert` instead, which keeps the
+           box while still taking the panel out of the tab order and the accessibility
+           tree, which is the part `hidden` was doing the work for. */
         #types[data-tabs-ready] .types-panels { display: grid; }
 
         #types[data-tabs-ready] [data-types-panel] {
@@ -26,8 +28,7 @@
             transition: opacity 200ms ease-out, transform 200ms ease-out;
         }
 
-        #types[data-tabs-ready] [data-types-panel][hidden] {
-            display: block;
+        #types[data-tabs-ready] [data-types-panel][inert] {
             visibility: hidden;
             opacity: 0;
             transform: translateY(6px);
@@ -133,7 +134,7 @@
                             <rect x="524.5" y="200" width="28" height="28"/><rect x="483.5" y="228" width="110" height="8" rx="4"/>
                           </g>
                           <g clip-path="url(#rig-types-static)">
-                            <image class="rig-photo" href="/photos/1200/hero-beach.jpg" x="0" y="0" width="716" height="200" preserveAspectRatio="xMidYMid slice"/>
+                            <image class="rig-photo" href="/photos/hero-beach.jpg" x="0" y="0" width="716" height="200" preserveAspectRatio="xMidYMid slice"/>
                             <rect class="rig-frame" x="0" y="0" width="355" height="200" rx="10"/>
                             <rect class="rig-frame" x="361" y="0" width="355" height="200" rx="10"/>
                           </g>
@@ -168,7 +169,7 @@
                               </g>
                               <rect class="rig-chin" x="361" y="210" width="181" height="20" rx="3"/>
                               <g clip-path="url(#rig-types-appearance)">
-                                <image class="rig-photo" href="/photos/1200/hero-beach.jpg" x="0" y="0" width="550" height="218" preserveAspectRatio="xMidYMid slice"/>
+                                <image class="rig-photo" href="/photos/hero-beach.jpg" x="0" y="0" width="550" height="218" preserveAspectRatio="xMidYMid slice"/>
                                 <image class="rig-photo rig-photo-fade" href="/photos/1200/hero-beach-night.jpg" x="0" y="0" width="550" height="218" preserveAspectRatio="xMidYMid slice"/>
                                 <rect class="rig-frame" x="0" y="0" width="355" height="200" rx="10"/>
                                 <rect class="rig-frame" x="361" y="101" width="181" height="117" rx="8"/>
@@ -218,11 +219,11 @@
                                 <rect x="653" y="355" width="28" height="28"/><rect x="612" y="383" width="110" height="8" rx="4"/>
                               </g>
                               <g clip-path="url(#rig-types-dynamic)">
-                                <image class="rig-photo" href="/photos/hero-day-1.jpg" x="0" y="0" width="767" height="355" preserveAspectRatio="xMidYMid slice"/>
-                                <image class="rig-photo rig-day rig-day-2" href="/photos/hero-day-2.jpg" x="0" y="0" width="767" height="355" preserveAspectRatio="xMidYMid slice"/>
-                                <image class="rig-photo rig-day rig-day-3" href="/photos/hero-day-3.jpg" x="0" y="0" width="767" height="355" preserveAspectRatio="xMidYMid slice"/>
-                                <image class="rig-photo rig-day rig-day-4" href="/photos/hero-day-4.jpg" x="0" y="0" width="767" height="355" preserveAspectRatio="xMidYMid slice"/>
-                                <image class="rig-photo rig-day rig-day-wrap" href="/photos/hero-day-1.jpg" x="0" y="0" width="767" height="355" preserveAspectRatio="xMidYMid slice"/>
+                                <image class="rig-photo" href="/photos/1200/hero-day-1.jpg" x="0" y="0" width="767" height="355" preserveAspectRatio="xMidYMid slice"/>
+                                <image class="rig-photo rig-day rig-day-2" href="/photos/1200/hero-day-2.jpg" x="0" y="0" width="767" height="355" preserveAspectRatio="xMidYMid slice"/>
+                                <image class="rig-photo rig-day rig-day-3" href="/photos/1200/hero-day-3.jpg" x="0" y="0" width="767" height="355" preserveAspectRatio="xMidYMid slice"/>
+                                <image class="rig-photo rig-day rig-day-4" href="/photos/1200/hero-day-4.jpg" x="0" y="0" width="767" height="355" preserveAspectRatio="xMidYMid slice"/>
+                                <image class="rig-photo rig-day rig-day-wrap" href="/photos/1200/hero-day-1.jpg" x="0" y="0" width="767" height="355" preserveAspectRatio="xMidYMid slice"/>
                                 <rect class="rig-frame" x="0" y="0" width="200" height="355" rx="10"/>
                                 <rect class="rig-frame" x="206" y="155" width="355" height="200" rx="10"/>
                                 <rect class="rig-frame" x="567" y="0" width="200" height="355" rx="10"/>

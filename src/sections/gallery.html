@@ -4,20 +4,14 @@
     /* Lifts the preset cards off the gallery's own background. Same card, one surface up. */
     #gallery .gl-card { background-color: var(--color-cd-bg-elevated); }
 
-    /* The first card is `markup('thumb')` from scripts/rigs.mjs verbatim. The other three are
-       that same rig at the same scale with different screens, since the generator draws one
-       thumbnail arrangement and the client asked for varied setups: 0.32 of the full-size
-       geometry, so a 27-inch screen is 114 by 64, one turned on its end is 64 by 114, a
-       14-inch laptop lid is 58 by 37 sitting 32 units lower because a laptop sits on the
-       desk, with a 2 unit gap and a 3 unit radius throughout. Rebuild them from the same
-       factor if `SCREEN` in the generator changes.
+    /* All four thumbnails come from scripts/rigs.mjs: `thumb`, `thumb-pair`, `thumb-portrait`
+       and `thumb-laptop`, one arrangement per preset.
 
        One tile shape for every thumbnail, whatever is drawn inside it. The four presets are
        four different setups, so their rigs are different shapes, and each is held to its own
        size inside a tile they all share, the way a row of presets sits in the app. A rig with
-       more screens is physically wider, so it lands smaller in the tile, which is honest.
-       Width and height are set here rather than by a utility, since `.rig` sets both itself
-       and an unlayered rule beats any utility class. */
+       more screens is physically wider, so it lands smaller in the tile, which is honest. The
+       aspect belongs to the tile and never to a rig, which carries its own in its viewBox. */
     #gallery .gl-tile {
       display: flex;
       align-items: center;
@@ -87,7 +81,7 @@
       <li class="col-span-12 sm:col-span-6 lg:col-span-3" data-reveal>
         <article class="cd-card gl-card p-3">
           <div class="gl-tile">
-            <svg class="rig rig-thumb" viewBox="0 0 230 64" aria-hidden="true" focusable="false">
+            <svg class="rig rig-thumb-pair" viewBox="0 0 230 64" aria-hidden="true" focusable="false">
               <defs>
                 <clipPath id="rig-gallery-2">
                   <rect x="0" y="0" width="114" height="64" rx="3"/>
@@ -114,7 +108,7 @@
       <li class="col-span-12 sm:col-span-6 lg:col-span-3" data-reveal>
         <article class="cd-card gl-card p-3">
           <div class="gl-tile">
-            <svg class="rig rig-thumb" viewBox="0 0 180 114" aria-hidden="true" focusable="false">
+            <svg class="rig rig-thumb-portrait" viewBox="0 0 180 114" aria-hidden="true" focusable="false">
               <defs>
                 <clipPath id="rig-gallery-3">
                   <rect x="0" y="0" width="64" height="114" rx="3"/>
@@ -122,7 +116,7 @@
                 </clipPath>
               </defs>
               <g clip-path="url(#rig-gallery-3)">
-                <image class="rig-photo" href="/photos/hero-day-3.jpg" x="0" y="0" width="180" height="114" preserveAspectRatio="xMidYMid slice"/>
+                <image class="rig-photo" href="/photos/1200/hero-day-3.jpg" x="0" y="0" width="180" height="114" preserveAspectRatio="xMidYMid slice"/>
                 <rect class="rig-frame" x="0" y="0" width="64" height="114" rx="3"/>
                 <rect class="rig-frame" x="66" y="50" width="114" height="64" rx="3"/>
               </g>
@@ -141,17 +135,17 @@
       <li class="col-span-12 sm:col-span-6 lg:col-span-3" data-reveal>
         <article class="cd-card gl-card p-3">
           <div class="gl-tile">
-            <svg class="rig rig-thumb" viewBox="0 0 174 69" aria-hidden="true" focusable="false">
+            <svg class="rig rig-thumb-laptop" viewBox="0 0 174 70" aria-hidden="true" focusable="false">
               <defs>
                 <clipPath id="rig-gallery-4">
                   <rect x="0" y="0" width="114" height="64" rx="3"/>
-                  <rect x="116" y="32" width="58" height="37" rx="3"/>
+                  <rect x="116" y="32" width="58" height="37" rx="2"/>
                 </clipPath>
               </defs>
               <g clip-path="url(#rig-gallery-4)">
-                <image class="rig-photo" href="/photos/hero-day-4.jpg" x="0" y="0" width="174" height="69" preserveAspectRatio="xMidYMid slice"/>
+                <image class="rig-photo" href="/photos/1200/hero-day-4.jpg" x="0" y="0" width="174" height="70" preserveAspectRatio="xMidYMid slice"/>
                 <rect class="rig-frame" x="0" y="0" width="114" height="64" rx="3"/>
-                <rect class="rig-frame" x="116" y="32" width="58" height="37" rx="3"/>
+                <rect class="rig-frame" x="116" y="32" width="58" height="37" rx="2"/>
               </g>
             </svg>
           </div>

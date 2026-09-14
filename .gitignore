@@ -4,6 +4,9 @@ node_modules/
 # Build output
 dist/
 
+# Scratch files, which several agents write into the worktree root
+*.tmp.*
+
 # Logs
 *.log
 npm-debug.log*

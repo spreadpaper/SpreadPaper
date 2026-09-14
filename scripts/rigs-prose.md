@@ -193,16 +193,9 @@ Two things the rig cannot give you, because SVG does not. An `<image>` takes no 
 
 One size per photograph, for the whole page, whatever rig is showing it.
 
-| Photograph | URL |
-| --- | --- |
-| Beach at sunset | `/photos/hero-beach.jpg` |
-| Beach at night | `/photos/1200/hero-beach-night.jpg` |
-| Sunrise on the ridge | `/photos/1200/hero-day-1.jpg` |
-| Midday over the peak | `/photos/1200/hero-day-2.jpg` |
-| Evening light | `/photos/1200/hero-day-3.jpg` |
-| The Milky Way | `/photos/1200/hero-day-4.jpg` |
+@photos
 
-This is a rule about photographs, not about rigs, and it is the one thing here most likely to be got wrong, because choosing a size per rig feels like the careful thing to do. It is the opposite. A browser caches per URL, so a thumbnail asking for the 600px copy of a photograph the hero already fetched at 2400 does not save anything, it adds a second download of a picture the page already has. Picking sizes per rig took the page from 636KB of photographs to 1192KB, with four of the six fetched at two or three sizes each.
+`npm run rigs:check` enforces this across every section file, along with the other two rig failures that do not show on the page. It is a rule about photographs, not about rigs, and it is the one thing here most likely to be got wrong, because choosing a size per rig feels like the careful thing to do. It is the opposite. A browser caches per URL, so a thumbnail asking for the 600px copy of a photograph the hero already fetched at 2400 does not save anything, it adds a second download of a picture the page already has. Picking sizes per rig took the page from 636KB of photographs to 1192KB, with four of the six fetched at two or three sizes each.
 
 `hero-beach.jpg` is the page's one 2400px original, because the hero draws it at full shell width and it is the LCP element. Every rig showing that photograph uses the same 2400px file, thumbnails included, and none of them pays anything for it: the hero has already caused the download.
 

@@ -191,6 +191,14 @@ function setupBezelSliders() {
  * each naming its panel through `aria-controls`. The tab marked
  * `aria-selected="true"` in the markup is the one that opens, and each
  * panel takes its `role`, `aria-labelledby` and `tabindex` from here.
+ *
+ * A closed panel is marked `inert`, which takes it out of the tab order and
+ * the accessibility tree but draws nothing, so the section owns hiding it.
+ * `visibility: hidden` is the expected choice, and it keeps the panel's box
+ * so switching tabs cannot move the page. Hiding a panel with `hidden`
+ * instead would work but could never be overridden: preflight sets
+ * `display: none` on it with `!important` from inside a cascade layer,
+ * which beats any section rule, layered or not, important or not.
  */
 function setupTabs() {
   document.querySelectorAll('[data-tabs]').forEach((root) => {
@@ -215,9 +223,9 @@ function setupTabs() {
         const isCurrent = i === index
         tab.setAttribute('aria-selected', String(isCurrent))
         tab.tabIndex = isCurrent ? 0 : -1
-        // Hidden by attribute, never by style, so a section can restyle `[hidden]`
-        // to keep the panel's box. The types section does, to stop the page jumping.
-        panels[i].toggleAttribute('hidden', !isCurrent)
+        // `inert` rather than `hidden`, because preflight sets `display: none` on
+        // `[hidden]` with `!important` inside a layer, which no section rule can beat.
+        panels[i].toggleAttribute('inert', !isCurrent)
       })
       if (moveFocus) tabs[index].focus()
     }
