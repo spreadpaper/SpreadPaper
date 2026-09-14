@@ -28,6 +28,17 @@ export const PHOTOS = {
   'hero-day-4': { url: '/photos/1200/hero-day-4.jpg', caption: 'The Milky Way' },
 }
 
+// The light each rig throws onto the desk, which is where the page gets its
+// colour. These are a design ruling rather than a preference, so they are named
+// here and passed to markup(): a tint bolted onto generated output by hand is
+// lost the next time anyone regenerates that rig.
+export const GLOW = {
+  neutral: 'rgb(255 255 255 / 0.12)',
+  appearance: 'rgb(124 124 255 / 0.14)',
+  dynamic: 'rgb(245 165 36 / 0.14)',
+  accent: 'rgb(94 92 230 / 0.10)',
+}
+
 // What the app's editor HUD actually shows, read off EditorView.swift rather
 // than from memory of what an editor HUD usually looks like.
 const HUD_GLYPHS = ['minus', 'plus', 'arrows-out-simple', 'arrows-left-right']
@@ -181,10 +192,11 @@ const rect = (s, cls) =>
  * unique across the whole page.
  *
  * @param {string} name - Key in RIGS.
- * @param {{id: string, photos: string[], label?: string, classes?: string, indent?: string, day?: boolean, glyphs?: string[], align?: string}} opts
+ * @param {{id: string, photos: string[], label?: string, classes?: string, indent?: string, day?: boolean, glyphs?: string[], align?: string, glow?: string}} opts
  * @returns {string} The SVG markup.
  */
-export function markup(name, { id, photos, label, classes = '', indent = '', day = false, glyphs = HUD_GLYPHS, align = 'xMidYMid' }) {
+export function markup(name, { id, photos, label, classes = '', indent = '', day = false, glyphs = HUD_GLYPHS, align = 'xMidYMid', glow }) {
+  if (glow && !GLOW[glow]) throw new Error(`no glow tint called ${glow}, expected one of ${Object.keys(GLOW).join(', ')}`)
   const r = RIGS[name]
   const [vw, vh] = r.viewBox
   const p = (n) => indent + '  '.repeat(n)
@@ -208,7 +220,7 @@ export function markup(name, { id, photos, label, classes = '', indent = '', day
   if (r.laptop) furniture.push(p(2) + rect(r.laptop.base))
 
   const lines = [
-    `${indent}<svg class="rig rig-${name}${classes ? ' ' + classes : ''}" viewBox="0 0 ${vw} ${vh}" ${a11y} focusable="false">`,
+    `${indent}<svg class="rig rig-${name}${classes ? ' ' + classes : ''}"${glow ? ` style="--rig-glow-color: ${GLOW[glow]}"` : ''} viewBox="0 0 ${vw} ${vh}" ${a11y} focusable="false">`,
     `${p(1)}<defs>`,
     `${p(2)}<clipPath id="${id}">`,
     ...r.screens.map((s) => p(3) + rect(s)),

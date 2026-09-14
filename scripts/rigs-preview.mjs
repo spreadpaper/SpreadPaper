@@ -10,12 +10,12 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const P = '/photos/1200'
 
 const GLOW = {
-  desk: 'rgb(255 255 255 / 0.06)',
-  dual: 'rgb(255 255 255 / 0.06)',
-  laptop: 'rgb(124 124 255 / 0.10)',
-  'portrait-trio': 'rgb(245 165 36 / 0.10)',
-  trio: 'rgb(94 92 230 / 0.08)',
-  ultrawide: 'rgb(255 255 255 / 0.06)',
+  desk: 'neutral',
+  dual: 'neutral',
+  laptop: 'appearance',
+  'portrait-trio': 'dynamic',
+  trio: 'accent',
+  ultrawide: 'neutral',
 }
 
 const block = (heading, note, svg, width = '52rem') => `
@@ -31,11 +31,7 @@ ${svg}
 function one(name, opts, note, width) {
   const r = RIGS[name]
   const [w, h] = r.viewBox
-  const tint = GLOW[name]
-  const svg = markup(name, { indent: '      ', ...opts }).replace(
-    '<svg ',
-    tint ? `<svg style="--rig-glow-color: ${tint}" ` : '<svg '
-  )
+  const svg = markup(name, { indent: '      ', glow: GLOW[name], ...opts })
   return block(
     `rig-${name}`,
     `viewBox 0 0 ${w} ${h}, ratio ${(w / h).toFixed(2)}. ${note}`,
@@ -105,7 +101,8 @@ const parts = [
       day: true,
       indent: '      ',
       label: 'Three monitors running through one day, sunrise to night.',
-    }).replace('<svg ', `<svg style="--rig-glow-color: ${GLOW['portrait-trio']}" `),
+      glow: GLOW['portrait-trio'],
+    }),
     '44rem'
   ),
 
