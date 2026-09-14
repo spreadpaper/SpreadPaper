@@ -293,7 +293,7 @@ function setupClockPhase() {
  */
 function setupStarCount() {
   const counts = document.querySelectorAll('[data-stars]')
-  if (!counts.length) return
+  if (!counts.length || typeof fetch !== 'function') return
 
   fetch('https://api.github.com/repos/spreadpaper/SpreadPaper', {
     headers: { accept: 'application/vnd.github+json' },
