@@ -201,6 +201,9 @@ class WallpaperManager {
         succeeded: Set<CGDirectDisplayID>,
         removable: (_ filenames: [String], _ displayIDs: [CGDirectDisplayID], _ keeping: [CGDirectDisplayID: String], _ sweepLegacy: Bool) -> [String]
     ) {
+        // The screen list is read after the render, so the last display can have gone by now.
+        // Nothing there is verifiable against no displays, so the sweep waits for the next apply.
+        guard !connectedScreens.isEmpty else { return }
         guard let filenames = try? FileManager.default.contentsOfDirectory(atPath: directory.path) else { return }
         var keeping: [CGDirectDisplayID: String] = [:]
         for displayID in succeeded {
@@ -219,17 +222,24 @@ class WallpaperManager {
     }
 
     /// Removes `dynamic/` folders whose preset is gone, and the HEICs inside them.
-    /// Reads the folder names only; a stranger in there is left alone.
-    /// Removal is best-effort; leftovers go next launch.
+    /// Names are taken here, so a folder made later is never in the list.
+    /// Deleting runs off the main actor; leftovers go next launch.
     private func sweepOrphanedRenderFolders() {
         let dynamicDir = dynamicDirectoryURL
         guard let names = try? FileManager.default.contentsOfDirectory(atPath: dynamicDir.path) else { return }
         let doomed = WallpaperFilenames.removableDynamicDirectories(in: names, presetIds: presets.map(\.id))
-        for name in doomed {
-            do {
-                try FileManager.default.removeItem(at: dynamicDir.appending(path: name, directoryHint: .isDirectory))
-            } catch {
-                logger.error("Removing render folder \(name, privacy: .public) failed: \(error, privacy: .public)")
+        guard !doomed.isEmpty else { return }
+        Task.detached(priority: .utility) {
+            for name in doomed {
+                do {
+                    try FileManager.default.removeItem(at: dynamicDir.appending(path: name, directoryHint: .isDirectory))
+                } catch {
+                    // `logger` is main-actor isolated, so a failure is reported back there.
+                    let reason = error.localizedDescription
+                    await MainActor.run {
+                        logger.error("Removing render folder \(name, privacy: .public) failed: \(reason, privacy: .public)")
+                    }
+                }
             }
         }
     }

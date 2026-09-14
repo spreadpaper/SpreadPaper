@@ -226,13 +226,45 @@ struct WallpaperFilenamesTests {
     }
 
     /// Issue #137: a display that is gone owns renders no later apply can reach.
-    @Test func aDepartedDisplaysStaticRendersGoOnceEveryDisplayWasSet() {
+    /// Its newest stays, so a Space still resolves if that display comes back.
+    @Test func aDepartedDisplayKeepsOnlyItsNewestStaticRender() {
         let current = WallpaperFilenames.staticName(displayID: 1, timestamp: 1700000000000)
-        let departed = WallpaperFilenames.staticName(displayID: 2, timestamp: 1699999999999)
+        let old = WallpaperFilenames.staticName(displayID: 2, timestamp: 1699999999998)
+        let older = WallpaperFilenames.staticName(displayID: 2, timestamp: 1699999999997)
+        let newest = WallpaperFilenames.staticName(displayID: 2, timestamp: 1699999999999)
         let swept = WallpaperFilenames.removableStaticFiles(
-            in: [current, departed], displayIDs: [1], keeping: [1: current], sweepLegacy: true
+            in: [current, newest, old, older], displayIDs: [1], keeping: [1: current], sweepLegacy: true
         )
-        #expect(swept == [departed])
+        #expect(swept.sorted() == [old, older].sorted())
+    }
+
+    /// A sweep with no display to check against would find every render orphaned.
+    @Test func noDisplayConnectedSweepsNothing() {
+        let renders = (1 ... 3).map { WallpaperFilenames.staticName(displayID: 1, timestamp: 1700000000000 + $0) }
+        let swept = WallpaperFilenames.removableStaticFiles(
+            in: renders, displayIDs: [], keeping: [:], sweepLegacy: true
+        )
+        #expect(swept.isEmpty)
+    }
+
+    /// The same guard in a preset's own directory.
+    @Test func noDisplayConnectedSweepsNoDynamicRenders() {
+        let renders = (1 ... 3).map { WallpaperFilenames.dynamicName(displayID: 1, timestamp: 1700000000000 + $0) }
+        let swept = WallpaperFilenames.removableDynamicFiles(
+            in: renders, displayIDs: [], keeping: [:], sweepLegacy: true
+        )
+        #expect(swept.isEmpty)
+    }
+
+    /// A name the app did not write has no display, so the departed rule never claims it.
+    @Test func onlyCurrentNamesCarryADisplayID() {
+        #expect(WallpaperFilenames.staticDisplayID("spreadpaper_wall_7_1700000000000.png") == 7)
+        #expect(WallpaperFilenames.staticDisplayID("spreadpaper_wall_LG ULTRAWIDE_1700000000000.png") == nil)
+        #expect(WallpaperFilenames.staticDisplayID("notes.txt") == nil)
+        #expect(WallpaperFilenames.staticDisplayID("spreadpaper_wall_4294967296_1700000000000.png") == nil)
+        #expect(WallpaperFilenames.dynamicDisplayID("7_1700000000000.heic") == 7)
+        #expect(WallpaperFilenames.dynamicDisplayID("LG ULTRAWIDE.heic") == nil)
+        #expect(WallpaperFilenames.dynamicDisplayID("7_100.heic") == nil)
     }
 
     /// A failed apply spares a departed display's renders, as it spares a legacy name.
@@ -246,13 +278,14 @@ struct WallpaperFilenamesTests {
     }
 
     /// Issue #137: the same gap inside a preset's own directory.
-    @Test func aDepartedDisplaysDynamicRendersGoOnceEveryDisplayWasSet() {
+    @Test func aDepartedDisplayKeepsOnlyItsNewestDynamicRender() {
         let current = WallpaperFilenames.dynamicName(displayID: 1, timestamp: 1700000000000)
-        let departed = WallpaperFilenames.dynamicName(displayID: 2, timestamp: 1699999999999)
+        let old = WallpaperFilenames.dynamicName(displayID: 2, timestamp: 1699999999998)
+        let newest = WallpaperFilenames.dynamicName(displayID: 2, timestamp: 1699999999999)
         let swept = WallpaperFilenames.removableDynamicFiles(
-            in: [current, departed], displayIDs: [1], keeping: [1: current], sweepLegacy: true
+            in: [current, newest, old], displayIDs: [1], keeping: [1: current], sweepLegacy: true
         )
-        #expect(swept == [departed])
+        #expect(swept == [old])
     }
 
     /// Issue #137: a deleted preset leaves its dynamic folder behind.
