@@ -125,8 +125,7 @@
     <div class="mt-16 grid grid-cols-12 gap-x-6 gap-y-10">
       <div class="col-span-12 lg:col-span-4" data-reveal>
         <h3 class="text-xl font-semibold tracking-[-0.01em] text-cd-text">Bezel compensation</h3>
-        <p class="mt-3 text-base leading-relaxed text-cd-text-secondary max-w-[62ch] text-pretty">Monitors have frames, and on a spread wallpaper those frames sit right in the middle of the picture. SpreadPaper pushes the display frames apart by the width of the housing between them, so the photograph carries on behind each frame rather than being drawn on both screens at once. A ridgeline then runs straight across the gap.</p>
-        <p class="mt-4 text-base leading-relaxed text-cd-text-secondary max-w-[62ch] text-pretty">That is a trade you are making on purpose: the strip behind each frame is part of the image you never see. Set one width for all your displays or a pair for each of them, horizontal for the left and right edges, vertical for the top and bottom, measured in points. The controls appear once a second display is connected, and Settings holds the gap new displays start from.</p>
+        <p class="mt-3 text-base leading-relaxed text-cd-text-secondary max-w-[62ch] text-pretty">Your monitors' frames sit in the middle of a spread photograph. SpreadPaper pushes the displays apart by the width of the housing between them, so the picture carries on behind each frame instead of being drawn twice.</p>
       </div>
 
       <figure class="col-span-12 lg:col-span-7 lg:col-start-6" data-reveal>
@@ -181,11 +180,16 @@
             <input class="ed-range grow rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cd-accent" id="bezel-width" type="range" min="0" max="150" step="5" value="60" data-bezel-slider data-bezel-target="bezel-rig" data-bezel-prop="--ed-bezel" data-bezel-unit=" pt" data-bezel-unit-label="points">
             <output class="w-14 text-sm font-semibold tabular-nums text-cd-text" for="bezel-width" data-bezel-readout>60 pt</output>
           </div>
-          <p class="mt-2 text-sm leading-relaxed text-cd-text-secondary max-w-[62ch] text-pretty">Drag it and the frames widen while the photograph stays where it is, so the hidden strip grows and the ridgeline still meets on the other side. The range is 0 to 150 points, which is what the app gives one edge of one display.</p>
+          <p class="mt-2 text-sm leading-relaxed text-cd-text-secondary max-w-[62ch] text-pretty">Drag it. The frames widen, the photograph stays put, and the ridge still lines up.</p>
         </div>
-
-        <figcaption class="mt-4 text-sm leading-relaxed text-cd-text-secondary max-w-[62ch] text-pretty">Matched displays with about an inch of housing between each pair of screens. The frames are drawn as glass, so you can see the picture carrying on behind them, with a blank line down the middle of each gap where the air between two monitors is. What the glass covers is the part of the picture the render hides on purpose, and the ridgeline meets at the same height on the far side of it. Whatever width the housing is, the output is correct for the monitors it describes.</figcaption>
       </figure>
+
+      <ul role="list" class="col-span-12 grid gap-x-6 gap-y-5 border-t border-cd-border pt-8 text-base leading-relaxed text-pretty text-cd-text-secondary sm:grid-cols-2 lg:grid-cols-4" data-reveal>
+        <li><span class="block font-semibold text-cd-text">Per display or one value</span>Horizontal for the side edges, vertical for top and bottom.</li>
+        <li><span class="block font-semibold text-cd-text">In points</span>Up to 150 an edge.</li>
+        <li><span class="block font-semibold text-cd-text">Two displays and up</span>The controls appear once a second one is connected.</li>
+        <li><span class="block font-semibold text-cd-text">A starting width</span>Settings holds what new displays begin from.</li>
+      </ul>
     </div>
   </div>
 </section>
