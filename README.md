@@ -29,28 +29,38 @@ Perfect for:
 ## Screenshots
 
 <div align="center">
-  <img src=".github/assets/main-app-screenshot.png" alt="SpreadPaper Main Interface" width="800"/>
-  <p><em>Intuitive drag-and-drop interface with live preview of your wallpaper across all displays</em></p>
+  <img src=".github/assets/screenshot-gallery.png" alt="SpreadPaper gallery with saved wallpapers" width="800"/>
+  <p><em>Every wallpaper you save, filtered by kind, searchable, one click from being applied</em></p>
 </div>
 
 <div align="center">
-  <img src=".github/assets/screenshot-two-monitors-tree-trunk.png" alt="Wallpaper spread across two monitors" width="800"/>
-  <p><em>Seamlessly spread a single wallpaper across two monitors</em></p>
+  <img src=".github/assets/screenshot-new-wallpaper-static.png" alt="Choosing the Static wallpaper type" width="800"/>
+  <p><em>Static: one image, spread across every display</em></p>
 </div>
 
 <div align="center">
-  <img src=".github/assets/screenshot-three-monitors-tree-trunk.png" alt="Wallpaper spread across three monitors" width="800"/>
-  <p><em>Scale up to three or more displays with perfect continuity</em></p>
+  <img src=".github/assets/screenshot-new-wallpaper-light-dark.png" alt="Choosing the Light and Dark wallpaper type" width="800"/>
+  <p><em>Light &amp; Dark: one image for light mode, another for dark</em></p>
+</div>
+
+<div align="center">
+  <img src=".github/assets/screenshot-new-wallpaper-dynamic.png" alt="Choosing the Dynamic wallpaper type" width="800"/>
+  <p><em>Dynamic: a schedule of images through the day</em></p>
+</div>
+
+<div align="center">
+  <img src=".github/assets/screenshot-editor-light-dark.png" alt="Editor with a Light and Dark preset" width="800"/>
+  <p><em>Drag, zoom and flip the image across the display layout. Anything the render will crop is dimmed</em></p>
+</div>
+
+<div align="center">
+  <img src=".github/assets/screenshot-editor-dynamic.png" alt="Editor with a Dynamic schedule of seven images" width="800"/>
+  <p><em>Give each time of day its own image, and macOS transitions every display together</em></p>
 </div>
 
 <div align="center">
   <img src=".github/assets/screenshot-macos-display-arrangement-sync.png" alt="Display arrangement synchronization" width="800"/>
   <p><em>Automatically syncs with your macOS display arrangement for accurate positioning</em></p>
-</div>
-
-<div align="center">
-  <img src=".github/assets/screenshot-save-presets.png" alt="Save and manage wallpaper presets" width="800"/>
-  <p><em>Save your favorite configurations as presets for quick switching</em></p>
 </div>
 
 ## Features
