@@ -1,0 +1,133 @@
+<!-- Bezel compensation: the one idea on the page that is better dragged than read. -->
+<section id="bezels" class="cd-section bg-cd-canvas" aria-labelledby="bezels-title">
+  <style>
+    /* The slider hands over a width in points, the rig wants viewBox units, and the
+       conversion lives here: a 27-inch display is 2560 points across the 355 units the
+       generator draws it at, which puts one point at 0.139 of a unit. Recompute this if
+       `SCREEN.monitor27` in scripts/rigs.mjs ever changes. The frame grows into the screen
+       it sits on, which is the whole idea, since the photograph behind it never moves. */
+    #bezels .ed-bezel { --ed-bezel: 60; }
+    #bezels .ed-bezel .rig { --rig-bezel: calc(var(--ed-bezel) * 0.139); }
+    #bezels .ed-bezel .rig-frame { transition: stroke-width 120ms ease-out; }
+
+    /* The control does nothing without the script that binds it, so it ships hidden and the
+       script unhides it. The rule has to be restated: a display utility on the same element
+       outranks the browser's own [hidden] rule and would show it anyway. */
+    #bezels [data-bezel-control][hidden] { display: none; }
+
+    #bezels .ed-range {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 100%;
+      max-width: 26rem;
+      height: 2.75rem;
+      background: transparent;
+      border-radius: 6px;
+    }
+
+    #bezels .ed-range::-webkit-slider-runnable-track {
+      height: 6px;
+      border-radius: 999px;
+      background: var(--color-cd-bg-elevated);
+      border: 1px solid var(--color-cd-border-strong);
+    }
+
+    #bezels .ed-range::-moz-range-track {
+      height: 6px;
+      border-radius: 999px;
+      background: var(--color-cd-bg-elevated);
+      border: 1px solid var(--color-cd-border-strong);
+    }
+
+    #bezels .ed-range::-webkit-slider-thumb {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      margin-top: -8px;
+      border: none;
+      border-radius: 999px;
+      background: var(--color-cd-accent);
+    }
+
+    #bezels .ed-range::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border: none;
+      border-radius: 999px;
+      background: var(--color-cd-accent);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #bezels .ed-bezel .rig-frame { transition: none; }
+    }
+  </style>
+
+  <div class="cd-shell">
+    <div class="grid grid-cols-12 gap-x-6 gap-y-6">
+      <div class="col-span-12 lg:col-span-6" data-reveal>
+        <p class="cd-eyebrow">Bezel compensation</p>
+        <h2 id="bezels-title" class="mt-4 text-3xl sm:text-4xl lg:text-5xl font-bold tracking-[-0.025em] leading-[1.05] text-cd-text text-balance">The picture carries on behind the frames</h2>
+      </div>
+      <div class="col-span-12 lg:col-span-5 lg:col-start-8 lg:self-end" data-reveal>
+        <p class="text-lg sm:text-xl leading-relaxed text-cd-text-secondary max-w-[46ch] text-pretty">Monitor housings sit in the middle of a spread photograph. SpreadPaper pushes the displays apart by the width of the housing between them, so a ridge meets on the far side instead of jumping. Give every display the same width, or each one its own, and monitors that do not match still line up.</p>
+      </div>
+    </div>
+
+    <figure class="mt-16" data-reveal>
+      <div class="ed-bezel" id="bezel-rig">
+        <svg class="rig rig-trio rig-glass hidden sm:block" style="--rig-glow-color: rgb(94 92 230 / 0.10)" viewBox="0 0 1077 236" role="img" aria-label="One alpine ridge at sunrise carried across three matched monitors, the frames drawn as glass so the picture can be seen carrying on behind them." focusable="false">
+          <defs>
+            <clipPath id="rig-editor-bezel-three">
+              <rect x="0" y="0" width="355" height="200" rx="10"/>
+              <rect x="361" y="0" width="355" height="200" rx="10"/>
+              <rect x="722" y="0" width="355" height="200" rx="10"/>
+            </clipPath>
+          </defs>
+          <ellipse class="rig-glow" cx="538.5" cy="232" rx="474" ry="18"/>
+          <g class="rig-stand">
+            <rect x="163.5" y="200" width="28" height="28"/><rect x="122.5" y="228" width="110" height="8" rx="4"/>
+            <rect x="524.5" y="200" width="28" height="28"/><rect x="483.5" y="228" width="110" height="8" rx="4"/>
+            <rect x="885.5" y="200" width="28" height="28"/><rect x="844.5" y="228" width="110" height="8" rx="4"/>
+          </g>
+          <g clip-path="url(#rig-editor-bezel-three)">
+            <image class="rig-photo" href="/photos/1200/hero-day-1.jpg" x="0" y="0" width="1077" height="200" preserveAspectRatio="xMidYMid slice"/>
+            <rect class="rig-frame" x="0" y="0" width="355" height="200" rx="10"/>
+            <rect class="rig-frame" x="361" y="0" width="355" height="200" rx="10"/>
+            <rect class="rig-frame" x="722" y="0" width="355" height="200" rx="10"/>
+          </g>
+        </svg>
+
+        <svg class="rig rig-dual rig-glass sm:hidden" style="--rig-glow-color: rgb(94 92 230 / 0.10)" viewBox="0 0 716 236" role="img" aria-label="One alpine ridge at sunrise carried across two matched monitors, the frames drawn as glass so the picture can be seen carrying on behind them." focusable="false">
+          <defs>
+            <clipPath id="rig-editor-bezel-two">
+              <rect x="0" y="0" width="355" height="200" rx="10"/>
+              <rect x="361" y="0" width="355" height="200" rx="10"/>
+            </clipPath>
+          </defs>
+          <ellipse class="rig-glow" cx="358" cy="232" rx="315" ry="18"/>
+          <g class="rig-stand">
+            <rect x="163.5" y="200" width="28" height="28"/><rect x="122.5" y="228" width="110" height="8" rx="4"/>
+            <rect x="524.5" y="200" width="28" height="28"/><rect x="483.5" y="228" width="110" height="8" rx="4"/>
+          </g>
+          <g clip-path="url(#rig-editor-bezel-two)">
+            <image class="rig-photo" href="/photos/1200/hero-day-1.jpg" x="0" y="0" width="716" height="200" preserveAspectRatio="xMidYMid slice"/>
+            <rect class="rig-frame" x="0" y="0" width="355" height="200" rx="10"/>
+            <rect class="rig-frame" x="361" y="0" width="355" height="200" rx="10"/>
+          </g>
+        </svg>
+      </div>
+
+      <!-- Everything this block says is true only once the script has bound the slider,
+           which is why the sentence about dragging lives here and not in a caption. -->
+      <div class="mt-10" data-bezel-control hidden>
+        <div class="flex flex-wrap items-center gap-x-5 gap-y-1">
+          <label class="text-sm font-semibold text-cd-text" for="bezel-width">Frame width, one edge</label>
+          <input class="ed-range grow rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cd-accent" id="bezel-width" type="range" min="0" max="150" step="5" value="60" data-bezel-slider data-bezel-target="bezel-rig" data-bezel-prop="--ed-bezel" data-bezel-unit=" pt" data-bezel-unit-label="points">
+          <output class="w-14 text-sm font-semibold tabular-nums text-cd-text" for="bezel-width" data-bezel-readout>60 pt</output>
+        </div>
+        <p class="mt-3 text-base leading-relaxed text-cd-text-secondary max-w-[62ch] text-pretty">Drag it until the ridge lines up. That is the same judgement you make in the app, so there is nothing to measure.</p>
+      </div>
+    </figure>
+  </div>
+</section>
