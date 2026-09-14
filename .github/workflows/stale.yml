@@ -1,0 +1,36 @@
+name: Close stale needs-info issues
+
+on:
+  schedule:
+    # Daily, off the hour, since the top of the hour is the busiest slot on shared runners.
+    - cron: "37 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+concurrency:
+  group: stale-needs-info
+  cancel-in-progress: false
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v9
+        with:
+          only-issue-labels: "needs info"
+          days-before-issue-stale: 7
+          days-before-issue-close: 7
+          stale-issue-label: "stale"
+          remove-issue-stale-when-updated: true
+          # Pull requests are out of scope; -1 switches them off entirely.
+          days-before-pr-stale: -1
+          days-before-pr-close: -1
+          exempt-issue-labels: "help wanted,good first issue"
+          stale-issue-message: >
+            This issue is waiting on more detail before it can go anywhere, so it is now marked stale.
+            It closes in 7 days unless there is a reply. Adding the missing information keeps it open.
+          close-issue-message: >
+            Closing this because the details it was waiting on never arrived. That is not a verdict on the
+            report itself: add the missing information in a comment and it can be reopened.
