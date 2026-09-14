@@ -35,7 +35,13 @@ const check = (name, condition, detail = '') => {
   }
 }
 
-const { window } = new JSDOM(html, { pretendToBeVisual: true, runScripts: 'outside-only' })
+// A fixture for the clock contract, since no section carries the attribute yet.
+// Everything else in this file runs against the page exactly as it is built.
+const clockFixture = '<div id="clock-fixture" data-clock-stops="6,12,18,23"></div>'
+const { window } = new JSDOM(html.replace('</main>', `${clockFixture}</main>`), {
+  pretendToBeVisual: true,
+  runScripts: 'outside-only',
+})
 const doc = window.document
 
 // jsdom ships neither of these; the nav and the reveal both reach for them.
@@ -194,6 +200,19 @@ for (const id of ['types', 'editor', 'gallery']) {
     `marked ${marked.join(' + ') || 'nothing'}`)
 }
 check('the wordmark is never marked', !doc.querySelector('#site-nav a[href="#main"][aria-current]'))
+
+console.log('\nclock phase')
+const clock = doc.getElementById('clock-fixture')
+const stops = [6, 12, 18, 23]
+const hour = new Date().getHours()
+// Re-derived rather than hardcoded, so the check means something at any hour.
+const found = stops.findLastIndex((stop) => stop <= hour)
+const expected = String((found < 0 ? stops.length - 1 : found) / stops.length)
+check(`phase matches the wall clock at ${hour}:00`,
+  clock.style.getPropertyValue('--clock-phase') === expected,
+  `got "${clock.style.getPropertyValue('--clock-phase')}" want "${expected}"`)
+check('the phase is a bare fraction, so the section owns the duration',
+  /^0(\.\d+)?$/.test(clock.style.getPropertyValue('--clock-phase')))
 
 console.log('\nicons')
 const glyphs = [...doc.querySelectorAll('svg')].filter((s) => s.getAttribute('viewBox') === '0 0 256 256')

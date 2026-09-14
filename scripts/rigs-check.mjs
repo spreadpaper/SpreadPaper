@@ -78,6 +78,19 @@ for (const file of files) {
       fail(file, at,
         `rig-${name} clips at ${drawn.join(' ')} but the generator draws ${expected.join(' ')}`)
     }
+
+    // The chin meets the bottom of the lit screen exactly, so a unit either way
+    // either covers a line of the photograph or leaves the lid's corner showing.
+    const chin = svg.match(/<rect class="rig-chin" ([^/>]*)\/>/)?.[1]
+    if (chin) {
+      const drawnChin = geometry(chin)
+      const wantChin = chinOf(RIGS[name])
+      const same = ['x', 'y', 'w', 'h'].every((k) => String(wantChin[k]) === drawnChin[k])
+      if (!same) {
+        fail(file, at,
+          `rig-${name} draws its chin at ${drawnChin.x},${drawnChin.y},${drawnChin.w},${drawnChin.h} but the generator draws ${wantChin.x},${wantChin.y},${wantChin.w},${wantChin.h}`)
+      }
+    }
   }
 
   for (const [, body] of source.matchAll(/<clipPath id="[^"]+">([\s\S]*?)<\/clipPath>/g)) {

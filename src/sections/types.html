@@ -1,5 +1,8 @@
 <!-- The three kinds of wallpaper, as one switchable panel rather than three stacked rows. -->
-<section id="types" class="cd-section bg-cd-canvas" aria-labelledby="types-title" data-tabs>
+<!-- `data-clock-stops` lists the hours the Dynamic schedule below names, so the day loop
+     starts at the reader's own hour instead of always at sunrise. Keep it in step with the
+     times in that readout: the script only counts positions, it never reads the markup. -->
+<section id="types" class="cd-section bg-cd-canvas" aria-labelledby="types-title" data-tabs data-clock-stops="6,12,18,23">
     <style>
         /* Without script the three panels read as a stacked list, so they need the air
            between them and their own kind labels. `data-tabs-ready`, set on the section
@@ -130,7 +133,7 @@
                         </span>
                     </button>
                     <button type="button" role="tab" id="types-tab-dynamic" aria-controls="types-panel-dynamic" aria-selected="false" class="flex w-full items-center gap-4 border-l-2 border-l-transparent py-4 pl-4 pr-3 text-left transition-colors duration-150 ease-out hover:bg-cd-bg-secondary aria-selected:border-l-cd-dynamic aria-selected:bg-cd-bg-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cd-accent">
-                        <!--@icon clock-clockwise class="size-6 shrink-0 text-cd-dynamic"-->
+                        <!--@icon clock class="size-6 shrink-0 text-cd-dynamic"-->
                         <span>
                             <span class="block text-base font-semibold text-cd-text">Dynamic</span>
                             <span class="block text-sm text-cd-text-secondary">Up to 16 images</span>
@@ -279,7 +282,7 @@
                     </div>
                     <div class="col-span-12 lg:col-span-4 lg:col-start-9 lg:row-start-1">
                         <p class="types-kind flex items-center gap-2.5 text-sm font-semibold text-cd-dynamic">
-                            <!--@icon clock-clockwise class="size-5 shrink-0"-->Dynamic, up to 16 images
+                            <!--@icon clock class="size-5 shrink-0"-->Dynamic, up to 16 images
                         </p>
                         <h3 class="mt-3 text-xl font-semibold tracking-[-0.01em] text-cd-text">A whole day on a schedule</h3>
                         <p class="mt-4 text-base leading-relaxed text-cd-text-secondary max-w-[62ch] text-pretty">Up to 16 photographs, each with a start time you set on the clock. SpreadPaper writes them into a HEIC dynamic desktop carrying the time metadata macOS reads, so every screen turns over at the same moment.</p>
