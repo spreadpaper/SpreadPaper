@@ -66,12 +66,14 @@ Two things about that swap. It works because every rule in `rigs.css` sits in Ta
 
 The glow is where the page gets its colour, and it is motivated light rather than decoration, which is the only reason it survives review. One shadow and one light ellipse per rig, no more. The tints:
 
-| Section | `--rig-glow-color` |
-| --- | --- |
-| Hero and Static | `rgb(255 255 255 / 0.12)` |
-| Light and Dark | `rgb(124 124 255 / 0.14)` |
-| Dynamic | `rgb(245 165 36 / 0.14)` |
-| Editor | `rgb(94 92 230 / 0.10)` |
+| Where | `glow` | Colour |
+| --- | --- | --- |
+| Hero and Static | `neutral` | `rgb(255 255 255 / 0.12)` |
+| Light and Dark | `appearance` | `rgb(124 124 255 / 0.14)` |
+| Dynamic | `dynamic` | `rgb(245 165 36 / 0.14)` |
+| Editor | `accent` | `rgb(94 92 230 / 0.10)` |
+
+Pass the name to `markup()` as `glow: "dynamic"` rather than writing the colour onto the generated svg afterwards. The tints are a design ruling rather than a preference, and `rigs:check` fails on any `--rig-glow-color` that is not one of these four. An unknown name throws at generation.
 
 Keep the blur under the ellipse's own height if you change either. Blurring a shape by more than it measures spreads the tint until none of it reaches the page, which is how the first version of this came out invisible rather than subtle.
 
@@ -214,6 +216,12 @@ Everything else is on the 1200px set. The tall rigs are the honest cost of that.
 Every photograph in every rig is fetched as the page loads, because an SVG `<image>` takes no `loading` attribute and native lazy loading is not available for inline SVG at all. That is a property of the primitive rather than an oversight, so do not add `loading="lazy"` to a rig and wait for something to happen.
 
 It matters most for the hero. Its photograph is the LCP element and it competes with every below-the-fold rig photograph, all requested at once at ordinary priority, which is why the preload in `index.html` is load bearing rather than a nicety. Keeping the page to one file per photograph is also the fastest way to take weight out of that contention.
+
+## Regenerating a rig
+
+Regenerating replaces the whole svg, and `markup()` knows only what you pass it. So anything a section added to a generated rig by hand is silently gone on the next pass: no error, a page that still renders, and a check that still passes, because most of what a section adds is not geometry.
+
+This matters more than it sounds, because regenerating is the fix for markup that has fallen behind the geometry, so the remedy for one silent failure is the cause of another. Everything the rig family knows about is therefore an option rather than something to bolt on: `glow` for the desk light, `glyphs` for the editor HUD, `align` for the crop, `classes` for anything else. Pass them and a regeneration is safe. If you find yourself editing generated output by hand, that is the signal to add an option here instead.
 
 ## Motion
 

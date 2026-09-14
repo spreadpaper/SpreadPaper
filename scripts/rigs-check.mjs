@@ -5,13 +5,14 @@
 // plausible rig clipped against the wrong screens, a frame rect drifted from
 // its clip rect draws a plausible frame, markup copied before the geometry
 // changed draws a plausible rig at the wrong size, a chin a unit out of place
-// covers a line of the photograph, and a second size of a picture the page
-// already has is simply a second download.
+// covers a line of the photograph, a desk light off the sanctioned palette is
+// simply a colour nobody chose, and a second size of a picture the page already
+// has is just a second download.
 
 import { readFileSync, readdirSync } from 'node:fs'
 import { resolve, dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { PHOTOS, RIGS, chinOf } from './rigs.mjs'
+import { PHOTOS, RIGS, GLOW, chinOf } from './rigs.mjs'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const SECTIONS = join(ROOT, 'src', 'sections')
@@ -44,6 +45,14 @@ for (const file of files) {
       const name = url.split('/').pop().replace('.jpg', '')
       const want = byName.get(name)
       fail(file, line, want ? `${url} should be ${want}` : `${url} is not a photograph the page uses`)
+    }
+
+    for (const [, tint] of text.matchAll(/--rig-glow-color:\s*([^";]+)/g)) {
+      const sanctioned = Object.values(GLOW).includes(tint.trim())
+      if (!sanctioned) {
+        fail(file, line,
+          `desk light "${tint.trim()}" is not one of the sanctioned tints; pass glow: "<name>" to markup() rather than writing a colour, so regenerating cannot lose it`)
+      }
     }
 
     for (const [, id] of text.matchAll(/<clipPath id="([^"]+)"/g)) {
