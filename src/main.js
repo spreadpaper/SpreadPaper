@@ -286,6 +286,30 @@ function setupClockPhase() {
   })
 }
 
+/**
+ * Brings the star count up to date. The build writes the count it saw, so this only
+ * closes the gap since the last deploy. A failed or rate limited request leaves
+ * the built number in place, which is why nothing here reports an error.
+ */
+function setupStarCount() {
+  const counts = document.querySelectorAll('[data-stars]')
+  if (!counts.length) return
+
+  fetch('https://api.github.com/repos/spreadpaper/SpreadPaper', {
+    headers: { accept: 'application/vnd.github+json' },
+  })
+    .then((res) => (res.ok ? res.json() : null))
+    .then((repo) => {
+      const stars = repo?.stargazers_count
+      if (!Number.isInteger(stars)) return
+      const shown = stars >= 1000 ? `${(stars / 1000).toFixed(1)}k` : String(stars)
+      counts.forEach((node) => {
+        node.textContent = shown
+      })
+    })
+    .catch(() => {})
+}
+
 setupMobileMenu()
 setupScrollSpy()
 setupScrollReveal()
@@ -293,3 +317,4 @@ setupCopyButtons()
 setupBezelSliders()
 setupTabs()
 setupClockPhase()
+setupStarCount()

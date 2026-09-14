@@ -75,8 +75,42 @@ function phosphorIcons() {
   }
 }
 
+/* Last count seen, so a build with no network still writes a real number rather than a
+   placeholder. The script refreshes it in the browser, so this only has to be close. */
+const STARS_FALLBACK = 86
+
+/**
+ * Replaces `<!--@stars-->` with the repository's star count, read at build time so the
+ * number is right without JavaScript. A failed request falls back rather than
+ * failing the build, since the site must still deploy offline.
+ *
+ * @returns {import('vite').Plugin} The plugin, to run after the includes one.
+ */
+function githubStars() {
+  let count = STARS_FALLBACK
+  return {
+    name: 'github-stars',
+    async buildStart() {
+      try {
+        const res = await fetch('https://api.github.com/repos/spreadpaper/SpreadPaper', {
+          headers: { accept: 'application/vnd.github+json', 'user-agent': 'spreadpaper-site' },
+        })
+        if (!res.ok) return
+        const { stargazers_count: stars } = await res.json()
+        if (Number.isInteger(stars)) count = stars
+      } catch {
+        // Offline or rate limited: the fallback stands.
+      }
+    },
+    transformIndexHtml: {
+      order: 'pre',
+      handler: (html) => html.replaceAll('<!--@stars-->', String(count)),
+    },
+  }
+}
+
 export default defineConfig({
-  plugins: [htmlIncludes(), phosphorIcons(), tailwindcss()],
+  plugins: [htmlIncludes(), phosphorIcons(), githubStars(), tailwindcss()],
   base: '/SpreadPaper/',
   build: {
     outDir: 'dist',

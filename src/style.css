@@ -119,6 +119,31 @@ body {
   }
 }
 
+/* The star button. The count sits in its own compartment behind a hairline, the way
+   GitHub's own does, so the number reads as a running total rather than as a label. */
+.cd-star {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  border: 1px solid var(--color-cd-border-strong);
+  background-color: var(--color-cd-bg-elevated);
+  color: var(--color-cd-text);
+  font-weight: 600;
+  transition: background-color 150ms ease-out, border-color 150ms ease-out;
+}
+
+.cd-star:hover {
+  background-color: var(--color-cd-bg-hover);
+  border-color: var(--color-cd-text-tertiary);
+}
+
+.cd-star-count {
+  border-left: 1px solid var(--color-cd-border-strong);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-cd-text-secondary);
+}
+
 /* Section rhythm, so every section lands on the same grid. */
 .cd-section {
   padding-block: clamp(4rem, 10vw, 7.5rem);
