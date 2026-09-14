@@ -444,7 +444,9 @@ One size per photograph, for the whole page, whatever rig is showing it.
 | Evening light | `/photos/1200/hero-day-3.jpg` |
 | The Milky Way | `/photos/1200/hero-day-4.jpg` |
 
-`npm run rigs:check` enforces this across every section file, along with the other two rig failures that do not show on the page. It is a rule about photographs, not about rigs, and it is the one thing here most likely to be got wrong, because choosing a size per rig feels like the careful thing to do. It is the opposite. A browser caches per URL, so a thumbnail asking for the 600px copy of a photograph the hero already fetched at 2400 does not save anything, it adds a second download of a picture the page already has. Picking sizes per rig took the page from 636KB of photographs to 1192KB, with four of the six fetched at two or three sizes each.
+`npm run rigs:check` enforces this across every section file, along with the other three rig failures that do not show on the page. It is a rule about photographs, not about rigs, and it is the one thing here most likely to be got wrong, because choosing a size per rig feels like the careful thing to do. It is the opposite. A browser caches per URL, so a thumbnail asking for the 600px copy of a photograph the hero already fetched at 2400 does not save anything, it adds a second download of a picture the page already has. Picking sizes per rig took the page from 636KB of photographs to 1192KB, with four of the six fetched at two or three sizes each.
+
+Changing a photograph's size is therefore all or nothing, and it is the one edit here that is worse half done. While two sections point at the old URL and one points at the new one, that picture is being fetched twice, which costs more than the migration saves for it. So change every reference to a photograph in the same pass, and check the rendered page rather than the section files, since the sections may be moving while you look.
 
 `hero-beach.jpg` is the page's one 2400px original, because the hero draws it at full shell width and it is the LCP element. Every rig showing that photograph uses the same 2400px file, thumbnails included, and none of them pays anything for it: the hero has already caused the download.
 
@@ -479,5 +481,7 @@ Every animation in the family stops under `prefers-reduced-motion: reduce`, and 
 **A frame is a hairline no matter what `--rig-bezel` says.** The property was set with a unit. It is in viewBox units and takes a plain number: `--rig-bezel: 26`, not `26px`.
 
 **Both halves of a responsive swap render, one above the other.** `hidden` lost to `.rig`. Check that the rig rules are still inside `@layer components`, because an unlayered rule beats a layered utility whatever the specificity says.
+
+**A rig is the wrong size but looks fine.** Its markup was copied before the geometry changed, and the clip rects and frame rects agree with each other while both disagree with the generator. `npm run rigs:check` catches this by comparing each rig's viewBox against the one the generator draws for that rig name.
 
 **The desk light is cut off in a straight line.** Something set `overflow: hidden` on the rig or a wrapper clipped it. The glow is a blurred ellipse that deliberately spills past the viewBox.

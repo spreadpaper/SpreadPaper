@@ -80,7 +80,7 @@ function geometry(attrs) {
 
 /** Finds the line a clip rect sits on, so the message points somewhere useful. */
 function lineOf(source, rect) {
-  const needle = `x="${rect.x}" y="${rect.y}" width="${rect.w}" height="${rect.h}"`
+  const needle = rect.raw ?? `x="${rect.x}" y="${rect.y}" width="${rect.w}" height="${rect.h}"`
   return source.slice(0, source.indexOf(needle)).split('\n').length
 }
 
