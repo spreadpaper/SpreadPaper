@@ -61,12 +61,18 @@ export const RIGS = {
     screens: [lid(0, 83), m27(195), m27(556)],
     stands: [{ cx: 372.5, top: 200 }, { cx: 733.5, top: 200 }],
     bezel: 9,
-    // The deck is thin and the riser steps in under it. Drawn as one tall slab the
-    // pair reads as a plinth with a screen on it rather than as a laptop.
+    // The laptop sits on the desk, not on a stand, and its deck is drawn as the wedge
+    // you actually see: attached under the lid and widening towards the viewer. A deck
+    // the width of the lid, or one raised on a riser, reads as a monitor instead.
     laptop: {
       chin: { x: 0, w: 181, to: 206, rx: 3 },
-      base: { x: -4, y: 206, w: 193, h: 8, rx: 3 },
-      riser: { x: 35, y: 214, w: 111, h: 22, rx: 4 },
+      base: { x: -20, y: 206, w: 221, h: 30, rx: 2 },
+      deck: [
+        [-3, 206],
+        [184, 206],
+        [201, 236],
+        [-20, 236],
+      ],
     },
     glow: true,
   },
@@ -236,8 +242,11 @@ export function markup(name, { id, photos, label, classes = '', indent = '', day
       `<rect x="${st.cx - footW / 2}" y="${st.top + NECK.h}" width="${footW}" height="${FOOT.h}" rx="4"/>`
     )
   })
-  if (r.laptop) furniture.push(p(2) + rect(r.laptop.base))
-  if (r.laptop?.riser) furniture.push(p(2) + rect(r.laptop.riser))
+  if (r.laptop?.deck) {
+    furniture.push(p(2) + `<polygon points="${r.laptop.deck.map(([x, y]) => `${x},${y}`).join(' ')}"/>`)
+  } else if (r.laptop) {
+    furniture.push(p(2) + rect(r.laptop.base))
+  }
 
   const lines = [
     `${indent}<svg class="rig rig-${name}${classes ? ' ' + classes : ''}"${glow ? ` style="--rig-glow-color: ${GLOW[glow]}"` : ''} viewBox="0 0 ${vw} ${vh}" ${a11y} focusable="false">`,

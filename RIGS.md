@@ -110,8 +110,7 @@ A 14-inch laptop open at the left with two 27-inch monitors beside it. The every
   <g class="rig-stand">
     <rect x="358.5" y="200" width="28" height="28"/><rect x="317.5" y="228" width="110" height="8" rx="4"/>
     <rect x="719.5" y="200" width="28" height="28"/><rect x="678.5" y="228" width="110" height="8" rx="4"/>
-    <rect x="-4" y="206" width="193" height="8" rx="3"/>
-    <rect x="35" y="214" width="111" height="22" rx="4"/>
+    <polygon points="-3,206 184,206 201,236 -20,236"/>
   </g>
   <rect class="rig-chin" x="0" y="191" width="181" height="15" rx="3"/>
   <g clip-path="url(#rig-example-desk)">
