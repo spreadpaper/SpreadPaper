@@ -1,16 +1,17 @@
-// Checks the section files against the rig contract, for the four ways a rig
+// Checks the section files against the rig contract, for the five ways a rig
 // goes wrong without rendering wrong. Run with `npm run rigs:check`.
 //
 // Every failure here is invisible on the page: a duplicate clipPath id draws a
-// plausible rig clipped against the wrong screens, a frame rect that has
-// drifted from its clip rect draws a plausible frame, markup copied before the
-// geometry changed draws a plausible rig at the wrong size, and a second size
-// of a photograph the page already has is simply a second download.
+// plausible rig clipped against the wrong screens, a frame rect drifted from
+// its clip rect draws a plausible frame, markup copied before the geometry
+// changed draws a plausible rig at the wrong size, a chin a unit out of place
+// covers a line of the photograph, and a second size of a picture the page
+// already has is simply a second download.
 
 import { readFileSync, readdirSync } from 'node:fs'
 import { resolve, dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { PHOTOS, RIGS } from './rigs.mjs'
+import { PHOTOS, RIGS, chinOf } from './rigs.mjs'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const SECTIONS = join(ROOT, 'src', 'sections')

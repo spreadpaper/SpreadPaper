@@ -166,7 +166,7 @@ export const RIGS = {
  * @param {object} r - The rig, which must carry a laptop and a bezel.
  * @returns {{x: number, y: number, w: number, h: number, rx: number}} The chin rect.
  */
-function chinOf(r) {
+export function chinOf(r) {
   const lid = r.screens.find((s) => s.h === SCREEN.laptop14.h)
   const y = lid.y + lid.h - r.bezel
   return { x: r.laptop.chin.x, y, w: r.laptop.chin.w, h: r.laptop.chin.to - y, rx: r.laptop.chin.rx }
