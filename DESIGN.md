@@ -79,6 +79,10 @@ Shadows only under something that genuinely floats: the spread already carries o
 
 Dividers are `border-t border-cd-border`, full width of the shell. Use them instead of a background change when two blocks belong to the same section.
 
+## Overriding the primitives
+
+A Tailwind utility cannot override a property that `.spread`, `.cd-card` or `.cd-button` already sets. Those classes live unlayered in `src/style.css`, the utilities live in `@layer utilities`, and unlayered CSS wins over layered CSS regardless of specificity. So `rounded-none` on a `.spread` is inert, and it fails silently: the class is in the markup and simply does nothing. To change one of those properties, pair the classes in a section `<style>` block so it wins on specificity, as the hero does for its full-bleed corner. Keep such a rule local until a second section needs it; the moment one does, it moves to `src/style.css` as a shared variant rather than being copied.
+
 ## Motion
 
 Opacity and small translate only, 150ms to 250ms, `ease-out`. The only looping animation on the page is `.spread-photo-fade` in the types section. Scroll reveal is a fade with a 12px rise, once, never staggered by more than 60ms. No parallax, no scroll-jacking, no counters, no marquees, no hover lift on cards. `prefers-reduced-motion` is already handled in CSS, but keep all new motion inside classes it can reach.

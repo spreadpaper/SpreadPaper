@@ -10,6 +10,8 @@
   [![GitHub release](https://img.shields.io/github/v/release/spreadpaper/SpreadPaper)](https://github.com/spreadpaper/SpreadPaper/releases/latest)
 
   **Free • Open Source • Native macOS App**
+
+  **[See it in action at spreadpaper.github.io](https://spreadpaper.github.io/SpreadPaper/)**
 </div>
 
 ---

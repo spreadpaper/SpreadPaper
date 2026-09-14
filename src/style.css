@@ -148,6 +148,42 @@ body {
   background-color: var(--color-cd-bg-hover);
 }
 
+/* The one inline link treatment on the page. The accent is reserved for
+   filled buttons and focus rings, where it clears AA. */
+.cd-inline-link {
+  color: var(--color-cd-text-secondary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: var(--color-cd-border-strong);
+  transition: color 150ms ease-out, text-decoration-color 150ms ease-out;
+}
+
+.cd-inline-link:hover {
+  color: var(--color-cd-text);
+  text-decoration-color: currentColor;
+}
+
+/* Scroll reveal, opt in per element with data-reveal. Armed only once the
+   script adds js-reveal, so the page reads fully without JavaScript. */
+.js-reveal [data-reveal] {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 250ms ease-out, transform 250ms ease-out;
+}
+
+.js-reveal [data-reveal].is-revealed {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js-reveal [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
 /* Section rhythm, so every section lands on the same grid. */
 .cd-section {
   padding-block: clamp(4rem, 10vw, 7.5rem);
