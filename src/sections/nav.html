@@ -22,9 +22,15 @@
     background-color: var(--color-cd-bg-secondary);
   }
 
-  /* The section the reader is in, marked without moving anything. */
-  .nav-link[aria-current] {
+  /* The section the reader is in. A real underline rather than a box-shadow, so it
+     survives forced-colors mode, and a colour shift alone is too quiet to find. */
+  .nav-link[aria-current],
+  .nav-link-mobile[aria-current] {
     color: var(--color-cd-text);
+    text-decoration: underline;
+    text-decoration-color: var(--color-cd-accent);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 6px;
   }
 
   .nav-link-mobile {
@@ -43,6 +49,13 @@
   .nav-link-mobile[aria-current] {
     color: var(--color-cd-text);
     background-color: var(--color-cd-bg-secondary);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav-link,
+    .nav-link-mobile {
+      transition: none;
+    }
   }
 
   /* .cd-inline-link and the data-reveal rules are page wide, so they live in

@@ -34,12 +34,27 @@
             transform: translateY(6px);
         }
 
+        /* The day starts at the reader's own hour rather than always at sunrise, so someone
+           opening the page in the evening sees the evening photograph first. `--clock-phase`
+           is a unitless fraction of one cycle, set by the tab script off the wall clock, and
+           it shifts the photographs and the stop bars by the same amount so the two cannot
+           drift. It defaults to 0, which is the loop starting at 06:00 as before, so this
+           costs nothing while the script does not set it. */
+        #types {
+            --clock-offset: calc(var(--rig-day-cycle, 20s) * var(--clock-phase, 0) * -1);
+        }
+
+        #types .rig-day { animation-delay: var(--clock-offset); }
+
         /* The bar over a stop in a readout, lit while the photograph it names is the one on
            the wall. Both readouts run off the rig's own cycle properties rather than a
            duration of their own, so a rig repaced from anywhere carries its times with it.
            Lit is the resting state, so with motion off every stop reads as part of the
            schedule rather than every stop reading as switched off. */
-        #types .types-bar { animation: types-stop var(--rig-day-cycle, 20s) linear infinite; }
+        #types .types-bar {
+            animation: types-stop var(--rig-day-cycle, 20s) linear infinite;
+            animation-delay: var(--clock-offset);
+        }
 
         @keyframes types-stop {
             0%, 20% { opacity: 1; }
@@ -48,9 +63,9 @@
         }
 
         /* Negative delays put the later stops of the day in phase from the first frame. */
-        #types .types-bar-2 { animation-delay: calc(var(--rig-day-cycle, 20s) * -0.75); }
-        #types .types-bar-3 { animation-delay: calc(var(--rig-day-cycle, 20s) * -0.5); }
-        #types .types-bar-4 { animation-delay: calc(var(--rig-day-cycle, 20s) * -0.25); }
+        #types .types-bar-2 { animation-delay: calc(var(--rig-day-cycle, 20s) * -0.75 + var(--clock-offset)); }
+        #types .types-bar-3 { animation-delay: calc(var(--rig-day-cycle, 20s) * -0.5 + var(--clock-offset)); }
+        #types .types-bar-4 { animation-delay: calc(var(--rig-day-cycle, 20s) * -0.25 + var(--clock-offset)); }
 
         /* The appearance pair is one cycle split unevenly, so its two stops take the rig
            crossfade's own timings rather than a delay off one keyframe. */
@@ -89,7 +104,15 @@
             </header>
 
             <!-- Hidden until the script wires it, so a page without JavaScript never shows
-                 three buttons that do nothing. -->
+                 three buttons that do nothing.
+
+                 Each tab sets its resting left edge with `border-l-transparent` rather than
+                 `border-transparent`, and the distinction is load bearing. `divide-cd-border`
+                 colours the dividers through `:where(& > :not(:last-child))`, which carries
+                 no specificity, so a child setting `border-color` on every side overrides it
+                 and silently erases every divider in the list while the markup still reads
+                 correctly. Colouring only the edge the tab actually uses leaves the dividers
+                 alone. -->
             <div class="col-span-12 lg:col-span-5 lg:col-start-8 lg:self-end" data-tabs-list hidden>
                 <div role="tablist" aria-orientation="vertical" aria-label="Kinds of wallpaper" class="divide-y divide-cd-border border-y border-cd-border">
                     <button type="button" role="tab" id="types-tab-static" aria-controls="types-panel-static" aria-selected="true" class="flex w-full items-center gap-4 border-l-2 border-l-transparent py-4 pl-4 pr-3 text-left transition-colors duration-150 ease-out hover:bg-cd-bg-secondary aria-selected:border-l-cd-border-strong aria-selected:bg-cd-bg-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cd-accent">

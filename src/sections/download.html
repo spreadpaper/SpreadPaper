@@ -15,6 +15,17 @@
     }
   }
 
+  /* One wash of accent behind the buttons, falling off to nothing well before any
+     edge. It reads as light on the closing section rather than as a gradient, and
+     at a tenth of the accent it moves no type off its measured contrast. */
+  #download {
+    background-image: radial-gradient(
+      70% 60% at 22% 36%,
+      color-mix(in oklab, var(--color-cd-accent) 10%, transparent) 0%,
+      transparent 72%
+    );
+  }
+
   .cd-code {
     font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
     font-size: 0.8125rem;
@@ -29,7 +40,7 @@
     <div class="grid grid-cols-12 gap-x-6 gap-y-12">
       <div class="col-span-12 lg:col-span-6" data-reveal>
         <p class="cd-eyebrow">Download</p>
-        <h2 id="download-heading" class="mt-3 text-3xl font-bold leading-[1.05] tracking-[-0.025em] text-balance text-cd-text sm:text-4xl lg:text-5xl">Download SpreadPaper, free and open source</h2>
+        <h2 id="download-heading" class="mt-3 text-3xl font-bold leading-[1.05] tracking-[-0.025em] text-balance text-cd-text sm:text-4xl lg:text-5xl">Download SpreadPaper, <span class="text-cd-accent">free and open source</span></h2>
         <p class="mt-5 max-w-[46ch] text-lg leading-relaxed text-pretty text-cd-text-secondary sm:text-xl">SpreadPaper is a native macOS app released under the MIT licence. Every version ships from GitHub as a DMG and a ZIP, with no account to make and nothing to pay for.</p>
 
         <div class="mt-8 flex flex-wrap items-center gap-3">

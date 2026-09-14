@@ -53,9 +53,11 @@ function setupScrollSpy() {
     linksById.get(id).push(link)
   })
 
+  // Sections only: the wordmark points at `#main`, which wraps every one of them
+  // and so always intersects, and would take the mark on every scroll position.
   const sections = [...linksById.keys()]
     .map((id) => document.getElementById(id))
-    .filter(Boolean)
+    .filter((element) => element?.tagName === 'SECTION')
   if (!sections.length) return
 
   const visible = new Set()

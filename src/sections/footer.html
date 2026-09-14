@@ -14,9 +14,29 @@
     color: var(--color-cd-text);
   }
 
+  /* The three kind tints together, in the one place on the page where none of them
+     is claiming to be about its own kind. It replaces the hairline rather than
+     sitting under it, so the footer still opens on a single rule. */
+  #site-footer {
+    position: relative;
+  }
+
+  #site-footer::before {
+    content: "";
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline: 0;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      var(--color-cd-accent) 0%,
+      var(--color-cd-appearance) 50%,
+      var(--color-cd-dynamic) 100%
+    );
+  }
 </style>
 
-<footer class="border-t border-cd-border bg-cd-bg px-5 py-14">
+<footer id="site-footer" class="bg-cd-bg px-5 py-14">
   <div class="cd-shell">
     <div class="grid grid-cols-12 gap-x-6 gap-y-10">
       <div class="col-span-12 md:col-span-5 lg:col-span-4">

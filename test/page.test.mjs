@@ -40,8 +40,17 @@ const doc = window.document
 
 // jsdom ships neither of these; the nav and the reveal both reach for them.
 window.matchMedia = () => ({ matches: false, addEventListener() {}, removeEventListener() {} })
+const observers = []
 window.IntersectionObserver = class {
-  observe() {}
+  constructor(callback, options) {
+    this.callback = callback
+    this.options = options
+    this.targets = []
+    observers.push(this)
+  }
+  observe(target) {
+    this.targets.push(target)
+  }
   unobserve() {}
   disconnect() {}
 }
@@ -165,6 +174,26 @@ console.log('\ncopy button')
 check('stays hidden where there is no clipboard',
   window.navigator.clipboard ? !copyButton.hasAttribute('hidden') : copyButton.hasAttribute('hidden'),
   `clipboard present: ${Boolean(window.navigator.clipboard)}`)
+
+console.log('\nscroll spy')
+const spy = observers.find((o) => o.options?.rootMargin === '-20% 0px -70% 0px')
+check('the spy is watching something', Boolean(spy?.targets.length))
+check('it watches sections only, never the main wrapper',
+  spy.targets.every((t) => t.tagName === 'SECTION'),
+  spy.targets.map((t) => `${t.tagName}#${t.id}`).join(', '))
+
+// `main` wraps every section, so it intersects wherever the reader is. Replaying
+// that is what shows whether the spy marks the section or the page.
+const marksFor = (id) => {
+  spy.callback(spy.targets.map((target) => ({ target, isIntersecting: target.id === id })))
+  return [...doc.querySelectorAll('#site-nav [aria-current]')].map((a) => a.getAttribute('href'))
+}
+for (const id of ['types', 'editor', 'gallery']) {
+  const marked = marksFor(id)
+  check(`reading #${id} marks its own link`, marked.length > 0 && marked.every((h) => h === `#${id}`),
+    `marked ${marked.join(' + ') || 'nothing'}`)
+}
+check('the wordmark is never marked', !doc.querySelector('#site-nav a[href="#main"][aria-current]'))
 
 console.log('\nicons')
 const glyphs = [...doc.querySelectorAll('svg')].filter((s) => s.getAttribute('viewBox') === '0 0 256 256')

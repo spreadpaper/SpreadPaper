@@ -40,7 +40,7 @@ Every section is `<section class="cd-section"><div class="cd-shell">`. Inside th
 
 1. nav: sticky, 56px tall, `bg-cd-bg/80 backdrop-blur-md border-b border-cd-border`. Wordmark left, three links and one small primary button right. No logo lockup invention.
 2. hero: a composed header across the full twelve, then the rig full width beneath it. The h1 takes columns 1 to 7. The lead, the two buttons and the licence line take columns 8 to 12, top aligned with the h1. Nothing is beside nothing. The rig then runs the full width of the shell, bleeding to the viewport edge below `sm`. A wide subject deserves a wide visual, so the hero visual stays full width; what changes is that it is now tall enough to be the thing you see.
-3. types: dark band, `bg-cd-canvas`. Two-column header, then three rows stacked. Each row is text in four columns and a rig in the remaining eight, and the side flips row to row. `lg:items-center`, so the shorter block centres against the taller one.
+3. types: dark band, `bg-cd-canvas`. The header takes the left six columns and a vertical tablist of the three kinds takes the right five, which is what fills the half that used to be air: a control, not decoration. Below it one panel at a time, the rig in seven columns and the kind's copy in four starting at column nine, so the right hand rail runs unbroken from the tabs down into the panel. Without JavaScript the three panels render as a stacked list and nothing is hidden.
 4. editor: `bg-cd-bg`. Two-column header across the full twelve, then the editor rig in columns 1 to 7 with the three sub-features stacked in columns 9 to 12 beside it. The bezel comparison follows as its own full-width row, text in columns 1 to 4 and the two rigs in 6 to 12.
 5. gallery: `bg-cd-bg-secondary`. Two-column header, then four preset cards, three columns each at `lg` and six at `sm`. Four cards filling the row is the gallery window; one large card with a thin rail of text beside it was the old mistake.
 6. download: `bg-cd-canvas`, the quietest section on the page. Header and buttons in columns 1 to 6, the requirements `<dl>` in 8 to 12. The first-launch instructions are a separate full-width row below, not a tail on the left column, or they leave a 900px void under the `<dl>`.
@@ -50,7 +50,9 @@ Section backgrounds alternate `bg-cd-bg` and `bg-cd-canvas` or `bg-cd-bg-seconda
 
 ## The rig
 
-A rig is one photograph shown across a drawn set of monitors. It replaces the bare `.spread` band everywhere on the page, gallery thumbnails included: there the rig simply loses its stand, its foot and its light, which is `rig-thumb`. `.spread` stays in `src/style.css` because deleting a primitive mid-iteration is how a page breaks, but nothing should be using it by the end.
+A rig is one photograph shown across a drawn set of monitors. It replaced the bare `.spread` band everywhere on the page, gallery thumbnails included: there the rig simply loses its stand, its foot and its light, which is `rig-thumb`. `.spread` is gone from `src/style.css` and nothing should reintroduce it.
+
+One thing the geometry cannot decide for you, found by looking at the hero rather than at the markup. A screen low and to one side of a rig samples the low, far corner of the photograph, and if that corner is much darker than the rest, the screen reads as a different picture even though the drawing is correct. The hero's laptop did exactly this against a sunset whose bottom left is near black foliage, directly under an h1 claiming one photograph across every monitor. So when a rig mixes screen heights, either put the smaller screen on a riser so it shares the others' vertical band, or choose a photograph with an even horizon. Check it by looking, because the markup will be innocent.
 
 Each rig is one inline `<svg>` with a `viewBox`, and it is built in this order:
 
@@ -115,8 +117,14 @@ Where colour is now allowed that it was not before:
 
 1. One word of the h1 takes the accent. At 96px extrabold it clears the 3:1 bar that large text is held to, with room to spare.
 2. The primary button fills with a vertical gradient from #5e5ce6 at the top to #4a48c9 at the bottom. White on the light end measures 5.06:1 and on the dark end 6.86:1, so the label clears AA across the whole run. Do not extend the gradient up towards #7c7cff: white on that is 3.40:1, which fails at button size. The old hover colour #6d6bf0 fails too, at 4.19:1, so hover darkens the gradient rather than lightening it: #5452d4 to #403ead, which puts white at 5.94:1 and 8.36:1.
-3. Each rig casts light onto the desk beneath it, as a soft ellipse in the section's own tint: neutral white at 6 per cent for the hero and Static, periwinkle at 10 per cent for Light and Dark, amber at 10 per cent for Dynamic, accent at 8 per cent for the editor. This is the only gradient on the page besides the button, and it is there because the screens are lit and the light has to go somewhere.
-4. The three kind markers in the types section take their own tint, on the icon and the label together.
+3. Each rig casts light onto the desk beneath it, as a soft ellipse in the section's own tint: neutral white at 12 per cent for the hero and Static, periwinkle at 14 per cent for Light and Dark, amber at 14 per cent for Dynamic, accent at 12 per cent for the editor. In the types section the light follows the selected kind, so switching tabs changes the temperature of the whole panel rather than recolouring three small marks. That is also how Static gets light without getting a tint it is not entitled to.
+4. The three kind markers in the types section take their own tint, on the icon and the label together, and the same three glyphs and tints mark the gallery card badges.
+5. The download section sits on a low wash of accent over `cd-canvas`, 8 to 12 per cent, anchored behind the buttons and falling off to nothing, so the closing section reads as an arrival rather than as the quietest thing on the page.
+6. One word of the download h2 takes the accent, as one word of the h1 does. Two tinted words on a page, one at the top and one at the bottom, is a pattern. A third would be a habit.
+7. A 2px rule at the top of the footer runs indigo to periwinkle to amber, the one place all three kind tints sit together without either claiming to be about its own kind.
+8. The nav marks the section you are reading with a 2px accent underline, which survives forced-colors mode where a colour shift does not.
+
+Those numbers went up once the page was looked at rather than reasoned about. The first set, 6 to 10 per cent, could not be seen at all at either width, and a tint nobody can see is not restraint, it is an omission. Measure colour decisions in a browser, not in a stylesheet.
 
 That is five colours present on the page against a near-monochrome ground, all of them from the app's palette, none of them decorating anything.
 
@@ -132,15 +140,17 @@ Both kind tints clear AA for normal text, so amber and periwinkle are safe where
 
 ## Icons
 
-The app draws its icons with PhosphorSwift, so the site uses `@phosphor-icons/web` and the icon language matches. One weight, regular, imported once in `src/main.js`. Every icon is `aria-hidden="true"` and sits beside a real text label, never alone as the only name for a thing.
+The app draws its icons with PhosphorSwift, so the site draws the same set at the same regular weight and the two speak one icon language. Write `<!--@icon name class="..."-->` and the build inlines the real SVG from the package source: about 8KB of markup for the glyphs actually used, against 144KB of woff2 plus a 76KB stylesheet for the 1,512 that are not. An unknown name fails the build. Every icon is `aria-hidden` and sits beside a real text label, never alone as the only name for a thing.
 
-An icon earns its place in exactly two situations. It names one of the three wallpaper kinds, which recur across the types section and the gallery badges and are worth a mark the eye can learn. Or it labels a control the app itself shows, in which case drawing the real glyph makes the illustration true rather than decorative.
+An icon earns its place in exactly two situations, and the list is closed. It marks an affordance, something a person touches, where the glyph does work the word alone does not. Or it names one of the three wallpaper kinds, which recur across the types tablist and the gallery badges: that mark is learned once and read twice, and it is the same glyph the app uses for the same thing.
 
-- The three kinds: `ph-image` for Static, `ph-circle-half` for Light and Dark, `ph-clock-clockwise` for Dynamic. Same three glyphs in the types rows and on the gallery card badges, always in that kind's tint.
-- The editor rig carries a floating control bar, as the app does, and its buttons take `ph-magnifying-glass-plus`, `ph-arrows-out` and `ph-flip-horizontal`.
-- The nav and download buttons take `ph-download-simple`, the GitHub links `ph-github-logo`, the copy button `ph-copy` swapping to `ph-check`.
+- The three kinds: image for Static, circle-half for Light and Dark, clock-clockwise for Dynamic, always in that kind's tint.
+- The editor rig's floating control bar, as the app shows it: magnifying-glass-plus, arrows-out, flip-horizontal.
+- Affordances: download-simple on the download buttons, github-logo on the GitHub links, copy swapping to check on the copy button, the menu toggle.
 
-Nowhere else. An icon beside every `h3` is its own cliche and it is banned below. If you find yourself reaching for a glyph to fill a space, the space is the problem.
+Nowhere else, and never beside an `h2` or an `h3`. An icon next to every heading is its own cliche and it is banned below. If you find yourself reaching for a glyph to fill a space, the space is the problem.
+
+The check on the copy button stays in the button's own text colour. Success green does one job on this page, marking the applied preset in the gallery, and a second use makes it a generic "good" colour rather than a specific meaning.
 
 ## Surfaces, borders, shadows
 
@@ -156,7 +166,13 @@ A Tailwind utility cannot override a property that `.spread`, `.rig`, `.cd-card`
 
 ## Motion
 
-Opacity and small translate only, 150ms to 250ms, `ease-out`. The only looping animations on the page are the photograph crossfades inside the types rigs. Scroll reveal is a fade with a 12px rise, once, never staggered by more than 60ms. No parallax, no scroll-jacking, no counters, no marquees, no hover lift on cards. Nothing in a rig moves except the photograph behind the screens: the hardware is furniture and furniture does not animate. `prefers-reduced-motion` is already handled in CSS, but keep all new motion inside classes it can reach.
+Opacity and small translate only, 150ms to 250ms, `ease-out`. The only looping animations on the page are the photograph crossfades inside the types rigs. Scroll reveal is a fade with a 12px rise, once, never staggered by more than 60ms. No parallax, no scroll-jacking, no counters, no marquees, no hover lift on cards. Nothing in a rig moves except the photograph behind the screens: the hardware is furniture and furniture does not animate. Under `prefers-reduced-motion` every one of these is absent rather than faster, and new motion goes inside a class the existing rules already reach.
+
+Interactivity is rationed to one idea, and the ration is the point. The bezel slider in the editor section is the centrepiece: dragging it widens the frames while the photograph stays put, so the hidden strip grows and the ridgeline still meets on the far side. It earns its place because it is the one thing on this page genuinely better understood by touching it than by reading about it, which two static pictures side by side had proved.
+
+Everything else is deliberately smaller. The types tabs switch a panel, which is navigation rather than a demonstration. The Dynamic loop starts from the reader's real wall clock, as the app's own hero does, so it opens on the photograph that matches their hour instead of an arbitrary one. The gallery cards lighten their border on hover, because the app's cards respond and a card that looks clickable and does nothing is worse than one that plainly does not.
+
+Two things were proposed and ruled out, for the same reason. A second slider for the Dynamic schedule, and filter chips that really filter in the gallery. Both are good ideas in isolation and both steal the bezel slider's moment, because a page with three interactive toys has no centrepiece, only demos. When something new wants to be interactive, the question is not whether it would work; it is whether it is better than the slider, and if it is not, it stays still.
 
 ## Focus and responsive
 

@@ -1,8 +1,20 @@
 <!-- The gallery: living with the wallpapers you have already made. -->
 <section id="gallery" class="cd-section bg-cd-bg-secondary" aria-labelledby="gallery-title">
   <style>
-    /* Lifts the preset cards off the gallery's own background. Same card, one surface up. */
-    #gallery .gl-card { background-color: var(--color-cd-bg-elevated); }
+    /* Lifts the preset cards off the gallery's own background. Same card, one surface up.
+       The border answers a pointer because the app's own cards do, and a card that looks
+       clickable and stays inert reads worse than one that plainly is not. Border only: no
+       lift, no shadow, no scale. */
+    #gallery .gl-card {
+      background-color: var(--color-cd-bg-elevated);
+      transition: border-color 150ms ease-out;
+    }
+
+    #gallery .gl-card:hover { border-color: var(--color-cd-border-strong); }
+
+    @media (prefers-reduced-motion: reduce) {
+      #gallery .gl-card { transition: none; }
+    }
 
     /* All four thumbnails come from scripts/rigs.mjs: `thumb`, `thumb-pair`, `thumb-portrait`
        and `thumb-laptop`, one arrangement per preset.
@@ -68,9 +80,9 @@
               Applied
             </p>
           </div>
-          <div class="mt-3 flex items-center justify-between gap-2">
+          <div class="mt-3">
             <h3 class="truncate text-base font-semibold text-cd-text">Maui sunset</h3>
-            <span class="flex shrink-0 items-center gap-1.5 rounded-md border border-cd-border bg-cd-bg-secondary px-2 py-1 text-sm text-cd-text-secondary">
+            <span class="mt-1.5 inline-flex items-center gap-1.5 rounded-md border border-cd-border bg-cd-bg-secondary px-2 py-1 text-sm text-cd-text-secondary">
               <!--@icon image class="size-3.5 text-cd-text-secondary"-->
               Static
             </span>
@@ -95,9 +107,9 @@
               </g>
             </svg>
           </div>
-          <div class="mt-3 flex items-center justify-between gap-2">
+          <div class="mt-3">
             <h3 class="truncate text-base font-semibold text-cd-text">Beach, day and night</h3>
-            <span class="flex shrink-0 items-center gap-1.5 rounded-md border border-cd-border bg-cd-bg-secondary px-2 py-1 text-sm text-cd-text-secondary">
+            <span class="mt-1.5 inline-flex items-center gap-1.5 rounded-md border border-cd-border bg-cd-bg-secondary px-2 py-1 text-sm text-cd-text-secondary">
               <!--@icon circle-half class="size-3.5 text-cd-appearance"-->
               Light &amp; Dark
             </span>
@@ -122,9 +134,9 @@
               </g>
             </svg>
           </div>
-          <div class="mt-3 flex items-center justify-between gap-2">
+          <div class="mt-3">
             <h3 class="truncate text-base font-semibold text-cd-text">A day outside</h3>
-            <span class="flex shrink-0 items-center gap-1.5 rounded-md border border-cd-border bg-cd-bg-secondary px-2 py-1 text-sm text-cd-text-secondary">
+            <span class="mt-1.5 inline-flex items-center gap-1.5 rounded-md border border-cd-border bg-cd-bg-secondary px-2 py-1 text-sm text-cd-text-secondary">
               <!--@icon clock-clockwise class="size-3.5 text-cd-dynamic"-->
               Dynamic
             </span>
@@ -149,9 +161,9 @@
               </g>
             </svg>
           </div>
-          <div class="mt-3 flex items-center justify-between gap-2">
+          <div class="mt-3">
             <h3 class="truncate text-base font-semibold text-cd-text">Night ridge</h3>
-            <span class="flex shrink-0 items-center gap-1.5 rounded-md border border-cd-border bg-cd-bg-secondary px-2 py-1 text-sm text-cd-text-secondary">
+            <span class="mt-1.5 inline-flex items-center gap-1.5 rounded-md border border-cd-border bg-cd-bg-secondary px-2 py-1 text-sm text-cd-text-secondary">
               <!--@icon image class="size-3.5 text-cd-text-secondary"-->
               Static
             </span>
