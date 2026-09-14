@@ -64,7 +64,7 @@ Source files organized under `SpreadPaper/`. One external package: PhosphorSwift
 - **Services/WallpaperFilenames.swift** — Names of the rendered per-display files, the display ID a name is keyed on, the tests for pre-1.7.1 legacy names, and the folders under `dynamic/` no preset claims any more
 - **Services/FilenameUtils.swift** — Stored image filenames (`UUID_original.ext`) and the display name read back out
 - **Services/ImageFileFilter.swift** — Keeps only local image file URLs from a drop
-- **Services/UpdateChecker.swift** — Fetches the latest GitHub release, compares versions, parses CHANGELOG.md for release notes, read at the release tag and falling back to `main`. Non-2xx replies become a `GitHubStatusError` with plain UI copy
+- **Services/UpdateChecker.swift** — Fetches the latest GitHub release, compares versions, parses CHANGELOG.md for the version and date of each release header, read at the release tag and falling back to `main`. Note bodies are never read, so the Updates tab lists versions and links out to GitHub. Non-2xx replies become a `GitHubStatusError` with plain UI copy
 - **Services/SemanticVersion.swift** — semver 2.0 parsing and ordering; unparseable versions never report an update
 - **Services/NSImage+PixelSize.swift** — True pixel size of an `NSImage`, not its point size
 
