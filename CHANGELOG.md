@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.1](https://github.com/spreadpaper/SpreadPaper/compare/v1.10.0...v1.10.1) (2026-09-14)
+
+
+### Bug Fixes
+
+* show what the editor canvas will crop and make display names readable ([#153](https://github.com/spreadpaper/SpreadPaper/issues/153)) ([a59246d](https://github.com/spreadpaper/SpreadPaper/commit/a59246d9a2325addf2af858935b4dbd00ae9e37c))
+
 ## [1.10.0](https://github.com/spreadpaper/SpreadPaper/compare/v1.9.1...v1.10.0) (2026-09-14)
 
 
