@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.10.0](https://github.com/spreadpaper/SpreadPaper/compare/v1.9.1...v1.10.0) (2026-09-14)
+
+
+### Features
+
+* rebuild the marketing site on drawn monitor rigs ([#147](https://github.com/spreadpaper/SpreadPaper/issues/147)) ([7d09a11](https://github.com/spreadpaper/SpreadPaper/commit/7d09a113e5009e1ecc8843b7b323b0fa7d8a328b))
+
+
+### Bug Fixes
+
+* collect renders and folders no display or preset can reach ([#145](https://github.com/spreadpaper/SpreadPaper/issues/145)) ([3bfc875](https://github.com/spreadpaper/SpreadPaper/commit/3bfc875f6500e55dbcf46ffce74e48b78c930e2e))
+
+
+### Miscellaneous Chores
+
+* **deps:** move GitHub Actions to current majors ([c8b1b6a](https://github.com/spreadpaper/SpreadPaper/commit/c8b1b6a1fa4bc6e278f368a29084b30d61b18b16))
+* move the marketing site to its own repository ([491e97a](https://github.com/spreadpaper/SpreadPaper/commit/491e97a9669f655f4ade293c988a1df081cab2ad))
+* move the marketing site to its own repository ([#149](https://github.com/spreadpaper/SpreadPaper/issues/149)) ([55d5364](https://github.com/spreadpaper/SpreadPaper/commit/55d536479e42442909a739d9ff1b53290a99549e))
+* show chore commits in the changelog ([#150](https://github.com/spreadpaper/SpreadPaper/issues/150)) ([b182258](https://github.com/spreadpaper/SpreadPaper/commit/b18225885cb1028408638db1a9c5e8ecb741c6ea))
+* **site:** serve the website from spreadpaper.app ([6097a33](https://github.com/spreadpaper/SpreadPaper/commit/6097a33205873590e74601813175d5b1104b9469))
+
 ## [1.9.1](https://github.com/spreadpaper/SpreadPaper/compare/v1.9.0...v1.9.1) (2026-09-14)
 
 
