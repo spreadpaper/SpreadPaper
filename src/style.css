@@ -1,101 +1,170 @@
 @import "tailwindcss";
 
+/* Cool Dark, the app's own palette. Kept in step with SpreadPaper/Theme/CoolDarkTheme.swift. */
 @theme {
-  /* Custom fonts */
-  --font-sans: "Inter", sans-serif;
-  --font-display: "Playfair Display", serif;
+  --color-cd-bg: #16161a;
+  --color-cd-bg-secondary: #1e1e24;
+  --color-cd-bg-elevated: #24242c;
+  --color-cd-bg-hover: #2a2a34;
+  --color-cd-canvas: #111114;
+  --color-cd-border: #2a2a32;
+  --color-cd-border-strong: #3a3a44;
+  --color-cd-text: #e8e8ed;
+  --color-cd-text-secondary: #9e9eaa;
+  --color-cd-text-tertiary: #6e6e7a;
+  --color-cd-accent: #5e5ce6;
+  --color-cd-success: #34c759;
+  --color-cd-danger: #ff453a;
+  --color-cd-dynamic: #f5a524;
+  --color-cd-appearance: #7c7cff;
 
-  /* Custom primary color palette */
-  --color-primary-50: #EFF6FF;
-  --color-primary-100: #DBEAFE;
-  --color-primary-200: #BFDBFE;
-  --color-primary-300: #93C5FD;
-  --color-primary-400: #60A5FA;
-  --color-primary-500: #3B82F6;
-  --color-primary-600: #2563EB;
-  --color-primary-700: #1D4ED8;
-  --color-primary-800: #1E40AF;
-  --color-primary-900: #1E3A8A;
-
-  /* Custom animations */
-  --animate-fade-in-up: fade-in-up 0.8s ease-out;
-  --animate-fade-in: fade-in 0.6s ease-out;
-  --animate-slide-in-right: slide-in-right 0.5s ease-out;
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Helvetica Neue", sans-serif;
 }
 
-@keyframes fade-in-up {
-  0% {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
+html {
+  background-color: var(--color-cd-bg);
+  color-scheme: dark;
 }
 
-@keyframes fade-in {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
+body {
+  background-color: var(--color-cd-bg);
+  color: var(--color-cd-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
 }
 
-@keyframes slide-in-right {
-  0% {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
+/* --- The spread: one photograph laid across several monitor panels ---
+   Markup contract, used by every section:
 
-/* Custom utilities */
-@utility text-gradient {
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-  background-image: linear-gradient(to right, var(--color-primary-600), #2563eb);
-}
+   <div class="spread" style="--bezel: 14px">
+     <img class="spread-photo" src="/SpreadPaper/photos/hero-beach.jpg" alt="">
+     <div class="spread-frame">
+       <div class="spread-screen" style="--w: 16"></div>
+       <div class="spread-bezel"></div>
+       <div class="spread-screen" style="--w: 9"></div>
+     </div>
+   </div>
 
-@utility shadow-luxury {
-  box-shadow: 0 20px 60px -12px rgba(59, 130, 246, 0.25), 0 8px 16px -4px rgba(0, 0, 0, 0.1);
-}
-
-/* Animation delay utilities */
-.animate-delay-100 {
-  animation-delay: 0.1s;
-}
-.animate-delay-200 {
-  animation-delay: 0.2s;
-}
-.animate-delay-300 {
-  animation-delay: 0.3s;
-}
-.animate-delay-400 {
-  animation-delay: 0.4s;
-}
-.animate-delay-500 {
-  animation-delay: 0.5s;
-}
-.animate-delay-600 {
-  animation-delay: 0.6s;
-}
-
-/* Mobile menu animation */
-.mobile-menu {
-  transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
-}
-.mobile-menu.closed {
-  max-height: 0;
-  opacity: 0;
+   The photograph covers the whole row and the bezels are drawn over it, so the
+   image never has to be sliced and the panels stay responsive at any width.
+   `--w` is that panel's share of the row, `--bezel` the gap between two of them. */
+.spread {
+  position: relative;
+  isolation: isolate;
   overflow: hidden;
+  border-radius: 10px;
 }
-.mobile-menu.open {
-  max-height: 500px;
-  opacity: 1;
+
+.spread-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+.spread-frame {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: stretch;
+  height: 100%;
+  gap: 0;
+}
+
+.spread-screen {
+  flex: var(--w, 1) 1 0;
+  border: 1px solid rgb(255 255 255 / 0.14);
+  border-radius: 8px;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.12),
+    inset 0 0 0 1px rgb(0 0 0 / 0.25),
+    0 12px 30px rgb(0 0 0 / 0.45);
+}
+
+/* The dark gap a physical monitor frame puts between two panels. */
+.spread-bezel {
+  flex: 0 0 var(--bezel, 12px);
+  background: var(--color-cd-bg);
+}
+
+/* A photograph that fades in over the one beneath it, for the day and night pairs. */
+.spread-photo-fade {
+  animation: cd-crossfade var(--cycle, 12s) ease-in-out infinite;
+}
+
+@keyframes cd-crossfade {
+  0%, 40% { opacity: 0; }
+  50%, 90% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* --- Shared furniture --- */
+.cd-card {
+  background-color: var(--color-cd-bg-secondary);
+  border: 1px solid var(--color-cd-border);
+  border-radius: 14px;
+}
+
+.cd-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  transition: background-color 120ms ease, transform 120ms ease;
+}
+
+.cd-button:active {
+  transform: translateY(1px);
+}
+
+.cd-button-primary {
+  background-color: var(--color-cd-accent);
+  color: #fff;
+}
+
+.cd-button-primary:hover {
+  background-color: #6d6bf0;
+}
+
+.cd-button-secondary {
+  background-color: var(--color-cd-bg-elevated);
+  color: var(--color-cd-text);
+  border: 1px solid var(--color-cd-border-strong);
+}
+
+.cd-button-secondary:hover {
+  background-color: var(--color-cd-bg-hover);
+}
+
+/* Section rhythm, so every section lands on the same grid. */
+.cd-section {
+  padding-block: clamp(4rem, 10vw, 7.5rem);
+  padding-inline: 1.25rem;
+}
+
+.cd-shell {
+  max-width: 76rem;
+  margin-inline: auto;
+}
+
+.cd-eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-cd-text-tertiary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spread-photo-fade,
+  *[class*="animate-"] {
+    animation: none !important;
+  }
+  html {
+    scroll-behavior: auto;
+  }
 }
