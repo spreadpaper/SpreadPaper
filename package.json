@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@phosphor-icons/core": "^2.1.1",
     "@tailwindcss/vite": "^4.0.0",
     "tailwindcss": "^4.0.0",
     "vite": "^6.0.0"

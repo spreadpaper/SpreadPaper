@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* SVG monitor rigs: the drawn displays one photograph is carried across.
+   Standalone, so it holds no Tailwind classes and depends on nothing here. */
+@import "./rigs.css";
+
 /* Cool Dark, the app's own palette. Kept in step with SpreadPaper/Theme/CoolDarkTheme.swift. */
 @theme {
   --color-cd-bg: #16161a;

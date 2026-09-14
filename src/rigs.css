@@ -1,0 +1,146 @@
+/* --- Monitor rigs: one photograph carried across several SVG-drawn screens ---
+
+   Full markup for every rig is in RIGS.md at the repo root. The short version:
+
+   <svg class="rig rig-dual" viewBox="0 0 686 236" role="img" aria-label="..." focusable="false">
+     <defs>
+       <clipPath id="UNIQUE-ID">
+         <rect x="0" y="0" width="340" height="200" rx="10"/>
+         <rect x="346" y="0" width="340" height="200" rx="10"/>
+       </clipPath>
+     </defs>
+     <g class="rig-stand"> ... necks and feet ... </g>
+     <g clip-path="url(#UNIQUE-ID)">
+       <image class="rig-photo" href="/photos/1200/hero-beach.jpg" x="0" y="0" width="686" height="200" preserveAspectRatio="xMidYMid slice"/>
+       <rect class="rig-frame" x="0" y="0" width="340" height="200" rx="10"/>
+       <rect class="rig-frame" x="346" y="0" width="340" height="200" rx="10"/>
+     </g>
+   </svg>
+
+   The clipPath id must be unique on the page. A repeated id makes the second rig
+   clip against the first one's screens, which fails silently.
+
+   Every `.rig-frame` rect repeats the geometry of the clipPath rect it frames.
+   Change the pair together or the frame stops lining up with its screen.
+
+   One image spans the whole rig and each screen is a window onto it, so the
+   photograph is physically continuous and carries on behind every frame. The
+   frame is a stroke of twice `--rig-bezel`, half of it clipped away by the
+   screen it sits on, so the visible frame measures `--rig-bezel` exactly.
+
+   Write photo paths as /photos/NAME.jpg, never /SpreadPaper/photos/NAME.jpg. Vite
+   prepends base '/SpreadPaper/' to absolute paths, so the longer form resolves to
+   /SpreadPaper/SpreadPaper/ and serves the HTML fallback instead of the image. */
+.rig {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+
+  --rig-bezel: 10;
+  --rig-frame: #1c1c23;
+  --rig-stand: #282831;
+
+  filter:
+    drop-shadow(0 -1px 0 rgb(255 255 255 / 0.09))
+    drop-shadow(0 18px 30px rgb(0 0 0 / 0.5));
+}
+
+.rig-frame {
+  fill: none;
+  stroke: var(--rig-frame);
+  stroke-width: calc(var(--rig-bezel) * 2);
+}
+
+.rig-stand {
+  fill: var(--rig-stand);
+}
+
+/* The laptop chin, which is deeper than the frame around the rest of the lid. */
+.rig-chin {
+  fill: var(--rig-frame);
+}
+
+/* Frames drawn as glass, so the strip of photograph running on behind them
+   stays visible. For the thin-against-thick bezel comparison. */
+.rig-glass {
+  --rig-frame: rgb(22 22 26 / 0.72);
+}
+
+/* The hairline rectangle marking the area an editor render keeps. */
+.rig-crop {
+  fill: none;
+  stroke: rgb(255 255 255 / 0.55);
+  stroke-width: 1.5;
+}
+
+/* --- Motion ---
+   Extra photographs stack inside the same clipped group, above the first one,
+   and fade in over it. Each rests at opacity 0, so with motion off the rig
+   shows the photograph at the bottom of the stack. */
+
+/* A second photograph, for a Light and Dark pair. */
+.rig-photo-fade {
+  opacity: 0;
+  animation: rig-crossfade var(--rig-cycle, 12s) ease-in-out infinite;
+}
+
+@keyframes rig-crossfade {
+  0%, 40% { opacity: 0; }
+  50%, 90% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* The day cycle: four photographs, each holding from its own hour until the
+   next covers it, plus a fifth repeating the first so the loop closes on a
+   fade rather than a cut. */
+.rig-day {
+  opacity: 0;
+  animation-duration: var(--rig-day-cycle, 20s);
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+.rig-day-2 { animation-name: rig-day-2; }
+.rig-day-3 { animation-name: rig-day-3; }
+.rig-day-4 { animation-name: rig-day-4; }
+.rig-day-wrap { animation-name: rig-day-wrap; }
+
+@keyframes rig-day-2 { 0%, 22% { opacity: 0; } 28%, 100% { opacity: 1; } }
+@keyframes rig-day-3 { 0%, 47% { opacity: 0; } 53%, 100% { opacity: 1; } }
+@keyframes rig-day-4 { 0%, 72% { opacity: 0; } 78%, 100% { opacity: 1; } }
+@keyframes rig-day-wrap { 0%, 95% { opacity: 0; } 100% { opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .rig-photo-fade,
+  .rig-day {
+    animation: none !important;
+  }
+}
+
+/* --- The rigs ---
+   Each sets only what its own drawing needs. Geometry lives in the markup,
+   because clip rects and frame rects have to agree, and RIGS.md is where the
+   numbers for each rig are written down. */
+
+/* Two matched 16:9 monitors. viewBox 0 0 686 236. */
+.rig-dual { --rig-bezel: 10; }
+
+/* Three matched 16:9 monitors. viewBox 0 0 1032 236. */
+.rig-triple { --rig-bezel: 10; }
+
+/* One 21:9 ultrawide. viewBox 0 0 440 236. */
+.rig-ultrawide { --rig-bezel: 10; }
+
+/* A 16:9 monitor with a laptop beside it, lower and smaller. viewBox 0 0 616 236. */
+.rig-laptop { --rig-bezel: 9; }
+
+/* Portrait, landscape, portrait, bottoms level. viewBox 0 0 752 376. */
+.rig-portrait-trio { --rig-bezel: 10; }
+
+/* Gallery thumbnail: three screens, no stand, legible at 92px tall.
+   viewBox 0 0 320 64. */
+.rig-thumb {
+  --rig-bezel: 4;
+  filter: drop-shadow(0 2px 6px rgb(0 0 0 / 0.45));
+}
