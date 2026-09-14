@@ -251,7 +251,20 @@ export function markup(name, { id, photos, label, classes = '', indent = '', day
   return lines.join('\n')
 }
 
-/** Checks that every screen sits inside both the image box and the viewBox. */
+const area = (a, b) =>
+  Math.max(0, Math.min(a.x2, b.x2) - Math.max(a.x1, b.x1)) *
+  Math.max(0, Math.min(a.y2, b.y2) - Math.max(a.y1, b.y1))
+
+const grow = (r, b) => ({ x1: r.x - b, y1: r.y - b, x2: r.x + r.w + b, y2: r.y + r.h + b })
+const shrink = (r, b) => ({ x1: r.x + b, y1: r.y + b, x2: r.x + r.w - b, y2: r.y + r.h - b })
+
+/**
+ * Checks that every screen sits inside both the image box and the viewBox, that
+ * no laptop chin covers the screen above it, and that no frame stroke can
+ * reach a neighbouring screen's picture.
+ *
+ * @returns {string[]} One line per problem, empty when the geometry holds.
+ */
 export function check() {
   const problems = []
   for (const [name, r] of Object.entries(RIGS)) {
@@ -265,6 +278,22 @@ export function check() {
     for (const st of r.stands) {
       if (st.top + STAND_DROP > vh) problems.push(`${name}: a stand runs past the bottom of the viewBox`)
     }
+    // A frame is a stroke of twice the bezel, so half of it falls outside its own
+    // screen. Where two screens sit closer than that, one screen's stroke survives
+    // inside its neighbour's clip: harmless while it lands in the neighbour's own
+    // frame, a dark line across the picture the moment it reaches past it. Checked
+    // well beyond the widest bezel any section sets, since the slider drives it.
+    for (const bezel of [r.bezel ?? 10, 26, 40]) {
+      for (const screen of r.screens) {
+        for (const neighbour of r.screens) {
+          if (screen === neighbour) continue
+          if (area(grow(neighbour, bezel), shrink(screen, bezel)) > 0) {
+            problems.push(`${name}: at bezel ${bezel} a frame stroke reaches a neighbouring screen's picture`)
+          }
+        }
+      }
+    }
+
     if (r.laptop) {
       if (r.laptop.base.y + r.laptop.base.h > vh) problems.push(`${name}: the laptop base runs past the viewBox`)
       const lid = r.screens.find((s) => s.h === SCREEN.laptop14.h)
