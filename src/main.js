@@ -3,6 +3,9 @@ import './style.css'
 /**
  * Wires the small-width nav menu to its toggle, keeping `aria-expanded` and
  * the icon pair in step. Escape closes it and hands focus back.
+ *
+ * Visibility moves through `toggleAttribute` rather than the `hidden`
+ * property, which SVG elements do not carry, so the glyphs swap.
  */
 function setupMobileMenu() {
   const toggle = document.getElementById('nav-toggle')
@@ -13,20 +16,20 @@ function setupMobileMenu() {
   const closeIcon = toggle.querySelector('[data-nav-icon="close"]')
 
   const setOpen = (open) => {
-    menu.hidden = !open
+    menu.toggleAttribute('hidden', !open)
     toggle.setAttribute('aria-expanded', String(open))
-    if (openIcon) openIcon.hidden = open
-    if (closeIcon) closeIcon.hidden = !open
+    if (openIcon) openIcon.toggleAttribute('hidden', open)
+    if (closeIcon) closeIcon.toggleAttribute('hidden', !open)
   }
 
-  toggle.addEventListener('click', () => setOpen(menu.hidden))
+  toggle.addEventListener('click', () => setOpen(menu.hasAttribute('hidden')))
 
   menu.addEventListener('click', (event) => {
     if (event.target.closest('a')) setOpen(false)
   })
 
   document.addEventListener('keydown', (event) => {
-    if (event.key !== 'Escape' || menu.hidden) return
+    if (event.key !== 'Escape' || menu.hasAttribute('hidden')) return
     setOpen(false)
     toggle.focus()
   })
@@ -104,16 +107,25 @@ function setupScrollReveal() {
 
 /**
  * Copies the text of the element a button names in `data-copy-target`, then
- * swaps the button label for a confirmation. Hidden without a clipboard.
+ * swaps its label and glyph for a confirmation that clears itself. The
+ * button ships hidden, so it appears only once it can do something.
  */
 function setupCopyButtons() {
   document.querySelectorAll('[data-copy-target]').forEach((button) => {
     const label = button.querySelector('[data-copy-text]')
     const source = document.getElementById(button.dataset.copyTarget)
 
-    if (!label || !source || !navigator.clipboard) {
-      button.hidden = true
-      return
+    if (!label || !source || !navigator.clipboard) return
+
+    button.toggleAttribute('hidden', false)
+
+    const idleIcon = button.querySelector('[data-copy-icon="idle"]')
+    const doneIcon = button.querySelector('[data-copy-icon="done"]')
+
+    const setCopied = (copied) => {
+      label.textContent = copied ? button.dataset.copiedLabel : button.dataset.copyLabel
+      if (idleIcon) idleIcon.toggleAttribute('hidden', copied)
+      if (doneIcon) doneIcon.toggleAttribute('hidden', !copied)
     }
 
     let reset
@@ -124,12 +136,106 @@ function setupCopyButtons() {
         return
       }
 
-      label.textContent = button.dataset.copiedLabel
+      setCopied(true)
       clearTimeout(reset)
-      reset = setTimeout(() => {
-        label.textContent = button.dataset.copyLabel
-      }, 2000)
+      reset = setTimeout(() => setCopied(false), 2000)
     })
+  })
+}
+
+/**
+ * Binds each range input that names a CSS custom property to the element it
+ * scales, keeping the readout beside it in step. The control ships
+ * hidden, so an unbound slider is never left on screen.
+ *
+ * Markup contract, all of it data attributes so no section is named here:
+ * `[data-bezel-control]` wraps the control and carries `hidden`;
+ * `[data-bezel-slider]` names `data-bezel-target`, `data-bezel-prop` and an
+ * optional `data-bezel-unit` for the readout and `data-bezel-unit-label`
+ * for the spoken one; `[data-bezel-readout]` takes the written value.
+ */
+function setupBezelSliders() {
+  document.querySelectorAll('[data-bezel-slider]').forEach((slider) => {
+    const target = document.getElementById(slider.dataset.bezelTarget)
+    const property = slider.dataset.bezelProp
+    if (!target || !property) return
+
+    const control = slider.closest('[data-bezel-control]')
+    const readout = control?.querySelector('[data-bezel-readout]')
+    const unit = slider.dataset.bezelUnit ?? ''
+    const spokenUnit = slider.dataset.bezelUnitLabel ?? unit.trim()
+
+    // The range announces its own value, so an announcing readout would double it.
+    if (readout) readout.setAttribute('aria-hidden', 'true')
+
+    const apply = () => {
+      target.style.setProperty(property, slider.value)
+      if (readout) readout.textContent = `${slider.value}${unit}`
+      slider.setAttribute('aria-valuetext', spokenUnit ? `${slider.value} ${spokenUnit}` : slider.value)
+    }
+
+    slider.addEventListener('input', apply)
+    apply()
+    if (control) control.toggleAttribute('hidden', false)
+  })
+}
+
+/**
+ * Wires every `[data-tabs]` root into a tablist, with roving tabindex and
+ * arrow keys. The panels read as a stacked list on their own, so the tab
+ * list ships hidden and appears only once a full set is found.
+ *
+ * Markup contract: `[data-tabs]` wraps the set and takes `data-tabs-ready`
+ * once wired, for any CSS the section wants to hang off that. Inside it,
+ * `[data-tabs-list]` carries `hidden` and holds the `[role="tab"]` buttons,
+ * each naming its panel through `aria-controls`. The tab marked
+ * `aria-selected="true"` in the markup is the one that opens.
+ */
+function setupTabs() {
+  document.querySelectorAll('[data-tabs]').forEach((root) => {
+    const list = root.querySelector('[data-tabs-list]')
+    if (!list) return
+
+    const tabs = [...list.querySelectorAll('[role="tab"]')]
+    const panels = tabs.map((tab) => document.getElementById(tab.getAttribute('aria-controls')))
+    if (!tabs.length || panels.some((panel) => !panel)) return
+
+    const select = (index, moveFocus) => {
+      tabs.forEach((tab, i) => {
+        const isCurrent = i === index
+        tab.setAttribute('aria-selected', String(isCurrent))
+        tab.tabIndex = isCurrent ? 0 : -1
+        panels[i].toggleAttribute('hidden', !isCurrent)
+      })
+      if (moveFocus) tabs[index].focus()
+    }
+
+    // Up and down are the pair a vertical tablist owes its reader. Left and
+    // right come along because nobody checks the orientation before reaching.
+    const steps = { ArrowUp: -1, ArrowLeft: -1, ArrowDown: 1, ArrowRight: 1 }
+
+    tabs.forEach((tab, index) => {
+      tab.addEventListener('click', () => select(index, false))
+      tab.addEventListener('keydown', (event) => {
+        if (event.key === 'Home' || event.key === 'End') {
+          event.preventDefault()
+          select(event.key === 'Home' ? 0 : tabs.length - 1, true)
+          return
+        }
+
+        const step = steps[event.key]
+        if (!step) return
+        event.preventDefault()
+        select((index + step + tabs.length) % tabs.length, true)
+      })
+    })
+
+    // The markup names the tab to open, so a section chooses its own default.
+    const marked = tabs.findIndex((tab) => tab.getAttribute('aria-selected') === 'true')
+
+    root.setAttribute('data-tabs-ready', '')
+    list.toggleAttribute('hidden', false)
+    select(marked < 0 ? 0 : marked, false)
   })
 }
 
@@ -137,3 +243,5 @@ setupMobileMenu()
 setupScrollSpy()
 setupScrollReveal()
 setupCopyButtons()
+setupBezelSliders()
+setupTabs()

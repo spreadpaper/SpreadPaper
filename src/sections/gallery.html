@@ -2,111 +2,160 @@
 <section id="gallery" class="cd-section bg-cd-bg-secondary" aria-labelledby="gallery-title">
   <style>
     /* Lifts the preset cards off the gallery's own background. Same card, one surface up. */
-    .gl-card { background-color: var(--color-cd-bg-elevated); }
+    #gallery .gl-card { background-color: var(--color-cd-bg-elevated); }
 
-    .gl-thumb { --bezel: 10px; }
+    /* One tile shape for every thumbnail, whatever is drawn inside it. The four presets are
+       four different setups, so their rigs are different shapes, and each is held to its own
+       size inside a tile they all share, the way a row of presets sits in the app. A rig with
+       more screens is physically wider, so it lands smaller in the tile, which is honest.
+       Width and height are set here rather than by a utility, since `.rig` sets both itself
+       and an unlayered rule beats any utility class. */
+    #gallery .gl-tile {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      aspect-ratio: 16 / 5;
+      padding: 0 0.5rem;
+      border-radius: 10px;
+      background-color: var(--color-cd-canvas);
+    }
 
-    @media (max-width: 639px) {
-      .gl-thumb { --bezel: 6px; }
+    #gallery .gl-tile .rig {
+      width: auto;
+      height: auto;
+      max-width: 100%;
+      max-height: 100%;
     }
   </style>
 
-  <div class="cd-shell grid grid-cols-12 gap-x-6 gap-y-10">
-    <div class="col-span-12 lg:col-span-3">
-      <p class="cd-eyebrow">The gallery</p>
-      <h2 id="gallery-title" class="mt-4 text-3xl sm:text-4xl lg:text-5xl font-bold tracking-[-0.025em] leading-[1.05] text-cd-text text-balance">Every wallpaper you make stays one click away</h2>
-      <p class="mt-5 text-lg sm:text-xl leading-relaxed text-cd-text-secondary max-w-[46ch] text-pretty">Saving writes a preset: the image, where you put it, the zoom, the flip, and the times if it runs on a schedule. The gallery lists them all with a thumbnail, and marks the one that is on your screens right now.</p>
-      <p class="mt-5 text-base leading-relaxed text-cd-text-secondary max-w-[62ch] text-pretty">Narrow the list to one kind from the sidebar, or search it by name. A card's menu renames a preset, duplicates it, shows the image in Finder or deletes it, and deleting a preset leaves the original image exactly where it was.</p>
+  <div class="cd-shell">
+    <div class="grid grid-cols-12 gap-x-6 gap-y-6">
+      <div class="col-span-12 lg:col-span-5" data-reveal>
+        <p class="cd-eyebrow">The gallery</p>
+        <h2 id="gallery-title" class="mt-4 text-3xl sm:text-4xl lg:text-5xl font-bold tracking-[-0.025em] leading-[1.05] text-cd-text text-balance">Every wallpaper you make stays one click away</h2>
+      </div>
+      <div class="col-span-12 lg:col-span-6 lg:col-start-7 lg:self-end" data-reveal>
+        <p class="text-lg sm:text-xl leading-relaxed text-cd-text-secondary max-w-[46ch] text-pretty">Saving writes a preset: the image, where you put it, the zoom, the flip, and the times if it runs on a schedule. The gallery lists them all with a thumbnail, and marks the one that is on your screens right now.</p>
+        <p class="mt-4 text-base leading-relaxed text-cd-text-secondary max-w-[62ch] text-pretty">Narrow the list to one kind from the sidebar, or search it by name. Every card carries a menu that renames a preset, duplicates it, shows its image in Finder, or deletes it and leaves the image exactly where it was.</p>
+      </div>
     </div>
 
-    <div class="col-span-12 lg:col-span-5">
-      <article class="cd-card gl-card p-3">
-        <div class="relative">
-          <div class="spread gl-thumb aspect-[48/9]">
-            <img class="spread-photo" src="/photos/1200/hero-beach.jpg" width="1200" height="279" loading="lazy" decoding="async" alt="">
-            <div class="spread-frame">
-              <div class="spread-screen" style="--w: 16"></div>
-              <div class="spread-bezel"></div>
-              <div class="spread-screen" style="--w: 16"></div>
-              <div class="spread-bezel"></div>
-              <div class="spread-screen" style="--w: 16"></div>
+    <ul role="list" class="mt-16 grid grid-cols-12 gap-x-6 gap-y-8">
+      <li class="col-span-12 sm:col-span-6 lg:col-span-3" data-reveal>
+        <article class="cd-card gl-card p-3">
+          <div class="relative">
+            <div class="gl-tile">
+              <svg class="rig rig-thumb" viewBox="0 0 350 64" aria-hidden="true" focusable="false">
+                <defs>
+                  <clipPath id="rig-gallery-1">
+                    <rect x="0" y="0" width="114" height="64" rx="5"/>
+                    <rect x="118" y="0" width="114" height="64" rx="5"/>
+                    <rect x="236" y="0" width="114" height="64" rx="5"/>
+                  </clipPath>
+                </defs>
+                <g clip-path="url(#rig-gallery-1)">
+                  <image class="rig-photo" href="/photos/600/hero-beach.jpg" x="0" y="0" width="350" height="64" preserveAspectRatio="xMidYMid slice"/>
+                  <rect class="rig-frame" x="0" y="0" width="114" height="64" rx="5"/>
+                  <rect class="rig-frame" x="118" y="0" width="114" height="64" rx="5"/>
+                  <rect class="rig-frame" x="236" y="0" width="114" height="64" rx="5"/>
+                </g>
+              </svg>
             </div>
+            <p class="absolute top-2 left-2 flex items-center gap-1.5 rounded-full border border-cd-border bg-cd-canvas/85 px-2.5 py-1 text-sm font-semibold text-cd-text">
+              <span class="block size-1.5 rounded-full bg-cd-success" aria-hidden="true"></span>
+              Applied
+            </p>
           </div>
-          <p class="absolute top-2 left-2 flex items-center gap-1.5 rounded-full border border-cd-border bg-cd-canvas/85 px-2.5 py-1 text-sm font-semibold text-cd-text">
-            <span class="block size-1.5 rounded-full bg-cd-success" aria-hidden="true"></span>
-            Applied
-          </p>
-        </div>
-        <div class="mt-3 flex items-center justify-between gap-3">
-          <h3 class="truncate text-base font-semibold text-cd-text">Maui sunset</h3>
-          <span class="flex shrink-0 items-center gap-1.5 rounded-md border border-cd-border bg-cd-bg-secondary px-2 py-1 text-sm text-cd-text-secondary">
-            <svg class="size-2.5 text-cd-text-secondary" viewBox="0 0 10 10" fill="none" aria-hidden="true"><rect x="0.5" y="1.5" width="9" height="7" rx="1.5" fill="currentColor"></rect></svg>
-            Static
-          </span>
-        </div>
-      </article>
-    </div>
+          <div class="mt-3 flex items-center justify-between gap-2">
+            <h3 class="truncate text-base font-semibold text-cd-text">Maui sunset</h3>
+            <span class="flex shrink-0 items-center gap-1.5 rounded-md border border-cd-border bg-cd-bg-secondary px-2 py-1 text-sm text-cd-text-secondary">
+              <!--@icon image class="size-3.5 text-cd-text-secondary"-->
+              Static
+            </span>
+          </div>
+        </article>
+      </li>
 
-    <div class="col-span-12 lg:col-span-4 flex flex-col gap-6">
-      <article class="cd-card gl-card p-3">
-        <div class="spread gl-thumb aspect-[48/9]">
-          <img class="spread-photo" src="/photos/1200/hero-beach-night.jpg" width="1200" height="279" loading="lazy" decoding="async" alt="">
-          <div class="spread-frame">
-            <div class="spread-screen" style="--w: 16"></div>
-            <div class="spread-bezel"></div>
-            <div class="spread-screen" style="--w: 16"></div>
-            <div class="spread-bezel"></div>
-            <div class="spread-screen" style="--w: 16"></div>
+      <li class="col-span-12 sm:col-span-6 lg:col-span-3" data-reveal>
+        <article class="cd-card gl-card p-3">
+          <div class="gl-tile">
+            <svg class="rig rig-thumb" viewBox="0 0 232 64" aria-hidden="true" focusable="false">
+              <defs>
+                <clipPath id="rig-gallery-2">
+                  <rect x="0" y="0" width="114" height="64" rx="5"/>
+                  <rect x="118" y="0" width="114" height="64" rx="5"/>
+                </clipPath>
+              </defs>
+              <g clip-path="url(#rig-gallery-2)">
+                <image class="rig-photo" href="/photos/600/hero-beach-night.jpg" x="0" y="0" width="232" height="64" preserveAspectRatio="xMidYMid slice"/>
+                <rect class="rig-frame" x="0" y="0" width="114" height="64" rx="5"/>
+                <rect class="rig-frame" x="118" y="0" width="114" height="64" rx="5"/>
+              </g>
+            </svg>
           </div>
-        </div>
-        <div class="mt-3 flex items-center justify-between gap-3">
-          <h3 class="truncate text-base font-semibold text-cd-text">Beach, day and night</h3>
-          <span class="flex shrink-0 items-center gap-1.5 rounded-md border border-cd-border bg-cd-bg-secondary px-2 py-1 text-sm text-cd-text-secondary">
-            <svg class="size-2.5 text-cd-appearance" viewBox="0 0 10 10" fill="none" aria-hidden="true"><circle cx="5" cy="5" r="4" stroke="currentColor"></circle><path d="M5 1a4 4 0 0 0 0 8Z" fill="currentColor"></path></svg>
-            Light &amp; Dark
-          </span>
-        </div>
-      </article>
+          <div class="mt-3 flex items-center justify-between gap-2">
+            <h3 class="truncate text-base font-semibold text-cd-text">Beach, day and night</h3>
+            <span class="flex shrink-0 items-center gap-1.5 rounded-md border border-cd-border bg-cd-bg-secondary px-2 py-1 text-sm text-cd-text-secondary">
+              <!--@icon circle-half class="size-3.5 text-cd-appearance"-->
+              Light &amp; Dark
+            </span>
+          </div>
+        </article>
+      </li>
 
-      <article class="cd-card gl-card p-3">
-        <div class="spread gl-thumb aspect-[48/9]">
-          <img class="spread-photo" src="/photos/1200/hero-day-3.jpg" width="1200" height="279" loading="lazy" decoding="async" alt="">
-          <div class="spread-frame">
-            <div class="spread-screen" style="--w: 16"></div>
-            <div class="spread-bezel"></div>
-            <div class="spread-screen" style="--w: 16"></div>
-            <div class="spread-bezel"></div>
-            <div class="spread-screen" style="--w: 16"></div>
+      <li class="col-span-12 sm:col-span-6 lg:col-span-3" data-reveal>
+        <article class="cd-card gl-card p-3">
+          <div class="gl-tile">
+            <svg class="rig rig-thumb" viewBox="0 0 182 114" aria-hidden="true" focusable="false">
+              <defs>
+                <clipPath id="rig-gallery-3">
+                  <rect x="0" y="0" width="64" height="114" rx="5"/>
+                  <rect x="68" y="50" width="114" height="64" rx="5"/>
+                </clipPath>
+              </defs>
+              <g clip-path="url(#rig-gallery-3)">
+                <image class="rig-photo" href="/photos/600/hero-day-3.jpg" x="0" y="0" width="182" height="114" preserveAspectRatio="xMidYMid slice"/>
+                <rect class="rig-frame" x="0" y="0" width="64" height="114" rx="5"/>
+                <rect class="rig-frame" x="68" y="50" width="114" height="64" rx="5"/>
+              </g>
+            </svg>
           </div>
-        </div>
-        <div class="mt-3 flex items-center justify-between gap-3">
-          <h3 class="truncate text-base font-semibold text-cd-text">A day outside</h3>
-          <span class="flex shrink-0 items-center gap-1.5 rounded-md border border-cd-border bg-cd-bg-secondary px-2 py-1 text-sm text-cd-text-secondary">
-            <svg class="size-2.5 text-cd-dynamic" viewBox="0 0 10 10" fill="none" aria-hidden="true"><circle cx="5" cy="5" r="4" stroke="currentColor"></circle><path d="M5 2.6V5l1.8 1.2" stroke="currentColor" stroke-linecap="round"></path></svg>
-            Dynamic
-          </span>
-        </div>
-      </article>
+          <div class="mt-3 flex items-center justify-between gap-2">
+            <h3 class="truncate text-base font-semibold text-cd-text">A day outside</h3>
+            <span class="flex shrink-0 items-center gap-1.5 rounded-md border border-cd-border bg-cd-bg-secondary px-2 py-1 text-sm text-cd-text-secondary">
+              <!--@icon clock-clockwise class="size-3.5 text-cd-dynamic"-->
+              Dynamic
+            </span>
+          </div>
+        </article>
+      </li>
 
-      <article class="cd-card gl-card p-3">
-        <div class="spread gl-thumb aspect-[48/9]">
-          <img class="spread-photo" src="/photos/1200/hero-day-4.jpg" width="1200" height="279" loading="lazy" decoding="async" alt="">
-          <div class="spread-frame">
-            <div class="spread-screen" style="--w: 16"></div>
-            <div class="spread-bezel"></div>
-            <div class="spread-screen" style="--w: 16"></div>
-            <div class="spread-bezel"></div>
-            <div class="spread-screen" style="--w: 16"></div>
+      <li class="col-span-12 sm:col-span-6 lg:col-span-3" data-reveal>
+        <article class="cd-card gl-card p-3">
+          <div class="gl-tile">
+            <svg class="rig rig-thumb" viewBox="0 0 176 64" aria-hidden="true" focusable="false">
+              <defs>
+                <clipPath id="rig-gallery-4">
+                  <rect x="0" y="0" width="114" height="64" rx="5"/>
+                  <rect x="118" y="27" width="58" height="37" rx="4"/>
+                </clipPath>
+              </defs>
+              <g clip-path="url(#rig-gallery-4)">
+                <image class="rig-photo" href="/photos/600/hero-day-4.jpg" x="0" y="0" width="176" height="64" preserveAspectRatio="xMidYMid slice"/>
+                <rect class="rig-frame" x="0" y="0" width="114" height="64" rx="5"/>
+                <rect class="rig-frame" x="118" y="27" width="58" height="37" rx="4"/>
+              </g>
+            </svg>
           </div>
-        </div>
-        <div class="mt-3 flex items-center justify-between gap-3">
-          <h3 class="truncate text-base font-semibold text-cd-text">Night ridge</h3>
-          <span class="flex shrink-0 items-center gap-1.5 rounded-md border border-cd-border bg-cd-bg-secondary px-2 py-1 text-sm text-cd-text-secondary">
-            <svg class="size-2.5 text-cd-text-secondary" viewBox="0 0 10 10" fill="none" aria-hidden="true"><rect x="0.5" y="1.5" width="9" height="7" rx="1.5" fill="currentColor"></rect></svg>
-            Static
-          </span>
-        </div>
-      </article>
-    </div>
+          <div class="mt-3 flex items-center justify-between gap-2">
+            <h3 class="truncate text-base font-semibold text-cd-text">Night ridge</h3>
+            <span class="flex shrink-0 items-center gap-1.5 rounded-md border border-cd-border bg-cd-bg-secondary px-2 py-1 text-sm text-cd-text-secondary">
+              <!--@icon image class="size-3.5 text-cd-text-secondary"-->
+              Static
+            </span>
+          </div>
+        </article>
+      </li>
+    </ul>
   </div>
 </section>

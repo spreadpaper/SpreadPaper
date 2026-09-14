@@ -50,6 +50,21 @@
      on this section being included first. */
 </style>
 
+<noscript>
+  <style>
+    /* Nothing can open the panel, so show the links and drop the control. */
+    #nav-toggle {
+      display: none;
+    }
+
+    @media (max-width: 47.9375rem) {
+      #nav-menu {
+        display: block !important;
+      }
+    }
+  </style>
+</noscript>
+
 <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-cd-bg-elevated focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-cd-text focus-visible:outline-2 focus-visible:outline-cd-accent focus-visible:outline-offset-2 ">Skip to content</a>
 
 <nav id="site-nav" aria-label="Main" class="sticky top-0 z-50 border-b border-cd-border bg-cd-bg supports-backdrop-filter:bg-cd-bg/80 supports-backdrop-filter:backdrop-blur-md">

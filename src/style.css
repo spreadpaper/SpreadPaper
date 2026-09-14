@@ -37,85 +37,6 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* --- The spread: one photograph laid across several monitor panels ---
-   Markup contract, used by every section:
-
-   <div class="spread aspect-[32/9]" style="--bezel: 14px">
-     <img class="spread-photo" src="/photos/hero-beach.jpg" alt="">
-     <div class="spread-frame">
-       <div class="spread-screen" style="--w: 16"></div>
-       <div class="spread-bezel"></div>
-       <div class="spread-screen" style="--w: 16"></div>
-     </div>
-   </div>
-
-   Write photo paths as /photos/NAME.jpg, never /SpreadPaper/photos/NAME.jpg. Vite
-   prepends base '/SpreadPaper/' to absolute paths, so the longer form resolves to
-   /SpreadPaper/SpreadPaper/ and serves the HTML fallback instead of the image.
-
-   Panels in one spread share a height, so each --w is that panel's own aspect ratio
-   and the box aspect is the sum of the --w values over 9. Three panels of 16, 21 and
-   16 need aspect-[53/9]; getting this wrong draws letterbox slots, not monitors.
-
-   --w is an aspect ratio, never a panel count or a width in ninths of the row. A 16:9
-   display is 16, an ultrawide 21, a square 9, and a display stood on its end 5.0625,
-   which is nine sixteenths of nine. At phone widths drop a panel rather than the box
-   height: a shorter box with the same panels squeezes every display into a sliver.
-
-   The photograph covers the whole row and the bezels are drawn over it, so the
-   image never has to be sliced and the panels stay responsive at any width.
-   `--w` is that panel's share of the row, `--bezel` the gap between two of them. */
-.spread {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  border-radius: 10px;
-}
-
-.spread-photo {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: 0;
-}
-
-.spread-frame {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: stretch;
-  height: 100%;
-  gap: 0;
-}
-
-.spread-screen {
-  flex: var(--w, 1) 1 0;
-  border: 1px solid rgb(255 255 255 / 0.14);
-  border-radius: 8px;
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.12),
-    inset 0 0 0 1px rgb(0 0 0 / 0.25),
-    0 12px 30px rgb(0 0 0 / 0.45);
-}
-
-/* The dark gap a physical monitor frame puts between two panels. */
-.spread-bezel {
-  flex: 0 0 var(--bezel, 12px);
-  background: var(--color-cd-bg);
-}
-
-/* A photograph that fades in over the one beneath it, for the day and night pairs. */
-.spread-photo-fade {
-  animation: cd-crossfade var(--cycle, 12s) ease-in-out infinite;
-}
-
-@keyframes cd-crossfade {
-  0%, 40% { opacity: 0; }
-  50%, 90% { opacity: 1; }
-  100% { opacity: 0; }
-}
 
 /* --- Shared furniture --- */
 .cd-card {
@@ -160,11 +81,9 @@ body {
   background-color: var(--color-cd-bg-hover);
 }
 
-/* The one inline link treatment on the page. The accent is reserved for
-   filled buttons and focus rings, where it clears AA. */
-/* The underline carries the link on its own, since the text is the same colour
-   as the prose around it, so it tracks the text rather than sitting at a border
-   tone that all but disappears against the background. */
+/* The one inline link treatment on the page. The accent is reserved for filled
+   buttons and focus rings, where it clears AA. The underline carries the link
+   on its own, so it tracks the text rather than a near-invisible border tone. */
 .cd-inline-link {
   color: var(--color-cd-text-secondary);
   text-decoration: underline;
@@ -220,7 +139,6 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .spread-photo-fade,
   *[class*="animate-"] {
     animation: none !important;
   }

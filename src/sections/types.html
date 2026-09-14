@@ -1,158 +1,309 @@
-<section id="types" class="cd-section bg-cd-canvas" aria-labelledby="types-title">
+<!-- The three kinds of wallpaper, as one switchable panel rather than three stacked rows. -->
+<section id="types" class="cd-section bg-cd-canvas" aria-labelledby="types-title" data-tabs>
     <style>
-        /* Bezels in this section only: 8px below sm, 14px above it. */
-        #types .spread { --bezel: 8px; }
-        @media (min-width: 40rem) { #types .spread { --bezel: 14px; } }
+        /* Without script the three panels read as a stacked list, so they need the air
+           between them and their own kind labels. `data-tabs-ready`, set on the section
+           once the tab script wires it, folds that list into the tablist instead. */
+        #types [data-types-panel] + [data-types-panel] { margin-top: 4.5rem; }
+        #types[data-tabs-ready] [data-types-panel] + [data-types-panel] { margin-top: 0; }
+        #types[data-tabs-ready] .types-kind { display: none; }
 
-        /* The Light and Dark pair rests on its light photograph, so with motion off
-           the spread matches the first of the two labels beneath it. */
-        #types .spread-photo-fade { opacity: 0; }
+        /* A panel comes back from `display: none` when its tab is chosen, and an animation
+           restarts on that change, so the switch needs no state of its own in the script. */
+        #types[data-tabs-ready] [data-types-panel] { animation: types-panel-in 200ms ease-out both; }
 
-        /* The Dynamic schedule: four photographs over one twenty second day.
-           `.spread-photo-fade` carries a pair, and four need their own timings,
-           because each photograph has to hold from its own hour until the next one
-           covers it. Stacking order does the crossfading, an incoming photograph
-           sitting over the one it replaces, and a fifth layer repeats the 06:00
-           photograph so the loop closes on a fade rather than a cut. */
-        #types .types-day {
-            opacity: 0;
-            animation-duration: 20s;
-            animation-timing-function: ease-in-out;
-            animation-iteration-count: infinite;
+        @keyframes types-panel-in {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: none; }
         }
 
-        #types .types-day-2 { animation-name: types-day-2; }
-        #types .types-day-3 { animation-name: types-day-3; }
-        #types .types-day-4 { animation-name: types-day-4; }
-        #types .types-day-wrap { animation-name: types-day-wrap; }
+        /* The bar over a stop in a readout, lit while the photograph it names is the one on
+           the wall. Both readouts run off the rig's own cycle properties rather than a
+           duration of their own, so a rig repaced from anywhere carries its times with it.
+           Lit is the resting state, so with motion off every stop reads as part of the
+           schedule rather than every stop reading as switched off. */
+        #types .types-bar { animation: types-stop var(--rig-day-cycle, 20s) linear infinite; }
 
-        @keyframes types-day-2 { 0%, 22% { opacity: 0; } 28%, 100% { opacity: 1; } }
-        @keyframes types-day-3 { 0%, 47% { opacity: 0; } 53%, 100% { opacity: 1; } }
-        @keyframes types-day-4 { 0%, 72% { opacity: 0; } 78%, 100% { opacity: 1; } }
-        @keyframes types-day-wrap { 0%, 95% { opacity: 0; } 100% { opacity: 1; } }
-
-        /* The dot beside a schedule row, lit through that row's quarter of the day.
-           Negative delays put the later rows in phase from the first frame. */
-        #types .types-beat { animation: types-beat 20s linear infinite; }
-
-        @keyframes types-beat {
-            0%, 23% { opacity: 1; }
-            26%, 96% { opacity: 0.28; }
+        @keyframes types-stop {
+            0%, 20% { opacity: 1; }
+            25%, 95% { opacity: 0.24; }
             100% { opacity: 1; }
         }
 
+        /* Negative delays put the later stops of the day in phase from the first frame. */
+        #types .types-bar-2 { animation-delay: calc(var(--rig-day-cycle, 20s) * -0.75); }
+        #types .types-bar-3 { animation-delay: calc(var(--rig-day-cycle, 20s) * -0.5); }
+        #types .types-bar-4 { animation-delay: calc(var(--rig-day-cycle, 20s) * -0.25); }
+
+        /* The appearance pair is one cycle split unevenly, so its two stops take the rig
+           crossfade's own timings rather than a delay off one keyframe. */
+        #types .types-bar-light { animation: types-stop-light var(--rig-cycle, 12s) ease-in-out infinite; }
+        #types .types-bar-dark { animation: types-stop-dark var(--rig-cycle, 12s) ease-in-out infinite; }
+
+        @keyframes types-stop-light {
+            0%, 40% { opacity: 1; }
+            50%, 90% { opacity: 0.24; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes types-stop-dark {
+            0%, 40% { opacity: 0.24; }
+            50%, 90% { opacity: 1; }
+            100% { opacity: 0.24; }
+        }
+
         @media (prefers-reduced-motion: reduce) {
-            #types .types-day,
-            #types .types-beat {
+            #types[data-tabs-ready] [data-types-panel],
+            #types .types-bar,
+            #types .types-bar-light,
+            #types .types-bar-dark {
                 animation: none !important;
             }
         }
     </style>
 
     <div class="cd-shell">
-        <header class="max-w-[46ch]" data-reveal>
-            <p class="cd-eyebrow">Three kinds</p>
-            <h2 id="types-title" class="mt-3 text-3xl sm:text-4xl lg:text-5xl font-bold tracking-[-0.025em] leading-[1.05] text-cd-text text-balance">One image, a pair, or a whole day</h2>
-            <p class="mt-5 text-lg sm:text-xl leading-relaxed text-cd-text-secondary max-w-[46ch] text-pretty">Every wallpaper SpreadPaper makes is one photograph laid across the displays you actually have. What changes between the three kinds is how many photographs you hand it, and what decides when they change.</p>
-        </header>
+        <div class="grid grid-cols-12 gap-x-6 gap-y-10" data-reveal>
+            <header class="col-span-12 lg:col-span-6">
+                <p class="cd-eyebrow">Three kinds</p>
+                <h2 id="types-title" class="mt-3 text-3xl sm:text-4xl lg:text-5xl font-bold tracking-[-0.025em] leading-[1.05] text-cd-text text-balance">One image, a pair, or a whole day</h2>
+                <p class="mt-5 text-lg sm:text-xl leading-relaxed text-cd-text-secondary max-w-[46ch] text-pretty">Every wallpaper SpreadPaper makes is one photograph laid across the displays you actually have. What changes between the three kinds is how many photographs you hand it, and what decides when they change.</p>
+            </header>
 
-        <ul role="list" class="mt-14 divide-y divide-cd-border">
-            <li class="grid grid-cols-12 gap-x-6 gap-y-8 py-12 first:pt-0 last:pb-0 lg:items-center" data-reveal>
-                <div class="col-span-12 lg:col-span-5 lg:col-start-1 lg:row-start-1">
-                    <p class="flex items-center gap-2.5 text-sm font-semibold text-cd-text-secondary">
-                        <span class="size-2 rounded-full bg-cd-border-strong" aria-hidden="true"></span>One image
-                    </p>
-                    <h3 class="mt-3 text-xl font-semibold tracking-[-0.01em] text-cd-text">Static</h3>
-                    <p class="mt-4 text-base leading-relaxed text-cd-text-secondary max-w-[62ch] text-pretty">You pick a photograph, drag it into place on a canvas that mirrors your display arrangement, and it goes up on every screen as one continuous picture. It stays there until you change it. This is the kind to reach for when you have a wide photograph you want to look at all day.</p>
+            <!-- Hidden until the script wires it, so a page without JavaScript never shows
+                 three buttons that do nothing. -->
+            <div class="col-span-12 lg:col-span-5 lg:col-start-8 lg:self-end" data-tabs-list hidden>
+                <div role="tablist" aria-orientation="vertical" aria-label="Kinds of wallpaper" class="divide-y divide-cd-border border-y border-cd-border">
+                    <button type="button" role="tab" id="types-tab-static" aria-controls="types-panel-static" aria-selected="true" class="flex w-full items-center gap-4 border-l-2 border-l-transparent py-4 pl-4 pr-3 text-left transition-colors duration-150 ease-out hover:bg-cd-bg-secondary aria-selected:border-l-cd-border-strong aria-selected:bg-cd-bg-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cd-accent">
+                        <!--@icon image class="size-6 shrink-0 text-cd-text-secondary"-->
+                        <span>
+                            <span class="block text-base font-semibold text-cd-text">Static</span>
+                            <span class="block text-sm text-cd-text-secondary">One image</span>
+                        </span>
+                    </button>
+                    <button type="button" role="tab" id="types-tab-appearance" aria-controls="types-panel-appearance" aria-selected="false" class="flex w-full items-center gap-4 border-l-2 border-l-transparent py-4 pl-4 pr-3 text-left transition-colors duration-150 ease-out hover:bg-cd-bg-secondary aria-selected:border-l-cd-appearance aria-selected:bg-cd-bg-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cd-accent">
+                        <!--@icon circle-half class="size-6 shrink-0 text-cd-appearance"-->
+                        <span>
+                            <span class="block text-base font-semibold text-cd-text">Light &amp; Dark</span>
+                            <span class="block text-sm text-cd-text-secondary">Two images</span>
+                        </span>
+                    </button>
+                    <button type="button" role="tab" id="types-tab-dynamic" aria-controls="types-panel-dynamic" aria-selected="false" class="flex w-full items-center gap-4 border-l-2 border-l-transparent py-4 pl-4 pr-3 text-left transition-colors duration-150 ease-out hover:bg-cd-bg-secondary aria-selected:border-l-cd-dynamic aria-selected:bg-cd-bg-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cd-accent">
+                        <!--@icon clock-clockwise class="size-6 shrink-0 text-cd-dynamic"-->
+                        <span>
+                            <span class="block text-base font-semibold text-cd-text">Dynamic</span>
+                            <span class="block text-sm text-cd-text-secondary">Up to 16 images</span>
+                        </span>
+                    </button>
                 </div>
-                <figure class="col-span-12 lg:col-span-7 lg:col-start-6 lg:row-start-1">
-                    <div class="spread aspect-[32/9]">
-                        <img class="spread-photo" src="/photos/1200/hero-beach.jpg" width="1200" height="279" loading="lazy" decoding="async" alt="A tropical beach at sunset in Maui, running unbroken across two monitors.">
-                        <div class="spread-frame">
-                            <div class="spread-screen" style="--w: 16"></div>
-                            <div class="spread-bezel"></div>
-                            <div class="spread-screen" style="--w: 16"></div>
-                        </div>
-                    </div>
-                    <figcaption class="mt-4 text-sm text-cd-text-secondary">Photograph by <a class="cd-inline-link rounded-sm focus-visible:outline-2 focus-visible:outline-cd-accent focus-visible:outline-offset-2 " href="https://unsplash.com/@gkumar2175">Ganapathy Kumar</a> on Unsplash.</figcaption>
-                </figure>
-            </li>
+            </div>
+        </div>
 
-            <li class="grid grid-cols-12 gap-x-6 gap-y-8 py-12 first:pt-0 last:pb-0 lg:items-center" data-reveal>
-                <div class="col-span-12 lg:col-span-5 lg:col-start-8 lg:row-start-1">
-                    <p class="flex items-center gap-2.5 text-sm font-semibold text-cd-appearance">
-                        <span class="size-2 rounded-full bg-cd-appearance" aria-hidden="true"></span>Two images
-                    </p>
-                    <h3 class="mt-3 text-xl font-semibold tracking-[-0.01em] text-cd-text">Light &amp; Dark</h3>
-                    <p class="mt-4 text-base leading-relaxed text-cd-text-secondary max-w-[62ch] text-pretty">Give SpreadPaper two photographs, one for light appearance and one for dark, and macOS picks between them. Switch your Mac to dark yourself, or set Appearance to Auto and let macOS switch it on its own schedule, and the wallpaper follows on every display at once.</p>
-                </div>
-                <figure class="col-span-12 lg:col-span-7 lg:col-start-1 lg:row-start-1">
-                    <div class="spread aspect-[32/9]">
-                        <img class="spread-photo" src="/photos/1200/hero-beach.jpg" width="1200" height="279" loading="lazy" decoding="async" alt="A tropical beach at sunset in Maui, the light half of the pair.">
-                        <img class="spread-photo spread-photo-fade" style="--cycle: 10s" src="/photos/1200/hero-beach-night.jpg" width="1200" height="279" loading="eager" decoding="async" alt="" aria-hidden="true">
-                        <div class="spread-frame">
-                            <div class="spread-screen" style="--w: 16"></div>
-                            <div class="spread-bezel"></div>
-                            <div class="spread-screen" style="--w: 16"></div>
-                        </div>
+        <div class="mt-14 lg:mt-20" data-reveal>
+            <div id="types-panel-static" role="tabpanel" aria-labelledby="types-tab-static" tabindex="0" data-types-panel class="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cd-accent">
+                <div class="grid grid-cols-12 gap-x-6 gap-y-8 lg:items-center">
+                    <figure class="col-span-12 lg:col-span-8 lg:col-start-1 lg:row-start-1">
+                        <svg class="rig rig-dual" viewBox="0 0 716 236" role="img" aria-label="A beach at sunset in Maui, one photograph carried across two monitors side by side." focusable="false">
+                          <defs>
+                            <clipPath id="rig-types-static">
+                              <rect x="0" y="0" width="355" height="200" rx="10"/>
+                              <rect x="361" y="0" width="355" height="200" rx="10"/>
+                            </clipPath>
+                          </defs>
+                          <ellipse class="rig-glow" cx="358" cy="234" rx="301" ry="10"/>
+                          <g class="rig-stand">
+                            <rect x="163.5" y="200" width="28" height="28"/><rect x="122.5" y="228" width="110" height="8" rx="4"/>
+                            <rect x="524.5" y="200" width="28" height="28"/><rect x="483.5" y="228" width="110" height="8" rx="4"/>
+                          </g>
+                          <g clip-path="url(#rig-types-static)">
+                            <image class="rig-photo" href="/photos/1200/hero-beach.jpg" x="0" y="0" width="716" height="200" preserveAspectRatio="xMidYMid slice"/>
+                            <rect class="rig-frame" x="0" y="0" width="355" height="200" rx="10"/>
+                            <rect class="rig-frame" x="361" y="0" width="355" height="200" rx="10"/>
+                          </g>
+                        </svg>
+                        <figcaption class="mt-4 text-sm text-cd-text-secondary">Photograph by <a class="cd-inline-link rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cd-accent" href="https://unsplash.com/@gkumar2175">Ganapathy Kumar</a> on Unsplash.</figcaption>
+                    </figure>
+                    <div class="col-span-12 lg:col-span-4 lg:col-start-9 lg:row-start-1">
+                        <p class="types-kind flex items-center gap-2.5 text-sm font-semibold text-cd-text-secondary">
+                            <!--@icon image class="size-5 shrink-0"-->Static, one image
+                        </p>
+                        <h3 class="mt-3 text-xl font-semibold tracking-[-0.01em] text-cd-text">One photograph, every display</h3>
+                        <p class="mt-4 text-base leading-relaxed text-cd-text-secondary max-w-[62ch] text-pretty">Drag a wide photograph into place on a canvas that mirrors your real display arrangement, and it goes up as one continuous picture. It stays there until you change it.</p>
                     </div>
-                    <figcaption class="mt-4 text-sm text-cd-text-secondary">
-                        <span class="block"><span class="font-semibold text-cd-appearance">Light</span>, a beach at sunset by <a class="cd-inline-link rounded-sm focus-visible:outline-2 focus-visible:outline-cd-accent focus-visible:outline-offset-2 " href="https://unsplash.com/@gkumar2175">Ganapathy Kumar</a> on Unsplash.</span>
-                        <span class="mt-1 block"><span class="font-semibold text-cd-appearance">Dark</span>, palms at dusk by <a class="cd-inline-link rounded-sm focus-visible:outline-2 focus-visible:outline-cd-accent focus-visible:outline-offset-2 " href="https://unsplash.com/@m_hampi">Michaela</a> on Unsplash.</span>
-                    </figcaption>
-                </figure>
-            </li>
+                </div>
+            </div>
 
-            <li class="grid grid-cols-12 gap-x-6 gap-y-8 py-12 first:pt-0 last:pb-0 lg:items-center" data-reveal>
-                <div class="col-span-12 lg:col-span-5 lg:col-start-1 lg:row-start-1">
-                    <p class="flex items-center gap-2.5 text-sm font-semibold text-cd-dynamic">
-                        <span class="size-2 rounded-full bg-cd-dynamic" aria-hidden="true"></span>Up to 16 images
-                    </p>
-                    <h3 class="mt-3 text-xl font-semibold tracking-[-0.01em] text-cd-text">Dynamic</h3>
-                    <p class="mt-4 text-base leading-relaxed text-cd-text-secondary max-w-[62ch] text-pretty">Up to 16 photographs, each with a start time you set on the clock. SpreadPaper writes them into a HEIC dynamic desktop carrying the time metadata macOS reads, and every display gets the same schedule, so all your screens turn over at the same moment.</p>
-                    <ol role="list" class="mt-7 space-y-3">
-                        <li class="flex items-center gap-3 text-sm">
-                            <span class="types-beat size-1.5 shrink-0 rounded-full bg-cd-dynamic" aria-hidden="true"></span>
-                            <span class="w-12 shrink-0 font-semibold tabular-nums text-cd-dynamic">06:00</span>
-                            <span class="text-cd-text-secondary">Sunrise on the ridge</span>
-                        </li>
-                        <li class="flex items-center gap-3 text-sm">
-                            <span class="types-beat size-1.5 shrink-0 rounded-full bg-cd-dynamic" style="animation-delay: -15s" aria-hidden="true"></span>
-                            <span class="w-12 shrink-0 font-semibold tabular-nums text-cd-dynamic">12:00</span>
-                            <span class="text-cd-text-secondary">Midday over the peak</span>
-                        </li>
-                        <li class="flex items-center gap-3 text-sm">
-                            <span class="types-beat size-1.5 shrink-0 rounded-full bg-cd-dynamic" style="animation-delay: -10s" aria-hidden="true"></span>
-                            <span class="w-12 shrink-0 font-semibold tabular-nums text-cd-dynamic">18:00</span>
-                            <span class="text-cd-text-secondary">Evening light on the range</span>
-                        </li>
-                        <li class="flex items-center gap-3 text-sm">
-                            <span class="types-beat size-1.5 shrink-0 rounded-full bg-cd-dynamic" style="animation-delay: -5s" aria-hidden="true"></span>
-                            <span class="w-12 shrink-0 font-semibold tabular-nums text-cd-dynamic">23:00</span>
-                            <span class="text-cd-text-secondary">The Milky Way above the snow</span>
-                        </li>
-                    </ol>
-                </div>
-                <figure class="col-span-12 lg:col-span-7 lg:col-start-6 lg:row-start-1">
-                    <div class="spread aspect-[32/9] md:aspect-[64/9]">
-                        <img class="spread-photo" src="/photos/1200/hero-day-1.jpg" width="1200" height="279" loading="lazy" decoding="async" alt="Green mountains under a blue sky at sunrise, the 06:00 image of the schedule, running unbroken across the row of monitors.">
-                        <img class="spread-photo types-day types-day-2" src="/photos/1200/hero-day-2.jpg" width="1200" height="279" loading="lazy" decoding="async" alt="" aria-hidden="true">
-                        <img class="spread-photo types-day types-day-3" src="/photos/1200/hero-day-3.jpg" width="1200" height="279" loading="lazy" decoding="async" alt="" aria-hidden="true">
-                        <img class="spread-photo types-day types-day-4" src="/photos/1200/hero-day-4.jpg" width="1200" height="279" loading="lazy" decoding="async" alt="" aria-hidden="true">
-                        <img class="spread-photo types-day types-day-wrap" src="/photos/1200/hero-day-1.jpg" width="1200" height="279" loading="lazy" decoding="async" alt="" aria-hidden="true">
-                        <div class="spread-frame">
-                            <div class="spread-screen" style="--w: 16"></div>
-                            <div class="spread-bezel"></div>
-                            <div class="spread-screen" style="--w: 16"></div>
-                            <div class="spread-bezel hidden md:block"></div>
-                            <div class="spread-screen hidden md:block" style="--w: 16"></div>
-                            <div class="spread-bezel hidden md:block"></div>
-                            <div class="spread-screen hidden md:block" style="--w: 16"></div>
-                        </div>
+            <div id="types-panel-appearance" role="tabpanel" aria-labelledby="types-tab-appearance" tabindex="0" data-types-panel class="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cd-accent">
+                <div class="grid grid-cols-12 gap-x-6 gap-y-8 lg:items-center">
+                    <div class="col-span-12 lg:col-span-8 lg:col-start-1 lg:row-start-1">
+                        <figure>
+                            <svg class="rig rig-laptop" viewBox="0 0 550 236" role="img" aria-label="A beach at sunset carried across a monitor and the laptop beside it, fading between the light image and the dark one." focusable="false">
+                              <defs>
+                                <clipPath id="rig-types-appearance">
+                                  <rect x="0" y="0" width="355" height="200" rx="10"/>
+                                  <rect x="361" y="101" width="181" height="117" rx="8"/>
+                                </clipPath>
+                              </defs>
+                              <ellipse class="rig-glow" cx="275" cy="234" rx="231" ry="10"/>
+                              <g class="rig-stand">
+                                <rect x="163.5" y="200" width="28" height="28"/><rect x="122.5" y="228" width="110" height="8" rx="4"/>
+                                <rect x="357" y="230" width="189" height="6" rx="3"/>
+                              </g>
+                              <rect class="rig-chin" x="361" y="210" width="181" height="20" rx="3"/>
+                              <g clip-path="url(#rig-types-appearance)">
+                                <image class="rig-photo" href="/photos/1200/hero-beach.jpg" x="0" y="0" width="550" height="218" preserveAspectRatio="xMidYMid slice"/>
+                                <image class="rig-photo rig-photo-fade" href="/photos/1200/hero-beach-night.jpg" x="0" y="0" width="550" height="218" preserveAspectRatio="xMidYMid slice"/>
+                                <rect class="rig-frame" x="0" y="0" width="355" height="200" rx="10"/>
+                                <rect class="rig-frame" x="361" y="101" width="181" height="117" rx="8"/>
+                              </g>
+                            </svg>
+                            <figcaption class="mt-4 text-sm text-cd-text-secondary">The laptop sits lower than the monitor, so it shows the lower part of the picture, which is what macOS does with a real arrangement. Light half by <a class="cd-inline-link rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cd-accent" href="https://unsplash.com/@gkumar2175">Ganapathy Kumar</a>, dark half by <a class="cd-inline-link rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cd-accent" href="https://unsplash.com/@m_hampi">Michaela</a>, both on Unsplash.</figcaption>
+                        </figure>
+                        <ul role="list" class="mt-6 grid grid-cols-2 gap-4">
+                            <li>
+                                <span class="types-bar-light block h-0.5 rounded-full bg-cd-appearance" aria-hidden="true"></span>
+                                <span class="mt-2.5 block text-sm font-semibold text-cd-appearance">Light</span>
+                                <span class="mt-0.5 block text-sm text-cd-text-secondary">The beach</span>
+                            </li>
+                            <li>
+                                <span class="types-bar-dark block h-0.5 rounded-full bg-cd-appearance" aria-hidden="true"></span>
+                                <span class="mt-2.5 block text-sm font-semibold text-cd-appearance">Dark</span>
+                                <span class="mt-0.5 block text-sm text-cd-text-secondary">The palms</span>
+                            </li>
+                        </ul>
                     </div>
-                    <figcaption class="mt-4 text-sm text-cd-text-secondary">Photographs by <a class="cd-inline-link rounded-sm focus-visible:outline-2 focus-visible:outline-cd-accent focus-visible:outline-offset-2 " href="https://unsplash.com/@slohmann">Simon Lohmann</a>, <a class="cd-inline-link rounded-sm focus-visible:outline-2 focus-visible:outline-cd-accent focus-visible:outline-offset-2 " href="https://unsplash.com/@antoskli">Antony Sklivagkos</a>, <a class="cd-inline-link rounded-sm focus-visible:outline-2 focus-visible:outline-cd-accent focus-visible:outline-offset-2 " href="https://unsplash.com/@mparzuchowski">Michał Parzuchowski</a> and <a class="cd-inline-link rounded-sm focus-visible:outline-2 focus-visible:outline-cd-accent focus-visible:outline-offset-2 " href="https://unsplash.com/@vorosbenisop">Benjamin Voros</a> on Unsplash.</figcaption>
-                </figure>
-            </li>
-        </ul>
+                    <div class="col-span-12 lg:col-span-4 lg:col-start-9 lg:row-start-1">
+                        <p class="types-kind flex items-center gap-2.5 text-sm font-semibold text-cd-appearance">
+                            <!--@icon circle-half class="size-5 shrink-0"-->Light &amp; Dark, two images
+                        </p>
+                        <h3 class="mt-3 text-xl font-semibold tracking-[-0.01em] text-cd-text">A pair that follows the appearance</h3>
+                        <p class="mt-4 text-base leading-relaxed text-cd-text-secondary max-w-[62ch] text-pretty">Hand SpreadPaper two photographs, one for light appearance and one for dark. Switch your Mac yourself and the wallpaper follows on every display at once. Set Appearance to Auto and macOS makes the switch on the same schedule Night Shift runs on.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="types-panel-dynamic" role="tabpanel" aria-labelledby="types-tab-dynamic" tabindex="0" data-types-panel class="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cd-accent">
+                <div class="grid grid-cols-12 gap-x-6 gap-y-8 lg:items-center">
+                    <div class="col-span-12 lg:col-span-8 lg:col-start-1 lg:row-start-1">
+                        <figure>
+                            <svg class="rig rig-portrait-trio" viewBox="0 0 767 391" role="img" aria-label="Green mountains at sunrise carried across a portrait monitor, a landscape monitor and another portrait monitor, running through one day." focusable="false">
+                              <defs>
+                                <clipPath id="rig-types-dynamic">
+                                  <rect x="0" y="0" width="200" height="355" rx="10"/>
+                                  <rect x="206" y="155" width="355" height="200" rx="10"/>
+                                  <rect x="567" y="0" width="200" height="355" rx="10"/>
+                                </clipPath>
+                              </defs>
+                              <ellipse class="rig-glow" cx="383.5" cy="389" rx="322" ry="10"/>
+                              <g class="rig-stand">
+                                <rect x="86" y="355" width="28" height="28"/><rect x="45" y="383" width="110" height="8" rx="4"/>
+                                <rect x="369.5" y="355" width="28" height="28"/><rect x="328.5" y="383" width="110" height="8" rx="4"/>
+                                <rect x="653" y="355" width="28" height="28"/><rect x="612" y="383" width="110" height="8" rx="4"/>
+                              </g>
+                              <g clip-path="url(#rig-types-dynamic)">
+                                <image class="rig-photo" href="/photos/hero-day-1.jpg" x="0" y="0" width="767" height="355" preserveAspectRatio="xMidYMid slice"/>
+                                <image class="rig-photo rig-day rig-day-2" href="/photos/hero-day-2.jpg" x="0" y="0" width="767" height="355" preserveAspectRatio="xMidYMid slice"/>
+                                <image class="rig-photo rig-day rig-day-3" href="/photos/hero-day-3.jpg" x="0" y="0" width="767" height="355" preserveAspectRatio="xMidYMid slice"/>
+                                <image class="rig-photo rig-day rig-day-4" href="/photos/hero-day-4.jpg" x="0" y="0" width="767" height="355" preserveAspectRatio="xMidYMid slice"/>
+                                <image class="rig-photo rig-day rig-day-wrap" href="/photos/hero-day-1.jpg" x="0" y="0" width="767" height="355" preserveAspectRatio="xMidYMid slice"/>
+                                <rect class="rig-frame" x="0" y="0" width="200" height="355" rx="10"/>
+                                <rect class="rig-frame" x="206" y="155" width="355" height="200" rx="10"/>
+                                <rect class="rig-frame" x="567" y="0" width="200" height="355" rx="10"/>
+                              </g>
+                            </svg>
+                            <figcaption class="mt-4 text-sm text-cd-text-secondary">Photographs by <a class="cd-inline-link rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cd-accent" href="https://unsplash.com/@slohmann">Simon Lohmann</a>, <a class="cd-inline-link rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cd-accent" href="https://unsplash.com/@antoskli">Antony Sklivagkos</a>, <a class="cd-inline-link rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cd-accent" href="https://unsplash.com/@mparzuchowski">Michał Parzuchowski</a> and <a class="cd-inline-link rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cd-accent" href="https://unsplash.com/@vorosbenisop">Benjamin Voros</a> on Unsplash.</figcaption>
+                        </figure>
+                        <ol role="list" class="mt-6 grid grid-cols-2 gap-x-4 gap-y-5 sm:grid-cols-4">
+                            <li>
+                                <span class="types-bar block h-0.5 rounded-full bg-cd-dynamic" aria-hidden="true"></span>
+                                <span class="mt-2.5 block text-sm font-semibold tabular-nums text-cd-dynamic">06:00</span>
+                                <span class="mt-0.5 block text-sm text-cd-text-secondary">Sunrise</span>
+                            </li>
+                            <li>
+                                <span class="types-bar types-bar-2 block h-0.5 rounded-full bg-cd-dynamic" aria-hidden="true"></span>
+                                <span class="mt-2.5 block text-sm font-semibold tabular-nums text-cd-dynamic">12:00</span>
+                                <span class="mt-0.5 block text-sm text-cd-text-secondary">Midday</span>
+                            </li>
+                            <li>
+                                <span class="types-bar types-bar-3 block h-0.5 rounded-full bg-cd-dynamic" aria-hidden="true"></span>
+                                <span class="mt-2.5 block text-sm font-semibold tabular-nums text-cd-dynamic">18:00</span>
+                                <span class="mt-0.5 block text-sm text-cd-text-secondary">Evening light</span>
+                            </li>
+                            <li>
+                                <span class="types-bar types-bar-4 block h-0.5 rounded-full bg-cd-dynamic" aria-hidden="true"></span>
+                                <span class="mt-2.5 block text-sm font-semibold tabular-nums text-cd-dynamic">23:00</span>
+                                <span class="mt-0.5 block text-sm text-cd-text-secondary">The Milky Way</span>
+                            </li>
+                        </ol>
+                    </div>
+                    <div class="col-span-12 lg:col-span-4 lg:col-start-9 lg:row-start-1">
+                        <p class="types-kind flex items-center gap-2.5 text-sm font-semibold text-cd-dynamic">
+                            <!--@icon clock-clockwise class="size-5 shrink-0"-->Dynamic, up to 16 images
+                        </p>
+                        <h3 class="mt-3 text-xl font-semibold tracking-[-0.01em] text-cd-text">A whole day on a schedule</h3>
+                        <p class="mt-4 text-base leading-relaxed text-cd-text-secondary max-w-[62ch] text-pretty">Up to 16 photographs, each with a start time you set on the clock. SpreadPaper writes them into a HEIC dynamic desktop carrying the time metadata macOS reads, so every screen turns over at the same moment.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <!-- Temporary: this is the tab script exactly as handed to shell-dev for src/main.js,
+         kept here only so the section is not dead between now and it landing there. -->
+    <script>
+        /**
+         * Wires every `[data-tabs]` root into a tablist, with roving tabindex and arrow
+         * keys. Panels read on their own as a stacked list, so the tab list ships hidden
+         * and is shown only once this finds a complete set of tabs and panels.
+         */
+        function setupTabs() {
+            document.querySelectorAll('[data-tabs]').forEach((root) => {
+                const list = root.querySelector('[data-tabs-list]')
+                if (!list) return
+
+                const tabs = [...list.querySelectorAll('[role="tab"]')]
+                const panels = tabs.map((tab) => document.getElementById(tab.getAttribute('aria-controls')))
+                if (!tabs.length || panels.some((panel) => !panel)) return
+
+                const select = (index, moveFocus) => {
+                    tabs.forEach((tab, i) => {
+                        const on = i === index
+                        tab.setAttribute('aria-selected', String(on))
+                        tab.tabIndex = on ? 0 : -1
+                        panels[i].hidden = !on
+                    })
+                    if (moveFocus) tabs[index].focus()
+                }
+
+                // Up and down are the pair a vertical tablist owes its reader. Left and
+                // right come along because nobody checks the orientation before reaching.
+                const steps = { ArrowUp: -1, ArrowLeft: -1, ArrowDown: 1, ArrowRight: 1 }
+
+                tabs.forEach((tab, i) => {
+                    tab.addEventListener('click', () => select(i, false))
+                    tab.addEventListener('keydown', (event) => {
+                        if (event.key === 'Home' || event.key === 'End') {
+                            event.preventDefault()
+                            select(event.key === 'Home' ? 0 : tabs.length - 1, true)
+                            return
+                        }
+
+                        const step = steps[event.key]
+                        if (!step) return
+                        event.preventDefault()
+                        select((i + step + tabs.length) % tabs.length, true)
+                    })
+                })
+
+                // The markup names the tab to open, so a section chooses its own default.
+                const marked = tabs.findIndex((tab) => tab.getAttribute('aria-selected') === 'true')
+
+                root.setAttribute('data-tabs-ready', '')
+                list.hidden = false
+                select(marked < 0 ? 0 : marked, false)
+            })
+        }
+
+        setupTabs()
+    </script>
 </section>

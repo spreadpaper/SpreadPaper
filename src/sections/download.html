@@ -34,7 +34,7 @@
 
         <div class="mt-8 flex flex-wrap items-center gap-3">
           <a href="https://github.com/spreadpaper/SpreadPaper/releases/latest" class="cd-button cd-button-primary h-11 px-6 text-[0.9375rem] focus-visible:outline-2 focus-visible:outline-cd-accent focus-visible:outline-offset-2 ">
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" class="h-[1.125rem] w-[1.125rem]" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5v12m0 0 4.5-4.5M12 15.5 7.5 11M4.5 18.5v1a1 1 0 0 0 1 1h13a1 1 0 0 0 1-1v-1"/></svg>
+            <!--@icon download-simple class="h-[1.125rem] w-[1.125rem]"-->
             Download the latest release
           </a>
           <a href="https://github.com/spreadpaper/SpreadPaper" class="cd-button cd-button-secondary h-11 px-6 text-[0.9375rem] focus-visible:outline-2 focus-visible:outline-cd-accent focus-visible:outline-offset-2 ">View the source</a>
@@ -55,7 +55,7 @@
           <p class="mt-3 text-base leading-relaxed text-pretty text-cd-text-secondary">Removing the quarantine flag skips the warning entirely. Drag SpreadPaper to your Applications folder, then run this once.</p>
           <div class="mt-4 flex items-start gap-2 rounded-xl border border-cd-border bg-cd-bg p-3">
             <code id="quarantine-command" class="cd-code min-w-0 flex-1 py-1 pl-1">xattr -dr com.apple.quarantine /Applications/SpreadPaper.app</code>
-            <button type="button" data-copy-target="quarantine-command" data-copy-label="Copy" data-copied-label="Copied" class="cd-button cd-button-secondary h-9 shrink-0 px-3 text-xs focus-visible:outline-2 focus-visible:outline-cd-accent focus-visible:outline-offset-2 "><span data-copy-text aria-live="polite">Copy</span><span class="sr-only"> the quarantine command</span></button>
+            <button type="button" hidden data-copy-target="quarantine-command" data-copy-label="Copy" data-copied-label="Copied" class="cd-button cd-button-secondary h-9 shrink-0 gap-1.5 px-3 text-xs focus-visible:outline-2 focus-visible:outline-cd-accent focus-visible:outline-offset-2 "><!--@icon copy data-copy-icon="idle" class="h-3.5 w-3.5"--><!--@icon check data-copy-icon="done" hidden class="h-3.5 w-3.5"--><span data-copy-text aria-live="polite">Copy</span><span class="sr-only"> the quarantine command</span></button>
           </div>
           <p class="mt-4 text-sm text-cd-text-secondary">Either way, you only need to do this once. After that SpreadPaper opens like any other app.</p>
         </div>
