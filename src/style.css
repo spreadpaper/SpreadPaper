@@ -155,17 +155,19 @@ body {
 
 /* The one inline link treatment on the page. The accent is reserved for
    filled buttons and focus rings, where it clears AA. */
+/* The underline carries the link on its own, since the text is the same colour
+   as the prose around it, so it tracks the text rather than sitting at a border
+   tone that all but disappears against the background. */
 .cd-inline-link {
   color: var(--color-cd-text-secondary);
   text-decoration: underline;
   text-underline-offset: 2px;
-  text-decoration-color: var(--color-cd-border-strong);
-  transition: color 150ms ease-out, text-decoration-color 150ms ease-out;
+  text-decoration-color: currentColor;
+  transition: color 150ms ease-out;
 }
 
 .cd-inline-link:hover {
   color: var(--color-cd-text);
-  text-decoration-color: currentColor;
 }
 
 /* Scroll reveal, opt in per element with data-reveal. Armed only once the
