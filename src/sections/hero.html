@@ -1,3 +1,18 @@
+<style>
+  /* .spread sets its radius unlayered, so it outranks Tailwind's rounded-* in @layer
+     utilities; this pairs the class to win on specificity instead. Square while the
+     spread bleeds to the viewport edge, where a corner reads as a bug. */
+  .spread.hero-bleed {
+    border-radius: 0;
+  }
+
+  @media (min-width: 40rem) {
+    .spread.hero-bleed {
+      border-radius: 10px;
+    }
+  }
+</style>
+
 <section id="hero" aria-labelledby="hero-title" class="cd-section bg-cd-bg pt-24 sm:pt-28">
   <div class="cd-shell">
     <div class="grid grid-cols-12 gap-x-6 gap-y-10">
@@ -18,7 +33,7 @@
       </div>
 
       <figure class="col-span-12">
-        <div class="spread -mx-5 aspect-[32/9] [--bezel:8px] sm:mx-0 sm:aspect-[53/9] sm:[--bezel:16px]">
+        <div class="spread hero-bleed -mx-5 aspect-[32/9] [--bezel:8px] sm:mx-0 sm:aspect-[53/9] sm:[--bezel:16px]">
           <img class="spread-photo" src="/photos/hero-beach.jpg" width="2400" height="559" alt="A tropical beach at sunset, one photograph carrying on across several monitors side by side, broken only by the frames between them." fetchpriority="high" decoding="async">
           <div class="spread-frame">
             <div class="spread-screen" style="--w: 16"></div>
