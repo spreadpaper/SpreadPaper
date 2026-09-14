@@ -31,7 +31,7 @@ This is not fussiness. A laptop beside a monitor reads as a laptop only because 
 
 **The clipPath id.** It must be unique on the page. Two rigs sharing an id is the one failure mode that gives no error: the second rig clips against the first one's screens and comes out wrong or blank. Name it after the section and the instance, like `rig-hero`, `rig-types-static`, `rig-gallery-2`.
 
-**The photo href.** Write it as `/photos/hero-beach.jpg` or `/photos/1200/hero-beach.jpg`, never `/SpreadPaper/photos/...`. Vite prepends the base itself, so the longer form resolves to `/SpreadPaper/SpreadPaper/` and serves the HTML fallback instead of an image.
+**The photo href.** Every photograph has one URL for the whole page, listed under Which file below. Never pick a size to suit your rig. Write it as `/photos/hero-beach.jpg`, never `/SpreadPaper/photos/...`: Vite prepends the base itself, so the longer form resolves to `/SpreadPaper/SpreadPaper/` and serves the HTML fallback instead of an image.
 
 **The accessible name.** Either `role="img"` with an `aria-label` naming the setup and describing the photograph, or `aria-hidden="true"` when a caption beside it already says the same thing. Never both, and never neither. The label is the only alt text the photograph gets, so write it as a sentence about the picture and the displays, not a repeat of the heading. Every rig also carries `focusable="false"` so nothing inside it lands in the tab order.
 
@@ -50,7 +50,10 @@ A rig fills its container's width and takes its height from its viewBox, so give
 | `rig-trio` | Three matched monitors | `0 0 1077 236` | 4.56 | the editor bezel comparison |
 | `rig-ultrawide` | One ultrawide | `0 0 474 239` | 1.98 | a single-display beat |
 | `rig-mixed` | The editor canvas | `0 0 728 403` | 1.81 | the editor canvas |
-| `rig-thumb` | Gallery thumbnail | `0 0 346 64` | 5.41 | gallery cards |
+| `rig-thumb-pair` | Gallery thumbnail, two monitors | `0 0 230 64` | 3.59 | gallery cards |
+| `rig-thumb-portrait` | Gallery thumbnail, a portrait beside a landscape | `0 0 180 114` | 1.58 | gallery cards |
+| `rig-thumb-laptop` | Gallery thumbnail, a monitor and a laptop | `0 0 174 70` | 2.49 | gallery cards |
+| `rig-thumb` | Gallery thumbnail, three monitors | `0 0 346 64` | 5.41 | gallery cards |
 
 At phone widths a rig drops screens rather than height. Swap in a rig with fewer screens: two svgs, the wide one `hidden sm:block` and the narrow one `sm:hidden`. Shortening the box instead squeezes every display into a sliver.
 
@@ -131,7 +134,7 @@ Two matched 27-inch monitors on stands. The plainest rig, and the right one when
     <rect x="524.5" y="200" width="28" height="28"/><rect x="483.5" y="228" width="110" height="8" rx="4"/>
   </g>
   <g clip-path="url(#rig-example-dual)">
-    <image class="rig-photo" href="/photos/1200/hero-beach.jpg" x="0" y="0" width="716" height="200" preserveAspectRatio="xMidYMid slice"/>
+    <image class="rig-photo" href="/photos/hero-beach.jpg" x="0" y="0" width="716" height="200" preserveAspectRatio="xMidYMid slice"/>
     <rect class="rig-frame" x="0" y="0" width="355" height="200" rx="10"/>
     <rect class="rig-frame" x="361" y="0" width="355" height="200" rx="10"/>
   </g>
@@ -159,7 +162,7 @@ A 27-inch monitor with a 14-inch laptop beside it, the laptop screen smaller and
   </g>
   <rect class="rig-chin" x="361" y="210" width="181" height="20" rx="3"/>
   <g clip-path="url(#rig-example-laptop)">
-    <image class="rig-photo" href="/photos/1200/hero-beach.jpg" x="0" y="0" width="550" height="218" preserveAspectRatio="xMidYMid slice"/>
+    <image class="rig-photo" href="/photos/hero-beach.jpg" x="0" y="0" width="550" height="218" preserveAspectRatio="xMidYMid slice"/>
     <image class="rig-photo rig-photo-fade" href="/photos/1200/hero-beach-night.jpg" x="0" y="0" width="550" height="218" preserveAspectRatio="xMidYMid slice"/>
     <rect class="rig-frame" x="0" y="0" width="355" height="200" rx="10"/>
     <rect class="rig-frame" x="361" y="101" width="181" height="117" rx="8"/>
@@ -189,7 +192,7 @@ A 27-inch portrait, a 27-inch landscape and another 27-inch portrait, bottoms le
     <rect x="653" y="355" width="28" height="28"/><rect x="612" y="383" width="110" height="8" rx="4"/>
   </g>
   <g clip-path="url(#rig-example-trio)">
-    <image class="rig-photo" href="/photos/hero-day-1.jpg" x="0" y="0" width="767" height="355" preserveAspectRatio="xMidYMid slice"/>
+    <image class="rig-photo" href="/photos/1200/hero-day-1.jpg" x="0" y="0" width="767" height="355" preserveAspectRatio="xMidYMid slice"/>
     <rect class="rig-frame" x="0" y="0" width="200" height="355" rx="10"/>
     <rect class="rig-frame" x="206" y="155" width="355" height="200" rx="10"/>
     <rect class="rig-frame" x="567" y="0" width="200" height="355" rx="10"/>
@@ -197,7 +200,7 @@ A 27-inch portrait, a 27-inch landscape and another 27-inch portrait, bottoms le
 </svg>
 ```
 
-Natural ratio 1.96, the tallest rig on the page, which is deliberate: it belongs beside the Dynamic schedule list and gives that row a tall neighbour. The union of the screens is tall, so a panoramic photograph is scaled up to cover it and you see roughly the middle half of the picture. That is honest, because the app would have to crop the same way. Use a 2400px original here, not the 1200px set, and check the horizon still runs across all three screens, since continuity is the only thing the rig has to prove.
+Natural ratio 1.96, the tallest rig on the page, which is deliberate: it belongs beside the Dynamic schedule list and gives that row a tall neighbour. The union of the screens is tall, so a panoramic photograph is scaled up to cover it and you see roughly the middle half of the picture. That is honest, because the app would have to crop the same way. It is also why this rig is the softest on the page, which Which file above explains and accepts. Check the horizon still runs across all three screens, since continuity is the only thing the rig has to prove.
 
 ### rig-trio
 
@@ -245,7 +248,7 @@ One 34-inch ultrawide on a wide foot.
     <rect x="223" y="203" width="28" height="28"/><rect x="162" y="231" width="150" height="8" rx="4"/>
   </g>
   <g clip-path="url(#rig-example-ultrawide)">
-    <image class="rig-photo" href="/photos/1200/hero-beach.jpg" x="0" y="0" width="474" height="203" preserveAspectRatio="xMidYMid slice"/>
+    <image class="rig-photo" href="/photos/hero-beach.jpg" x="0" y="0" width="474" height="203" preserveAspectRatio="xMidYMid slice"/>
     <rect class="rig-frame" x="0" y="0" width="474" height="203" rx="10"/>
   </g>
 </svg>
@@ -273,15 +276,16 @@ The editor canvas rather than a desk: a 34-inch ultrawide beside a 27-inch portr
     <rect class="rig-frame" x="504" y="24" width="200" height="355" rx="10"/>
   </g>
   <g class="rig-hud">
-    <rect class="rig-hud-bar" x="191" y="253" width="140" height="30" rx="15"/>
-    <!--@icon crop x="205" y="261" width="14" height="14"-->
-    <!--@icon crop x="254" y="261" width="14" height="14"-->
-    <!--@icon crop x="303" y="261" width="14" height="14"-->
+    <rect class="rig-hud-bar" x="175" y="253" width="172" height="30" rx="15"/>
+    <!--@icon minus x="191" y="261" width="14" height="14"-->
+    <!--@icon plus x="233" y="261" width="14" height="14"-->
+    <!--@icon arrows-out-simple x="275" y="261" width="14" height="14"-->
+    <!--@icon arrows-left-right x="317" y="261" width="14" height="14"-->
   </g>
 </svg>
 ```
 
-Natural ratio 1.81. It carries no stands, no desk light and no drop shadow, because it is a view inside the app rather than an object on a desk. Two things to watch. The dimmed `.rig-bleed` image and the clipped one share their geometry exactly, which is what makes the bright part sit inside the dim part rather than beside it, so change the href in both. And the HUD glyphs are `@icon` tokens, which expand only inside files that `index.html` includes, so they work in a section and not in a standalone page. `crop` is a placeholder name: pick the three glyphs the HUD should actually carry, and ask shell-dev if a name does not resolve.
+Natural ratio 1.81. It carries no stands, no desk light and no drop shadow, because it is a view inside the app rather than an object on a desk. Two things to watch. The dimmed `.rig-bleed` image and the clipped one share their geometry exactly, which is what makes the bright part sit inside the dim part rather than beside it, so change the href in both. And the HUD glyphs are `@icon` tokens, which expand only inside files that `index.html` includes, so they work in a section and not in a standalone page. The four glyphs are the ones the app's editor actually shows, read off `EditorView.swift`: zoom out, zoom in, fit to canvas and flip horizontally. Pass `glyphs` to `markup()` to change them rather than editing the output. Pass position and size through the token and nothing else, because the expansion fills every path, so a `stroke` attribute riding along will wreck a glyph.
 
 ### rig-thumb
 
@@ -297,7 +301,7 @@ Three screens, no stands, no furniture. Built to survive being 92px tall on a ga
     </clipPath>
   </defs>
   <g clip-path="url(#rig-example-thumb)">
-    <image class="rig-photo" href="/photos/600/hero-beach.jpg" x="0" y="0" width="346" height="64" preserveAspectRatio="xMidYMid slice"/>
+    <image class="rig-photo" href="/photos/hero-beach.jpg" x="0" y="0" width="346" height="64" preserveAspectRatio="xMidYMid slice"/>
     <rect class="rig-frame" x="0" y="0" width="114" height="64" rx="3"/>
     <rect class="rig-frame" x="116" y="0" width="114" height="64" rx="3"/>
     <rect class="rig-frame" x="232" y="0" width="114" height="64" rx="3"/>
@@ -305,7 +309,57 @@ Three screens, no stands, no furniture. Built to survive being 92px tall on a ga
 </svg>
 ```
 
-Natural ratio 5.41, and it is the one rig meant to be sized by height rather than width: `class="rig rig-thumb" style="height: 92px; width: auto"`, or a class doing the same. Use the 600px photographs. It is decorative on a card whose heading already names the preset, so it takes `aria-hidden="true"` and no label.
+Natural ratio 5.41. Three siblings draw the other arrangements a gallery of presets wants: `rig-thumb-pair` at 230 by 64, `rig-thumb-portrait` at 180 by 114, and `rig-thumb-laptop` at 174 by 70, whose lid sits lower than the monitor beside it for the same reason the full-size laptop rig's does. All four take the same thin frames and tight shadow.
+
+```html
+<svg class="rig rig-thumb-pair" viewBox="0 0 230 64" aria-hidden="true" focusable="false">
+  <defs>
+    <clipPath id="rig-example-thumb-pair">
+      <rect x="0" y="0" width="114" height="64" rx="3"/>
+      <rect x="116" y="0" width="114" height="64" rx="3"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#rig-example-thumb-pair)">
+    <image class="rig-photo" href="/photos/1200/hero-day-3.jpg" x="0" y="0" width="230" height="64" preserveAspectRatio="xMidYMid slice"/>
+    <rect class="rig-frame" x="0" y="0" width="114" height="64" rx="3"/>
+    <rect class="rig-frame" x="116" y="0" width="114" height="64" rx="3"/>
+  </g>
+</svg>
+```
+
+```html
+<svg class="rig rig-thumb-portrait" viewBox="0 0 180 114" aria-hidden="true" focusable="false">
+  <defs>
+    <clipPath id="rig-example-thumb-portrait">
+      <rect x="0" y="0" width="64" height="114" rx="3"/>
+      <rect x="66" y="50" width="114" height="64" rx="3"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#rig-example-thumb-portrait)">
+    <image class="rig-photo" href="/photos/1200/hero-day-4.jpg" x="0" y="0" width="180" height="114" preserveAspectRatio="xMidYMid slice"/>
+    <rect class="rig-frame" x="0" y="0" width="64" height="114" rx="3"/>
+    <rect class="rig-frame" x="66" y="50" width="114" height="64" rx="3"/>
+  </g>
+</svg>
+```
+
+```html
+<svg class="rig rig-thumb-laptop" viewBox="0 0 174 70" aria-hidden="true" focusable="false">
+  <defs>
+    <clipPath id="rig-example-thumb-laptop">
+      <rect x="0" y="0" width="114" height="64" rx="3"/>
+      <rect x="116" y="32" width="58" height="37" rx="2"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#rig-example-thumb-laptop)">
+    <image class="rig-photo" href="/photos/1200/hero-beach-night.jpg" x="0" y="0" width="174" height="70" preserveAspectRatio="xMidYMid slice"/>
+    <rect class="rig-frame" x="0" y="0" width="114" height="64" rx="3"/>
+    <rect class="rig-frame" x="116" y="32" width="58" height="37" rx="2"/>
+  </g>
+</svg>
+```
+
+They are the one family meant to be sized by something other than the container width, and they have different natural ratios, so give each a shared tile and let it sit at its own size inside: a rig with more screens then comes out smaller, which is what would happen on a real desk. Put the aspect on the tile and never on the rig. Each is decorative on a card whose heading already names the preset, so it takes `aria-hidden="true"` and no label, and each uses that photograph's one URL like everything else.
 
 ## Worked example: thin against thick frames
 
@@ -355,11 +409,11 @@ Five images: the four hours of the schedule, then the first one again so the loo
     <rect x="653" y="355" width="28" height="28"/><rect x="612" y="383" width="110" height="8" rx="4"/>
   </g>
   <g clip-path="url(#rig-example-day)">
-    <image class="rig-photo" href="/photos/hero-day-1.jpg" x="0" y="0" width="767" height="355" preserveAspectRatio="xMidYMid slice"/>
-    <image class="rig-photo rig-day rig-day-2" href="/photos/hero-day-2.jpg" x="0" y="0" width="767" height="355" preserveAspectRatio="xMidYMid slice"/>
-    <image class="rig-photo rig-day rig-day-3" href="/photos/hero-day-3.jpg" x="0" y="0" width="767" height="355" preserveAspectRatio="xMidYMid slice"/>
-    <image class="rig-photo rig-day rig-day-4" href="/photos/hero-day-4.jpg" x="0" y="0" width="767" height="355" preserveAspectRatio="xMidYMid slice"/>
-    <image class="rig-photo rig-day rig-day-wrap" href="/photos/hero-day-1.jpg" x="0" y="0" width="767" height="355" preserveAspectRatio="xMidYMid slice"/>
+    <image class="rig-photo" href="/photos/1200/hero-day-1.jpg" x="0" y="0" width="767" height="355" preserveAspectRatio="xMidYMid slice"/>
+    <image class="rig-photo rig-day rig-day-2" href="/photos/1200/hero-day-2.jpg" x="0" y="0" width="767" height="355" preserveAspectRatio="xMidYMid slice"/>
+    <image class="rig-photo rig-day rig-day-3" href="/photos/1200/hero-day-3.jpg" x="0" y="0" width="767" height="355" preserveAspectRatio="xMidYMid slice"/>
+    <image class="rig-photo rig-day rig-day-4" href="/photos/1200/hero-day-4.jpg" x="0" y="0" width="767" height="355" preserveAspectRatio="xMidYMid slice"/>
+    <image class="rig-photo rig-day rig-day-wrap" href="/photos/1200/hero-day-1.jpg" x="0" y="0" width="767" height="355" preserveAspectRatio="xMidYMid slice"/>
     <rect class="rig-frame" x="0" y="0" width="200" height="355" rx="10"/>
     <rect class="rig-frame" x="206" y="155" width="355" height="200" rx="10"/>
     <rect class="rig-frame" x="567" y="0" width="200" height="355" rx="10"/>
@@ -377,9 +431,30 @@ If a section lights something up in step with the cycle, a row of times for inst
 
 Two things the rig cannot give you, because SVG does not. An `<image>` takes no `loading="lazy"` and no `fetchpriority`, so every photograph in every rig is fetched as the page loads and priority has to come from a preload link in the head instead. Stacked layers need no `alt` or `aria-hidden` either: they sit inside a labelled `role="img"`, so they are not announced separately.
 
+## Which file
+
+One size per photograph, for the whole page, whatever rig is showing it.
+
+| Photograph | URL |
+| --- | --- |
+| Beach at sunset | `/photos/hero-beach.jpg` |
+| Beach at night | `/photos/1200/hero-beach-night.jpg` |
+| Sunrise on the ridge | `/photos/1200/hero-day-1.jpg` |
+| Midday over the peak | `/photos/1200/hero-day-2.jpg` |
+| Evening light | `/photos/1200/hero-day-3.jpg` |
+| The Milky Way | `/photos/1200/hero-day-4.jpg` |
+
+This is a rule about photographs, not about rigs, and it is the one thing here most likely to be got wrong, because choosing a size per rig feels like the careful thing to do. It is the opposite. A browser caches per URL, so a thumbnail asking for the 600px copy of a photograph the hero already fetched at 2400 does not save anything, it adds a second download of a picture the page already has. Picking sizes per rig took the page from 636KB of photographs to 1192KB, with four of the six fetched at two or three sizes each.
+
+`hero-beach.jpg` is the page's one 2400px original, because the hero draws it at full shell width and it is the LCP element. Every rig showing that photograph uses the same 2400px file, thumbnails included, and none of them pays anything for it: the hero has already caused the download.
+
+Everything else is on the 1200px set. The tall rigs are the honest cost of that. `rig-portrait-trio` scales a panoramic photograph up to cover a tall union of screens, so it asks for roughly 3.8 times its own rendered width in device pixels, which on a Retina display is more than 1200 gives. It is a below-the-fold illustration inside drawn monitors, mid-crossfade much of the time, and 648KB is worth more to this page than the difference. If that ever stops being true, the right fix is a cropped derivative rather than the full-width original: the tall rigs show about half the width of each picture, so a pre-cropped file would be sharper than the 2400px original at a quarter of its weight.
+
 ## Loading
 
-Every photograph in every rig is fetched as the page loads, for the reason above. That costs less than it sounds: the site has six photographs and the browser fetches each one once however many rigs point at it. Still, reach for the smallest set that holds up. The 600px photographs for thumbnails, the 1200px set for anything inside a column, the 2400px originals only for the hero and for tall rigs like `rig-portrait-trio` where the picture is scaled up to cover the screens.
+Every photograph in every rig is fetched as the page loads, because an SVG `<image>` takes no `loading` attribute and native lazy loading is not available for inline SVG at all. That is a property of the primitive rather than an oversight, so do not add `loading="lazy"` to a rig and wait for something to happen.
+
+It matters most for the hero. Its photograph is the LCP element and it competes with every below-the-fold rig photograph, all requested at once at ordinary priority, which is why the preload in `index.html` is load bearing rather than a nicety. Keeping the page to one file per photograph is also the fastest way to take weight out of that contention.
 
 ## Motion
 

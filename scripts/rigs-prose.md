@@ -31,7 +31,7 @@ This is not fussiness. A laptop beside a monitor reads as a laptop only because 
 
 **The clipPath id.** It must be unique on the page. Two rigs sharing an id is the one failure mode that gives no error: the second rig clips against the first one's screens and comes out wrong or blank. Name it after the section and the instance, like `rig-hero`, `rig-types-static`, `rig-gallery-2`.
 
-**The photo href.** Write it as `/photos/hero-beach.jpg` or `/photos/1200/hero-beach.jpg`, never `/SpreadPaper/photos/...`. Vite prepends the base itself, so the longer form resolves to `/SpreadPaper/SpreadPaper/` and serves the HTML fallback instead of an image.
+**The photo href.** Every photograph has one URL for the whole page, listed under Which file below. Never pick a size to suit your rig. Write it as `/photos/hero-beach.jpg`, never `/SpreadPaper/photos/...`: Vite prepends the base itself, so the longer form resolves to `/SpreadPaper/SpreadPaper/` and serves the HTML fallback instead of an image.
 
 **The accessible name.** Either `role="img"` with an `aria-label` naming the setup and describing the photograph, or `aria-hidden="true"` when a caption beside it already says the same thing. Never both, and never neither. The label is the only alt text the photograph gets, so write it as a sentence about the picture and the displays, not a repeat of the heading. Every rig also carries `focusable="false"` so nothing inside it lands in the tab order.
 
@@ -85,7 +85,7 @@ Natural ratio 3.86. It is the hero rig, and the hero is the one place to use the
 
 Two matched 27-inch monitors on stands. The plainest rig, and the right one whenever the point is simply that a picture spans more than one screen.
 
-@rig dual {"id": "rig-example-dual", "photos": ["/photos/1200/hero-beach.jpg"], "label": "A beach at sunset carried across two monitors side by side."}
+@rig dual {"id": "rig-example-dual", "photos": ["/photos/hero-beach.jpg"], "label": "A beach at sunset carried across two monitors side by side."}
 
 Natural ratio 3.03. Suits the Static kind and any beat that needs a rig without making a point of the arrangement.
 
@@ -93,7 +93,7 @@ Natural ratio 3.03. Suits the Static kind and any beat that needs a rig without 
 
 A 27-inch monitor with a 14-inch laptop beside it, the laptop screen smaller and sitting lower, as it does on a real desk.
 
-@rig laptop {"id": "rig-example-laptop", "photos": ["/photos/1200/hero-beach.jpg", "/photos/1200/hero-beach-night.jpg"], "label": "A beach carried across a monitor and the laptop beside it, fading from day to night."}
+@rig laptop {"id": "rig-example-laptop", "photos": ["/photos/hero-beach.jpg", "/photos/1200/hero-beach-night.jpg"], "label": "A beach carried across a monitor and the laptop beside it, fading from day to night."}
 
 Natural ratio 2.33. The laptop screen showing a lower part of the photograph is not a bug: macOS lays the wallpaper out across the display arrangement, so a screen sitting lower shows what is lower in the picture. Worth saying in a caption, because it is the detail that proves the app is doing real work. Shown above with a crossfade, since this is the Light and Dark rig, and note that the pair covers both screens rather than one.
 
@@ -101,9 +101,9 @@ Natural ratio 2.33. The laptop screen showing a lower part of the photograph is 
 
 A 27-inch portrait, a 27-inch landscape and another 27-inch portrait, bottoms level.
 
-@rig portrait-trio {"id": "rig-example-trio", "photos": ["/photos/hero-day-1.jpg"], "label": "One alpine ridge carried across a portrait monitor, a landscape monitor and another portrait monitor."}
+@rig portrait-trio {"id": "rig-example-trio", "photos": ["/photos/1200/hero-day-1.jpg"], "label": "One alpine ridge carried across a portrait monitor, a landscape monitor and another portrait monitor."}
 
-Natural ratio 1.96, the tallest rig on the page, which is deliberate: it belongs beside the Dynamic schedule list and gives that row a tall neighbour. The union of the screens is tall, so a panoramic photograph is scaled up to cover it and you see roughly the middle half of the picture. That is honest, because the app would have to crop the same way. Use a 2400px original here, not the 1200px set, and check the horizon still runs across all three screens, since continuity is the only thing the rig has to prove.
+Natural ratio 1.96, the tallest rig on the page, which is deliberate: it belongs beside the Dynamic schedule list and gives that row a tall neighbour. The union of the screens is tall, so a panoramic photograph is scaled up to cover it and you see roughly the middle half of the picture. That is honest, because the app would have to crop the same way. It is also why this rig is the softest on the page, which Which file above explains and accepts. Check the horizon still runs across all three screens, since continuity is the only thing the rig has to prove.
 
 ### rig-trio
 
@@ -117,7 +117,7 @@ Natural ratio 4.56, which is close to the photographs' own 4.29, so it crops the
 
 One 34-inch ultrawide on a wide foot.
 
-@rig ultrawide {"id": "rig-example-ultrawide", "photos": ["/photos/1200/hero-beach.jpg"], "label": "A beach at sunset on a single ultrawide monitor."}
+@rig ultrawide {"id": "rig-example-ultrawide", "photos": ["/photos/hero-beach.jpg"], "label": "A beach at sunset on a single ultrawide monitor."}
 
 Natural ratio 1.98, the most upright rig in the set, so it fits a narrow column where a row of monitors will not.
 
@@ -127,15 +127,23 @@ The editor canvas rather than a desk: a 34-inch ultrawide beside a 27-inch portr
 
 @rig mixed {"id": "rig-example-mixed", "photos": ["/photos/1200/hero-day-2.jpg"], "label": "The editor canvas: an ultrawide beside a portrait monitor, the photograph reaching past both."}
 
-Natural ratio 1.81. It carries no stands, no desk light and no drop shadow, because it is a view inside the app rather than an object on a desk. Two things to watch. The dimmed `.rig-bleed` image and the clipped one share their geometry exactly, which is what makes the bright part sit inside the dim part rather than beside it, so change the href in both. And the HUD glyphs are `@icon` tokens, which expand only inside files that `index.html` includes, so they work in a section and not in a standalone page. `crop` is a placeholder name: pick the three glyphs the HUD should actually carry, and ask shell-dev if a name does not resolve.
+Natural ratio 1.81. It carries no stands, no desk light and no drop shadow, because it is a view inside the app rather than an object on a desk. Two things to watch. The dimmed `.rig-bleed` image and the clipped one share their geometry exactly, which is what makes the bright part sit inside the dim part rather than beside it, so change the href in both. And the HUD glyphs are `@icon` tokens, which expand only inside files that `index.html` includes, so they work in a section and not in a standalone page. The four glyphs are the ones the app's editor actually shows, read off `EditorView.swift`: zoom out, zoom in, fit to canvas and flip horizontally. Pass `glyphs` to `markup()` to change them rather than editing the output. Pass position and size through the token and nothing else, because the expansion fills every path, so a `stroke` attribute riding along will wreck a glyph.
 
 ### rig-thumb
 
 Three screens, no stands, no furniture. Built to survive being 92px tall on a gallery card.
 
-@rig thumb {"id": "rig-example-thumb", "photos": ["/photos/600/hero-beach.jpg"]}
+@rig thumb {"id": "rig-example-thumb", "photos": ["/photos/hero-beach.jpg"]}
 
-Natural ratio 5.41, and it is the one rig meant to be sized by height rather than width: `class="rig rig-thumb" style="height: 92px; width: auto"`, or a class doing the same. Use the 600px photographs. It is decorative on a card whose heading already names the preset, so it takes `aria-hidden="true"` and no label.
+Natural ratio 5.41. Three siblings draw the other arrangements a gallery of presets wants: `rig-thumb-pair` at 230 by 64, `rig-thumb-portrait` at 180 by 114, and `rig-thumb-laptop` at 174 by 70, whose lid sits lower than the monitor beside it for the same reason the full-size laptop rig's does. All four take the same thin frames and tight shadow.
+
+@rig thumb-pair {"id": "rig-example-thumb-pair", "photos": ["/photos/1200/hero-day-3.jpg"]}
+
+@rig thumb-portrait {"id": "rig-example-thumb-portrait", "photos": ["/photos/1200/hero-day-4.jpg"]}
+
+@rig thumb-laptop {"id": "rig-example-thumb-laptop", "photos": ["/photos/1200/hero-beach-night.jpg"]}
+
+They are the one family meant to be sized by something other than the container width, and they have different natural ratios, so give each a shared tile and let it sit at its own size inside: a rig with more screens then comes out smaller, which is what would happen on a real desk. Put the aspect on the tile and never on the rig. Each is decorative on a card whose heading already names the preset, so it takes `aria-hidden="true"` and no label, and each uses that photograph's one URL like everything else.
 
 ## Worked example: thin against thick frames
 
@@ -169,7 +177,7 @@ Set `--rig-cycle` on the svg to change the pace. The default is 12 seconds.
 
 Five images: the four hours of the schedule, then the first one again so the loop closes on a fade rather than a cut. `rig-day-2`, `-3` and `-4` hold their photograph from its own hour until the next covers it, and `rig-day-wrap` carries the repeat.
 
-@rig portrait-trio {"id": "rig-example-day", "photos": ["/photos/hero-day-1.jpg", "/photos/hero-day-2.jpg", "/photos/hero-day-3.jpg", "/photos/hero-day-4.jpg", "/photos/hero-day-1.jpg"], "day": true, "label": "Three monitors running through one day, sunrise to night."}
+@rig portrait-trio {"id": "rig-example-day", "photos": ["/photos/1200/hero-day-1.jpg", "/photos/1200/hero-day-2.jpg", "/photos/1200/hero-day-3.jpg", "/photos/1200/hero-day-4.jpg", "/photos/1200/hero-day-1.jpg"], "day": true, "label": "Three monitors running through one day, sunrise to night."}
 
 Set `--rig-day-cycle` on the svg to change the pace. The default is 20 seconds, which is 5 seconds a photograph.
 
@@ -181,9 +189,30 @@ If a section lights something up in step with the cycle, a row of times for inst
 
 Two things the rig cannot give you, because SVG does not. An `<image>` takes no `loading="lazy"` and no `fetchpriority`, so every photograph in every rig is fetched as the page loads and priority has to come from a preload link in the head instead. Stacked layers need no `alt` or `aria-hidden` either: they sit inside a labelled `role="img"`, so they are not announced separately.
 
+## Which file
+
+One size per photograph, for the whole page, whatever rig is showing it.
+
+| Photograph | URL |
+| --- | --- |
+| Beach at sunset | `/photos/hero-beach.jpg` |
+| Beach at night | `/photos/1200/hero-beach-night.jpg` |
+| Sunrise on the ridge | `/photos/1200/hero-day-1.jpg` |
+| Midday over the peak | `/photos/1200/hero-day-2.jpg` |
+| Evening light | `/photos/1200/hero-day-3.jpg` |
+| The Milky Way | `/photos/1200/hero-day-4.jpg` |
+
+This is a rule about photographs, not about rigs, and it is the one thing here most likely to be got wrong, because choosing a size per rig feels like the careful thing to do. It is the opposite. A browser caches per URL, so a thumbnail asking for the 600px copy of a photograph the hero already fetched at 2400 does not save anything, it adds a second download of a picture the page already has. Picking sizes per rig took the page from 636KB of photographs to 1192KB, with four of the six fetched at two or three sizes each.
+
+`hero-beach.jpg` is the page's one 2400px original, because the hero draws it at full shell width and it is the LCP element. Every rig showing that photograph uses the same 2400px file, thumbnails included, and none of them pays anything for it: the hero has already caused the download.
+
+Everything else is on the 1200px set. The tall rigs are the honest cost of that. `rig-portrait-trio` scales a panoramic photograph up to cover a tall union of screens, so it asks for roughly 3.8 times its own rendered width in device pixels, which on a Retina display is more than 1200 gives. It is a below-the-fold illustration inside drawn monitors, mid-crossfade much of the time, and 648KB is worth more to this page than the difference. If that ever stops being true, the right fix is a cropped derivative rather than the full-width original: the tall rigs show about half the width of each picture, so a pre-cropped file would be sharper than the 2400px original at a quarter of its weight.
+
 ## Loading
 
-Every photograph in every rig is fetched as the page loads, for the reason above. That costs less than it sounds: the site has six photographs and the browser fetches each one once however many rigs point at it. Still, reach for the smallest set that holds up. The 600px photographs for thumbnails, the 1200px set for anything inside a column, the 2400px originals only for the hero and for tall rigs like `rig-portrait-trio` where the picture is scaled up to cover the screens.
+Every photograph in every rig is fetched as the page loads, because an SVG `<image>` takes no `loading` attribute and native lazy loading is not available for inline SVG at all. That is a property of the primitive rather than an oversight, so do not add `loading="lazy"` to a rig and wait for something to happen.
+
+It matters most for the hero. Its photograph is the LCP element and it competes with every below-the-fold rig photograph, all requested at once at ordinary priority, which is why the preload in `index.html` is load bearing rather than a nicety. Keeping the page to one file per photograph is also the fastest way to take weight out of that contention.
 
 ## Motion
 

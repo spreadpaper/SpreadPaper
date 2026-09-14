@@ -178,7 +178,10 @@
      rig-trio           three matched monitors         viewBox 0 0 1077 236
      rig-ultrawide      one 34-inch ultrawide          viewBox 0 0 474 239
      rig-mixed          the editor canvas              viewBox 0 0 728 403
-     rig-thumb          gallery card thumbnail         viewBox 0 0 346 64 */
+     rig-thumb          three monitors, small          viewBox 0 0 346 64
+     rig-thumb-pair     two monitors, small            viewBox 0 0 230 64
+     rig-thumb-portrait a portrait and a landscape     viewBox 0 0 180 114
+     rig-thumb-laptop   a monitor and a laptop, small  viewBox 0 0 174 70 */
 
   /* Slimmer, because a laptop lid has less frame than a monitor. */
   .rig-desk,
@@ -192,8 +195,11 @@
     filter: none;
   }
 
-  /* Thinner frames and a tighter shadow, so the rig holds together at 92px tall. */
-  .rig-thumb {
+  /* Thinner frames and a tighter shadow, so a thumbnail holds together small. */
+  .rig-thumb,
+  .rig-thumb-pair,
+  .rig-thumb-portrait,
+  .rig-thumb-laptop {
     --rig-bezel: 4;
     filter: drop-shadow(0 2px 6px rgb(0 0 0 / 0.45));
   }

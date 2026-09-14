@@ -15,6 +15,10 @@ export const SCREEN = {
   laptop14: { w: 181, h: 117 },
 }
 
+// What the app's editor HUD actually shows, read off EditorView.swift rather
+// than from memory of what an editor HUD usually looks like.
+const HUD_GLYPHS = ['minus', 'plus', 'arrows-out-simple', 'arrows-left-right']
+
 const GAP = 6
 const NECK = { w: 28, h: 28 }
 const FOOT = { w: 110, h: 8 }
@@ -90,10 +94,43 @@ export const RIGS = {
     crop: { x: 14, y: 14, w: 700, h: 375, rx: 8 },
     screens: [{ x: 24, y: 100, ...SCREEN.ultrawide34, rx: 10 }, m27p(504, 24)],
     stands: [],
-    hud: { bar: { x: 191, y: 253, w: 140, h: 30, rx: 15 }, glyphs: [205, 254, 303], y: 261, size: 14 },
+    hud: { bar: { x: 175, y: 253, w: 172, h: 30, rx: 15 }, glyphs: [191, 233, 275, 317], y: 261, size: 14 },
+  },
+  'thumb-pair': {
+    title: 'Gallery thumbnail, two monitors',
+    section: 'gallery cards',
+    viewBox: [230, 64],
+    image: { x: 0, y: 0, w: 230, h: 64 },
+    screens: [
+      { x: 0, y: 0, w: 114, h: 64, rx: 3 },
+      { x: 116, y: 0, w: 114, h: 64, rx: 3 },
+    ],
+    stands: [],
+  },
+  'thumb-portrait': {
+    title: 'Gallery thumbnail, a portrait beside a landscape',
+    section: 'gallery cards',
+    viewBox: [180, 114],
+    image: { x: 0, y: 0, w: 180, h: 114 },
+    screens: [
+      { x: 0, y: 0, w: 64, h: 114, rx: 3 },
+      { x: 66, y: 50, w: 114, h: 64, rx: 3 },
+    ],
+    stands: [],
+  },
+  'thumb-laptop': {
+    title: 'Gallery thumbnail, a monitor and a laptop',
+    section: 'gallery cards',
+    viewBox: [174, 70],
+    image: { x: 0, y: 0, w: 174, h: 70 },
+    screens: [
+      { x: 0, y: 0, w: 114, h: 64, rx: 3 },
+      { x: 116, y: 32, w: 58, h: 37, rx: 2 },
+    ],
+    stands: [],
   },
   thumb: {
-    title: 'Gallery thumbnail',
+    title: 'Gallery thumbnail, three monitors',
     section: 'gallery cards',
     viewBox: [346, 64],
     image: { x: 0, y: 0, w: 346, h: 64 },
@@ -115,10 +152,10 @@ const rect = (s, cls) =>
  * unique across the whole page.
  *
  * @param {string} name - Key in RIGS.
- * @param {{id: string, photos: string[], label?: string, classes?: string, indent?: string, day?: boolean}} opts
+ * @param {{id: string, photos: string[], label?: string, classes?: string, indent?: string, day?: boolean, glyphs?: string[]}} opts
  * @returns {string} The SVG markup.
  */
-export function markup(name, { id, photos, label, classes = '', indent = '', day = false }) {
+export function markup(name, { id, photos, label, classes = '', indent = '', day = false, glyphs = HUD_GLYPHS }) {
   const r = RIGS[name]
   const [vw, vh] = r.viewBox
   const p = (n) => indent + '  '.repeat(n)
@@ -173,11 +210,11 @@ export function markup(name, { id, photos, label, classes = '', indent = '', day
 
   if (r.hud) {
     lines.push(`${p(1)}<g class="rig-hud">`, p(2) + rect(r.hud.bar, 'rig-hud-bar'))
-    for (const x of r.hud.glyphs) {
+    r.hud.glyphs.forEach((x, i) => {
       lines.push(
-        `${p(2)}<!--@icon crop x="${x}" y="${r.hud.y}" width="${r.hud.size}" height="${r.hud.size}"-->`
+        `${p(2)}<!--@icon ${glyphs[i]} x="${x}" y="${r.hud.y}" width="${r.hud.size}" height="${r.hud.size}"-->`
       )
-    }
+    })
     lines.push(`${p(1)}</g>`)
   }
 

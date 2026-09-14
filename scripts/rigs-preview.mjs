@@ -57,26 +57,35 @@ const parts = [
   one('desk', { id: 'pv-desk', photos: ['/photos/hero-beach.jpg'], label: 'A beach at sunset carried across a laptop and the two monitors beside it.' },
     'The hero rig, on the 2400px original. Widest rig on the page.', '64rem'),
 
-  one('dual', { id: 'pv-dual', photos: [`${P}/hero-beach.jpg`], label: 'A beach at sunset carried across two monitors side by side.' },
+  one('dual', { id: 'pv-dual', photos: [`/photos/hero-beach.jpg`], label: 'A beach at sunset carried across two monitors side by side.' },
     'The Static kind.'),
 
-  one('laptop', { id: 'pv-laptop', photos: [`${P}/hero-beach.jpg`, `${P}/hero-beach-night.jpg`], label: 'A beach carried across a monitor and the laptop beside it, fading from day to night.' },
+  one('laptop', { id: 'pv-laptop', photos: [`/photos/hero-beach.jpg`, `${P}/hero-beach-night.jpg`], label: 'A beach carried across a monitor and the laptop beside it, fading from day to night.' },
     'The Light and Dark kind, crossfading, with the pair covering both screens. The laptop screen sits lower, so it shows a lower part of the photograph.', '44rem'),
 
-  one('portrait-trio', { id: 'pv-trio', photos: ['/photos/hero-day-1.jpg'], label: 'One alpine ridge carried across a portrait monitor, a landscape monitor and another portrait monitor.' },
+  one('portrait-trio', { id: 'pv-trio', photos: ['/photos/1200/hero-day-1.jpg'], label: 'One alpine ridge carried across a portrait monitor, a landscape monitor and another portrait monitor.' },
     'The Dynamic kind, and the tallest rig on the page.', '44rem'),
 
   one('trio', { id: 'pv-row', photos: [`${P}/hero-day-1.jpg`], label: 'An alpine ridge at sunrise carried across three matched monitors.' },
     'The bezel comparison rig, and the one that crops the panoramas least.', '64rem'),
 
-  one('ultrawide', { id: 'pv-ultra', photos: [`${P}/hero-beach.jpg`], label: 'A beach at sunset on a single ultrawide monitor.' },
+  one('ultrawide', { id: 'pv-ultra', photos: [`/photos/hero-beach.jpg`], label: 'A beach at sunset on a single ultrawide monitor.' },
     'The most upright rig in the set.', '30rem'),
 
   one('mixed', { id: 'pv-mixed', photos: [`${P}/hero-day-2.jpg`], label: 'The editor canvas: an ultrawide beside a portrait monitor, the photograph reaching past both.' },
     'The editor canvas. The HUD glyphs are @icon tokens, which only expand inside files index.html includes, so they are blank here and correct in a section.', '40rem'),
 
-  one('thumb', { id: 'pv-thumb', photos: ['/photos/600/hero-beach.jpg'] },
+  one('thumb', { id: 'pv-thumb', photos: ['/photos/hero-beach.jpg'] },
     'Shown at 92px tall, the size it has to survive.', '520px'),
+
+  block(
+    'The other gallery thumbnails',
+    'Three arrangements beside the plain trio, each at its own size inside a shared tile rather than stretched to fill one.',
+    ['thumb-pair', 'thumb-portrait', 'thumb-laptop']
+      .map((n, i) => markup(n, { id: `pv-${n}`, photos: [`${P}/hero-day-${i + 2}.jpg`], indent: '      ' }))
+      .join('\n    </div><div style="max-width: 520px; margin-top: 1.5rem">'),
+    '520px'
+  ),
 
   block(
     'Thin against thick frames',
@@ -92,7 +101,7 @@ const parts = [
     'Five photographs: four hours of the day plus a repeat of the first so the loop closes on a fade.',
     markup('portrait-trio', {
       id: 'pv-day',
-      photos: [1, 2, 3, 4, 1].map((n) => `/photos/hero-day-${n}.jpg`),
+      photos: [1, 2, 3, 4, 1].map((n) => `/photos/1200/hero-day-${n}.jpg`),
       day: true,
       indent: '      ',
       label: 'Three monitors running through one day, sunrise to night.',
