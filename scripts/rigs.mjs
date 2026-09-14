@@ -61,7 +61,13 @@ export const RIGS = {
     screens: [lid(0, 83), m27(195), m27(556)],
     stands: [{ cx: 372.5, top: 200 }, { cx: 733.5, top: 200 }],
     bezel: 9,
-    laptop: { chin: { x: 0, w: 181, to: 206, rx: 3 }, base: { x: -4, y: 206, w: 193, h: 30, rx: 4 } },
+    // The deck is thin and the riser steps in under it. Drawn as one tall slab the
+    // pair reads as a plinth with a screen on it rather than as a laptop.
+    laptop: {
+      chin: { x: 0, w: 181, to: 206, rx: 3 },
+      base: { x: -4, y: 206, w: 193, h: 8, rx: 3 },
+      riser: { x: 35, y: 214, w: 111, h: 22, rx: 4 },
+    },
     glow: true,
   },
   dual: {
@@ -231,6 +237,7 @@ export function markup(name, { id, photos, label, classes = '', indent = '', day
     )
   })
   if (r.laptop) furniture.push(p(2) + rect(r.laptop.base))
+  if (r.laptop?.riser) furniture.push(p(2) + rect(r.laptop.riser))
 
   const lines = [
     `${indent}<svg class="rig rig-${name}${classes ? ' ' + classes : ''}"${glow ? ` style="--rig-glow-color: ${GLOW[glow]}"` : ''} viewBox="0 0 ${vw} ${vh}" ${a11y} focusable="false">`,
