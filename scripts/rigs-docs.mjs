@@ -4,7 +4,7 @@
 import { writeFileSync, readFileSync } from 'node:fs'
 import { resolve, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { markup, RIGS, PHOTOS, check } from './rigs.mjs'
+import { markup, RIGS, PHOTOS, GLOW, check } from './rigs.mjs'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(HERE, '..')
@@ -43,6 +43,7 @@ const photos =
 const text = expand(readFileSync(resolve(HERE, 'rigs-prose.md'), 'utf8'))
   .replace('@table', header + Object.keys(RIGS).map(row).join('\n'))
   .replace('@photos', photos)
+  .replace('@glow-neutral', `\`${GLOW.neutral}\``)
 
 writeFileSync(resolve(ROOT, 'RIGS.md'), text)
 console.log('RIGS.md', text.split('\n').length, 'lines')

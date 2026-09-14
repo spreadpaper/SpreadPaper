@@ -12,7 +12,7 @@
 import { readFileSync, readdirSync } from 'node:fs'
 import { resolve, dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { PHOTOS, RIGS, GLOW, chinOf } from './rigs.mjs'
+import { PHOTOS, RIGS, GLOW, chinOf, glowOf } from './rigs.mjs'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const SECTIONS = join(ROOT, 'src', 'sections')
@@ -89,6 +89,20 @@ for (const file of files) {
         `rig-${name} clips at ${drawn.join(' ')} but the generator draws ${expected.join(' ')}`)
     }
 
+    // Two rigs in a responsive swap are never on screen together, so one of them
+    // keeping a stale ellipse shows as a pool of light under one and none under
+    // the other, which nobody sees in review.
+    const glow = svg.match(/<ellipse class="rig-glow" ([^/>]*)\/>/)?.[1]
+    if (glow) {
+      const at2 = (k) => glow.match(new RegExp(`${k}="([^"]+)"`))?.[1]
+      const want = glowOf(RIGS[name])
+      const off = ['cx', 'cy', 'rx', 'ry'].filter((k) => String(want[k]) !== at2(k))
+      if (off.length) {
+        fail(file, at,
+          `rig-${name} draws its desk light at ${['cx', 'cy', 'rx', 'ry'].map((k) => at2(k)).join(',')} but the generator draws ${['cx', 'cy', 'rx', 'ry'].map((k) => want[k]).join(',')}`)
+      }
+    }
+
     // The chin meets the bottom of the lit screen exactly, so a unit either way
     // either covers a line of the photograph or leaves the lid's corner showing.
     const chin = svg.match(/<rect class="rig-chin" ([^/>]*)\/>/)?.[1]
@@ -122,6 +136,12 @@ function geometry(attrs) {
 function lineOf(source, rect) {
   const needle = rect.raw ?? `x="${rect.x}" y="${rect.y}" width="${rect.w}" height="${rect.h}"`
   return source.slice(0, source.indexOf(needle)).split('\n').length
+}
+
+const css = readFileSync(join(ROOT, 'src', 'rigs.css'), 'utf8')
+const declared = css.match(/--rig-glow-color:\s*([^;]+);/)?.[1]?.trim()
+if (declared !== GLOW.neutral) {
+  problems.push(`src/rigs.css  the default desk light is "${declared}" but the generator's neutral tint is "${GLOW.neutral}"`)
 }
 
 if (problems.length) {

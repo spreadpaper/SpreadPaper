@@ -70,7 +70,7 @@ Two things about that swap. It works because every rule in `rigs.css` sits in Ta
 | `--rig-bezel` | `10`, `9` on the two laptop rigs, `4` on the thumbnail | Visible frame width, in viewBox units, so it scales with the rig |
 | `--rig-frame-color` | `#1c1c23` | Frame and laptop chin colour |
 | `--rig-stand-color` | `#191920` | Stand, foot and laptop base colour |
-| `--rig-glow-color` | `rgb(255 255 255 / 0.06)` | The light pooling on the desk under the rig |
+| `--rig-glow-color` | `rgb(255 255 255 / 0.12)` | The light pooling on the desk under the rig |
 | `--rig-cycle` | `12s` | Length of a Light and Dark crossfade |
 | `--rig-day-cycle` | `20s` | Length of one Dynamic day |
 

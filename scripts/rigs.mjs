@@ -177,6 +177,19 @@ export const RIGS = {
  * @param {object} r - The rig, which must carry a laptop and a bezel.
  * @returns {{x: number, y: number, w: number, h: number, rx: number}} The chin rect.
  */
+/**
+ * The pool of light a rig throws onto the desk: an ellipse a little wider than
+ * the rig, sitting at its foot. Derived so the check can compare it,
+ * which is how a stale one survived a section update.
+ *
+ * @param {object} r - The rig.
+ * @returns {{cx: number, cy: number, rx: number, ry: number}} The ellipse.
+ */
+export function glowOf(r) {
+  const [vw, vh] = r.viewBox
+  return { cx: vw / 2, cy: vh - 4, rx: Math.round(vw * 0.44), ry: 18 }
+}
+
 export function chinOf(r) {
   const lid = r.screens.find((s) => s.h === SCREEN.laptop14.h)
   const y = lid.y + lid.h - r.bezel
@@ -230,7 +243,7 @@ export function markup(name, { id, photos, label, classes = '', indent = '', day
 
   if (r.glow) {
     lines.push(
-      `${p(1)}<ellipse class="rig-glow" cx="${vw / 2}" cy="${vh - 4}" rx="${Math.round(vw * 0.44)}" ry="18"/>`
+      `${p(1)}<ellipse class="rig-glow" cx="${glowOf(r).cx}" cy="${glowOf(r).cy}" rx="${glowOf(r).rx}" ry="${glowOf(r).ry}"/>`
     )
   }
   if (furniture.length) lines.push(`${p(1)}<g class="rig-stand">`, ...furniture, `${p(1)}</g>`)
