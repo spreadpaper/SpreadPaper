@@ -36,12 +36,12 @@ body {
 /* --- The spread: one photograph laid across several monitor panels ---
    Markup contract, used by every section:
 
-   <div class="spread" style="--bezel: 14px">
+   <div class="spread aspect-[32/9]" style="--bezel: 14px">
      <img class="spread-photo" src="/photos/hero-beach.jpg" alt="">
      <div class="spread-frame">
        <div class="spread-screen" style="--w: 16"></div>
        <div class="spread-bezel"></div>
-       <div class="spread-screen" style="--w: 9"></div>
+       <div class="spread-screen" style="--w: 16"></div>
      </div>
    </div>
 
@@ -52,6 +52,11 @@ body {
    Panels in one spread share a height, so each --w is that panel's own aspect ratio
    and the box aspect is the sum of the --w values over 9. Three panels of 16, 21 and
    16 need aspect-[53/9]; getting this wrong draws letterbox slots, not monitors.
+
+   --w is an aspect ratio, never a panel count or a width in ninths of the row. A 16:9
+   display is 16, an ultrawide 21, a square 9, and a display stood on its end 5.0625,
+   which is nine sixteenths of nine. At phone widths drop a panel rather than the box
+   height: a shorter box with the same panels squeezes every display into a sliver.
 
    The photograph covers the whole row and the bezels are drawn over it, so the
    image never has to be sliced and the panels stay responsive at any width.

@@ -20,8 +20,9 @@
       position: absolute;
       inset: calc(var(--ed-inset-y) - 5px) calc(var(--ed-inset-x) - 5px);
       z-index: 1;
-      border: 1px solid var(--color-cd-border-strong);
+      border: 1px solid rgb(255 255 255 / 0.55);
       border-radius: 8px;
+      box-shadow: 0 0 0 1px rgb(0 0 0 / 0.35);
       pointer-events: none;
     }
 
@@ -87,7 +88,7 @@
     <figure class="col-span-12 lg:col-span-8">
       <div class="space-y-6">
         <div>
-          <p class="mb-2 text-sm font-medium text-cd-text">Thin frames, 8 pt</p>
+          <p class="mb-2 text-sm font-medium text-cd-text">Thin frames</p>
           <div class="spread ed-ghost ed-thin aspect-[48/9]">
             <img class="spread-photo" src="/photos/1200/hero-day-1.jpg" width="1200" height="279" loading="lazy" decoding="async" alt="An alpine ridge at sunrise across three displays with narrow frames, a thin strip of the ridge carrying on behind each frame.">
             <div class="spread-frame">
@@ -100,7 +101,7 @@
           </div>
         </div>
         <div>
-          <p class="mb-2 text-sm font-medium text-cd-text">Thick frames, 40 pt</p>
+          <p class="mb-2 text-sm font-medium text-cd-text">Thick frames</p>
           <div class="spread ed-ghost ed-thick aspect-[48/9]">
             <img class="spread-photo" src="/photos/1200/hero-day-1.jpg" width="1200" height="279" loading="lazy" decoding="async" alt="The same alpine ridge across three displays with wide frames, a broader strip of the ridge carrying on behind each frame while the ridgeline still lines up.">
             <div class="spread-frame">
