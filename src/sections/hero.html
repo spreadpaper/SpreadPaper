@@ -1,26 +1,3 @@
-<style>
-  /* .rig sets `display` unlayered, so Tailwind's `hidden` and `sm:block` in
-     @layer utilities cannot override it and the documented swap silently shows
-     both rigs. Pairing the class wins on specificity instead. */
-  .rig.hero-rig-wide {
-    display: none;
-  }
-
-  .rig.hero-rig-narrow {
-    display: block;
-  }
-
-  @media (min-width: 40rem) {
-    .rig.hero-rig-wide {
-      display: block;
-    }
-
-    .rig.hero-rig-narrow {
-      display: none;
-    }
-  }
-</style>
-
 <section id="hero" aria-labelledby="hero-title" class="cd-section bg-cd-bg">
   <div class="cd-shell">
     <p class="cd-eyebrow">Free and open source</p>
@@ -33,8 +10,8 @@
         <p class="max-w-[46ch] text-lg leading-relaxed text-pretty text-cd-text-secondary sm:text-xl">SpreadPaper puts one image across every display, so the picture carries on over the frames instead of starting again on each screen. Keep it still, pair a light one with a dark one, or put up to 16 images on a schedule that follows the day.</p>
 
         <div class="flex max-w-[46ch] flex-col items-stretch gap-3">
-          <a class="cd-button cd-button-primary px-7 py-3.5 text-base focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cd-accent" href="https://github.com/spreadpaper/SpreadPaper/releases/latest"><!--@icon download-simple width="18" height="18"-->Download for macOS</a>
-          <a class="cd-button cd-button-secondary px-7 py-3.5 text-base focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cd-accent" href="https://github.com/spreadpaper/SpreadPaper"><!--@icon github-logo width="18" height="18"-->View on GitHub</a>
+          <a class="cd-button cd-button-primary px-7 py-3.5 text-base focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cd-accent" href="https://github.com/spreadpaper/SpreadPaper/releases/latest"><!--@icon download-simple class="h-[1.125rem] w-[1.125rem]"-->Download for macOS</a>
+          <a class="cd-button cd-button-secondary px-7 py-3.5 text-base focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cd-accent" href="https://github.com/spreadpaper/SpreadPaper"><!--@icon github-logo class="h-[1.125rem] w-[1.125rem]"-->View on GitHub</a>
         </div>
 
         <p class="max-w-[46ch] text-sm leading-relaxed text-pretty text-cd-text-secondary">Free and open source under the MIT licence. Requires macOS 15 Sequoia or later on an Apple Silicon Mac.</p>
@@ -45,7 +22,7 @@
              two URLs would make a phone download the wide rig's photograph it never
              sees as well as its own, and the preload in index.html matches only one. -->
         <div class="-mx-5 sm:mx-0">
-          <svg class="rig rig-desk hero-rig-wide" viewBox="0 0 911 236" role="img" aria-label="A beach at sunset, one photograph carried unbroken across the screens on a Mac desk." focusable="false">
+          <svg class="rig rig-desk hidden sm:block" viewBox="0 0 911 236" role="img" aria-label="A beach at sunset, one photograph carried unbroken across the screens on a Mac desk." focusable="false">
             <defs>
               <clipPath id="rig-desk-hero">
                 <rect x="0" y="101" width="181" height="117" rx="8"/>
@@ -68,7 +45,7 @@
             </g>
           </svg>
 
-          <svg class="rig rig-dual hero-rig-narrow" viewBox="0 0 716 236" role="img" aria-label="A beach at sunset, one photograph carried unbroken across the screens on a Mac desk." focusable="false">
+          <svg class="rig rig-dual sm:hidden" viewBox="0 0 716 236" role="img" aria-label="A beach at sunset, one photograph carried unbroken across the screens on a Mac desk." focusable="false">
             <defs>
               <clipPath id="rig-dual-hero">
                 <rect x="0" y="0" width="355" height="200" rx="10"/>
