@@ -46,10 +46,10 @@ export const RIGS = {
     title: 'A laptop and two monitors',
     section: 'hero',
     viewBox: [911, 236],
-    image: { x: 0, y: 0, w: 911, h: 218 },
-    screens: [lid(0, 101), m27(195), m27(556)],
+    image: { x: 0, y: 0, w: 911, h: 200 },
+    screens: [lid(0, 83), m27(195), m27(556)],
     stands: [{ cx: 372.5, top: 200 }, { cx: 733.5, top: 200 }],
-    laptop: { chin: { x: 0, y: 210, w: 181, h: 20, rx: 3 }, base: { x: 0, y: 230, w: 189, h: 6, rx: 3 } },
+    laptop: { chin: { x: 0, y: 190, w: 181, h: 16, rx: 3 }, base: { x: -4, y: 206, w: 193, h: 30, rx: 4 } },
     glow: true,
   },
   dual: {
@@ -165,10 +165,10 @@ const rect = (s, cls) =>
  * unique across the whole page.
  *
  * @param {string} name - Key in RIGS.
- * @param {{id: string, photos: string[], label?: string, classes?: string, indent?: string, day?: boolean, glyphs?: string[]}} opts
+ * @param {{id: string, photos: string[], label?: string, classes?: string, indent?: string, day?: boolean, glyphs?: string[], align?: string}} opts
  * @returns {string} The SVG markup.
  */
-export function markup(name, { id, photos, label, classes = '', indent = '', day = false, glyphs = HUD_GLYPHS }) {
+export function markup(name, { id, photos, label, classes = '', indent = '', day = false, glyphs = HUD_GLYPHS, align = 'xMidYMid' }) {
   const r = RIGS[name]
   const [vw, vh] = r.viewBox
   const p = (n) => indent + '  '.repeat(n)
@@ -178,7 +178,7 @@ export function markup(name, { id, photos, label, classes = '', indent = '', day
     let cls = 'rig-photo'
     if (i > 0) cls += day ? ` rig-day rig-day-${i + 1}` : ' rig-photo-fade'
     if (day && i > 0 && i === photos.length - 1) cls = 'rig-photo rig-day rig-day-wrap'
-    return `${p(2)}<image class="${cls}" href="${href}" x="${r.image.x}" y="${r.image.y}" width="${r.image.w}" height="${r.image.h}" preserveAspectRatio="xMidYMid slice"/>`
+    return `${p(2)}<image class="${cls}" href="${href}" x="${r.image.x}" y="${r.image.y}" width="${r.image.w}" height="${r.image.h}" preserveAspectRatio="${align} slice"/>`
   })
 
   const furniture = r.stands.map((st) => {
@@ -202,14 +202,14 @@ export function markup(name, { id, photos, label, classes = '', indent = '', day
 
   if (r.glow) {
     lines.push(
-      `${p(1)}<ellipse class="rig-glow" cx="${vw / 2}" cy="${vh - 2}" rx="${Math.round(vw * 0.42)}" ry="10"/>`
+      `${p(1)}<ellipse class="rig-glow" cx="${vw / 2}" cy="${vh - 4}" rx="${Math.round(vw * 0.44)}" ry="18"/>`
     )
   }
   if (furniture.length) lines.push(`${p(1)}<g class="rig-stand">`, ...furniture, `${p(1)}</g>`)
   if (r.laptop) lines.push(p(1) + rect(r.laptop.chin, 'rig-chin'))
   if (r.bleed) {
     lines.push(
-      `${p(1)}<image class="rig-bleed" href="${photos[0]}" x="${r.image.x}" y="${r.image.y}" width="${r.image.w}" height="${r.image.h}" preserveAspectRatio="xMidYMid slice"/>`,
+      `${p(1)}<image class="rig-bleed" href="${photos[0]}" x="${r.image.x}" y="${r.image.y}" width="${r.image.w}" height="${r.image.h}" preserveAspectRatio="${align} slice"/>`,
       `${p(1)}` + rect(r.crop, 'rig-crop')
     )
   }

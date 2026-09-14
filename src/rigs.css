@@ -54,7 +54,7 @@
     --rig-bezel: 10;
     --rig-frame-color: #1c1c23;
     --rig-stand-color: #191920;
-    --rig-glow-color: rgb(255 255 255 / 0.06);
+    --rig-glow-color: rgb(255 255 255 / 0.12);
 
     filter:
       drop-shadow(0 -1px 0 rgb(255 255 255 / 0.09))
@@ -80,10 +80,12 @@
   }
 
   /* Light thrown onto the desk, tinted per section through --rig-glow-color. The
-     blur is in viewBox units, so the wash keeps its proportion at any size. */
+     blur is in viewBox units, so the wash keeps its proportion at any size, and
+     it is kept under the ellipse's own height: blurring a shape by more than it
+     measures dilutes the tint until nothing of it reaches the page. */
   .rig-glow {
     fill: var(--rig-glow-color);
-    filter: blur(24px);
+    filter: blur(16px);
   }
 
   /* Frames drawn as glass, so the picture can be seen carrying on behind them.

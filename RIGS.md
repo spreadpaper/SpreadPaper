@@ -35,6 +35,10 @@ This is not fussiness. A laptop beside a monitor reads as a laptop only because 
 
 **The accessible name.** Either `role="img"` with an `aria-label` naming the setup and describing the photograph, or `aria-hidden="true"` when a caption beside it already says the same thing. Never both, and never neither. The label is the only alt text the photograph gets, so write it as a sentence about the picture and the displays, not a repeat of the heading. Every rig also carries `focusable="false"` so nothing inside it lands in the tab order.
 
+**How the photograph is framed,** but only where the default crops badly. `markup()` takes an `align`, which becomes the first half of `preserveAspectRatio` and defaults to `xMidYMid`. Reach for it when a dark or empty part of a picture lands in a screen: `xMidYMax` keeps the bottom of the photograph, `xMinYMid` its left edge, and so on.
+
+Which way a rig crops depends on whether its image box is wider or narrower than the photograph's own 4.29. A box wider than that, like `rig-trio` at 5.16 or `rig-thumb` at 5.41, shows the picture's full width and crops top and bottom, so the outermost screens show the far edges of the photograph and `align` moves the crop vertically. A narrower box crops the sides instead and shows the middle, so `align` moves it horizontally. If a screen is showing an empty corner, the quickest fix is usually a narrower rig rather than a different alignment: `rig-thumb-pair` at 3.59 and `rig-thumb-laptop` at 2.49 both keep to the centre of a picture, where `rig-thumb` reaches its edges.
+
 **The `.rig-frame` rects.** Each one repeats the geometry of the clip rect it frames. If you move a screen, move both. They are next to each other in the markup for exactly this reason.
 
 ## Sizing
@@ -76,10 +80,12 @@ The glow is where the page gets its colour, and it is motivated light rather tha
 
 | Section | `--rig-glow-color` |
 | --- | --- |
-| Hero and Static | `rgb(255 255 255 / 0.06)` |
-| Light and Dark | `rgb(124 124 255 / 0.10)` |
-| Dynamic | `rgb(245 165 36 / 0.10)` |
-| Editor | `rgb(94 92 230 / 0.08)` |
+| Hero and Static | `rgb(255 255 255 / 0.12)` |
+| Light and Dark | `rgb(124 124 255 / 0.14)` |
+| Dynamic | `rgb(245 165 36 / 0.14)` |
+| Editor | `rgb(94 92 230 / 0.10)` |
+
+Keep the blur under the ellipse's own height if you change either. Blurring a shape by more than it measures spreads the tint until none of it reaches the page, which is how the first version of this came out invisible rather than subtle.
 
 Two modifier classes come with the family. `.rig-glass` makes the frames translucent so the picture can be seen carrying on behind them, which is what the bezel comparison needs. `.rig-crop` is the hairline rectangle marking the area a render keeps, used by the editor canvas.
 
@@ -93,21 +99,21 @@ A 14-inch laptop open at the left with two 27-inch monitors beside it. The every
 <svg class="rig rig-desk" viewBox="0 0 911 236" role="img" aria-label="A beach at sunset carried across a laptop and the two monitors beside it on a desk." focusable="false">
   <defs>
     <clipPath id="rig-example-desk">
-      <rect x="0" y="101" width="181" height="117" rx="8"/>
+      <rect x="0" y="83" width="181" height="117" rx="8"/>
       <rect x="195" y="0" width="355" height="200" rx="10"/>
       <rect x="556" y="0" width="355" height="200" rx="10"/>
     </clipPath>
   </defs>
-  <ellipse class="rig-glow" cx="455.5" cy="234" rx="383" ry="10"/>
+  <ellipse class="rig-glow" cx="455.5" cy="232" rx="401" ry="18"/>
   <g class="rig-stand">
     <rect x="358.5" y="200" width="28" height="28"/><rect x="317.5" y="228" width="110" height="8" rx="4"/>
     <rect x="719.5" y="200" width="28" height="28"/><rect x="678.5" y="228" width="110" height="8" rx="4"/>
-    <rect x="0" y="230" width="189" height="6" rx="3"/>
+    <rect x="-4" y="206" width="193" height="30" rx="4"/>
   </g>
-  <rect class="rig-chin" x="0" y="210" width="181" height="20" rx="3"/>
+  <rect class="rig-chin" x="0" y="190" width="181" height="16" rx="3"/>
   <g clip-path="url(#rig-example-desk)">
-    <image class="rig-photo" href="/photos/hero-beach.jpg" x="0" y="0" width="911" height="218" preserveAspectRatio="xMidYMid slice"/>
-    <rect class="rig-frame" x="0" y="101" width="181" height="117" rx="8"/>
+    <image class="rig-photo" href="/photos/hero-beach.jpg" x="0" y="0" width="911" height="200" preserveAspectRatio="xMidYMid slice"/>
+    <rect class="rig-frame" x="0" y="83" width="181" height="117" rx="8"/>
     <rect class="rig-frame" x="195" y="0" width="355" height="200" rx="10"/>
     <rect class="rig-frame" x="556" y="0" width="355" height="200" rx="10"/>
   </g>
@@ -128,7 +134,7 @@ Two matched 27-inch monitors on stands. The plainest rig, and the right one when
       <rect x="361" y="0" width="355" height="200" rx="10"/>
     </clipPath>
   </defs>
-  <ellipse class="rig-glow" cx="358" cy="234" rx="301" ry="10"/>
+  <ellipse class="rig-glow" cx="358" cy="232" rx="315" ry="18"/>
   <g class="rig-stand">
     <rect x="163.5" y="200" width="28" height="28"/><rect x="122.5" y="228" width="110" height="8" rx="4"/>
     <rect x="524.5" y="200" width="28" height="28"/><rect x="483.5" y="228" width="110" height="8" rx="4"/>
@@ -155,7 +161,7 @@ A 27-inch monitor with a 14-inch laptop beside it, the laptop screen smaller and
       <rect x="361" y="101" width="181" height="117" rx="8"/>
     </clipPath>
   </defs>
-  <ellipse class="rig-glow" cx="275" cy="234" rx="231" ry="10"/>
+  <ellipse class="rig-glow" cx="275" cy="232" rx="242" ry="18"/>
   <g class="rig-stand">
     <rect x="163.5" y="200" width="28" height="28"/><rect x="122.5" y="228" width="110" height="8" rx="4"/>
     <rect x="357" y="230" width="189" height="6" rx="3"/>
@@ -185,7 +191,7 @@ A 27-inch portrait, a 27-inch landscape and another 27-inch portrait, bottoms le
       <rect x="567" y="0" width="200" height="355" rx="10"/>
     </clipPath>
   </defs>
-  <ellipse class="rig-glow" cx="383.5" cy="389" rx="322" ry="10"/>
+  <ellipse class="rig-glow" cx="383.5" cy="387" rx="337" ry="18"/>
   <g class="rig-stand">
     <rect x="86" y="355" width="28" height="28"/><rect x="45" y="383" width="110" height="8" rx="4"/>
     <rect x="369.5" y="355" width="28" height="28"/><rect x="328.5" y="383" width="110" height="8" rx="4"/>
@@ -215,7 +221,7 @@ Three matched 27-inch monitors. Two gaps rather than one, so it is the rig that 
       <rect x="722" y="0" width="355" height="200" rx="10"/>
     </clipPath>
   </defs>
-  <ellipse class="rig-glow" cx="538.5" cy="234" rx="452" ry="10"/>
+  <ellipse class="rig-glow" cx="538.5" cy="232" rx="474" ry="18"/>
   <g class="rig-stand">
     <rect x="163.5" y="200" width="28" height="28"/><rect x="122.5" y="228" width="110" height="8" rx="4"/>
     <rect x="524.5" y="200" width="28" height="28"/><rect x="483.5" y="228" width="110" height="8" rx="4"/>
@@ -243,7 +249,7 @@ One 34-inch ultrawide on a wide foot.
       <rect x="0" y="0" width="474" height="203" rx="10"/>
     </clipPath>
   </defs>
-  <ellipse class="rig-glow" cx="237" cy="237" rx="199" ry="10"/>
+  <ellipse class="rig-glow" cx="237" cy="235" rx="209" ry="18"/>
   <g class="rig-stand">
     <rect x="223" y="203" width="28" height="28"/><rect x="162" y="231" width="150" height="8" rx="4"/>
   </g>
@@ -402,7 +408,7 @@ Five images: the four hours of the schedule, then the first one again so the loo
       <rect x="567" y="0" width="200" height="355" rx="10"/>
     </clipPath>
   </defs>
-  <ellipse class="rig-glow" cx="383.5" cy="389" rx="322" ry="10"/>
+  <ellipse class="rig-glow" cx="383.5" cy="387" rx="337" ry="18"/>
   <g class="rig-stand">
     <rect x="86" y="355" width="28" height="28"/><rect x="45" y="383" width="110" height="8" rx="4"/>
     <rect x="369.5" y="355" width="28" height="28"/><rect x="328.5" y="383" width="110" height="8" rx="4"/>

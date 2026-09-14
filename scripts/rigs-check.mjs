@@ -54,13 +54,30 @@ for (const file of files) {
 
   const source = lines.join('\n')
 
-  for (const [, classes, viewBox] of source.matchAll(/<svg class="([^"]*\brig\b[^"]*)"[^>]*viewBox="([^"]+)"/g)) {
+  for (const [svg, classes, viewBox] of source.matchAll(
+    /<svg class="([^"]*\brig\b[^"]*)"[^>]*viewBox="([^"]+)"[\s\S]*?<\/svg>/g
+  )) {
     const name = classes.split(/\s+/).map((c) => c.replace(/^rig-/, '')).find((c) => RIGS[c])
     if (!name) continue
+    const at = lineOf(source, { raw: `viewBox="${viewBox}"` })
+
     const want = `0 0 ${RIGS[name].viewBox.join(' ')}`
-    if (viewBox === want) continue
-    fail(file, lineOf(source, { raw: `viewBox="${viewBox}"` }),
-      `rig-${name} has viewBox "${viewBox}" but the generator draws "${want}", so this markup predates a geometry change`)
+    if (viewBox !== want) {
+      fail(file, at, `rig-${name} has viewBox "${viewBox}" but the generator draws "${want}"`)
+      continue
+    }
+
+    // A geometry change that leaves the viewBox alone, like moving one screen,
+    // is invisible to the check above and to a reader.
+    const body = svg.match(/<clipPath id="[^"]+">([\s\S]*?)<\/clipPath>/)?.[1] ?? ''
+    const drawn = [...body.matchAll(/<rect ([^/>]*)\/>/g)]
+      .map((m) => geometry(m[1]))
+      .map((r) => `${r.x},${r.y},${r.w},${r.h}`)
+    const expected = RIGS[name].screens.map((s) => `${s.x},${s.y},${s.w},${s.h}`)
+    if (drawn.join(' ') !== expected.join(' ')) {
+      fail(file, at,
+        `rig-${name} clips at ${drawn.join(' ')} but the generator draws ${expected.join(' ')}`)
+    }
   }
 
   for (const [, body] of source.matchAll(/<clipPath id="[^"]+">([\s\S]*?)<\/clipPath>/g)) {

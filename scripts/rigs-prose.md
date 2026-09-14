@@ -35,6 +35,10 @@ This is not fussiness. A laptop beside a monitor reads as a laptop only because 
 
 **The accessible name.** Either `role="img"` with an `aria-label` naming the setup and describing the photograph, or `aria-hidden="true"` when a caption beside it already says the same thing. Never both, and never neither. The label is the only alt text the photograph gets, so write it as a sentence about the picture and the displays, not a repeat of the heading. Every rig also carries `focusable="false"` so nothing inside it lands in the tab order.
 
+**How the photograph is framed,** but only where the default crops badly. `markup()` takes an `align`, which becomes the first half of `preserveAspectRatio` and defaults to `xMidYMid`. Reach for it when a dark or empty part of a picture lands in a screen: `xMidYMax` keeps the bottom of the photograph, `xMinYMid` its left edge, and so on.
+
+Which way a rig crops depends on whether its image box is wider or narrower than the photograph's own 4.29. A box wider than that, like `rig-trio` at 5.16 or `rig-thumb` at 5.41, shows the picture's full width and crops top and bottom, so the outermost screens show the far edges of the photograph and `align` moves the crop vertically. A narrower box crops the sides instead and shows the middle, so `align` moves it horizontally. If a screen is showing an empty corner, the quickest fix is usually a narrower rig rather than a different alignment: `rig-thumb-pair` at 3.59 and `rig-thumb-laptop` at 2.49 both keep to the centre of a picture, where `rig-thumb` reaches its edges.
+
 **The `.rig-frame` rects.** Each one repeats the geometry of the clip rect it frames. If you move a screen, move both. They are next to each other in the markup for exactly this reason.
 
 ## Sizing
@@ -64,10 +68,12 @@ The glow is where the page gets its colour, and it is motivated light rather tha
 
 | Section | `--rig-glow-color` |
 | --- | --- |
-| Hero and Static | `rgb(255 255 255 / 0.06)` |
-| Light and Dark | `rgb(124 124 255 / 0.10)` |
-| Dynamic | `rgb(245 165 36 / 0.10)` |
-| Editor | `rgb(94 92 230 / 0.08)` |
+| Hero and Static | `rgb(255 255 255 / 0.12)` |
+| Light and Dark | `rgb(124 124 255 / 0.14)` |
+| Dynamic | `rgb(245 165 36 / 0.14)` |
+| Editor | `rgb(94 92 230 / 0.10)` |
+
+Keep the blur under the ellipse's own height if you change either. Blurring a shape by more than it measures spreads the tint until none of it reaches the page, which is how the first version of this came out invisible rather than subtle.
 
 Two modifier classes come with the family. `.rig-glass` makes the frames translucent so the picture can be seen carrying on behind them, which is what the bezel comparison needs. `.rig-crop` is the hairline rectangle marking the area a render keeps, used by the editor canvas.
 
