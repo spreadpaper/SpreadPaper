@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-SpreadPaper is a native macOS app (Swift 6 / SwiftUI) that spreads images across multiple monitors as wallpaper: one static image, a Light & Dark pair, or a time-of-day schedule. Requires macOS 15.0+ (Sequoia) and Apple Silicon. The repo also contains a Vite + Tailwind CSS marketing website.
+SpreadPaper is a native macOS app (Swift 6 / SwiftUI) that spreads images across multiple monitors as wallpaper: one static image, a Light & Dark pair, or a time-of-day schedule. Requires macOS 15.0+ (Sequoia) and Apple Silicon. The marketing site lives in its own repository, [spreadpaper/website](https://github.com/spreadpaper/website).
 
 ## Build & Run
 
@@ -13,13 +13,6 @@ SpreadPaper is a native macOS app (Swift 6 / SwiftUI) that spreads images across
 open SpreadPaper.xcodeproj    # Open in Xcode, then Cmd+R to build/run
 xcodebuild -scheme SpreadPaper -configuration Debug build       # CLI build
 xcodebuild test -scheme SpreadPaper -destination 'platform=macOS'   # Swift Testing suites in SpreadPaperTests/
-```
-
-**Website:**
-```bash
-npm ci
-npm run dev      # Local dev server
-npm run build    # Production build to dist/
 ```
 
 **App icon:** `design/make-icon.swift` renders `design/app-icon-source.png` into every size in `SpreadPaper/Assets.xcassets/AppIcon.appiconset/`.
