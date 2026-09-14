@@ -76,8 +76,8 @@ enum WallpaperFilenames {
     }
 
     /// Names the static wallpaper directory can lose after an apply, from its own listing.
-    /// Each display keeps its newest renders, capped at the retention limit.
-    /// Legacy names go once every display is set.
+    /// Each connected display keeps its newest renders up to the retention limit.
+    /// Legacy names and departed displays' renders go once all are set.
     static func removableStaticFiles(
         in filenames: [String],
         displayIDs: [CGDirectDisplayID],
@@ -92,15 +92,19 @@ enum WallpaperFilenames {
             owned.formUnion(renders)
             kept.formUnion(keptRenders(renders, current: keeping[displayID], timestamp: staticTimestamp))
         }
+        let connected = Set(displayIDs)
         return filenames.filter { name in
             guard name.hasSuffix(".png"), !kept.contains(name) else { return false }
-            return owned.contains(name) || (sweepLegacy && isLegacyStaticName(name))
+            if owned.contains(name) { return true }
+            guard sweepLegacy else { return false }
+            if let displayID = staticDisplayID(name) { return !connected.contains(displayID) }
+            return isLegacyStaticName(name)
         }
     }
 
     /// Names a dynamic preset directory can lose after an apply, from its own listing.
-    /// Each display keeps its newest renders; abandoned temp siblings go.
-    /// Legacy names go once every display is set.
+    /// Each connected display keeps its newest renders; temp siblings go.
+    /// Legacy names and departed displays' renders go once all are set.
     static func removableDynamicFiles(
         in filenames: [String],
         displayIDs: [CGDirectDisplayID],
@@ -115,12 +119,30 @@ enum WallpaperFilenames {
             owned.formUnion(renders)
             kept.formUnion(keptRenders(renders, current: keeping[displayID], timestamp: dynamicTimestamp))
         }
+        let connected = Set(displayIDs)
         return filenames.filter { name in
             // The HEIC writer only sweeps temps of the name it is writing, so earlier names' temps land here.
             if let target = dynamicTempTarget(name) { return !kept.contains(target) }
             guard name.hasSuffix(".heic"), !kept.contains(name) else { return false }
-            return owned.contains(name) || (sweepLegacy && isLegacyDynamicName(name))
+            if owned.contains(name) { return true }
+            guard sweepLegacy else { return false }
+            if let displayID = dynamicDisplayID(name) { return !connected.contains(displayID) }
+            return isLegacyDynamicName(name)
         }
+    }
+
+    /// Display a current static name is keyed on, which says whose render it is.
+    /// Nil for a legacy name and for anything the app did not write.
+    static func staticDisplayID(_ filename: String) -> CGDirectDisplayID? {
+        guard let match = filename.wholeMatch(of: /spreadpaper_wall_(\d+)_\d+\.png/) else { return nil }
+        return CGDirectDisplayID(match.1)
+    }
+
+    /// Display a current dynamic name is keyed on, which says whose render it is.
+    /// Nil for a legacy name and for anything the app did not write.
+    static func dynamicDisplayID(_ filename: String) -> CGDirectDisplayID? {
+        guard let match = filename.wholeMatch(of: /(\d+)_\d{10,}\.heic/) else { return nil }
+        return CGDirectDisplayID(match.1)
     }
 
     /// True for a static wallpaper written before 1.7.1, when files were keyed on the screen name.
@@ -134,5 +156,16 @@ enum WallpaperFilenames {
     static func isLegacyDynamicName(_ filename: String) -> Bool {
         guard filename.hasSuffix(".heic") else { return false }
         return filename.wholeMatch(of: /\d+_\d{10,}\.heic/) == nil
+    }
+
+    /// Folders under `dynamic/` no preset claims any more, from that directory's listing.
+    /// Ids are compared as parsed UUIDs, so the casing a folder is written
+    /// in never decides. Anything else in there is left alone.
+    static func removableDynamicDirectories(in names: [String], presetIds: [UUID]) -> [String] {
+        let live = Set(presetIds)
+        return names.filter { name in
+            guard let id = UUID(uuidString: name) else { return false }
+            return !live.contains(id)
+        }
     }
 }

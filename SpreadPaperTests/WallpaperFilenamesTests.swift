@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 @testable import SpreadPaper
 
@@ -222,5 +223,55 @@ struct WallpaperFilenamesTests {
         #expect(removable.sorted() == [
             ".1.heic.killed.tmp", ".1_100.heic.killed.tmp", ".2_100.heic.killed.tmp", ".LG ULTRAWIDE.heic.killed.tmp"
         ])
+    }
+
+    /// Issue #137: a display that is gone owns renders no later apply can reach.
+    @Test func aDepartedDisplaysStaticRendersGoOnceEveryDisplayWasSet() {
+        let current = WallpaperFilenames.staticName(displayID: 1, timestamp: 1700000000000)
+        let departed = WallpaperFilenames.staticName(displayID: 2, timestamp: 1699999999999)
+        let swept = WallpaperFilenames.removableStaticFiles(
+            in: [current, departed], displayIDs: [1], keeping: [1: current], sweepLegacy: true
+        )
+        #expect(swept == [departed])
+    }
+
+    /// A failed apply spares a departed display's renders, as it spares a legacy name.
+    @Test func aDepartedDisplaysStaticRendersStayWhileADisplayFailed() {
+        let current = WallpaperFilenames.staticName(displayID: 1, timestamp: 1700000000000)
+        let departed = WallpaperFilenames.staticName(displayID: 2, timestamp: 1699999999999)
+        let spared = WallpaperFilenames.removableStaticFiles(
+            in: [current, departed], displayIDs: [1], keeping: [1: current], sweepLegacy: false
+        )
+        #expect(spared.isEmpty)
+    }
+
+    /// Issue #137: the same gap inside a preset's own directory.
+    @Test func aDepartedDisplaysDynamicRendersGoOnceEveryDisplayWasSet() {
+        let current = WallpaperFilenames.dynamicName(displayID: 1, timestamp: 1700000000000)
+        let departed = WallpaperFilenames.dynamicName(displayID: 2, timestamp: 1699999999999)
+        let swept = WallpaperFilenames.removableDynamicFiles(
+            in: [current, departed], displayIDs: [1], keeping: [1: current], sweepLegacy: true
+        )
+        #expect(swept == [departed])
+    }
+
+    /// Issue #137: a deleted preset leaves its dynamic folder behind.
+    /// Only folders named like a preset id are offered up.
+    @Test func dynamicFoldersOfGonePresetsAreRemovable() {
+        let live = UUID()
+        let gone = UUID()
+        let removable = WallpaperFilenames.removableDynamicDirectories(
+            in: [live.uuidString, gone.uuidString, "wallpapers", "notes.txt"], presetIds: [live]
+        )
+        #expect(removable == [gone.uuidString])
+    }
+
+    /// A folder written in lowercase is the same id, so its preset still claims it.
+    @Test func dynamicFoldersMatchTheirPresetWhateverTheCasing() {
+        let live = UUID()
+        let removable = WallpaperFilenames.removableDynamicDirectories(
+            in: [live.uuidString.lowercased()], presetIds: [live]
+        )
+        #expect(removable.isEmpty)
     }
 }

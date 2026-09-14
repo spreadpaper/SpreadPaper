@@ -37,7 +37,8 @@ class WallpaperManager {
     init(store: PresetStore? = nil) {
         self.store = store ?? PresetStore(directory: Self.defaultDataDirectory())
         refreshScreens()
-        loadPresets()
+        // A failed read empties `presets`, which would make every render folder look orphaned.
+        if loadPresets() { sweepOrphanedRenderFolders() }
         // Only the app's own folder can inherit a library; an injected store is a caller's choice.
         if store == nil { refreshLegacyImportState() }
         if let raw = UserDefaults.standard.string(forKey: activePresetKey) {
@@ -167,9 +168,15 @@ class WallpaperManager {
         return wallpapersDir
     }
 
+    /// Parent of the per-preset dynamic HEIC folders, whether or not it exists yet.
+    /// Reading or removing a folder in there must not bring the parent into being.
+    private var dynamicDirectoryURL: URL {
+        getAppDataDirectory().appending(path: "dynamic", directoryHint: .isDirectory)
+    }
+
     /// Parent of the per-preset dynamic HEIC folders, created on first use.
     func getDynamicDirectory() -> URL {
-        let dynamicDir = getAppDataDirectory().appending(path: "dynamic", directoryHint: .isDirectory)
+        let dynamicDir = dynamicDirectoryURL
         if !FileManager.default.fileExists(atPath: dynamicDir.path) {
             try? FileManager.default.createDirectory(at: dynamicDir, withIntermediateDirectories: true)
         }
@@ -207,6 +214,22 @@ class WallpaperManager {
                 try FileManager.default.removeItem(at: directory.appending(path: filename))
             } catch {
                 logger.error("Removing wallpaper file \(filename, privacy: .public) failed: \(error, privacy: .public)")
+            }
+        }
+    }
+
+    /// Removes `dynamic/` folders whose preset is gone, and the HEICs inside them.
+    /// Reads the folder names only; a stranger in there is left alone.
+    /// Removal is best-effort; leftovers go next launch.
+    private func sweepOrphanedRenderFolders() {
+        let dynamicDir = dynamicDirectoryURL
+        guard let names = try? FileManager.default.contentsOfDirectory(atPath: dynamicDir.path) else { return }
+        let doomed = WallpaperFilenames.removableDynamicDirectories(in: names, presetIds: presets.map(\.id))
+        for name in doomed {
+            do {
+                try FileManager.default.removeItem(at: dynamicDir.appending(path: name, directoryHint: .isDirectory))
+            } catch {
+                logger.error("Removing render folder \(name, privacy: .public) failed: \(error, privacy: .public)")
             }
         }
     }
@@ -299,11 +322,14 @@ class WallpaperManager {
         persistPresets()
     }
 
-    /// Removes a preset and the image in `imageFilename`; variant images stay on disk.
+    /// Removes a preset, the image in `imageFilename` and its rendered HEICs.
     /// Clears the active preset when it was the one applied.
+    /// Variant images stay on disk.
     func deletePreset(_ preset: SavedPreset) {
         let fileUrl = getAppDataDirectory().appending(path: preset.imageFilename)
         try? FileManager.default.removeItem(at: fileUrl)
+        let renderDir = dynamicDirectoryURL.appending(path: preset.id.uuidString, directoryHint: .isDirectory)
+        try? FileManager.default.removeItem(at: renderDir)
         if let idx = presets.firstIndex(where: { $0.id == preset.id }) {
             presets.remove(at: idx)
             persistPresets()
@@ -334,9 +360,11 @@ class WallpaperManager {
 
     /// Reads presets from disk, rewriting them once after a migration and recovering from a corrupt file.
     /// A corrupt file is quarantined and the user is told where the backup went.
-    private func loadPresets() {
+    /// Returns false when the file was there but could not be read.
+    @discardableResult
+    private func loadPresets() -> Bool {
         do {
-            guard let loaded = try store.load() else { return }
+            guard let loaded = try store.load() else { return true }
             presets = loaded.presets
             // Persist any flags inferred during migration so the heuristic only runs once.
             if loaded.needsMigrationRewrite {
@@ -346,11 +374,14 @@ class WallpaperManager {
             logger.error("Presets file corrupt, moved to \(backup.lastPathComponent, privacy: .public): \(underlying, privacy: .public)")
             presets = []
             lastError = "Your presets couldn't be loaded. A backup was saved as \(backup.lastPathComponent)."
+            return false
         } catch {
             logger.error("Reading presets file failed: \(error, privacy: .public)")
             presets = []
             lastError = "Your presets couldn't be loaded."
+            return false
         }
+        return true
     }
 
     // --- SCREEN LOGIC ---
