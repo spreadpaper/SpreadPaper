@@ -13,7 +13,7 @@
     .ed-thick { --bezel: 40px; }
 
     /* The editor canvas: the display panels sit inside the photograph, and one hairline
-       rectangle just outside them stands for the area the render keeps. */
+       rectangle a little outside them stands for the area the render keeps. */
     .ed-canvas .spread-frame { padding: var(--ed-inset-y) var(--ed-inset-x); }
 
     .ed-crop {
@@ -64,13 +64,13 @@
     </div>
 
     <figure class="col-span-12 lg:col-span-7 lg:col-start-1 lg:row-start-1">
-      <div class="spread ed-canvas aspect-[25/9]">
+      <div class="spread ed-canvas aspect-[21.0625/9]">
         <img class="spread-photo" src="/photos/1200/hero-day-2.jpg" width="1200" height="279" loading="lazy" decoding="async" alt="The editor canvas: a snow-covered mountain ridge with a hairline rectangle marking the area the displays cover, a wide screen beside a narrower one.">
         <div class="ed-crop" aria-hidden="true"></div>
         <div class="spread-frame">
           <div class="spread-screen" style="--w: 16"></div>
           <div class="spread-bezel"></div>
-          <div class="spread-screen" style="--w: 9"></div>
+          <div class="spread-screen" style="--w: 5.0625"></div>
         </div>
       </div>
       <figcaption class="mt-4 text-sm leading-relaxed text-cd-text-secondary max-w-[62ch] text-pretty">A wide display with a narrower one beside it. The hairline rectangle is the canvas the render keeps, and the photograph reaching past it is cropped away.</figcaption>
@@ -113,7 +113,9 @@
           </div>
         </div>
       </div>
-      <figcaption class="mt-4 text-sm leading-relaxed text-cd-text-secondary max-w-[62ch] text-pretty">Both are correct output for the displays they describe: the frame width you set decides how much of the photograph carries on behind the housing between two screens, and the frames are drawn as glass here so that hidden strip stays visible. Photograph by <a class="rounded-xs underline underline-offset-2 decoration-cd-border-strong hover:text-cd-text focus-visible:outline-2 focus-visible:outline-cd-accent focus-visible:outline-offset-2 " href="https://unsplash.com/@slohmann" rel="noopener noreferrer">Simon Lohmann</a> on Unsplash, and the canvas above by <a class="rounded-xs underline underline-offset-2 decoration-cd-border-strong hover:text-cd-text focus-visible:outline-2 focus-visible:outline-cd-accent focus-visible:outline-offset-2 " href="https://unsplash.com/@antoskli" rel="noopener noreferrer">Antony Sklivagkos</a>.</figcaption>
+      <figcaption class="mt-4 text-sm leading-relaxed text-cd-text-secondary max-w-[62ch] text-pretty">Both are correct output for the displays they describe: the frame width you set decides how much of the photograph carries on behind the housing between two screens, and the frames are drawn as glass here so that hidden strip stays visible.</figcaption>
     </figure>
+
+    <p class="col-span-12 text-sm leading-relaxed text-cd-text-secondary max-w-[62ch] text-pretty">Photographs by <a class="rounded-xs underline underline-offset-2 decoration-cd-border-strong hover:text-cd-text focus-visible:outline-2 focus-visible:outline-cd-accent focus-visible:outline-offset-2" href="https://unsplash.com/@antoskli" rel="noopener noreferrer">Antony Sklivagkos</a> and <a class="rounded-xs underline underline-offset-2 decoration-cd-border-strong hover:text-cd-text focus-visible:outline-2 focus-visible:outline-cd-accent focus-visible:outline-offset-2" href="https://unsplash.com/@slohmann" rel="noopener noreferrer">Simon Lohmann</a> on Unsplash.</p>
   </div>
 </section>

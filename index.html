@@ -33,8 +33,6 @@
     <meta name="twitter:image" content="https://spreadpaper.github.io/SpreadPaper/og-image.jpg">
     <meta name="twitter:image:alt" content="Two monitors on a desk showing one photograph of a lake and mountains carried across both screens">
 
-    <link rel="preload" as="image" href="/photos/hero-beach.jpg" fetchpriority="high">
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -51,13 +49,18 @@
           "name": "SpreadPaper",
           "description": "Free, open source macOS app that spreads one photograph across every connected display.",
           "inLanguage": "en",
-          "publisher": { "@id": "https://github.com/spreadpaper#person" }
+          "publisher": { "@id": "https://github.com/spreadpaper#organization" }
+        },
+        {
+          "@type": "Organization",
+          "@id": "https://github.com/spreadpaper#organization",
+          "name": "SpreadPaper",
+          "url": "https://github.com/spreadpaper"
         },
         {
           "@type": "Person",
-          "@id": "https://github.com/spreadpaper#person",
-          "name": "Robin van Baalen",
-          "url": "https://github.com/spreadpaper"
+          "@id": "https://spreadpaper.github.io/SpreadPaper/#author",
+          "name": "Robin van Baalen"
         },
         {
           "@type": "SoftwareApplication",
@@ -78,7 +81,8 @@
           "image": "https://spreadpaper.github.io/SpreadPaper/og-image.jpg",
           "screenshot": "https://raw.githubusercontent.com/spreadpaper/SpreadPaper/main/.github/assets/main-app-screenshot.png",
           "sameAs": ["https://github.com/spreadpaper/SpreadPaper"],
-          "author": { "@id": "https://github.com/spreadpaper#person" },
+          "author": { "@id": "https://spreadpaper.github.io/SpreadPaper/#author" },
+          "publisher": { "@id": "https://github.com/spreadpaper#organization" },
           "offers": {
             "@type": "Offer",
             "price": "0",
