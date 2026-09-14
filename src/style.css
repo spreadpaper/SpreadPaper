@@ -60,15 +60,17 @@ body {
 }
 
 /* The gradient runs downward into a deeper indigo, never up towards the
-   periwinkle: white sits at 5.06:1 on the top stop and 6.88:1 on the bottom,
+   periwinkle: white sits at 5.06:1 on the top stop and 6.86:1 on the bottom,
    while #7c7cff would drop it to 3.39:1 and fail at button size. */
 .cd-button-primary {
   background-image: linear-gradient(180deg, #5e5ce6 0%, #4a48c9 100%);
   color: #fff;
 }
 
+/* Hover darkens rather than lifts, to 5.94:1 and 8.36:1. Lifting would leave
+   the button at its weakest contrast exactly while the pointer is on it. */
 .cd-button-primary:hover {
-  background-image: linear-gradient(180deg, #6462e9 0%, #504ed2 100%);
+  background-image: linear-gradient(180deg, #5452d4 0%, #403ead 100%);
 }
 
 .cd-button-secondary {
