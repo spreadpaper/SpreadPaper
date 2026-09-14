@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.9.1](https://github.com/spreadpaper/SpreadPaper/compare/v1.9.0...v1.9.1) (2026-09-14)
+
+
+### Bug Fixes
+
+* keep Try again from stacking thumbnail passes ([#141](https://github.com/spreadpaper/SpreadPaper/issues/141)) ([b9f8edd](https://github.com/spreadpaper/SpreadPaper/commit/b9f8edd3d39da23cc2bc1040de19c00632e1d229))
+* name icon buttons, scale text and make every string localizable ([#143](https://github.com/spreadpaper/SpreadPaper/issues/143)) ([b50fa79](https://github.com/spreadpaper/SpreadPaper/commit/b50fa79696c3cd608fed103950b54f4efa762931))
+
 ## [1.9.0](https://github.com/spreadpaper/SpreadPaper/compare/v1.8.0...v1.9.0) (2026-09-13)
 
 
