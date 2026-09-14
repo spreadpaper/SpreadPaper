@@ -261,9 +261,35 @@ function setupTabs() {
   })
 }
 
+/**
+ * Phases a looping animation to the reader's own clock, so a day cycle opens on
+ * the hour they are actually in. Writes a fraction and nothing else: the
+ * section owns every duration and turns it into a delay.
+ *
+ * Markup contract: `data-clock-stops` is a comma separated list of local hours
+ * in the order the loop runs through them, and `--clock-phase` comes back as
+ * that stop's index over the count. It defaults to 0, which is the loop
+ * starting at its first stop, so a section reads correctly without this.
+ */
+function setupClockPhase() {
+  document.querySelectorAll('[data-clock-stops]').forEach((element) => {
+    const stops = element.dataset.clockStops.split(',').map((stop) => Number(stop.trim()))
+    if (!stops.length || stops.some((stop) => !Number.isFinite(stop))) return
+
+    // Before the first stop belongs to the last one: 3am is still the small hours
+    // of the night that began at the final stop of the day before.
+    const hour = new Date().getHours()
+    const found = stops.findLastIndex((stop) => stop <= hour)
+    const index = found < 0 ? stops.length - 1 : found
+
+    element.style.setProperty('--clock-phase', String(index / stops.length))
+  })
+}
+
 setupMobileMenu()
 setupScrollSpy()
 setupScrollReveal()
 setupCopyButtons()
 setupBezelSliders()
 setupTabs()
+setupClockPhase()
