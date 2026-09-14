@@ -8,13 +8,29 @@
         #types[data-tabs-ready] [data-types-panel] + [data-types-panel] { margin-top: 0; }
         #types[data-tabs-ready] .types-kind { display: none; }
 
-        /* A panel comes back from `display: none` when its tab is chosen, and an animation
-           restarts on that change, so the switch needs no state of its own in the script. */
-        #types[data-tabs-ready] [data-types-panel] { animation: types-panel-in 200ms ease-out both; }
+        /* The three panels stack in one grid cell, so the container always reserves the
+           tallest of them and choosing a tab never moves the page under the reader. The
+           script hides a panel with the `hidden` attribute, which would drop it out of the
+           grid and let the container collapse, so a hidden panel keeps its box and goes
+           only as far as `visibility`. That also takes it out of the tab order and the
+           accessibility tree, which is the part `hidden` was there for.
 
-        @keyframes types-panel-in {
-            from { opacity: 0; transform: translateY(6px); }
-            to { opacity: 1; transform: none; }
+           Reserving the tallest rather than naming a height is what makes this hold at
+           every width: the three rigs have fixed but different aspects, and their captions
+           and readouts differ too, so which panel is tallest is not a constant worth
+           guessing at. */
+        #types[data-tabs-ready] .types-panels { display: grid; }
+
+        #types[data-tabs-ready] [data-types-panel] {
+            grid-area: 1 / 1;
+            transition: opacity 200ms ease-out, transform 200ms ease-out;
+        }
+
+        #types[data-tabs-ready] [data-types-panel][hidden] {
+            display: block;
+            visibility: hidden;
+            opacity: 0;
+            transform: translateY(6px);
         }
 
         /* The bar over a stop in a readout, lit while the photograph it names is the one on
@@ -53,7 +69,8 @@
         }
 
         @media (prefers-reduced-motion: reduce) {
-            #types[data-tabs-ready] [data-types-panel],
+            #types[data-tabs-ready] [data-types-panel] { transition: none; }
+
             #types .types-bar,
             #types .types-bar-light,
             #types .types-bar-dark {
@@ -99,8 +116,8 @@
             </div>
         </div>
 
-        <div class="mt-14 lg:mt-20" data-reveal>
-            <div id="types-panel-static" role="tabpanel" aria-labelledby="types-tab-static" tabindex="0" data-types-panel class="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cd-accent">
+        <div class="types-panels mt-14 lg:mt-20" data-reveal>
+            <div id="types-panel-static" data-types-panel class="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cd-accent">
                 <div class="grid grid-cols-12 gap-x-6 gap-y-8 lg:items-center">
                     <figure class="col-span-12 lg:col-span-8 lg:col-start-1 lg:row-start-1">
                         <svg class="rig rig-dual" viewBox="0 0 716 236" role="img" aria-label="A beach at sunset in Maui, one photograph carried across two monitors side by side." focusable="false">
@@ -133,11 +150,11 @@
                 </div>
             </div>
 
-            <div id="types-panel-appearance" role="tabpanel" aria-labelledby="types-tab-appearance" tabindex="0" data-types-panel class="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cd-accent">
+            <div id="types-panel-appearance" data-types-panel class="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cd-accent">
                 <div class="grid grid-cols-12 gap-x-6 gap-y-8 lg:items-center">
                     <div class="col-span-12 lg:col-span-8 lg:col-start-1 lg:row-start-1">
                         <figure>
-                            <svg class="rig rig-laptop" viewBox="0 0 550 236" role="img" aria-label="A beach at sunset carried across a monitor and the laptop beside it, fading between the light image and the dark one." focusable="false">
+                            <svg class="rig rig-laptop" style="--rig-glow-color: rgb(124 124 255 / 0.10)" viewBox="0 0 550 236" role="img" aria-label="A beach at sunset carried across a monitor and the laptop beside it, fading between the light image and the dark one." focusable="false">
                               <defs>
                                 <clipPath id="rig-types-appearance">
                                   <rect x="0" y="0" width="355" height="200" rx="10"/>
@@ -182,11 +199,11 @@
                 </div>
             </div>
 
-            <div id="types-panel-dynamic" role="tabpanel" aria-labelledby="types-tab-dynamic" tabindex="0" data-types-panel class="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cd-accent">
+            <div id="types-panel-dynamic" data-types-panel class="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cd-accent">
                 <div class="grid grid-cols-12 gap-x-6 gap-y-8 lg:items-center">
                     <div class="col-span-12 lg:col-span-8 lg:col-start-1 lg:row-start-1">
                         <figure>
-                            <svg class="rig rig-portrait-trio" viewBox="0 0 767 391" role="img" aria-label="Green mountains at sunrise carried across a portrait monitor, a landscape monitor and another portrait monitor, running through one day." focusable="false">
+                            <svg class="rig rig-portrait-trio" style="--rig-glow-color: rgb(245 165 36 / 0.10)" viewBox="0 0 767 391" role="img" aria-label="Green mountains at sunrise carried across a portrait monitor, a landscape monitor and another portrait monitor, running through one day." focusable="false">
                               <defs>
                                 <clipPath id="rig-types-dynamic">
                                   <rect x="0" y="0" width="200" height="355" rx="10"/>
@@ -248,62 +265,4 @@
         </div>
     </div>
 
-    <!-- Temporary: this is the tab script exactly as handed to shell-dev for src/main.js,
-         kept here only so the section is not dead between now and it landing there. -->
-    <script>
-        /**
-         * Wires every `[data-tabs]` root into a tablist, with roving tabindex and arrow
-         * keys. Panels read on their own as a stacked list, so the tab list ships hidden
-         * and is shown only once this finds a complete set of tabs and panels.
-         */
-        function setupTabs() {
-            document.querySelectorAll('[data-tabs]').forEach((root) => {
-                const list = root.querySelector('[data-tabs-list]')
-                if (!list) return
-
-                const tabs = [...list.querySelectorAll('[role="tab"]')]
-                const panels = tabs.map((tab) => document.getElementById(tab.getAttribute('aria-controls')))
-                if (!tabs.length || panels.some((panel) => !panel)) return
-
-                const select = (index, moveFocus) => {
-                    tabs.forEach((tab, i) => {
-                        const on = i === index
-                        tab.setAttribute('aria-selected', String(on))
-                        tab.tabIndex = on ? 0 : -1
-                        panels[i].hidden = !on
-                    })
-                    if (moveFocus) tabs[index].focus()
-                }
-
-                // Up and down are the pair a vertical tablist owes its reader. Left and
-                // right come along because nobody checks the orientation before reaching.
-                const steps = { ArrowUp: -1, ArrowLeft: -1, ArrowDown: 1, ArrowRight: 1 }
-
-                tabs.forEach((tab, i) => {
-                    tab.addEventListener('click', () => select(i, false))
-                    tab.addEventListener('keydown', (event) => {
-                        if (event.key === 'Home' || event.key === 'End') {
-                            event.preventDefault()
-                            select(event.key === 'Home' ? 0 : tabs.length - 1, true)
-                            return
-                        }
-
-                        const step = steps[event.key]
-                        if (!step) return
-                        event.preventDefault()
-                        select((i + step + tabs.length) % tabs.length, true)
-                    })
-                })
-
-                // The markup names the tab to open, so a section chooses its own default.
-                const marked = tabs.findIndex((tab) => tab.getAttribute('aria-selected') === 'true')
-
-                root.setAttribute('data-tabs-ready', '')
-                list.hidden = false
-                select(marked < 0 ? 0 : marked, false)
-            })
-        }
-
-        setupTabs()
-    </script>
 </section>

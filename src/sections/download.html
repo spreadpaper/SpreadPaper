@@ -39,26 +39,6 @@
           </a>
           <a href="https://github.com/spreadpaper/SpreadPaper" class="cd-button cd-button-secondary h-11 px-6 text-[0.9375rem] focus-visible:outline-2 focus-visible:outline-cd-accent focus-visible:outline-offset-2 ">View the source</a>
         </div>
-
-        <div class="mt-12 max-w-[54ch]">
-          <h3 class="text-xl font-semibold tracking-[-0.01em] text-cd-text">The first launch needs one extra step</h3>
-          <p class="mt-3 text-base leading-relaxed text-pretty text-cd-text-secondary">SpreadPaper is not signed with a paid Apple Developer ID, so macOS will not open it on the first try. This is normal for open source apps, and there are two ways past it. On macOS 15 Sequoia and later, Control-clicking the app and choosing Open is no longer one of them.</p>
-
-          <h4 class="mt-7 text-base font-semibold text-cd-text">Through System Settings</h4>
-          <ol class="mt-3 flex list-decimal flex-col gap-2 pl-5 text-base leading-relaxed text-pretty text-cd-text-secondary marker:text-cd-text-secondary">
-            <li>Drag SpreadPaper to your Applications folder and open it once. macOS says it cannot verify the app is free of malware. Click Done.</li>
-            <li>Open System Settings, go to Privacy and Security, and scroll to the bottom. A line there says SpreadPaper was blocked to protect your Mac.</li>
-            <li>Click Open Anyway, then confirm with Open. macOS remembers the exception.</li>
-          </ol>
-
-          <h4 class="mt-7 text-base font-semibold text-cd-text">Or in Terminal, before you open it</h4>
-          <p class="mt-3 text-base leading-relaxed text-pretty text-cd-text-secondary">Removing the quarantine flag skips the warning entirely. Drag SpreadPaper to your Applications folder, then run this once.</p>
-          <div class="mt-4 flex items-start gap-2 rounded-xl border border-cd-border bg-cd-bg p-3">
-            <code id="quarantine-command" class="cd-code min-w-0 flex-1 py-1 pl-1">xattr -dr com.apple.quarantine /Applications/SpreadPaper.app</code>
-            <button type="button" hidden data-copy-target="quarantine-command" data-copy-label="Copy" data-copied-label="Copied" class="cd-button cd-button-secondary h-9 shrink-0 gap-1.5 px-3 text-xs focus-visible:outline-2 focus-visible:outline-cd-accent focus-visible:outline-offset-2 "><!--@icon copy data-copy-icon="idle" class="h-3.5 w-3.5"--><!--@icon check data-copy-icon="done" hidden class="h-3.5 w-3.5"--><span data-copy-text aria-live="polite">Copy</span><span class="sr-only"> the quarantine command</span></button>
-          </div>
-          <p class="mt-4 text-sm text-cd-text-secondary">Either way, you only need to do this once. After that SpreadPaper opens like any other app.</p>
-        </div>
       </div>
 
       <div class="col-span-12 lg:col-span-5 lg:col-start-8" data-reveal>
@@ -86,6 +66,39 @@
           </div>
         </dl>
         <p class="mt-5 text-sm text-cd-text-secondary">On an Intel Mac or an older macOS? <a class="cd-inline-link focus-visible:outline-2 focus-visible:outline-cd-accent focus-visible:outline-offset-2 " href="https://github.com/spreadpaper/SpreadPaper/issues">Open a feature request</a> and say so.</p>
+      </div>
+
+      <div class="col-span-12 border-t border-cd-border pt-12" data-reveal>
+        <div class="grid grid-cols-12 gap-x-6 gap-y-8">
+          <div class="col-span-12 lg:col-span-5">
+            <h3 class="text-xl font-semibold tracking-[-0.01em] text-cd-text">The first launch needs one extra step</h3>
+            <p class="mt-3 max-w-[62ch] text-base leading-relaxed text-pretty text-cd-text-secondary">SpreadPaper is not signed with a paid Apple Developer ID, so macOS will not open it on the first try. This is normal for open source apps, and there are two ways past it. On macOS 15 Sequoia and later, Control-clicking the app and choosing Open is no longer one of them.</p>
+          </div>
+
+          <div class="col-span-12 lg:col-span-6 lg:col-start-7">
+            <div class="grid gap-x-6 gap-y-10 xl:grid-cols-2">
+              <div>
+                <h4 class="text-base font-semibold text-cd-text">Through System Settings</h4>
+                <ol class="mt-3 flex max-w-[62ch] list-decimal flex-col gap-2 pl-5 text-base leading-relaxed text-pretty text-cd-text-secondary marker:text-cd-text-secondary">
+                  <li>Drag SpreadPaper to your Applications folder and open it once. macOS says it cannot verify the app is free of malware. Click Done.</li>
+                  <li>Open System Settings, go to Privacy and Security, and scroll to the bottom. A line there says SpreadPaper was blocked to protect your Mac.</li>
+                  <li>Click Open Anyway, then confirm with Open. macOS remembers the exception.</li>
+                </ol>
+              </div>
+
+              <div>
+                <h4 class="text-base font-semibold text-cd-text">Or in Terminal, before you open it</h4>
+                <p class="mt-3 max-w-[62ch] text-base leading-relaxed text-pretty text-cd-text-secondary">Removing the quarantine flag skips the warning entirely. Drag SpreadPaper to your Applications folder, then run this once.</p>
+                <div class="mt-4 flex max-w-[62ch] items-start gap-2 rounded-xl border border-cd-border bg-cd-bg p-3">
+                  <code id="quarantine-command" class="cd-code min-w-0 flex-1 py-1 pl-1">xattr -dr com.apple.quarantine /Applications/SpreadPaper.app</code>
+                  <button type="button" hidden data-copy-target="quarantine-command" data-copy-label="Copy" data-copied-label="Copied" class="cd-button cd-button-secondary h-9 shrink-0 gap-1.5 px-3 text-xs focus-visible:outline-2 focus-visible:outline-cd-accent focus-visible:outline-offset-2 "><!--@icon copy data-copy-icon="idle" class="h-3.5 w-3.5"--><!--@icon check data-copy-icon="done" hidden class="h-3.5 w-3.5"--><span data-copy-text aria-live="polite">Copy</span><span class="sr-only"> the quarantine command</span></button>
+                </div>
+              </div>
+            </div>
+
+            <p class="mt-8 max-w-[62ch] text-sm text-cd-text-secondary">Either way, you only need to do this once. After that SpreadPaper opens like any other app.</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>

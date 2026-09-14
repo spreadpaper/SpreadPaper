@@ -1,3 +1,26 @@
+<style>
+  /* .rig sets `display` unlayered, so Tailwind's `hidden` and `sm:block` in
+     @layer utilities cannot override it and the documented swap silently shows
+     both rigs. Pairing the class wins on specificity instead. */
+  .rig.hero-rig-wide {
+    display: none;
+  }
+
+  .rig.hero-rig-narrow {
+    display: block;
+  }
+
+  @media (min-width: 40rem) {
+    .rig.hero-rig-wide {
+      display: block;
+    }
+
+    .rig.hero-rig-narrow {
+      display: none;
+    }
+  }
+</style>
+
 <section id="hero" aria-labelledby="hero-title" class="cd-section bg-cd-bg">
   <div class="cd-shell">
     <p class="cd-eyebrow">Free and open source</p>
@@ -9,64 +32,63 @@
       <div class="col-span-12 flex flex-col gap-6 lg:col-span-5 lg:col-start-8">
         <p class="max-w-[46ch] text-lg leading-relaxed text-pretty text-cd-text-secondary sm:text-xl">SpreadPaper puts one image across every display, so the picture carries on over the frames instead of starting again on each screen. Keep it still, pair a light one with a dark one, or put up to 16 images on a schedule that follows the day.</p>
 
-        <div class="flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+        <div class="flex max-w-[46ch] flex-col items-stretch gap-3">
           <a class="cd-button cd-button-primary px-7 py-3.5 text-base focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cd-accent" href="https://github.com/spreadpaper/SpreadPaper/releases/latest"><!--@icon download-simple width="18" height="18"-->Download for macOS</a>
           <a class="cd-button cd-button-secondary px-7 py-3.5 text-base focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cd-accent" href="https://github.com/spreadpaper/SpreadPaper"><!--@icon github-logo width="18" height="18"-->View on GitHub</a>
         </div>
 
-        <p class="max-w-[46ch] text-sm leading-relaxed text-pretty text-cd-text-secondary">MIT licensed. Requires macOS 15 Sequoia or later on an Apple Silicon Mac.</p>
+        <p class="max-w-[46ch] text-sm leading-relaxed text-pretty text-cd-text-secondary">Free and open source under the MIT licence. Requires macOS 15 Sequoia or later on an Apple Silicon Mac.</p>
       </div>
 
       <figure class="col-span-12 mt-2 sm:mt-6">
-        <!-- Three screens above sm, two below it, each inside its own wrapper. The
-             breakpoint sits on the wrapper because `.rig` sets display and width
-             unlayered, which makes `hidden` on the svg itself inert. -->
-        <div class="hidden sm:block">
-          <svg class="rig rig-triple" viewBox="0 0 1032 236" role="img" aria-label="A beach at sunset in Maui, one photograph carried unbroken across three monitors standing side by side." focusable="false">
+        <!-- Both rigs must keep the same href. display:none does not stop a fetch, so
+             two URLs would make a phone download the wide rig's photograph it never
+             sees as well as its own, and the preload in index.html matches only one. -->
+        <div class="-mx-5 sm:mx-0">
+          <svg class="rig rig-desk hero-rig-wide" viewBox="0 0 911 236" role="img" aria-label="A beach at sunset, one photograph carried unbroken across the screens on a Mac desk." focusable="false">
             <defs>
-              <clipPath id="rig-hero-triple">
-                <rect x="0" y="0" width="340" height="200" rx="10"/>
-                <rect x="346" y="0" width="340" height="200" rx="10"/>
-                <rect x="692" y="0" width="340" height="200" rx="10"/>
+              <clipPath id="rig-desk-hero">
+                <rect x="0" y="101" width="181" height="117" rx="8"/>
+                <rect x="195" y="0" width="355" height="200" rx="10"/>
+                <rect x="556" y="0" width="355" height="200" rx="10"/>
               </clipPath>
             </defs>
+            <ellipse class="rig-glow" cx="455.5" cy="234" rx="383" ry="10"/>
             <g class="rig-stand">
-              <rect x="156" y="200" width="28" height="28"/><rect x="115" y="228" width="110" height="8" rx="4"/>
-              <rect x="502" y="200" width="28" height="28"/><rect x="461" y="228" width="110" height="8" rx="4"/>
-              <rect x="848" y="200" width="28" height="28"/><rect x="807" y="228" width="110" height="8" rx="4"/>
+              <rect x="358.5" y="200" width="28" height="28"/><rect x="317.5" y="228" width="110" height="8" rx="4"/>
+              <rect x="719.5" y="200" width="28" height="28"/><rect x="678.5" y="228" width="110" height="8" rx="4"/>
+              <rect x="0" y="230" width="189" height="6" rx="3"/>
             </g>
-            <g clip-path="url(#rig-hero-triple)">
-              <image class="rig-photo" href="/photos/hero-beach.jpg" x="0" y="0" width="1032" height="200" preserveAspectRatio="xMidYMid slice"/>
-              <rect class="rig-frame" x="0" y="0" width="340" height="200" rx="10"/>
-              <rect class="rig-frame" x="346" y="0" width="340" height="200" rx="10"/>
-              <rect class="rig-frame" x="692" y="0" width="340" height="200" rx="10"/>
+            <rect class="rig-chin" x="0" y="210" width="181" height="20" rx="3"/>
+            <g clip-path="url(#rig-desk-hero)">
+              <image class="rig-photo" href="/photos/hero-beach.jpg" x="0" y="0" width="911" height="218" preserveAspectRatio="xMidYMid slice"/>
+              <rect class="rig-frame" x="0" y="101" width="181" height="117" rx="8"/>
+              <rect class="rig-frame" x="195" y="0" width="355" height="200" rx="10"/>
+              <rect class="rig-frame" x="556" y="0" width="355" height="200" rx="10"/>
+            </g>
+          </svg>
+
+          <svg class="rig rig-dual hero-rig-narrow" viewBox="0 0 716 236" role="img" aria-label="A beach at sunset, one photograph carried unbroken across the screens on a Mac desk." focusable="false">
+            <defs>
+              <clipPath id="rig-dual-hero">
+                <rect x="0" y="0" width="355" height="200" rx="10"/>
+                <rect x="361" y="0" width="355" height="200" rx="10"/>
+              </clipPath>
+            </defs>
+            <ellipse class="rig-glow" cx="358" cy="234" rx="301" ry="10"/>
+            <g class="rig-stand">
+              <rect x="163.5" y="200" width="28" height="28"/><rect x="122.5" y="228" width="110" height="8" rx="4"/>
+              <rect x="524.5" y="200" width="28" height="28"/><rect x="483.5" y="228" width="110" height="8" rx="4"/>
+            </g>
+            <g clip-path="url(#rig-dual-hero)">
+              <image class="rig-photo" href="/photos/hero-beach.jpg" x="0" y="0" width="716" height="200" preserveAspectRatio="xMidYMid slice"/>
+              <rect class="rig-frame" x="0" y="0" width="355" height="200" rx="10"/>
+              <rect class="rig-frame" x="361" y="0" width="355" height="200" rx="10"/>
             </g>
           </svg>
         </div>
 
-        <!-- Bled to the viewport edge, since two screens inside the 20px gutter is a
-             toy. A rig loses a screen on a phone rather than losing height. -->
-        <div class="-mx-5 sm:hidden">
-          <svg class="rig rig-dual" viewBox="0 0 686 236" role="img" aria-label="A beach at sunset in Maui, one photograph carried unbroken across two monitors standing side by side." focusable="false">
-            <defs>
-              <clipPath id="rig-hero-dual">
-                <rect x="0" y="0" width="340" height="200" rx="10"/>
-                <rect x="346" y="0" width="340" height="200" rx="10"/>
-              </clipPath>
-            </defs>
-            <g class="rig-stand">
-              <rect x="156" y="200" width="28" height="28"/><rect x="115" y="228" width="110" height="8" rx="4"/>
-              <rect x="502" y="200" width="28" height="28"/><rect x="461" y="228" width="110" height="8" rx="4"/>
-            </g>
-            <g clip-path="url(#rig-hero-dual)">
-              <image class="rig-photo" href="/photos/1200/hero-beach.jpg" x="0" y="0" width="686" height="200" preserveAspectRatio="xMidYMid slice"/>
-              <rect class="rig-frame" x="0" y="0" width="340" height="200" rx="10"/>
-              <rect class="rig-frame" x="346" y="0" width="340" height="200" rx="10"/>
-            </g>
-          </svg>
-        </div>
-
-        <figcaption class="mt-5 text-sm text-cd-text-secondary">Photograph by <a class="cd-inline-link rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cd-accent" href="https://unsplash.com/@gkumar2175">Ganapathy Kumar</a> on Unsplash, one of the photographs the app ships with.</figcaption>
+        <figcaption class="mt-4 text-sm text-cd-text-secondary">Photograph by <a class="cd-inline-link focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cd-accent" href="https://unsplash.com/@gkumar2175">Ganapathy Kumar</a> on Unsplash, one of the photographs the app ships with.</figcaption>
       </figure>
 
     </div>

@@ -182,14 +182,15 @@ function setupBezelSliders() {
 
 /**
  * Wires every `[data-tabs]` root into a tablist, with roving tabindex and
- * arrow keys. The panels read as a stacked list on their own, so the tab
- * list ships hidden and appears only once a full set is found.
+ * arrow keys. The panels read as a stacked list on their own, so both
+ * the list and their tabpanel roles wait for a full set.
  *
  * Markup contract: `[data-tabs]` wraps the set and takes `data-tabs-ready`
  * once wired, for any CSS the section wants to hang off that. Inside it,
  * `[data-tabs-list]` carries `hidden` and holds the `[role="tab"]` buttons,
  * each naming its panel through `aria-controls`. The tab marked
- * `aria-selected="true"` in the markup is the one that opens.
+ * `aria-selected="true"` in the markup is the one that opens, and each
+ * panel takes its `role`, `aria-labelledby` and `tabindex` from here.
  */
 function setupTabs() {
   document.querySelectorAll('[data-tabs]').forEach((root) => {
@@ -200,11 +201,22 @@ function setupTabs() {
     const panels = tabs.map((tab) => document.getElementById(tab.getAttribute('aria-controls')))
     if (!tabs.length || panels.some((panel) => !panel)) return
 
+    // A hidden list leaves the accessibility tree, so these would otherwise name a
+    // tablist that is not there and put three inert panels in the tab order.
+    panels.forEach((panel, index) => {
+      if (!tabs[index].id) tabs[index].id = `${panel.id}-tab`
+      panel.setAttribute('role', 'tabpanel')
+      panel.setAttribute('aria-labelledby', tabs[index].id)
+      panel.setAttribute('tabindex', '0')
+    })
+
     const select = (index, moveFocus) => {
       tabs.forEach((tab, i) => {
         const isCurrent = i === index
         tab.setAttribute('aria-selected', String(isCurrent))
         tab.tabIndex = isCurrent ? 0 : -1
+        // Hidden by attribute, never by style, so a section can restyle `[hidden]`
+        // to keep the panel's box. The types section does, to stop the page jumping.
         panels[i].toggleAttribute('hidden', !isCurrent)
       })
       if (moveFocus) tabs[index].focus()
