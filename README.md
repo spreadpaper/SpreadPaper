@@ -93,13 +93,17 @@ Because SpreadPaper is a free, open-source project and not signed with a paid Ap
 
 1. **Download** the `SpreadPaper.dmg` (or `.zip`) from the Releases page.
 2. **Open** the DMG and drag **SpreadPaper** to your **Applications** folder.
-3. **Remove the quarantine flag** by running this command in Terminal:
-   ```bash
-   xattr -dr com.apple.quarantine /Applications/SpreadPaper.app
-   ```
+3. **Let macOS know the app is safe**, either way round:
+   - **In System Settings.** Open SpreadPaper. macOS says it cannot verify the app is free of malware, and the dialog offers only **Done** and **Move to Trash**, so click **Done**. Go to **System Settings > Privacy & Security**, scroll to the bottom, and next to the line saying SpreadPaper was blocked click **Open Anyway**, then confirm with **Open**.
+   - **In Terminal**, if you would rather not see the warning at all. Run this before the first launch:
+     ```bash
+     xattr -dr com.apple.quarantine /Applications/SpreadPaper.app
+     ```
 4. **Launch SpreadPaper** normally.
 
 *You only need to do this once. Future launches will work normally.*
+
+> On macOS 15 Sequoia and later, Control-clicking the app and choosing **Open** no longer gets past this warning. Apple removed that shortcut, so use one of the two routes above.
 
 ## How to Use
 

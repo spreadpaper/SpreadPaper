@@ -1,0 +1,116 @@
+<!-- The gallery: living with the wallpapers you have already made. -->
+<section id="gallery" class="cd-section bg-cd-bg-secondary" aria-labelledby="gallery-title">
+  <style>
+    /* Lifts the preset cards off the gallery's own background. Same card, one surface up. */
+    .gl-card { background-color: var(--color-cd-bg-elevated); }
+
+    .gl-thumb { --bezel: 10px; }
+
+    @media (max-width: 639px) {
+      .gl-thumb { --bezel: 6px; }
+    }
+  </style>
+
+  <div class="cd-shell grid grid-cols-12 gap-x-6 gap-y-10">
+    <div class="col-span-12 lg:col-span-3">
+      <p class="cd-eyebrow">The gallery</p>
+      <h2 id="gallery-title" class="mt-4 text-3xl sm:text-4xl lg:text-5xl font-bold tracking-[-0.025em] leading-[1.05] text-cd-text text-balance">Every wallpaper you make stays one click away</h2>
+      <p class="mt-5 text-lg sm:text-xl leading-relaxed text-cd-text-secondary max-w-[46ch] text-pretty">Saving writes a preset: the image, where you put it, the zoom, the flip, and the times if it runs on a schedule. The gallery lists them all with a thumbnail, and marks the one that is on your screens right now.</p>
+      <p class="mt-5 text-base leading-relaxed text-cd-text-secondary max-w-[46ch] text-pretty">Narrow the list to one kind from the sidebar, or search it by name. A card's menu renames a preset, duplicates it, shows the image in Finder or deletes it, and deleting a preset leaves the original image exactly where it was.</p>
+    </div>
+
+    <div class="col-span-12 lg:col-span-5">
+      <article class="cd-card gl-card p-3">
+        <div class="relative">
+          <div class="spread gl-thumb aspect-[16/6]">
+            <img class="spread-photo" src="/photos/hero-beach.jpg" width="2400" height="559" loading="lazy" alt="A palm-fringed beach at sunset spread across three displays, the sea and the far headland running through both gaps.">
+            <div class="spread-frame">
+              <div class="spread-screen" style="--w: 16"></div>
+              <div class="spread-bezel"></div>
+              <div class="spread-screen" style="--w: 16"></div>
+              <div class="spread-bezel"></div>
+              <div class="spread-screen" style="--w: 16"></div>
+            </div>
+          </div>
+          <p class="absolute top-2 left-2 flex items-center gap-1.5 rounded-full border border-cd-border bg-cd-canvas/85 px-2.5 py-1 text-sm font-semibold text-cd-text">
+            <span class="block size-1.5 rounded-full bg-cd-success" aria-hidden="true"></span>
+            Applied
+          </p>
+        </div>
+        <div class="mt-3 flex items-center justify-between gap-3">
+          <h3 class="truncate text-base font-semibold text-cd-text">Maui sunset</h3>
+          <span class="flex shrink-0 items-center gap-1.5 rounded-md border border-cd-border bg-cd-bg-secondary px-2 py-1 text-sm text-cd-text-secondary">
+            <svg class="size-2.5 text-cd-text-tertiary" viewBox="0 0 10 10" fill="none" aria-hidden="true"><rect x="0.5" y="1.5" width="9" height="7" rx="1.5" fill="currentColor"></rect></svg>
+            Static
+          </span>
+        </div>
+      </article>
+    </div>
+
+    <div class="col-span-12 lg:col-span-4 flex flex-col gap-6">
+      <article class="cd-card gl-card p-3">
+        <div class="spread gl-thumb aspect-[16/6]">
+          <img class="spread-photo" src="/photos/hero-beach-night.jpg" width="2400" height="559" loading="lazy" alt="The same beach after dark, spread across three displays.">
+          <div class="spread-frame">
+            <div class="spread-screen" style="--w: 16"></div>
+            <div class="spread-bezel"></div>
+            <div class="spread-screen" style="--w: 16"></div>
+            <div class="spread-bezel"></div>
+            <div class="spread-screen" style="--w: 16"></div>
+          </div>
+        </div>
+        <div class="mt-3 flex items-center justify-between gap-3">
+          <h3 class="truncate text-base font-semibold text-cd-text">Beach, day and night</h3>
+          <span class="flex shrink-0 items-center gap-1.5 rounded-md border border-cd-border bg-cd-bg-secondary px-2 py-1 text-sm text-cd-text-secondary">
+            <svg class="size-2.5 text-cd-appearance" viewBox="0 0 10 10" fill="none" aria-hidden="true"><circle cx="5" cy="5" r="4" stroke="currentColor"></circle><path d="M5 1a4 4 0 0 0 0 8Z" fill="currentColor"></path></svg>
+            Light &amp; Dark
+          </span>
+        </div>
+      </article>
+
+      <article class="cd-card gl-card p-3">
+        <div class="spread gl-thumb aspect-[16/6]">
+          <img class="spread-photo" src="/photos/hero-day-3.jpg" width="2400" height="559" loading="lazy" alt="A late afternoon landscape spread across three displays.">
+          <div class="spread-frame">
+            <div class="spread-screen" style="--w: 16"></div>
+            <div class="spread-bezel"></div>
+            <div class="spread-screen" style="--w: 16"></div>
+            <div class="spread-bezel"></div>
+            <div class="spread-screen" style="--w: 16"></div>
+          </div>
+        </div>
+        <div class="mt-3 flex items-center justify-between gap-3">
+          <h3 class="truncate text-base font-semibold text-cd-text">A day outside</h3>
+          <span class="flex shrink-0 items-center gap-1.5 rounded-md border border-cd-border bg-cd-bg-secondary px-2 py-1 text-sm text-cd-text-secondary">
+            <svg class="size-2.5 text-cd-dynamic" viewBox="0 0 10 10" fill="none" aria-hidden="true"><circle cx="5" cy="5" r="4" stroke="currentColor"></circle><path d="M5 2.6V5l1.8 1.2" stroke="currentColor" stroke-linecap="round"></path></svg>
+            Dynamic
+          </span>
+        </div>
+      </article>
+
+      <article class="cd-card gl-card p-3">
+        <div class="spread gl-thumb aspect-[16/6]">
+          <img class="spread-photo" src="/photos/hero-day-4.jpg" width="2400" height="559" loading="lazy" alt="Snow-covered peaks under the Milky Way, spread across three displays.">
+          <div class="spread-frame">
+            <div class="spread-screen" style="--w: 16"></div>
+            <div class="spread-bezel"></div>
+            <div class="spread-screen" style="--w: 16"></div>
+            <div class="spread-bezel"></div>
+            <div class="spread-screen" style="--w: 16"></div>
+          </div>
+        </div>
+        <div class="mt-3 flex items-center justify-between gap-3">
+          <h3 class="truncate text-base font-semibold text-cd-text">Night ridge</h3>
+          <span class="flex shrink-0 items-center gap-1.5 rounded-md border border-cd-border bg-cd-bg-secondary px-2 py-1 text-sm text-cd-text-secondary">
+            <svg class="size-2.5 text-cd-text-tertiary" viewBox="0 0 10 10" fill="none" aria-hidden="true"><rect x="0.5" y="1.5" width="9" height="7" rx="1.5" fill="currentColor"></rect></svg>
+            Static
+          </span>
+        </div>
+      </article>
+    </div>
+
+    <div class="col-span-12 border-t border-cd-border pt-6">
+      <p class="text-sm leading-relaxed text-cd-text-secondary max-w-[62ch] text-pretty">Photographs by <a class="rounded-xs underline underline-offset-2 decoration-cd-border-strong hover:text-cd-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cd-accent focus-visible:ring-offset-2 focus-visible:ring-offset-cd-bg" href="https://unsplash.com/@gkumar2175" rel="noopener noreferrer">Ganapathy Kumar</a>, <a class="rounded-xs underline underline-offset-2 decoration-cd-border-strong hover:text-cd-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cd-accent focus-visible:ring-offset-2 focus-visible:ring-offset-cd-bg" href="https://unsplash.com/@m_hampi" rel="noopener noreferrer">Michaela</a>, <a class="rounded-xs underline underline-offset-2 decoration-cd-border-strong hover:text-cd-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cd-accent focus-visible:ring-offset-2 focus-visible:ring-offset-cd-bg" href="https://unsplash.com/@mparzuchowski" rel="noopener noreferrer">Michał Parzuchowski</a> and <a class="rounded-xs underline underline-offset-2 decoration-cd-border-strong hover:text-cd-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cd-accent focus-visible:ring-offset-2 focus-visible:ring-offset-cd-bg" href="https://unsplash.com/@vorosbenisop" rel="noopener noreferrer">Benjamin Voros</a> on Unsplash.</p>
+    </div>
+  </div>
+</section>

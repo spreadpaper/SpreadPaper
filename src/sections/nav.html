@@ -1,0 +1,123 @@
+<style>
+  /* --- Site nav ---------------------------------------------------------
+     The bar is sticky, so anything an in-page link targets has to clear it. */
+  section[id],
+  main[id] {
+    scroll-margin-top: 5rem;
+  }
+
+  .nav-link {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 9999px;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-cd-text-secondary);
+    transition: color 150ms ease-out, background-color 150ms ease-out;
+  }
+
+  .nav-link:hover {
+    color: var(--color-cd-text);
+    background-color: var(--color-cd-bg-secondary);
+  }
+
+  /* The section the reader is in, marked without moving anything. */
+  .nav-link[aria-current] {
+    color: var(--color-cd-text);
+  }
+
+  .nav-link-mobile {
+    display: flex;
+    align-items: center;
+    min-height: 2.75rem;
+    border-radius: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--color-cd-text-secondary);
+    transition: color 150ms ease-out, background-color 150ms ease-out;
+  }
+
+  .nav-link-mobile:hover,
+  .nav-link-mobile[aria-current] {
+    color: var(--color-cd-text);
+    background-color: var(--color-cd-bg-secondary);
+  }
+
+  /* The one inline link treatment on the page. The accent is reserved for
+     filled buttons and focus rings, where it clears AA. */
+  .cd-inline-link {
+    color: var(--color-cd-text-secondary);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-color: var(--color-cd-border-strong);
+    transition: color 150ms ease-out, text-decoration-color 150ms ease-out;
+  }
+
+  .cd-inline-link:hover {
+    color: var(--color-cd-text);
+    text-decoration-color: currentColor;
+  }
+
+  /* --- Scroll reveal, opt in with data-reveal --------------------------
+     Only armed once the script runs, so the page reads without JavaScript. */
+  .js-reveal [data-reveal] {
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 250ms ease-out, transform 250ms ease-out;
+  }
+
+  .js-reveal [data-reveal].is-revealed {
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .js-reveal [data-reveal] {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+</style>
+
+<a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-cd-bg-elevated focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-cd-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cd-accent focus-visible:ring-offset-2 focus-visible:ring-offset-cd-bg">Skip to content</a>
+
+<nav id="site-nav" aria-label="Main" class="sticky top-0 z-50 border-b border-cd-border bg-cd-bg supports-backdrop-filter:bg-cd-bg/80 supports-backdrop-filter:backdrop-blur-md">
+  <div class="mx-auto flex h-14 max-w-[76rem] items-center gap-2 px-5">
+    <a href="#main" class="mr-auto flex items-center gap-2.5 rounded-full py-1 pr-2 text-cd-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cd-accent focus-visible:ring-offset-2 focus-visible:ring-offset-cd-bg">
+      <img src="/app-icon-256.png" alt="" width="256" height="256" class="h-7 w-7 rounded-[7px]">
+      <span class="text-[0.9375rem] font-semibold tracking-[-0.01em]">SpreadPaper</span>
+    </a>
+
+    <ul id="nav-sections" class="hidden items-center gap-1 md:flex">
+      <li><a class="nav-link focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cd-accent focus-visible:ring-offset-2 focus-visible:ring-offset-cd-bg" href="#types">Types</a></li>
+      <li><a class="nav-link focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cd-accent focus-visible:ring-offset-2 focus-visible:ring-offset-cd-bg" href="#editor">Editor</a></li>
+      <li><a class="nav-link focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cd-accent focus-visible:ring-offset-2 focus-visible:ring-offset-cd-bg" href="#gallery">Gallery</a></li>
+    </ul>
+
+    <a href="https://github.com/spreadpaper/SpreadPaper" class="ml-1 hidden h-9 w-9 items-center justify-center rounded-full text-cd-text-secondary transition-colors duration-150 ease-out hover:bg-cd-bg-secondary hover:text-cd-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cd-accent focus-visible:ring-offset-2 focus-visible:ring-offset-cd-bg md:inline-flex">
+      <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false" class="h-[1.125rem] w-[1.125rem]" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+      <span class="sr-only">SpreadPaper on GitHub</span>
+    </a>
+
+    <a href="#download" class="cd-button cd-button-primary hidden h-9 px-4 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cd-accent focus-visible:ring-offset-2 focus-visible:ring-offset-cd-bg md:inline-flex">Download</a>
+
+    <button type="button" id="nav-toggle" aria-expanded="false" aria-controls="nav-menu" class="-mr-2 inline-flex h-11 w-11 items-center justify-center rounded-full text-cd-text transition-colors duration-150 ease-out hover:bg-cd-bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cd-accent focus-visible:ring-offset-2 focus-visible:ring-offset-cd-bg md:hidden">
+      <svg data-nav-icon="open" viewBox="0 0 24 24" aria-hidden="true" focusable="false" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M3.5 7h17M3.5 12h17M3.5 17h17"/></svg>
+      <svg data-nav-icon="close" hidden viewBox="0 0 24 24" aria-hidden="true" focusable="false" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      <span class="sr-only">Menu</span>
+    </button>
+  </div>
+
+  <div id="nav-menu" hidden class="border-t border-cd-border bg-cd-bg md:hidden">
+    <ul class="mx-auto flex max-w-[76rem] flex-col gap-1 px-5 pb-4 pt-3">
+      <li><a class="nav-link-mobile focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cd-accent focus-visible:ring-offset-2 focus-visible:ring-offset-cd-bg" href="#types">Types</a></li>
+      <li><a class="nav-link-mobile focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cd-accent focus-visible:ring-offset-2 focus-visible:ring-offset-cd-bg" href="#editor">Editor</a></li>
+      <li><a class="nav-link-mobile focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cd-accent focus-visible:ring-offset-2 focus-visible:ring-offset-cd-bg" href="#gallery">Gallery</a></li>
+      <li><a class="nav-link-mobile focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cd-accent focus-visible:ring-offset-2 focus-visible:ring-offset-cd-bg" href="https://github.com/spreadpaper/SpreadPaper">GitHub</a></li>
+      <li class="pt-2"><a href="#download" class="cd-button cd-button-primary flex h-11 w-full px-4 text-[0.9375rem] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cd-accent focus-visible:ring-offset-2 focus-visible:ring-offset-cd-bg">Download</a></li>
+    </ul>
+  </div>
+</nav>

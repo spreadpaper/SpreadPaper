@@ -1,0 +1,158 @@
+<section id="types" class="cd-section bg-cd-canvas" aria-labelledby="types-title">
+    <style>
+        /* Bezels in this section only: 8px below sm, 14px above it. */
+        #types .spread { --bezel: 8px; }
+        @media (min-width: 40rem) { #types .spread { --bezel: 14px; } }
+
+        /* The Light and Dark pair rests on its light photograph, so with motion off
+           the spread matches the first of the two labels beneath it. */
+        #types .spread-photo-fade { opacity: 0; }
+
+        /* The Dynamic schedule: four photographs over one twenty second day.
+           `.spread-photo-fade` carries a pair, and four need their own timings,
+           because each photograph has to hold from its own hour until the next one
+           covers it. Stacking order does the crossfading, an incoming photograph
+           sitting over the one it replaces, and a fifth layer repeats the 06:00
+           photograph so the loop closes on a fade rather than a cut. */
+        #types .types-day {
+            opacity: 0;
+            animation-duration: 20s;
+            animation-timing-function: ease-in-out;
+            animation-iteration-count: infinite;
+        }
+
+        #types .types-day-2 { animation-name: types-day-2; }
+        #types .types-day-3 { animation-name: types-day-3; }
+        #types .types-day-4 { animation-name: types-day-4; }
+        #types .types-day-wrap { animation-name: types-day-wrap; }
+
+        @keyframes types-day-2 { 0%, 22% { opacity: 0; } 28%, 100% { opacity: 1; } }
+        @keyframes types-day-3 { 0%, 47% { opacity: 0; } 53%, 100% { opacity: 1; } }
+        @keyframes types-day-4 { 0%, 72% { opacity: 0; } 78%, 100% { opacity: 1; } }
+        @keyframes types-day-wrap { 0%, 95% { opacity: 0; } 100% { opacity: 1; } }
+
+        /* The dot beside a schedule row, lit through that row's quarter of the day.
+           Negative delays put the later rows in phase from the first frame. */
+        #types .types-beat { animation: types-beat 20s linear infinite; }
+
+        @keyframes types-beat {
+            0%, 23% { opacity: 1; }
+            26%, 96% { opacity: 0.28; }
+            100% { opacity: 1; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            #types .types-day,
+            #types .types-beat {
+                animation: none !important;
+            }
+        }
+    </style>
+
+    <div class="cd-shell">
+        <header class="max-w-[46ch]" data-reveal>
+            <p class="cd-eyebrow">Three kinds</p>
+            <h2 id="types-title" class="mt-3 text-3xl sm:text-4xl lg:text-5xl font-bold tracking-[-0.025em] leading-[1.05] text-cd-text text-balance">One image, a pair, or a whole day</h2>
+            <p class="mt-5 text-lg sm:text-xl leading-relaxed text-cd-text-secondary max-w-[46ch] text-pretty">Every wallpaper SpreadPaper makes is one photograph laid across the displays you actually have. What changes between the three kinds is how many photographs you hand it, and what decides when they change.</p>
+        </header>
+
+        <ul role="list" class="mt-14 divide-y divide-cd-border">
+            <li class="grid grid-cols-12 gap-x-6 gap-y-8 py-12 first:pt-0 last:pb-0 lg:items-center" data-reveal>
+                <div class="col-span-12 lg:col-span-5 lg:col-start-1 lg:row-start-1">
+                    <p class="flex items-center gap-2.5 text-sm font-semibold text-cd-text-secondary">
+                        <span class="size-2 rounded-full bg-cd-border-strong" aria-hidden="true"></span>One image
+                    </p>
+                    <h3 class="mt-3 text-xl font-semibold tracking-[-0.01em] text-cd-text">Static</h3>
+                    <p class="mt-4 text-base leading-relaxed text-cd-text-secondary max-w-[62ch] text-pretty">You pick a photograph, drag it into place on a canvas that mirrors your display arrangement, and it goes up on every screen as one continuous picture. It stays there until you change it. This is the kind to reach for when you have a wide photograph you want to look at all day.</p>
+                </div>
+                <figure class="col-span-12 lg:col-span-7 lg:col-start-6 lg:row-start-1">
+                    <div class="spread aspect-[21/9] md:aspect-[32/9]">
+                        <img class="spread-photo" src="/photos/1200/hero-beach.jpg" width="1200" height="279" loading="lazy" decoding="async" alt="A tropical beach at sunset in Maui, running unbroken across two monitors.">
+                        <div class="spread-frame">
+                            <div class="spread-screen" style="--w: 16"></div>
+                            <div class="spread-bezel"></div>
+                            <div class="spread-screen" style="--w: 16"></div>
+                        </div>
+                    </div>
+                    <figcaption class="mt-4 text-sm text-cd-text-secondary">Photograph by <a class="rounded-sm underline decoration-cd-border-strong underline-offset-2 hover:text-cd-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cd-accent focus-visible:ring-offset-2 focus-visible:ring-offset-cd-canvas" href="https://unsplash.com/@gkumar2175" target="_blank" rel="noopener noreferrer">Ganapathy Kumar</a> on Unsplash.</figcaption>
+                </figure>
+            </li>
+
+            <li class="grid grid-cols-12 gap-x-6 gap-y-8 py-12 first:pt-0 last:pb-0 lg:items-center" data-reveal>
+                <div class="col-span-12 lg:col-span-5 lg:col-start-8 lg:row-start-1">
+                    <p class="flex items-center gap-2.5 text-sm font-semibold text-cd-appearance">
+                        <span class="size-2 rounded-full bg-cd-appearance" aria-hidden="true"></span>Two images
+                    </p>
+                    <h3 class="mt-3 text-xl font-semibold tracking-[-0.01em] text-cd-text">Light &amp; Dark</h3>
+                    <p class="mt-4 text-base leading-relaxed text-cd-text-secondary max-w-[62ch] text-pretty">Give SpreadPaper two photographs, one for light appearance and one for dark, and macOS picks between them. When your Mac turns dark, whether you flip it yourself or leave it to follow the sun, the wallpaper turns with it on every display at once.</p>
+                </div>
+                <figure class="col-span-12 lg:col-span-7 lg:col-start-1 lg:row-start-1">
+                    <div class="spread aspect-[21/9] md:aspect-[32/9]">
+                        <img class="spread-photo" src="/photos/1200/hero-beach.jpg" width="1200" height="279" loading="lazy" decoding="async" alt="A tropical beach at sunset in Maui, the light half of the pair.">
+                        <img class="spread-photo spread-photo-fade" style="--cycle: 10s" src="/photos/1200/hero-beach-night.jpg" width="1200" height="279" loading="eager" decoding="async" alt="Coconut palms silhouetted against a dusk sky over the ocean, the dark half of the pair.">
+                        <div class="spread-frame">
+                            <div class="spread-screen" style="--w: 16"></div>
+                            <div class="spread-bezel"></div>
+                            <div class="spread-screen" style="--w: 16"></div>
+                        </div>
+                    </div>
+                    <figcaption class="mt-4 text-sm text-cd-text-secondary">
+                        <span class="block"><span class="font-semibold text-cd-appearance">Light</span>, a beach at sunset by <a class="rounded-sm underline decoration-cd-border-strong underline-offset-2 hover:text-cd-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cd-accent focus-visible:ring-offset-2 focus-visible:ring-offset-cd-canvas" href="https://unsplash.com/@gkumar2175" target="_blank" rel="noopener noreferrer">Ganapathy Kumar</a> on Unsplash.</span>
+                        <span class="mt-1 block"><span class="font-semibold text-cd-appearance">Dark</span>, palms at dusk by <a class="rounded-sm underline decoration-cd-border-strong underline-offset-2 hover:text-cd-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cd-accent focus-visible:ring-offset-2 focus-visible:ring-offset-cd-canvas" href="https://unsplash.com/@m_hampi" target="_blank" rel="noopener noreferrer">Michaela</a> on Unsplash.</span>
+                    </figcaption>
+                </figure>
+            </li>
+
+            <li class="grid grid-cols-12 gap-x-6 gap-y-8 py-12 first:pt-0 last:pb-0 lg:items-center" data-reveal>
+                <div class="col-span-12 lg:col-span-5 lg:col-start-1 lg:row-start-1">
+                    <p class="flex items-center gap-2.5 text-sm font-semibold text-cd-dynamic">
+                        <span class="size-2 rounded-full bg-cd-dynamic" aria-hidden="true"></span>Up to 16 images
+                    </p>
+                    <h3 class="mt-3 text-xl font-semibold tracking-[-0.01em] text-cd-text">Dynamic</h3>
+                    <p class="mt-4 text-base leading-relaxed text-cd-text-secondary max-w-[62ch] text-pretty">Up to sixteen photographs, each with a start time you set on the clock. SpreadPaper writes them into a HEIC dynamic desktop carrying the time metadata macOS reads, and every display gets the same schedule, so all your screens turn over at the same moment.</p>
+                    <ol role="list" class="mt-7 space-y-3">
+                        <li class="flex items-center gap-3 text-sm">
+                            <span class="types-beat size-1.5 shrink-0 rounded-full bg-cd-dynamic" aria-hidden="true"></span>
+                            <span class="w-12 shrink-0 font-semibold tabular-nums text-cd-dynamic">06:00</span>
+                            <span class="text-cd-text-secondary">Sunrise on the ridge</span>
+                        </li>
+                        <li class="flex items-center gap-3 text-sm">
+                            <span class="types-beat size-1.5 shrink-0 rounded-full bg-cd-dynamic" style="animation-delay: -15s" aria-hidden="true"></span>
+                            <span class="w-12 shrink-0 font-semibold tabular-nums text-cd-dynamic">12:00</span>
+                            <span class="text-cd-text-secondary">Midday over the peak</span>
+                        </li>
+                        <li class="flex items-center gap-3 text-sm">
+                            <span class="types-beat size-1.5 shrink-0 rounded-full bg-cd-dynamic" style="animation-delay: -10s" aria-hidden="true"></span>
+                            <span class="w-12 shrink-0 font-semibold tabular-nums text-cd-dynamic">18:00</span>
+                            <span class="text-cd-text-secondary">Evening light on the range</span>
+                        </li>
+                        <li class="flex items-center gap-3 text-sm">
+                            <span class="types-beat size-1.5 shrink-0 rounded-full bg-cd-dynamic" style="animation-delay: -5s" aria-hidden="true"></span>
+                            <span class="w-12 shrink-0 font-semibold tabular-nums text-cd-dynamic">23:00</span>
+                            <span class="text-cd-text-secondary">The Milky Way above the snow</span>
+                        </li>
+                    </ol>
+                </div>
+                <figure class="col-span-12 lg:col-span-7 lg:col-start-6 lg:row-start-1">
+                    <div class="spread aspect-[21/9] md:aspect-[64/9]">
+                        <img class="spread-photo" src="/photos/1200/hero-day-1.jpg" width="1200" height="279" loading="lazy" decoding="async" alt="Green mountains under a blue sky at sunrise, the 06:00 image of the schedule, running across four monitors.">
+                        <img class="spread-photo types-day types-day-2" src="/photos/1200/hero-day-2.jpg" width="1200" height="279" loading="lazy" decoding="async" alt="" aria-hidden="true">
+                        <img class="spread-photo types-day types-day-3" src="/photos/1200/hero-day-3.jpg" width="1200" height="279" loading="lazy" decoding="async" alt="" aria-hidden="true">
+                        <img class="spread-photo types-day types-day-4" src="/photos/1200/hero-day-4.jpg" width="1200" height="279" loading="lazy" decoding="async" alt="" aria-hidden="true">
+                        <img class="spread-photo types-day types-day-wrap" src="/photos/1200/hero-day-1.jpg" width="1200" height="279" loading="lazy" decoding="async" alt="" aria-hidden="true">
+                        <div class="spread-frame">
+                            <div class="spread-screen" style="--w: 16"></div>
+                            <div class="spread-bezel"></div>
+                            <div class="spread-screen" style="--w: 16"></div>
+                            <div class="spread-bezel"></div>
+                            <div class="spread-screen" style="--w: 16"></div>
+                            <div class="spread-bezel"></div>
+                            <div class="spread-screen" style="--w: 16"></div>
+                        </div>
+                    </div>
+                    <figcaption class="mt-4 text-sm text-cd-text-secondary">Photographs by <a class="rounded-sm underline decoration-cd-border-strong underline-offset-2 hover:text-cd-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cd-accent focus-visible:ring-offset-2 focus-visible:ring-offset-cd-canvas" href="https://unsplash.com/@slohmann" target="_blank" rel="noopener noreferrer">Simon Lohmann</a>, <a class="rounded-sm underline decoration-cd-border-strong underline-offset-2 hover:text-cd-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cd-accent focus-visible:ring-offset-2 focus-visible:ring-offset-cd-canvas" href="https://unsplash.com/@antoskli" target="_blank" rel="noopener noreferrer">Antony Sklivagkos</a>, <a class="rounded-sm underline decoration-cd-border-strong underline-offset-2 hover:text-cd-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cd-accent focus-visible:ring-offset-2 focus-visible:ring-offset-cd-canvas" href="https://unsplash.com/@mparzuchowski" target="_blank" rel="noopener noreferrer">Michał Parzuchowski</a> and <a class="rounded-sm underline decoration-cd-border-strong underline-offset-2 hover:text-cd-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cd-accent focus-visible:ring-offset-2 focus-visible:ring-offset-cd-canvas" href="https://unsplash.com/@vorosbenisop" target="_blank" rel="noopener noreferrer">Benjamin Voros</a> on Unsplash.</figcaption>
+                </figure>
+            </li>
+        </ul>
+    </div>
+</section>

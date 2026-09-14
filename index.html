@@ -3,406 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SpreadPaper — Seamless Multi-Monitor Wallpapers for macOS</title>
-    <meta name="description" content="Spread one high-resolution wallpaper across all your monitors. Free, open source, native macOS app.">
-    <meta name="theme-color" content="#3B82F6">
 
-    <!-- Open Graph -->
-    <meta property="og:title" content="SpreadPaper — Multi-Monitor Wallpapers">
-    <meta property="og:description" content="Spread one high-resolution wallpaper across all your monitors. Free & open source.">
+    <title>SpreadPaper: span one wallpaper across every Mac display</title>
+    <meta name="description" content="Free, open source macOS app that spreads one photograph across two, three or more monitors. Bezel compensation, Light and Dark pairs, time-of-day schedules.">
+    <link rel="canonical" href="https://spreadpaper.github.io/SpreadPaper/">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+    <meta name="theme-color" content="#16161a">
+    <meta name="color-scheme" content="dark">
+
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+    <link rel="icon" href="/favicon-16.png" sizes="16x16" type="image/png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+    <meta property="og:site_name" content="SpreadPaper">
+    <meta property="og:title" content="SpreadPaper: span one wallpaper across every Mac display">
+    <meta property="og:description" content="One photograph across two, three or more monitors, lined up across the bezels. Free, open source, native macOS.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://spreadpaper.github.io/SpreadPaper/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:image" content="https://spreadpaper.github.io/SpreadPaper/og-image.jpg">
+    <meta property="og:image:type" content="image/jpeg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Two monitors on a desk showing one photograph of a lake and mountains carried across both screens">
 
-    <!-- Fonts -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="SpreadPaper: span one wallpaper across every Mac display">
+    <meta name="twitter:description" content="One photograph across two, three or more monitors, lined up across the bezels. Free, open source, native macOS.">
+    <meta name="twitter:image" content="https://spreadpaper.github.io/SpreadPaper/og-image.jpg">
+    <meta name="twitter:image:alt" content="Two monitors on a desk showing one photograph of a lake and mountains carried across both screens">
+
+    <link rel="preload" as="image" href="/photos/hero-beach.jpg" fetchpriority="high">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/src/style.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://spreadpaper.github.io/SpreadPaper/#website",
+          "url": "https://spreadpaper.github.io/SpreadPaper/",
+          "name": "SpreadPaper",
+          "description": "Free, open source macOS app that spreads one photograph across every connected display.",
+          "inLanguage": "en",
+          "publisher": { "@id": "https://github.com/spreadpaper#person" }
+        },
+        {
+          "@type": "Person",
+          "@id": "https://github.com/spreadpaper#person",
+          "name": "Robin van Baalen",
+          "url": "https://github.com/spreadpaper"
+        },
+        {
+          "@type": "SoftwareApplication",
+          "@id": "https://spreadpaper.github.io/SpreadPaper/#app",
+          "name": "SpreadPaper",
+          "url": "https://spreadpaper.github.io/SpreadPaper/",
+          "description": "SpreadPaper is a native macOS app that uses one high-resolution photograph as the wallpaper for every connected monitor at once. It renders a separate file per display, compensates for the bezels between them, and saves each arrangement as a reusable preset. A wallpaper can be one still image, a Light and Dark pair that follows the system appearance, or up to 16 images on a time-of-day schedule.",
+          "applicationCategory": "DesktopEnhancementApplication",
+          "applicationSubCategory": "Wallpaper",
+          "operatingSystem": "macOS 15.0 Sequoia or later",
+          "processorRequirements": "Apple Silicon",
+          "softwareRequirements": "macOS 15.0 Sequoia or later on an Apple Silicon Mac",
+          "isAccessibleForFree": true,
+          "license": "https://github.com/spreadpaper/SpreadPaper/blob/main/LICENSE",
+          "downloadUrl": "https://github.com/spreadpaper/SpreadPaper/releases/latest",
+          "installUrl": "https://github.com/spreadpaper/SpreadPaper/releases/latest",
+          "codeRepository": "https://github.com/spreadpaper/SpreadPaper",
+          "image": "https://spreadpaper.github.io/SpreadPaper/og-image.jpg",
+          "screenshot": "https://raw.githubusercontent.com/spreadpaper/SpreadPaper/main/.github/assets/main-app-screenshot.png",
+          "sameAs": ["https://github.com/spreadpaper/SpreadPaper"],
+          "author": { "@id": "https://github.com/spreadpaper#person" },
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD",
+            "availability": "https://schema.org/InStock"
+          },
+          "featureList": [
+            "One photograph spread across two, three or more monitors",
+            "A Light and Dark image pair that follows the macOS appearance",
+            "Up to 16 images on a time-of-day schedule, in step on every screen",
+            "Bezel compensation, set per monitor or once for all of them",
+            "Drag, zoom, fit and flip the image on a canvas that mirrors the display arrangement",
+            "Preview the wallpaper on the real screens before saving",
+            "Reusable presets with search, filtering, renaming and duplication"
+          ]
+        }
+      ]
+    }
+    </script>
 </head>
-<body class="antialiased bg-white text-gray-900">
-
-    <!-- Navigation -->
-    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <!-- Logo -->
-                <div class="flex items-center gap-2">
-                    <img src="https://raw.githubusercontent.com/spreadpaper/SpreadPaper/main/.github/assets/app-icon-256.png"
-                         alt="SpreadPaper"
-                         class="w-8 h-8">
-                    <span class="text-xl font-semibold text-gray-900">SpreadPaper</span>
-                </div>
-
-                <!-- Desktop Navigation -->
-                <div class="hidden md:flex items-center gap-8">
-                    <a href="#features" class="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">Features</a>
-                    <a href="#screenshots" class="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">Screenshots</a>
-                    <a href="https://github.com/spreadpaper/SpreadPaper" target="_blank" class="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">GitHub</a>
-                    <a class="github-button" href="https://github.com/spreadpaper/SpreadPaper" data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star spreadpaper/SpreadPaper on GitHub">Star</a>
-                    <a href="https://github.com/spreadpaper/SpreadPaper/releases/latest"
-                       class="px-4 py-2 bg-primary-600 text-white text-sm font-semibold rounded-full hover:bg-primary-700 transition-all hover:shadow-lg">
-                        Download
-                    </a>
-                </div>
-
-                <!-- Mobile Menu Button -->
-                <button id="mobile-menu-btn" class="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors">
-                    <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                    </svg>
-                </button>
-            </div>
-
-            <!-- Mobile Menu -->
-            <div id="mobile-menu" class="mobile-menu closed md:hidden">
-                <div class="py-4 space-y-3">
-                    <a href="#features" class="block px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-lg transition-colors">Features</a>
-                    <a href="#screenshots" class="block px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-lg transition-colors">Screenshots</a>
-                    <a href="https://github.com/spreadpaper/SpreadPaper" target="_blank" class="block px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-lg transition-colors">GitHub</a>
-                    <div class="px-4 py-2">
-                        <a class="github-button" href="https://github.com/spreadpaper/SpreadPaper" data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star spreadpaper/SpreadPaper on GitHub">Star</a>
-                    </div>
-                    <a href="https://github.com/spreadpaper/SpreadPaper/releases/latest" class="block px-4 py-2 bg-primary-600 text-white text-sm font-semibold rounded-lg hover:bg-primary-700 transition-colors text-center">
-                        Download
-                    </a>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <section class="pt-32 pb-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-50 to-white">
-        <div class="max-w-7xl mx-auto">
-            <!-- Badge -->
-            <div class="flex justify-center mb-8 animate-fade-in-up">
-                <div class="inline-flex items-center gap-2 px-4 py-2 bg-primary-50 text-primary-700 rounded-full text-sm font-semibold">
-                    <span class="relative flex h-2 w-2">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-primary-500"></span>
-                    </span>
-                    Free & Open Source
-                </div>
-            </div>
-
-            <!-- Heading -->
-            <div class="text-center mb-12 animate-fade-in-up animate-delay-100">
-                <h1 class="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 mb-6 leading-tight">
-                    Multi-monitor wallpapers<br>
-                    <span class="text-gradient">made simple</span>
-                </h1>
-                <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-                    Spread one beautiful wallpaper across all your displays. Perfectly aligned, crystal clear,
-                    and effortless to set up. Native macOS app, free forever.
-                </p>
-            </div>
-
-            <!-- CTA Buttons -->
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 animate-fade-in-up animate-delay-200">
-                <a href="https://github.com/spreadpaper/SpreadPaper/releases/latest"
-                   class="inline-flex items-center gap-2 px-8 py-4 bg-primary-600 text-white font-semibold rounded-full hover:bg-primary-700 transition-all hover:shadow-luxury hover:-translate-y-0.5 w-full sm:w-auto justify-center">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                    </svg>
-                    Download for macOS
-                </a>
-                <a href="https://github.com/spreadpaper/SpreadPaper" target="_blank"
-                   class="inline-flex items-center gap-2 px-8 py-4 bg-white text-gray-700 font-semibold rounded-full border-2 border-gray-200 hover:border-gray-300 transition-all hover:shadow-lg w-full sm:w-auto justify-center">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                    </svg>
-                    View on GitHub
-                </a>
-            </div>
-
-            <!-- Hero Image -->
-            <div class="relative animate-fade-in-up animate-delay-300">
-                <div class="absolute inset-0 bg-gradient-to-t from-primary-100/50 to-transparent rounded-3xl blur-3xl -z-10"></div>
-                <div class="relative rounded-2xl overflow-hidden shadow-2xl border border-gray-200">
-                    <img src="https://raw.githubusercontent.com/spreadpaper/SpreadPaper/main/.github/assets/website-hero-image.png"
-                         alt="Dual monitor setup with seamless wallpaper spread across both displays"
-                         class="w-full">
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Trusted By Section -->
-    <section class="py-16 px-4 sm:px-6 lg:px-8 bg-white border-t border-gray-100">
-        <div class="max-w-7xl mx-auto">
-            <p class="text-center text-sm font-semibold text-gray-400 uppercase tracking-wider mb-8">
-                Trusted by creative professionals worldwide
-            </p>
-            <div class="flex flex-wrap items-center justify-center gap-12 opacity-50">
-                <!-- Placeholder for company logos -->
-                <div class="text-2xl font-bold text-gray-300">macOS</div>
-                <div class="text-2xl font-bold text-gray-300">Apple Silicon</div>
-                <div class="text-2xl font-bold text-gray-300">Open Source</div>
-                <div class="text-2xl font-bold text-gray-300">MIT License</div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Features Section -->
-    <section id="features" class="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-white to-gray-50">
-        <div class="max-w-7xl mx-auto">
-            <!-- Section Header -->
-            <div class="text-center mb-16">
-                <p class="text-sm font-semibold text-primary-600 uppercase tracking-wider mb-3">Features</p>
-                <h2 class="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
-                    Everything you need for stunning<br class="hidden sm:block">multi-monitor wallpapers
-                </h2>
-                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-                    Powerful features designed for creative professionals and enthusiasts alike.
-                </p>
-            </div>
-
-            <!-- Features Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Feature 1 -->
-                <div class="group bg-white rounded-2xl p-8 border border-gray-200 hover:border-primary-300 hover:shadow-xl transition-all duration-300">
-                    <div class="w-12 h-12 bg-primary-100 text-primary-600 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-semibold text-gray-900 mb-3">Visual Positioning</h3>
-                    <p class="text-gray-600 leading-relaxed">
-                        Drag and position your wallpaper exactly where you want it across all displays with intuitive, real-time controls.
-                    </p>
-                </div>
-
-                <!-- Feature 2 -->
-                <div class="group bg-white rounded-2xl p-8 border border-gray-200 hover:border-primary-300 hover:shadow-xl transition-all duration-300">
-                    <div class="w-12 h-12 bg-primary-100 text-primary-600 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-semibold text-gray-900 mb-3">Live Preview</h3>
-                    <p class="text-gray-600 leading-relaxed">
-                        See exactly how your wallpaper will look on all monitors before applying. No guesswork, no surprises.
-                    </p>
-                </div>
-
-                <!-- Feature 3 -->
-                <div class="group bg-white rounded-2xl p-8 border border-gray-200 hover:border-primary-300 hover:shadow-xl transition-all duration-300">
-                    <div class="w-12 h-12 bg-primary-100 text-primary-600 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-semibold text-gray-900 mb-3">Flip & Scale</h3>
-                    <p class="text-gray-600 leading-relaxed">
-                        Flip images horizontally and zoom from 0.1x to 5.0x to achieve the perfect fit for any multi-monitor setup.
-                    </p>
-                </div>
-
-                <!-- Feature 4 -->
-                <div class="group bg-white rounded-2xl p-8 border border-gray-200 hover:border-primary-300 hover:shadow-xl transition-all duration-300">
-                    <div class="w-12 h-12 bg-primary-100 text-primary-600 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-semibold text-gray-900 mb-3">Save Presets</h3>
-                    <p class="text-gray-600 leading-relaxed">
-                        Save your favorite wallpaper configurations and switch between different setups instantly with one click.
-                    </p>
-                </div>
-
-                <!-- Feature 5 -->
-                <div class="group bg-white rounded-2xl p-8 border border-gray-200 hover:border-primary-300 hover:shadow-xl transition-all duration-300">
-                    <div class="w-12 h-12 bg-primary-100 text-primary-600 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-semibold text-gray-900 mb-3">Multi-Monitor Smart</h3>
-                    <p class="text-gray-600 leading-relaxed">
-                        Automatically detects all connected displays and perfectly syncs with your macOS display arrangement.
-                    </p>
-                </div>
-
-                <!-- Feature 6 -->
-                <div class="group bg-white rounded-2xl p-8 border border-gray-200 hover:border-primary-300 hover:shadow-xl transition-all duration-300">
-                    <div class="w-12 h-12 bg-primary-100 text-primary-600 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-semibold text-gray-900 mb-3">Crystal Clear Quality</h3>
-                    <p class="text-gray-600 leading-relaxed">
-                        Renders at native resolution for each display with optimal quality. Your wallpapers look absolutely stunning.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Screenshots Section -->
-    <section id="screenshots" class="py-24 px-4 sm:px-6 lg:px-8 bg-white">
-        <div class="max-w-7xl mx-auto">
-            <!-- Section Header -->
-            <div class="text-center mb-16">
-                <p class="text-sm font-semibold text-primary-600 uppercase tracking-wider mb-3">Screenshots</p>
-                <h2 class="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">See it in action</h2>
-                <p class="text-xl text-gray-600">Beautifully designed. Incredibly powerful.</p>
-            </div>
-
-            <!-- Screenshots Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                <div class="group relative rounded-2xl overflow-hidden border border-gray-200 hover:shadow-2xl transition-all duration-300">
-                    <img src="https://raw.githubusercontent.com/spreadpaper/SpreadPaper/main/.github/assets/screenshot-two-monitors-tree-trunk.png"
-                         alt="Two monitor setup"
-                         class="w-full group-hover:scale-105 transition-transform duration-500">
-                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-6">
-                        <p class="text-white font-semibold">Seamlessly spread across two monitors</p>
-                    </div>
-                </div>
-
-                <div class="group relative rounded-2xl overflow-hidden border border-gray-200 hover:shadow-2xl transition-all duration-300">
-                    <img src="https://raw.githubusercontent.com/spreadpaper/SpreadPaper/main/.github/assets/screenshot-three-monitors-tree-trunk.png"
-                         alt="Three monitor setup"
-                         class="w-full group-hover:scale-105 transition-transform duration-500">
-                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-6">
-                        <p class="text-white font-semibold">Scale up to three or more displays</p>
-                    </div>
-                </div>
-
-                <div class="group relative rounded-2xl overflow-hidden border border-gray-200 hover:shadow-2xl transition-all duration-300">
-                    <img src="https://raw.githubusercontent.com/spreadpaper/SpreadPaper/main/.github/assets/screenshot-macos-display-arrangement-sync.png"
-                         alt="Display arrangement sync"
-                         class="w-full group-hover:scale-105 transition-transform duration-500">
-                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-6">
-                        <p class="text-white font-semibold">Automatic macOS display arrangement sync</p>
-                    </div>
-                </div>
-
-                <div class="group relative rounded-2xl overflow-hidden border border-gray-200 hover:shadow-2xl transition-all duration-300">
-                    <img src="https://raw.githubusercontent.com/spreadpaper/SpreadPaper/main/.github/assets/screenshot-save-presets.png"
-                         alt="Save presets"
-                         class="w-full group-hover:scale-105 transition-transform duration-500">
-                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-6">
-                        <p class="text-white font-semibold">Save and manage your favorite configurations</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- CTA Section -->
-    <section class="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-primary-600 to-blue-700 text-white">
-        <div class="max-w-4xl mx-auto text-center">
-            <img src="https://raw.githubusercontent.com/spreadpaper/SpreadPaper/main/.github/assets/app-icon-256.png"
-                 alt="SpreadPaper"
-                 class="w-20 h-20 mx-auto mb-8">
-            <h2 class="text-4xl sm:text-5xl font-bold mb-6">Ready to transform your desktop?</h2>
-            <p class="text-xl text-primary-100 mb-10 max-w-2xl mx-auto">
-                Join thousands of users who have upgraded their multi-monitor experience. Free, open source, and built for macOS.
-            </p>
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <a href="https://github.com/spreadpaper/SpreadPaper/releases/latest"
-                   class="inline-flex items-center gap-2 px-8 py-4 bg-white text-primary-600 font-semibold rounded-full hover:bg-gray-100 transition-all hover:shadow-2xl hover:-translate-y-0.5 w-full sm:w-auto justify-center">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                    </svg>
-                    Download Latest Release
-                </a>
-                <a href="https://github.com/spreadpaper/SpreadPaper" target="_blank"
-                   class="inline-flex items-center gap-2 px-8 py-4 bg-transparent text-white font-semibold rounded-full border-2 border-white/30 hover:bg-white/10 transition-all w-full sm:w-auto justify-center">
-                    View Source Code
-                </a>
-            </div>
-
-            <!-- Stats -->
-            <div class="grid grid-cols-3 gap-8 mt-16 pt-12 border-t border-white/20">
-                <div>
-                    <div class="text-3xl font-bold mb-2">Free</div>
-                    <div class="text-primary-100 text-sm">Forever</div>
-                </div>
-                <div>
-                    <div class="text-3xl font-bold mb-2">MIT</div>
-                    <div class="text-primary-100 text-sm">License</div>
-                </div>
-                <div>
-                    <div class="text-3xl font-bold mb-2">Native</div>
-                    <div class="text-primary-100 text-sm">macOS App</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Requirements Section -->
-    <section class="py-24 px-4 sm:px-6 lg:px-8 bg-gray-50">
-        <div class="max-w-7xl mx-auto">
-            <!-- Section Header -->
-            <div class="text-center mb-16">
-                <p class="text-sm font-semibold text-primary-600 uppercase tracking-wider mb-3">Requirements</p>
-                <h2 class="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">System requirements</h2>
-            </div>
-
-            <!-- Requirements Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-                <div class="bg-white rounded-2xl p-6 border border-gray-200 flex items-start gap-4">
-                    <div class="text-3xl">💻</div>
-                    <div>
-                        <h3 class="font-semibold text-gray-900 mb-1">macOS 15.0+ (Sequoia)</h3>
-                        <p class="text-sm text-gray-600">Latest macOS release</p>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-2xl p-6 border border-gray-200 flex items-start gap-4">
-                    <div class="text-3xl">⚡</div>
-                    <div>
-                        <h3 class="font-semibold text-gray-900 mb-1">Apple Silicon</h3>
-                        <p class="text-sm text-gray-600">M1, M2, M3, or newer</p>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-2xl p-6 border border-gray-200 flex items-start gap-4">
-                    <div class="text-3xl">🖥️</div>
-                    <div>
-                        <h3 class="font-semibold text-gray-900 mb-1">Multiple Monitors</h3>
-                        <p class="text-sm text-gray-600">For best experience</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="py-12 px-4 sm:px-6 lg:px-8 bg-white border-t border-gray-200">
-        <div class="max-w-7xl mx-auto">
-            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
-                <!-- Brand -->
-                <div class="flex items-center gap-2">
-                    <img src="https://raw.githubusercontent.com/spreadpaper/SpreadPaper/main/.github/assets/app-icon-256.png"
-                         alt="SpreadPaper"
-                         class="w-8 h-8">
-                    <span class="text-lg font-semibold text-gray-900">SpreadPaper</span>
-                </div>
-
-                <!-- Links -->
-                <div class="flex flex-wrap items-center justify-center gap-6">
-                    <a href="https://github.com/spreadpaper/SpreadPaper" target="_blank" class="text-sm text-gray-600 hover:text-gray-900 transition-colors">GitHub</a>
-                    <a href="https://github.com/spreadpaper/SpreadPaper/releases" target="_blank" class="text-sm text-gray-600 hover:text-gray-900 transition-colors">Releases</a>
-                    <a href="https://github.com/spreadpaper/SpreadPaper/issues" target="_blank" class="text-sm text-gray-600 hover:text-gray-900 transition-colors">Issues</a>
-                    <a href="https://github.com/spreadpaper/SpreadPaper/blob/main/LICENSE" target="_blank" class="text-sm text-gray-600 hover:text-gray-900 transition-colors">License</a>
-                </div>
-
-                <!-- Copyright -->
-                <p class="text-sm text-gray-500">
-                    Made by <a href="https://robinvanbaalen.nl" target="_blank" rel="noopener" class="text-blue-600 hover:text-blue-800 hover:underline">Robin</a>.
-                </p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Main Script -->
+<body>
+    <!--@include src/sections/nav.html-->
+    <main id="main">
+        <!--@include src/sections/hero.html-->
+        <!--@include src/sections/types.html-->
+        <!--@include src/sections/editor.html-->
+        <!--@include src/sections/gallery.html-->
+        <!--@include src/sections/download.html-->
+    </main>
+    <!--@include src/sections/footer.html-->
     <script type="module" src="/src/main.js"></script>
-
-    <!-- GitHub Buttons -->
-    <script async defer src="https://buttons.github.io/buttons.js"></script>
-
 </body>
 </html>

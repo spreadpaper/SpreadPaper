@@ -37,13 +37,21 @@ body {
    Markup contract, used by every section:
 
    <div class="spread" style="--bezel: 14px">
-     <img class="spread-photo" src="/SpreadPaper/photos/hero-beach.jpg" alt="">
+     <img class="spread-photo" src="/photos/hero-beach.jpg" alt="">
      <div class="spread-frame">
        <div class="spread-screen" style="--w: 16"></div>
        <div class="spread-bezel"></div>
        <div class="spread-screen" style="--w: 9"></div>
      </div>
    </div>
+
+   Write photo paths as /photos/NAME.jpg, never /SpreadPaper/photos/NAME.jpg. Vite
+   prepends base '/SpreadPaper/' to absolute paths, so the longer form resolves to
+   /SpreadPaper/SpreadPaper/ and serves the HTML fallback instead of the image.
+
+   Panels in one spread share a height, so each --w is that panel's own aspect ratio
+   and the box aspect is the sum of the --w values over 9. Three panels of 16, 21 and
+   16 need aspect-[53/9]; getting this wrong draws letterbox slots, not monitors.
 
    The photograph covers the whole row and the bezels are drawn over it, so the
    image never has to be sliced and the panels stay responsive at any width.
@@ -151,12 +159,14 @@ body {
   margin-inline: auto;
 }
 
+/* Secondary, not tertiary: at this size tertiary measures under 4:1 on the page
+   background and fails AA, and every eyebrow on the site inherits from here. */
 .cd-eyebrow {
   text-transform: uppercase;
   letter-spacing: 0.12em;
   font-size: 0.75rem;
   font-weight: 700;
-  color: var(--color-cd-text-tertiary);
+  color: var(--color-cd-text-secondary);
 }
 
 @media (prefers-reduced-motion: reduce) {

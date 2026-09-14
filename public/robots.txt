@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://spreadpaper.github.io/SpreadPaper/sitemap.xml
