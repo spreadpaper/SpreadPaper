@@ -43,7 +43,9 @@ A rig fills its container's width and takes its height from its viewBox, so give
 
 @table
 
-At phone widths a rig drops screens rather than height. Swap in a rig with fewer screens: two svgs, the wide one `hidden sm:block` and the narrow one `sm:hidden`. A hidden element leaves the accessibility tree, so both may carry the same `aria-label` without reading twice. Shortening the box instead squeezes every display into a sliver.
+At phone widths a rig drops screens rather than height. Swap in a rig with fewer screens: two svgs, the wide one `hidden sm:block` and the narrow one `sm:hidden`. Shortening the box instead squeezes every display into a sliver.
+
+Two things about that swap. It works because every rule in `rigs.css` sits in Tailwind's `components` layer, so a utility class on a rig beats it. An unlayered rule outranks a layered one whatever its specificity, so if these rules ever move out of that layer, `hidden` loses to `.rig { display: block }` and both halves render, one above the other, with no error. And the hidden svg leaves the accessibility tree, so both halves carry the same `aria-label`: write one that is true of both rigs, which usually means describing the photograph and the desk rather than counting the screens.
 
 ## Custom properties
 
@@ -204,5 +206,7 @@ Every animation in the family stops under `prefers-reduced-motion: reduce`, and 
 **The rig is squashed.** Something set an aspect ratio or a height on the wrapper. Give it width and let the viewBox do the rest.
 
 **A frame is a hairline no matter what `--rig-bezel` says.** The property was set with a unit. It is in viewBox units and takes a plain number: `--rig-bezel: 26`, not `26px`.
+
+**Both halves of a responsive swap render, one above the other.** `hidden` lost to `.rig`. Check that the rig rules are still inside `@layer components`, because an unlayered rule beats a layered utility whatever the specificity says.
 
 **The desk light is cut off in a straight line.** Something set `overflow: hidden` on the rig or a wrapper clipped it. The glow is a blurred ellipse that deliberately spills past the viewBox.
