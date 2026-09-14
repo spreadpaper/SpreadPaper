@@ -1,15 +1,16 @@
-// Checks the section files against the rig contract, for the three ways a rig
+// Checks the section files against the rig contract, for the four ways a rig
 // goes wrong without rendering wrong. Run with `npm run rigs:check`.
 //
 // Every failure here is invisible on the page: a duplicate clipPath id draws a
 // plausible rig clipped against the wrong screens, a frame rect that has
-// drifted from its clip rect draws a plausible frame, and a second size of a
-// photograph the page already has is simply a second download.
+// drifted from its clip rect draws a plausible frame, markup copied before the
+// geometry changed draws a plausible rig at the wrong size, and a second size
+// of a photograph the page already has is simply a second download.
 
 import { readFileSync, readdirSync } from 'node:fs'
 import { resolve, dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { PHOTOS } from './rigs.mjs'
+import { PHOTOS, RIGS } from './rigs.mjs'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const SECTIONS = join(ROOT, 'src', 'sections')
@@ -52,6 +53,16 @@ for (const file of files) {
   })
 
   const source = lines.join('\n')
+
+  for (const [, classes, viewBox] of source.matchAll(/<svg class="([^"]*\brig\b[^"]*)"[^>]*viewBox="([^"]+)"/g)) {
+    const name = classes.split(/\s+/).map((c) => c.replace(/^rig-/, '')).find((c) => RIGS[c])
+    if (!name) continue
+    const want = `0 0 ${RIGS[name].viewBox.join(' ')}`
+    if (viewBox === want) continue
+    fail(file, lineOf(source, { raw: `viewBox="${viewBox}"` }),
+      `rig-${name} has viewBox "${viewBox}" but the generator draws "${want}", so this markup predates a geometry change`)
+  }
+
   for (const [, body] of source.matchAll(/<clipPath id="[^"]+">([\s\S]*?)<\/clipPath>/g)) {
     const rects = [...body.matchAll(/<rect ([^/>]*)\/>/g)].map((m) => geometry(m[1]))
     for (const rect of rects) {

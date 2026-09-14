@@ -8,7 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "rigs": "node scripts/rigs-docs.mjs && node scripts/rigs-preview.mjs",
-    "test": "npm run build && node test/page.test.mjs",
+    "test": "npm run build && npm run rigs:check && node test/page.test.mjs",
     "rigs:check": "node scripts/rigs-check.mjs"
   },
   "devDependencies": {
