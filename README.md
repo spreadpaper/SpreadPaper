@@ -136,10 +136,10 @@ With your permission, a few setups will be featured on the SpreadPaper website, 
 ## Requirements
 
 - macOS 15.0 (Sequoia) or later
-- Apple Silicon Mac
+- Intel or Apple silicon Mac
 - Multiple monitors (recommended, but works with single displays too)
 
-> **Note:** This project is compiled for and tested on macOS Sequoia (15.0+) with Apple Silicon. If you are using an older macOS version or Intel Mac and would like support, please [open a feature request](https://github.com/spreadpaper/SpreadPaper/issues).
+> **Note:** Release builds are universal, so the same download runs natively on Intel and Apple silicon Macs. Development and testing happen on Apple silicon with macOS Sequoia (15.0+). If you want support for an older macOS version, please [open a feature request](https://github.com/spreadpaper/SpreadPaper/issues).
 
 ## Building from Source
 
