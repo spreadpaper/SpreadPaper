@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-SpreadPaper is a native macOS app (Swift 6 / SwiftUI) that spreads images across multiple monitors as wallpaper: one static image, a Light & Dark pair, or a time-of-day schedule. Requires macOS 15.0+ (Sequoia) and Apple Silicon. The marketing site lives in its own repository, [spreadpaper/website](https://github.com/spreadpaper/website).
+SpreadPaper is a native macOS app (Swift 6 / SwiftUI) that spreads images across multiple monitors as wallpaper: one static image, a Light & Dark pair, or a time-of-day schedule. Requires macOS 15.0+ (Sequoia); release builds are universal (Intel and Apple silicon). The marketing site lives in its own repository, [spreadpaper/website](https://github.com/spreadpaper/website).
 
 ## Build & Run
 
