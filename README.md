@@ -101,6 +101,14 @@ Perfect for:
 
 **[Download the latest version](https://github.com/spreadpaper/SpreadPaper/releases/latest)**
 
+**Or install with [Homebrew](https://brew.sh):**
+
+```bash
+brew install --cask spreadpaper/tap/spreadpaper
+```
+
+`brew upgrade` keeps it current. The first-launch steps below still apply, because Homebrew downloads the same release.
+
 Because SpreadPaper is a free, open-source project and not signed with a paid Apple Developer ID ($99/year), macOS Gatekeeper will flag it on the first launch. **This is normal behavior for FOSS apps.**
 
 1. **Download** the `SpreadPaper.dmg` (or `.zip`) from the Releases page.
