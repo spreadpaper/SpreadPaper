@@ -140,3 +140,17 @@ jobs:
           tag_name: ${{ needs.release-please.outputs.tag_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 7. Point the Homebrew tap at this release. Needs HOMEBREW_TAP_TOKEN, a fine-grained
+      # token with Actions read and write on spreadpaper/homebrew-tap. Without it the tap's
+      # own six-hourly schedule picks the release up, so a missing token never fails a release.
+      - name: Update Homebrew tap
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "HOMEBREW_TAP_TOKEN is not set; the tap's schedule will pick this release up."
+            exit 0
+          fi
+          gh workflow run update.yml --repo spreadpaper/homebrew-tap
